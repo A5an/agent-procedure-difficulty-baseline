@@ -1,0 +1,20 @@
+{
+ "sopbench": {
+  "n_tasks": 30,
+  "exact": 0.9166666666666666,
+  "within_1": 0.9944444444444445,
+  "median_demand_spearman": 0.8056906981421843
+ },
+ "tau2": {
+  "n_tasks": 15,
+  "exact": 0.8925925925925926,
+  "within_1": 0.9925925925925926,
+  "median_demand_spearman": 0.7293813476949786
+ },
+ "tauk_banking": {
+  "n_tasks": 10,
+  "exact": 0.9055555555555556,
+  "within_1": 1.0,
+  "median_demand_spearman": 0.5833333333333334
+ }
+}

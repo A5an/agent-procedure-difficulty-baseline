@@ -1,0 +1,6 @@
+[submodule "third_party/agent-psychometrics"]
+	path = third_party/agent-psychometrics
+	url = https://github.com/dariakryvosheieva/agent-psychometrics.git
+[submodule "third_party/ADeLe-AIEvaluation"]
+	path = third_party/ADeLe-AIEvaluation
+	url = https://github.com/Kinds-of-Intelligence-CFI/ADeLe-AIEvaluation.git

@@ -1,0 +1,110 @@
+sopbench random_cases
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=+0.020 pacc_within_domain=+0.508 auc_gain=+0.009 auc_within_config=+0.577 brier_skill=+0.013 logloss_skill=+0.010 rho_ci=[-0.103, 0.142] rho_minus_baseline_ci=[-0.221, 0.026]
+  emb_ap                             rho_within_domain=+0.037 pacc_within_domain=+0.514 auc_gain=+0.031 auc_within_config=+0.640 brier_skill=+0.051 logloss_skill=+0.042 rho_ci=[-0.034, 0.195] rho_minus_baseline_ci=[-0.195, 0.144]
+  adele                              rho_within_domain=+0.092 pacc_within_domain=+0.533 auc_gain=+0.016 auc_within_config=+0.608 brier_skill=+0.024 logloss_skill=+0.020 rho_ci=[-0.043, 0.247]
+  adele16                            rho_within_domain=+0.087 pacc_within_domain=+0.530 auc_gain=+0.015 auc_within_config=+0.605 brier_skill=+0.023 logloss_skill=+0.020 rho_ci=[-0.028, 0.227] rho_minus_baseline_ci=[-0.063, 0.047]
+  ap_combined                        rho_within_domain=+0.103 pacc_within_domain=+0.536 auc_gain=+0.030 auc_within_config=+0.644 brier_skill=+0.042 logloss_skill=+0.029 rho_ci=[0.041, 0.236] rho_minus_baseline_ci=[-0.088, 0.171]
+  emb_ap+adele                       rho_within_domain=+0.094 pacc_within_domain=+0.534 auc_gain=+0.029 auc_within_config=+0.647 brier_skill=+0.051 logloss_skill=+0.045 rho_ci=[0.01, 0.249] rho_minus_baseline_ci=[-0.057, 0.138]
+  lltm_adele                         rho_within_domain=+0.103 pacc_within_domain=+0.537 auc_gain=+0.017 auc_within_config=+0.607 brier_skill=+0.051 logloss_skill=+0.051 rho_ci=[-0.006, 0.237] rho_minus_baseline_ci=[-0.062, 0.109]
+  knn_router                         rho_within_domain=+0.135 pacc_within_domain=+0.548 auc_gain=+0.068 auc_within_config=+0.709 brier_skill=+0.131 logloss_skill=+0.109 rho_ci=[0.034, 0.23] rho_minus_baseline_ci=[-0.128, 0.188]
+  amortized_mirt                     rho_within_domain=+0.079 pacc_within_domain=+0.527 auc_gain=+0.062 auc_within_config=+0.694 brier_skill=+0.126 logloss_skill=+0.111 rho_ci=[-0.014, 0.241] rho_minus_baseline_ci=[-0.125, 0.133]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=+0.103 pacc_within_domain=+0.537 auc_gain=+0.072 auc_within_config=+0.716 brier_skill=+0.146 logloss_skill=+0.130 rho_ci=[0.009, 0.263] rho_minus_baseline_ci=[-0.106, 0.195]
+  human_time                         rho_within_domain=+0.119 pacc_within_domain=+0.541 auc_gain=+0.005 auc_within_config=+0.564 brier_skill=+0.006 logloss_skill=+0.005 rho_ci=[0.012, 0.3] rho_minus_baseline_ci=[-0.045, 0.11]
+  oracle                             auc_gain=+0.169 auc_within_config=+0.850 brier_skill=+0.378 logloss_skill=+0.337
+sopbench new_procedures
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=-0.020 pacc_within_domain=+0.494 auc_gain=+0.001 auc_within_config=+0.565 brier_skill=+0.005 logloss_skill=+0.004 rho_ci=[-0.164, 0.133] rho_minus_baseline_ci=[-0.272, 0.02]
+  emb_ap                             rho_within_domain=+0.082 pacc_within_domain=+0.528 auc_gain=+0.019 auc_within_config=+0.610 brier_skill=+0.039 logloss_skill=+0.034 rho_ci=[-0.073, 0.192] rho_minus_baseline_ci=[-0.205, 0.14]
+  adele                              rho_within_domain=+0.120 pacc_within_domain=+0.542 auc_gain=+0.008 auc_within_config=+0.580 brier_skill=+0.014 logloss_skill=+0.011 rho_ci=[0.009, 0.229]
+  adele16                            rho_within_domain=+0.124 pacc_within_domain=+0.543 auc_gain=+0.007 auc_within_config=+0.576 brier_skill=+0.012 logloss_skill=+0.009 rho_ci=[-0.017, 0.232] rho_minus_baseline_ci=[-0.052, 0.049]
+  ap_combined                        rho_within_domain=+0.075 pacc_within_domain=+0.526 auc_gain=+0.015 auc_within_config=+0.615 brier_skill=+0.015 logloss_skill=+0.001 rho_ci=[-0.037, 0.208] rho_minus_baseline_ci=[-0.138, 0.118]
+  emb_ap+adele                       rho_within_domain=+0.144 pacc_within_domain=+0.551 auc_gain=+0.019 auc_within_config=+0.620 brier_skill=+0.040 logloss_skill=+0.036 rho_ci=[0.02, 0.25] rho_minus_baseline_ci=[-0.053, 0.149]
+  lltm_adele                         rho_within_domain=+0.121 pacc_within_domain=+0.542 auc_gain=+0.006 auc_within_config=+0.572 brier_skill=+0.044 logloss_skill=+0.049 rho_ci=[-0.01, 0.219] rho_minus_baseline_ci=[-0.063, 0.047]
+  knn_router                         rho_within_domain=+0.010 pacc_within_domain=+0.503 auc_gain=+0.031 auc_within_config=+0.633 brier_skill=+0.071 logloss_skill=+0.053 rho_ci=[-0.154, 0.119] rho_minus_baseline_ci=[-0.268, 0.059]
+  amortized_mirt                     rho_within_domain=+0.013 pacc_within_domain=+0.505 auc_gain=+0.022 auc_within_config=+0.618 brier_skill=+0.056 logloss_skill=+0.048 rho_ci=[-0.167, 0.094] rho_minus_baseline_ci=[-0.247, -0.054]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=+0.027 pacc_within_domain=+0.509 auc_gain=+0.042 auc_within_config=+0.649 brier_skill=+0.101 logloss_skill=+0.093 rho_ci=[-0.136, 0.098] rho_minus_baseline_ci=[-0.238, -0.023]
+  human_time                         rho_within_domain=+0.093 pacc_within_domain=+0.532 auc_gain=+0.002 auc_within_config=+0.558 brier_skill=+0.001 logloss_skill=+0.001 rho_ci=[-0.079, 0.328] rho_minus_baseline_ci=[-0.156, 0.203]
+  oracle                             auc_gain=+0.174 auc_within_config=+0.852 brier_skill=+0.396 logloss_skill=+0.355
+sopbench new_domain
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=+0.032 pacc_within_domain=+0.510 pacc_procedures=+0.575 auc_gain=+0.002 auc_within_config=+0.527 brier_skill=+0.002 logloss_skill=+0.001 rho_ci=[-0.099, 0.15] rho_minus_baseline_ci=[-0.223, 0.01]
+  emb_ap                             rho_within_domain=-0.006 pacc_within_domain=+0.497 pacc_procedures=+0.608 auc_gain=-0.003 auc_within_config=+0.504 brier_skill=+0.003 logloss_skill=+0.001 rho_ci=[-0.076, 0.109] rho_minus_baseline_ci=[-0.248, 0.019]
+  adele                              rho_within_domain=+0.125 pacc_within_domain=+0.543 pacc_procedures=+0.581 auc_gain=+0.003 auc_within_config=+0.549 brier_skill=+0.005 logloss_skill=+0.003 rho_ci=[0.024, 0.238]
+  adele16                            rho_within_domain=+0.126 pacc_within_domain=+0.544 pacc_procedures=+0.593 auc_gain=+0.003 auc_within_config=+0.549 brier_skill=+0.005 logloss_skill=+0.003 rho_ci=[0.023, 0.228] rho_minus_baseline_ci=[-0.039, 0.051]
+  ap_combined                        rho_within_domain=+0.054 pacc_within_domain=+0.520 pacc_procedures=+0.614 auc_gain=-0.009 auc_within_config=+0.529 brier_skill=-0.016 logloss_skill=-0.032 rho_ci=[-0.025, 0.167] rho_minus_baseline_ci=[-0.14, 0.019]
+  emb_ap+adele                       rho_within_domain=+0.079 pacc_within_domain=+0.528 pacc_procedures=+0.605 auc_gain=+0.003 auc_within_config=+0.541 brier_skill=+0.013 logloss_skill=+0.012 rho_ci=[-0.01, 0.197] rho_minus_baseline_ci=[-0.097, 0.035]
+  lltm_adele                         rho_within_domain=+0.131 pacc_within_domain=+0.546 pacc_procedures=+0.581 auc_gain=-0.002 auc_within_config=+0.546 brier_skill=+0.052 logloss_skill=+0.061 rho_ci=[0.042, 0.249] rho_minus_baseline_ci=[-0.044, 0.07]
+  knn_router                         rho_within_domain=+0.026 pacc_within_domain=+0.508 pacc_procedures=+0.509 auc_gain=-0.058 auc_within_config=+0.512 brier_skill=-0.012 logloss_skill=-0.026 rho_ci=[-0.072, 0.144] rho_minus_baseline_ci=[-0.232, 0.025]
+  amortized_mirt                     rho_within_domain=-0.031 pacc_within_domain=+0.490 pacc_procedures=+0.464 auc_gain=-0.041 auc_within_config=+0.523 brier_skill=-0.044 logloss_skill=-0.041 rho_ci=[-0.11, 0.046] rho_minus_baseline_ci=[-0.294, -0.04]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=-0.005 pacc_within_domain=+0.497 pacc_procedures=+0.500 auc_gain=-0.010 auc_within_config=+0.522 brier_skill=+0.054 logloss_skill=+0.053 rho_ci=[-0.105, 0.097] rho_minus_baseline_ci=[-0.264, 0.004]
+  human_time                         rho_within_domain=+0.131 pacc_within_domain=+0.544 pacc_procedures=+0.566 auc_gain=+0.001 auc_within_config=+0.548 brier_skill=-0.019 logloss_skill=-0.019 rho_ci=[-0.018, 0.307] rho_minus_baseline_ci=[-0.086, 0.114]
+  oracle                             auc_gain=+0.164 auc_within_config=+0.846 brier_skill=+0.412 logloss_skill=+0.371
+tau2 random_cases
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=+0.205 pacc_within_domain=+0.567 auc_gain=-0.001 auc_within_config=+0.497 brier_skill=+0.004 logloss_skill=+0.000 rho_ci=[-0.336, 0.525] rho_minus_baseline_ci=[-0.414, 0.239]
+  emb_ap                             rho_within_domain=+0.499 pacc_within_domain=+0.678 auc_gain=+0.029 auc_within_config=+0.607 brier_skill=+0.045 logloss_skill=+0.022 rho_ci=[0.208, 0.693] rho_minus_baseline_ci=[-0.082, 0.615]
+  adele                              rho_within_domain=+0.171 pacc_within_domain=+0.564 auc_gain=+0.011 auc_within_config=+0.560 brier_skill=+0.010 logloss_skill=+0.008 rho_ci=[0.018, 0.415]
+  adele16                            rho_within_domain=+0.134 pacc_within_domain=+0.550 auc_gain=+0.014 auc_within_config=+0.565 brier_skill=+0.011 logloss_skill=+0.010 rho_ci=[0.006, 0.367] rho_minus_baseline_ci=[-0.097, 0.009]
+  ap_combined                        rho_within_domain=+0.400 pacc_within_domain=+0.643 auc_gain=+0.025 auc_within_config=+0.596 brier_skill=+0.027 logloss_skill=+0.009 rho_ci=[0.148, 0.607] rho_minus_baseline_ci=[-0.07, 0.513]
+  emb_ap+adele                       rho_within_domain=+0.489 pacc_within_domain=+0.678 auc_gain=+0.031 auc_within_config=+0.608 brier_skill=+0.043 logloss_skill=+0.033 rho_ci=[0.205, 0.668] rho_minus_baseline_ci=[-0.051, 0.592]
+  lltm_adele                         rho_within_domain=+0.154 pacc_within_domain=+0.556 auc_gain=+0.024 auc_within_config=+0.581 brier_skill=+0.035 logloss_skill=+0.049 rho_ci=[-0.005, 0.414] rho_minus_baseline_ci=[-0.078, 0.097]
+  knn_router                         rho_within_domain=+0.402 pacc_within_domain=+0.640 auc_gain=+0.079 auc_within_config=+0.697 brier_skill=+0.138 logloss_skill=+0.141 rho_ci=[0.023, 0.605] rho_minus_baseline_ci=[-0.226, 0.55]
+  amortized_mirt                     rho_within_domain=+0.496 pacc_within_domain=+0.673 auc_gain=+0.088 auc_within_config=+0.712 brier_skill=+0.121 logloss_skill=+0.113 rho_ci=[0.141, 0.684] rho_minus_baseline_ci=[-0.104, 0.62]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=+0.504 pacc_within_domain=+0.678 auc_gain=+0.097 auc_within_config=+0.720 brier_skill=+0.161 logloss_skill=+0.157 rho_ci=[0.185, 0.653] rho_minus_baseline_ci=[-0.077, 0.595]
+  human_time                         rho_within_domain=+0.125 pacc_within_domain=+0.541 auc_gain=+0.010 auc_within_config=+0.554 brier_skill=+0.007 logloss_skill=+0.006 rho_ci=[-0.138, 0.432] rho_minus_baseline_ci=[-0.204, 0.145]
+  oracle                             auc_gain=+0.169 auc_within_config=+0.803 brier_skill=+0.274 logloss_skill=+0.255
+tau2 new_procedures
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=-0.051 pacc_within_domain=+0.497 auc_gain=-0.000 auc_within_config=+0.490 brier_skill=-0.003 logloss_skill=-0.011 rho_ci=[-0.393, 0.421] rho_minus_baseline_ci=[-0.62, 0.142]
+  emb_ap                             rho_within_domain=+0.065 pacc_within_domain=+0.525 auc_gain=+0.006 auc_within_config=+0.514 brier_skill=-0.030 logloss_skill=-0.038 rho_ci=[-0.235, 0.474] rho_minus_baseline_ci=[-0.488, 0.512]
+  adele                              rho_within_domain=+0.128 pacc_within_domain=+0.546 auc_gain=+0.014 auc_within_config=+0.556 brier_skill=+0.003 logloss_skill=-0.000 rho_ci=[-0.079, 0.364]
+  adele16                            rho_within_domain=+0.050 pacc_within_domain=+0.517 auc_gain=+0.020 auc_within_config=+0.551 brier_skill=+0.009 logloss_skill=+0.007 rho_ci=[-0.087, 0.338] rho_minus_baseline_ci=[-0.088, 0.014]
+  ap_combined                        rho_within_domain=+0.120 pacc_within_domain=+0.543 auc_gain=+0.010 auc_within_config=+0.549 brier_skill=-0.027 logloss_skill=-0.037 rho_ci=[-0.149, 0.356] rho_minus_baseline_ci=[-0.125, 0.077]
+  emb_ap+adele                       rho_within_domain=+0.168 pacc_within_domain=+0.558 auc_gain=+0.013 auc_within_config=+0.534 brier_skill=+0.001 logloss_skill=-0.004 rho_ci=[-0.011, 0.352] rho_minus_baseline_ci=[-0.062, 0.138]
+  lltm_adele                         rho_within_domain=+0.104 pacc_within_domain=+0.537 auc_gain=+0.016 auc_within_config=+0.569 brier_skill=+0.014 logloss_skill=+0.037 rho_ci=[-0.058, 0.359] rho_minus_baseline_ci=[-0.064, 0.045]
+  knn_router                         rho_within_domain=+0.306 pacc_within_domain=+0.609 auc_gain=+0.028 auc_within_config=+0.617 brier_skill=+0.039 logloss_skill=+0.053 rho_ci=[-0.044, 0.471] rho_minus_baseline_ci=[-0.222, 0.453]
+  amortized_mirt                     rho_within_domain=+0.289 pacc_within_domain=+0.602 auc_gain=+0.054 auc_within_config=+0.637 brier_skill=+0.023 logloss_skill=+0.013 rho_ci=[0.259, 0.494] rho_minus_baseline_ci=[-0.029, 0.506]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=+0.317 pacc_within_domain=+0.614 auc_gain=+0.064 auc_within_config=+0.644 brier_skill=+0.081 logloss_skill=+0.086 rho_ci=[0.228, 0.504] rho_minus_baseline_ci=[-0.001, 0.539]
+  human_time                         rho_within_domain=+0.079 pacc_within_domain=+0.525 auc_gain=+0.004 auc_within_config=+0.549 brier_skill=-0.004 logloss_skill=-0.006 rho_ci=[0.022, 0.39] rho_minus_baseline_ci=[-0.225, 0.188]
+  oracle                             auc_gain=+0.197 auc_within_config=+0.801 brier_skill=+0.288 logloss_skill=+0.275
+tau2 new_domain
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=+0.211 pacc_within_domain=+0.567 auc_gain=-0.019 auc_within_config=+0.545 brier_skill=-0.196 logloss_skill=-0.146 rho_ci=[-0.349, 0.533] rho_minus_baseline_ci=[-0.384, 0.282]
+  emb_ap                             rho_within_domain=-0.172 pacc_within_domain=+0.443 auc_gain=-0.015 auc_within_config=+0.464 brier_skill=-0.050 logloss_skill=-0.085 rho_ci=[-0.396, 0.25] rho_minus_baseline_ci=[-0.531, 0.025]
+  adele                              rho_within_domain=+0.150 pacc_within_domain=+0.551 auc_gain=-0.020 auc_within_config=+0.562 brier_skill=-0.021 logloss_skill=-0.028 rho_ci=[-0.06, 0.367]
+  adele16                            rho_within_domain=+0.072 pacc_within_domain=+0.525 auc_gain=-0.006 auc_within_config=+0.552 brier_skill=+0.010 logloss_skill=+0.007 rho_ci=[-0.109, 0.327] rho_minus_baseline_ci=[-0.189, 0.012]
+  ap_combined                        rho_within_domain=-0.009 pacc_within_domain=+0.494 auc_gain=-0.043 auc_within_config=+0.510 brier_skill=-0.099 logloss_skill=-0.160 rho_ci=[-0.184, 0.194] rho_minus_baseline_ci=[-0.313, -0.024]
+  emb_ap+adele                       rho_within_domain=+0.011 pacc_within_domain=+0.502 auc_gain=-0.010 auc_within_config=+0.504 brier_skill=-0.019 logloss_skill=-0.028 rho_ci=[-0.221, 0.253] rho_minus_baseline_ci=[-0.279, 0.01]
+  lltm_adele                         rho_within_domain=+0.097 pacc_within_domain=+0.534 auc_gain=-0.004 auc_within_config=+0.557 brier_skill=+0.012 logloss_skill=+0.043 rho_ci=[-0.113, 0.351] rho_minus_baseline_ci=[-0.111, 0.055]
+  knn_router                         rho_within_domain=+0.154 pacc_within_domain=+0.543 auc_gain=-0.058 auc_within_config=+0.493 brier_skill=-0.004 logloss_skill=+0.032 rho_ci=[-0.251, 0.353] rho_minus_baseline_ci=[-0.456, 0.265]
+  amortized_mirt                     rho_within_domain=-0.131 pacc_within_domain=+0.455 auc_gain=-0.181 auc_within_config=+0.457 brier_skill=-0.867 logloss_skill=-2.633 rho_ci=[-0.379, 0.315] rho_minus_baseline_ci=[-0.639, 0.084]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=-0.104 pacc_within_domain=+0.460 auc_gain=-0.129 auc_within_config=+0.452 brier_skill=-0.507 logloss_skill=-0.539 rho_ci=[-0.357, 0.285] rho_minus_baseline_ci=[-0.587, 0.093]
+  human_time                         rho_within_domain=+0.124 pacc_within_domain=+0.539 auc_gain=-0.024 auc_within_config=+0.527 brier_skill=-0.001 logloss_skill=-0.004 rho_ci=[-0.154, 0.403] rho_minus_baseline_ci=[-0.189, 0.192]
+  oracle                             auc_gain=+0.211 auc_within_config=+0.783 brier_skill=+0.368 logloss_skill=+0.355
+tauk_banking random_cases
+  constant                           auc_gain=+0.000 brier_skill=+0.000 logloss_skill=+0.000 auc_within_config=+0.500
+  length                             rho_within_domain=+0.527 pacc_within_domain=+0.696 auc_gain=+0.148 auc_within_config=+0.716 brier_skill=+0.104 logloss_skill=+0.060 rho_ci=[0.293, 0.673] rho_minus_baseline_ci=[-0.207, 0.134]
+  emb_ap                             rho_within_domain=+0.529 pacc_within_domain=+0.696 auc_gain=+0.158 auc_within_config=+0.718 brier_skill=+0.151 logloss_skill=+0.110 rho_ci=[0.192, 0.635] rho_minus_baseline_ci=[-0.305, 0.088]
+  adele                              rho_within_domain=+0.523 pacc_within_domain=+0.688 auc_gain=+0.127 auc_within_config=+0.719 brier_skill=+0.117 logloss_skill=+0.098 rho_ci=[0.351, 0.682]
+  adele16                            rho_within_domain=+0.460 pacc_within_domain=+0.665 auc_gain=+0.102 auc_within_config=+0.690 brier_skill=+0.097 logloss_skill=+0.073 rho_ci=[0.258, 0.639] rho_minus_baseline_ci=[-0.155, 0.016]
+  ap_combined                        rho_within_domain=+0.595 pacc_within_domain=+0.726 auc_gain=+0.185 auc_within_config=+0.750 brier_skill=+0.188 logloss_skill=+0.114 rho_ci=[0.301, 0.71] rho_minus_baseline_ci=[-0.195, 0.155]
+  emb_ap+adele                       rho_within_domain=+0.573 pacc_within_domain=+0.712 auc_gain=+0.173 auc_within_config=+0.738 brier_skill=+0.188 logloss_skill=+0.168 rho_ci=[0.29, 0.688] rho_minus_baseline_ci=[-0.191, 0.128]
+  lltm_adele                         rho_within_domain=+0.476 pacc_within_domain=+0.668 auc_gain=+0.135 auc_within_config=+0.698 brier_skill=+0.171 logloss_skill=+0.099 rho_ci=[0.246, 0.618] rho_minus_baseline_ci=[-0.212, 0.035]
+  knn_router                         rho_within_domain=+0.349 pacc_within_domain=+0.629 auc_gain=+0.077 auc_within_config=+0.637 brier_skill=+0.132 logloss_skill=+0.117 rho_ci=[0.095, 0.527] rho_minus_baseline_ci=[-0.422, 0.04]
+  amortized_mirt                     rho_within_domain=+0.402 pacc_within_domain=+0.639 auc_gain=+0.095 auc_within_config=+0.663 brier_skill=-0.002 logloss_skill=-0.249 rho_ci=[0.138, 0.55] rho_minus_baseline_ci=[-0.413, 0.043]
+  knn_router+amortized_mirt+emb_ap   rho_within_domain=+0.525 pacc_within_domain=+0.689 auc_gain=+0.147 auc_within_config=+0.714 brier_skill=+0.161 logloss_skill=+0.126 rho_ci=[0.268, 0.627] rho_minus_baseline_ci=[-0.259, 0.122]
+  human_time                         rho_within_domain=+0.566 pacc_within_domain=+0.706 auc_gain=+0.161 auc_within_config=+0.727 brier_skill=+0.180 logloss_skill=+0.135 rho_ci=[0.337, 0.683] rho_minus_baseline_ci=[-0.248, 0.234]
+  oracle                             auc_gain=+0.330 auc_within_config=+0.898 brier_skill=+0.542 logloss_skill=+0.493
+pooled over ['sopbench|new_procedures', 'sopbench|new_domain', 'tau2|new_procedures', 'tau2|new_domain']
+  adele                              rho +0.131 [0.027, 0.255]  worst +0.120  by scenario [0.12, 0.125, 0.128, 0.15]  vs baseline []
+  knn_router                         rho +0.124 [-0.001, 0.181]  worst +0.010  by scenario [0.01, 0.026, 0.306, 0.154]  vs baseline [-0.185, 0.123]
+  lltm_adele                         rho +0.113 [0.02, 0.237]  worst +0.097  by scenario [0.121, 0.131, 0.104, 0.097]  vs baseline [-0.044, 0.03]
+  human_time                         rho +0.107 [-0.002, 0.283]  worst +0.079  by scenario [0.093, 0.131, 0.079, 0.124]  vs baseline [-0.131, 0.108]
+  emb_ap+adele                       rho +0.101 [0.016, 0.211]  worst +0.011  by scenario [0.144, 0.079, 0.168, 0.011]  vs baseline [-0.089, 0.035]
+  adele16                            rho +0.093 [0.001, 0.237]  worst +0.050  by scenario [0.124, 0.126, 0.05, 0.072]  vs baseline [-0.064, 0.01]
+  ap_combined                        rho +0.060 [-0.052, 0.181]  worst -0.009  by scenario [0.075, 0.054, 0.12, -0.009]  vs baseline [-0.14, 0.003]
+  knn_router+amortized_mirt+emb_ap   rho +0.059 [-0.021, 0.167]  worst -0.104  by scenario [0.027, -0.005, 0.317, -0.104]  vs baseline [-0.21, 0.077]
+  length                             rho +0.043 [-0.187, 0.23]  worst -0.051  by scenario [-0.02, 0.032, -0.051, 0.211]  vs baseline [-0.318, 0.046]
+  amortized_mirt                     rho +0.035 [-0.047, 0.178]  worst -0.131  by scenario [0.013, -0.031, 0.289, -0.131]  vs baseline [-0.232, 0.047]
+  emb_ap                             rho -0.008 [-0.11, 0.171]  worst -0.172  by scenario [0.082, -0.006, 0.065, -0.172]  vs baseline [-0.275, 0.086]
