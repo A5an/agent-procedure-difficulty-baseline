@@ -1,0 +1,26 @@
+task dirs in TheAgentCompany repo: 175; result names total distinct: 350; agents with >=170 tasks: 17 of 19
+task text: workspaces/tasks/<id>/task.md and checkpoints.md (gold checkpoints = leakage for test use); no separate policy; services (GitLab, RocketChat, ownCloud, Plane) are the tools
+outcome per agent-task: final_score result/total (partial credit) ; full-success flag = result==total
+result names matching task dirs after stripping -image: 350/350
+  20241217_OpenHands-0.14.2-gemini-1.5-pro: n=175 mean_partial=0.126 full_success=0.034
+  20241217_OpenHands-0.14.2-gemini-2.0-flash: n=175 mean_partial=0.265 full_success=0.114
+  20241217_OpenHands-0.14.2-gpt-4o-2024-08-06: n=175 mean_partial=0.248 full_success=0.086
+  20241217_OpenHands-0.14.2-llama-3.1-405b: n=175 mean_partial=0.208 full_success=0.074
+  20241217_OpenHands-0.14.2-llama-3.1-70b: n=175 mean_partial=0.113 full_success=0.017
+  20241217_OpenHands-0.14.2-llama-3.3-70b: n=175 mean_partial=0.187 full_success=0.069
+  20241217_OpenHands-0.14.2-nova-pro-v1:0: n=175 mean_partial=0.097 full_success=0.017
+  20241217_OpenHands-0.14.2-qwen2-72b: n=175 mean_partial=0.073 full_success=0.011
+  20241217_OpenHands-0.14.2-qwen2.5-72b: n=175 mean_partial=0.179 full_success=0.057
+  20241217_OpenHands-0.14.2-sonnet-20241022: n=175 mean_partial=0.448 full_success=0.240
+  20250510_OWL-RolePlay-gpt-4o-o3-mini: n=175 mean_partial=0.181 full_success=0.040
+  20250510_OpenHands-0.28.1-gemini-2.5-pro: n=175 mean_partial=0.483 full_success=0.303
+  20250510_OpenHands-0.28.1-sonnet-20250219: n=175 mean_partial=0.465 full_success=0.263
+  20250614_OpenHands-Versa-claude-3.7-sonnet: n=175 mean_partial=0.495 full_success=0.309
+  20250614_OpenHands-Versa-claude-sonnet-4: n=175 mean_partial=0.532 full_success=0.331
+  20250729_OpenHands-0.28.1-claude37-deepseekv3: n=41 mean_partial=0.657 full_success=0.390
+  20250729_OpenHands-0.28.1-claude37-gpt4o: n=41 mean_partial=0.644 full_success=0.439
+  20251013_MUSE-gemini-2.5-flash: n=174 mean_partial=0.628 full_success=0.414
+  20251110_TTE-MatrixAgent-Deepseek-V3.2: n=175 mean_partial=0.619 full_success=0.429
+among 17 full agents: tasks solved fully by all 0, by none 177
+category (task id prefix) mean partial, n: admin=0.23(30); bm=0.14(2); ds=0.27(28); example=0.28(2); finance=0.27(24); hr=0.37(58); ml=0.05(4); pm=0.52(56); qa=0.53(4); research=0.25(4); sde=0.35(138)
+NOTE: result names double (X and X-image, 350 names for 175 tasks): '-image' = variant for vision/browser agents; normalise by stripping '-image' before pairing; the 'solved by none 177' line above is inflated by this and by agents that only have one variant. Licence: MIT (both repos). Partial credit scores; checkpoints give 'total' per task which is itself a difficulty cue.

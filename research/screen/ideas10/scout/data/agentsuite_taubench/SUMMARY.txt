@@ -1,0 +1,40 @@
+models with per-task outcomes: 30
+distinct task ids: 165 (airline 50, retail 115)
+policy text present in system message of each record: yes (first message role=system holds the policy)
+task text: user simulator instruction NOT in record (messages only); user turns visible. Task instruction must come from tau-bench repo tasks files
+trials per model-task: Counter({1: 4950})
+records with empty messages: {'Qwen3-235B-A22B-FP8': 1, 'Qwen3-235B-A22B-Instruct-2507-FP8': 61, 'Qwen3-235B-A22B-Thinking-2507-FP8': 10, 'claude-4-sonnet-thinking-off': 20, 'gemini-2.5-flash-thinking-off': 1, 'gpt-oss-20b': 1}
+per-model pass rate:
+  DeepSeek-R1-0528: n=165 pass=0.461
+  DeepSeek-V3-0324: n=165 pass=0.442
+  DeepSeek-V3.2-Exp-thinking-off: n=165 pass=0.467
+  DeepSeek-V3.2-Exp-thinking-on: n=165 pass=0.539
+  Kimi-K2-Instruct: n=165 pass=0.455
+  Kimi-K2-Instruct-0905: n=165 pass=0.467
+  Qwen3-235B-A22B-FP8: n=165 pass=0.315
+  Qwen3-235B-A22B-Instruct-2507-FP8: n=165 pass=0.309
+  Qwen3-235B-A22B-Thinking-2507-FP8: n=165 pass=0.406
+  Qwen3-Coder-480B-A35B-Instruct-FP8: n=165 pass=0.212
+  claude-4-opus-thinking-off: n=165 pass=0.473
+  claude-4-opus-thinking-on-10k: n=165 pass=0.521
+  claude-4-sonnet-thinking-off: n=165 pass=0.448
+  claude-4-sonnet-thinking-on-10k: n=165 pass=0.497
+  claude-4.5-sonnet-thinking-off: n=165 pass=0.521
+  claude-4.5-sonnet-thinking-on-10k: n=165 pass=0.527
+  gemini-2.5-flash-thinking-off: n=165 pass=0.412
+  gemini-2.5-flash-thinking-on: n=165 pass=0.473
+  gemini-2.5-pro-thinking-on: n=165 pass=0.515
+  gpt-4.1: n=165 pass=0.491
+  gpt-4.1-mini: n=165 pass=0.376
+  gpt-4.1-nano: n=165 pass=0.164
+  gpt-4o-20240806: n=165 pass=0.461
+  gpt-4o-mini: n=165 pass=0.327
+  gpt-5: n=165 pass=0.473
+  gpt-5-nano: n=165 pass=0.394
+  gpt-oss-120b: n=165 pass=0.267
+  gpt-oss-20b: n=165 pass=0.115
+  o3-high: n=165 pass=0.533
+  o4-mini-high: n=165 pass=0.503
+NOTES: source https://huggingface.co/datasets/AgentSuite/tau-bench-trajectories (no license field on the card; treat as unspecified).
+Ids are tau-bench (original, v1) airline_0..49 and retail_0..114; three Gemini files use bare ids (task_name disambiguates), handled in code/sum_agentsuite.py.
+These tasks are the ORIGINAL tau-bench tasks, heavily overlapping tau2 airline (50) and retail (114): NOT fresh tasks, but 30 additional agents.

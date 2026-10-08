@@ -1,0 +1,8 @@
+source AgentSuite/tau2-bench-trajectories (HF, license field absent)
+models: 30
+distinct tasks (task_name|id): 556; by domain: {'retail': 228, 'telecom': 228, 'airline': 100}
+trials per model-task: Counter({1: 8340})
+policy in system message: yes; user-simulator instructions not in record
+SAME 278 tau2 tasks (airline 50, retail 114, telecom 114) as already in project; NOT fresh tasks, but an extra 30 agents (2025 era models, user sim gpt-4o)
+per-model pass: DeepSeek-R1-0528=0.51; DeepSeek-V3-0324=0.44; DeepSeek-V3.2-Exp-thinking-off=0.51; DeepSeek-V3.2-Exp-thinking-on=0.51; Kimi-K2-Instruct=0.62; Kimi-K2-Instruct-0905=0.70; Qwen3-235B-A22B-FP8=0.38; Qwen3-235B-A22B-Instruct-2507-FP8=0.45; Qwen3-235B-A22B-Thinking-2507-FP8=0.50; Qwen3-Coder-480B-A35B-Instruct-FP8=0.33; claude-4-opus-thinking-off=0.64; claude-4-opus-thinking-on-10k=0.63; claude-4-sonnet-thinking-off=0.56; claude-4-sonnet-thinking-on-10k=0.63; claude-4.5-sonnet-thinking-off=0.63; claude-4.5-sonnet-thinking-on-10k=0.67; gemini-2.5-flash-thinking-off=0.37; gemini-2.5-flash-thinking-on=0.41; gemini-2.5-pro-thinking-on=0.45; gpt-4.1=0.51; gpt-4.1-mini=0.48; gpt-4.1-nano=0.14; gpt-4o-20240806=0.40; gpt-4o-mini=0.23; gpt-5=0.77; gpt-5-nano=0.42; gpt-oss-120b=0.19; gpt-oss-20b=0.08; o3-high=0.64; o4-mini-high=0.51
+CAVEAT: two task-id schemes across model files: 20 models share one id set (278 ids), the other 10 models use a different id set (278 ids), zero overlap by meta.id (telecom ids differ in naming). Alignment to project task ids must be done by task content or order; NOT verified here.

@@ -1,0 +1,1959 @@
+[
+ {
+  "id": "r0_constant",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Константа (ничего не знаем о задаче)",
+  "family": "baseline",
+  "level": "none",
+  "short": "Всем задачам одного агента даётся одна и та же вероятность успеха.",
+  "detail": "Это нижняя точка отсчёта в репозитории бейзлайна. Метод не различает задачи, поэтому ранговая корреляция ρ (Спирмен внутри домена) для него не считается. Для него в таблицах есть только метрики качества вероятностей: Brier skill и log-loss skill равны 0.000, AUC внутри конфигурации 0.500. Все остальные методы сравниваются с ним по этим метрикам.",
+  "metric_type": "other",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "AUC внутри конфигурации 0.500, Brier skill 0.000, log-loss skill 0.000 (SOPBench random_cases, new_procedures, new_domain; tau2 то же)",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": "ρ в итоговой таблице не приводится, поэтому pooled равен null."
+ },
+ {
+  "id": "r0_adele",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Базовый уровень: психометрика агентов + ADeLe",
+  "family": "baseline",
+  "level": "L1",
+  "short": "Итоговый бейзлайн: IRT даёт способность агента и сложность задачи, ridge по 18 уровням ADeLe предсказывает сложность нового текста.",
+  "detail": "IRT (теория отклика на задание) по прошлым запускам даёт каждому агенту способность, а каждой обучающей задаче сложность. Ridge-регрессия учится предсказывать сложность по 18 уровням требований ADeLe, которые LLM-судья выставляет по тексту задачи. Для новой задачи вероятность успеха равна sigmoid(способность минус предсказанная сложность). Из одиннадцати методов у него самый высокий средний ρ и самый высокий худший сценарий. Он слабый: потолок надёжности цели около 0.9, а его вероятности почти не лучше, чем одна способность агента.",
+  "metric_type": "pooled4",
+  "pooled": 0.131,
+  "scen": [
+   0.12,
+   0.125,
+   0.128,
+   0.15
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал [0.027, 0.255] (репозиторий); худший сценарий 0.120; интервалы по сценариям SOPBench new proc [0.009, 0.229], new domain [0.024, 0.238]",
+  "verdict": "на уровне",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": "Это сам бейзлайн. В парном скорере проекта интервал [0.059, 0.206], в оценщике репозитория [0.027, 0.255]. Выбран лучшим из 11 методов на тех же данных, поэтому слегка оптимистичен.",
+  "is_final_baseline": true
+ },
+ {
+  "id": "r0_knn_router",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "kNN-роутер",
+  "family": "method",
+  "level": "L0",
+  "short": "Для новой задачи берём результаты похожих обучающих задач по эмбеддингу.",
+  "detail": "Метод из работы о kNN-маршрутизации (Li 2025). Вероятность успеха для пары агент и задача берётся по ближайшим соседям задачи в пространстве эмбеддингов. Весь выигрыш приходится на tau2, где задачи одного домена похожи друг на друга. На SOPBench он почти ноль (0.010 и 0.026), потому что у новой процедуры нет похожих соседей. По среднему он ближе всех к бейзлайну, но по худшему сценарию сильно проигрывает.",
+  "metric_type": "pooled4",
+  "pooled": 0.124,
+  "scen": [
+   0.01,
+   0.026,
+   0.306,
+   0.154
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.185,
+   0.123
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.001, 0.181]; худший сценарий 0.01",
+  "verdict": "на уровне",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": "Лучший по AUC среди предсказателей и на уже знакомых процедурах, но это другая метрика."
+ },
+ {
+  "id": "r0_lltm",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "ADeLe, обученный совместно (LLTM)",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Те же уровни ADeLe, но веса и способности агентов подбираются одной моделью сразу.",
+  "detail": "LLTM (линейная логистическая модель, Fischer 1973) вместо двух шагов: веса при уровнях ADeLe и способности агентов оцениваются вместе. Результат близок к бейзлайну на всех четырёх сценариях (0.121, 0.131, 0.104, 0.097). Разница с бейзлайном незначима. Оставлен как проверка устойчивости, потому что в статье Ge и соавторов двухшаговая схема тоже оказалась лучше.",
+  "metric_type": "pooled4",
+  "pooled": 0.113,
+  "scen": [
+   0.121,
+   0.131,
+   0.104,
+   0.097
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.044,
+   0.03
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [0.020, 0.237]; худший сценарий 0.097",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_human_time",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Оценка времени человека",
+  "family": "llm_judge",
+  "level": "L1",
+  "short": "LLM оценивает, сколько минут заняла бы задача у человека, и это число идёт в ridge.",
+  "detail": "Идея из работы METR о временном горизонте (Kwa и соавторы 2025), адаптированная нами: судья оценивает по тексту задачи время человека, потом ridge связывает его со сложностью. Это справочный предсказатель, а не опубликованный метод. Он хорош между бенчмарками: вместе с длиной текста самый сильный там. На четырёх новых процессах 0.107 против 0.131, разница незначима.",
+  "metric_type": "pooled4",
+  "pooled": 0.107,
+  "scen": [
+   0.093,
+   0.131,
+   0.079,
+   0.124
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.131,
+   0.108
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.002, 0.283]; худший сценарий 0.079",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": "Справочный предсказатель. Между бенчмарками SOPBench 0.170, tau2 0.200, banking 0.582 (у бейзлайна 0.097, 0.165, 0.476)."
+ },
+ {
+  "id": "r0_length",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Длина текста (контроль)",
+  "family": "text",
+  "level": "L0",
+  "short": "Сложность предсказывается только логарифмом числа символов в тексте задачи.",
+  "detail": "Контрольная проверка из Krsteski и Meyer 2026: ridge по log(1 + число символов). Нужен, чтобы понять, не сводится ли всё к длине. На новых процессах он нестабилен: от -0.051 до 0.211, средний 0.043, интервал огромный. Между бенчмарками, наоборот, длина работает неожиданно хорошо (SOPBench 0.211).",
+  "metric_type": "pooled4",
+  "pooled": 0.043,
+  "scen": [
+   -0.02,
+   0.032,
+   -0.051,
+   0.211
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.318,
+   0.046
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.187, 0.230]; худший сценарий -0.051",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_emb_ap",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Эмбеддинг в психометрике агентов",
+  "family": "embed",
+  "level": "L0",
+  "short": "Основной рецепт Agent psychometrics: ridge по эмбеддингу текста задачи.",
+  "detail": "Берётся эмбеддинг текста (рецепт авторов на DeepSeek-R1-Distill 1.5B) и ridge к сложности. На новой процедуре почти не ранжирует задачи (среднее -0.008). Нестабилен: без фиксации зёрен tau2 new domain у апстримного кода прыгает с 0.096 до -0.172, у бейзлайна разброс не больше 0.005. Эмбеддинг узнаёт, к какой процедуре задача относится, но не что делает её трудной.",
+  "metric_type": "pooled4",
+  "pooled": -0.008,
+  "scen": [
+   0.082,
+   -0.006,
+   0.065,
+   -0.172
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.275,
+   0.086
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.110, 0.171]; худший сценарий -0.172",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_emb_ap_adele",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Эмбеддинг и ADeLe, среднее логитов",
+  "family": "embed",
+  "level": "L1",
+  "short": "Среднее логитов двух моделей: по эмбеддингу и по ADeLe.",
+  "detail": "Усреднение прогнозов по логиту двух моделей: психометрика с эмбеддингом и бейзлайн. Лучше бейзлайна на двух сценариях (SOPBench new proc 0.144, tau2 new proc 0.168) и сильно хуже на tau2 new domain (0.011). В среднем 0.101, разница с бейзлайном незначима.",
+  "metric_type": "pooled4",
+  "pooled": 0.101,
+  "scen": [
+   0.144,
+   0.079,
+   0.168,
+   0.011
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.089,
+   0.035
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [0.016, 0.211]; худший сценарий 0.011",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_adele16",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Бейзлайн без двух уровней (AS, MCu)",
+  "family": "baseline",
+  "level": "L1",
+  "short": "Бейзлайн, у которого убраны два уровня ADeLe, AS и MCu.",
+  "detail": "Контрольный вариант: те же 18 уровней минус AS и MCu (остаётся 16). Нужен, чтобы увидеть, держится ли результат на двух отдельных уровнях. Заметно проседает на tau2 (0.050 и 0.072), на SOPBench ровно как бейзлайн (0.124, 0.126). Итог 0.093 против 0.131, разница незначима.",
+  "metric_type": "pooled4",
+  "pooled": 0.093,
+  "scen": [
+   0.124,
+   0.126,
+   0.05,
+   0.072
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.064,
+   0.01
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [0.001, 0.237]; худший сценарий 0.05",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_ap_combined",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Сгруппированный ridge из статьи, эмбеддинг и ADeLe",
+  "family": "embed",
+  "level": "L1",
+  "short": "Ridge из статьи Agent psychometrics: эмбеддинг и ADeLe с отдельным штрафом для каждой группы признаков.",
+  "detail": "Рецепт Раздела 3.2.1 статьи: один ridge на объединённых признаках, штраф свой для каждой группы. ADeLe стоит на месте их LLM-судьи. Ниже бейзлайна на всех четырёх сценариях и значимо хуже на tau2 new domain (парный интервал [-0.313, -0.024]). Часть с эмбеддингом переобучается на знакомых доменах.",
+  "metric_type": "pooled4",
+  "pooled": 0.06,
+  "scen": [
+   0.075,
+   0.054,
+   0.12,
+   -0.009
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.14,
+   0.003
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.052, 0.181]; худший сценарий -0.009",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_router_combo",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Роутеры и эмбеддинг: среднее трёх моделей",
+  "family": "method",
+  "level": "L0",
+  "short": "Равновесное среднее логитов kNN-роутера, MIRT в духе IRT-Router и модели по эмбеддингу.",
+  "detail": "Фиксированная комбинация трёх методов, лучшая по AUC. На tau2 new procedures лучшая из всех (0.317), на tau2 new domain худшая (-0.104). На SOPBench new procedures значимо хуже бейзлайна (парный интервал [-0.238, -0.023]). Средний ρ 0.059.",
+  "metric_type": "pooled4",
+  "pooled": 0.059,
+  "scen": [
+   0.027,
+   -0.005,
+   0.317,
+   -0.104
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.21,
+   0.077
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.021, 0.167]; худший сценарий -0.104",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "r0_amortized_mirt",
+  "round": "r0",
+  "date": "28 сен",
+  "folder": "repo/agent-procedure-difficulty-baseline",
+  "name": "Многомерный IRT по эмбеддингу (IRT-Router)",
+  "family": "psychometric",
+  "level": "L0",
+  "short": "Четырёхмерный IRT, где различительная сила и сложность предсказываются из эмбеддинга.",
+  "detail": "Своя переписанная версия IRT-Router (Song и соавторы, ACL 2025). Четыре латентных измерения, параметры задачи выводятся из эмбеддинга и обучаются вместе со способностями. Нестабилен: tau2 new proc 0.289, tau2 new domain -0.131, SOPBench около нуля. Средний ρ 0.035.",
+  "metric_type": "pooled4",
+  "pooled": 0.035,
+  "scen": [
+   0.013,
+   -0.031,
+   0.289,
+   -0.131
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.232,
+   0.047
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "95% интервал самого ρ [-0.047, 0.178]; худший сценарий -0.131",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "repo/agent-procedure-difficulty-baseline/results/final_evaluation.txt, EVALUATION_PROTOCOL.md section 6, README.md",
+  "note": ""
+ },
+ {
+  "id": "s_models_trees",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "Деревья вместо ridge на ADeLe",
+  "family": "method",
+  "level": "L1",
+  "short": "Случайный лес и градиентный бустинг вместо ridge по 18 уровням ADeLe.",
+  "detail": "Идея из Krsteski и Meyer 2026: древесная регрессия от признаков к сложности по IRT. XGBoost в окружении не стоит, поэтому взят HistGradientBoosting из sklearn. Параметры подобраны внутренней кросс-валидацией на обучающих задачах. Лес даёт 0.086, бустинг 0.089, оба хуже бейзлайна на SOPBench new proc и tau2 new proc, на tau2 new domain равны ему. Усреднение с бейзлайном возвращает 0.125 и 0.128.",
+  "metric_type": "pooled4",
+  "pooled": 0.089,
+  "scen": [
+   0.055,
+   0.104,
+   0.042,
+   0.155
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.138,
+   0.092
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "бустинг: интервал ρ [0.016, 0.228], Brier skill +0.001, log-loss skill -0.002",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "Случайный лес rf_adele",
+    "pooled": 0.086,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.159,
+     0.102
+    ],
+    "vs_clad": null,
+    "note": "сценарии 0.065 / 0.089 / 0.043 / 0.148"
+   },
+   {
+    "name": "gb_adele + бейзлайн",
+    "pooled": 0.128,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.03,
+     0.055
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "rf_adele + бейзлайн",
+    "pooled": 0.125,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.064,
+     0.064
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": "Сетка гиперпараметров моя, точные настройки статьи неизвестны."
+ },
+ {
+  "id": "s_models_rank",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "Парное ранжирование вместо регрессии",
+  "family": "method",
+  "level": "L1",
+  "short": "Линейная модель обучается порядку сложности пар задач одного домена, а не значению сложности.",
+  "detail": "Логистическая потеря на парах обучающих задач из одного домена, порядок берётся из сложности IRT, до 20 000 пар на подгонку. Затем оценка переводится на шкалу сложности линейной подгонкой. Это единственный метод экрана моделей, у которого парный интервал целиком ниже нуля: [-0.087, -0.008]. Среднее с бейзлайном даёт 0.108, тоже ниже.",
+  "metric_type": "pooled4",
+  "pooled": 0.084,
+  "scen": [
+   0.1,
+   0.092,
+   0.072,
+   0.071
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.087,
+   -0.008
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.010, 0.198]; Brier skill -0.010, log-loss skill -0.025",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "rank_adele + бейзлайн",
+    "pooled": 0.108,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.057,
+     0.004
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_models_mirt",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "Многомерный IRT поверх ADeLe",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Репозиторный AmortizedMIRT, но вместо эмбеддинга на входе 18 уровней ADeLe, 2 или 4 измерения.",
+  "detail": "Тот же многомерный IRT в духе IRT-Router, только признаки задачи это ADeLe. Берутся 2 и 4 измерения, настройки по умолчанию, ничего не подбирается. Число измерений ничего не меняет (0.127 и 0.123), результат на уровне бейзлайна и раннего LLTM (0.113). Среднее с бейзлайном 0.133 и 0.131, парные интервалы включают ноль.",
+  "metric_type": "pooled4",
+  "pooled": 0.127,
+  "scen": [
+   0.12,
+   0.13,
+   0.146,
+   0.112
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.045,
+   0.038
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.021, 0.244]; Brier skill +0.024, log-loss skill +0.007",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "mirt_adele_d4",
+    "pooled": 0.123,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.05,
+     0.033
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "mirt_adele_d2 + бейзлайн",
+    "pooled": 0.133,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.03,
+     0.043
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "mirt_adele_d4 + бейзлайн",
+    "pooled": 0.131,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.037,
+     0.03
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "mirt_d2 + ridge_adele_ht + бейзлайн",
+    "pooled": 0.132,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.028,
+     0.04
+    ],
+    "vs_clad": null,
+    "note": "пара моделей выбрана уже после просмотра тестовых фолдов, поэтому это разведка"
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_models_agent_assessor",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "Отдельная логистическая модель на каждого агента",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Для каждого агента своя логистическая регрессия от уровней ADeLe к его успеху, как у ассессора в статье ADeLe.",
+  "detail": "Метод Zhou и соавторов 2026, раздел 3.4. Для каждого агента отдельная регрессия по стандартизованным ADeLe, штраф общий и выбирается внутренней кросс-валидацией. Способность из IRT не используется. По ранжированию на уровне бейзлайна (0.125, с бейзлайном 0.135, парный интервал [-0.013, 0.014]). Зато заметно лучше вероятности: Brier skill +0.047, log-loss skill +0.064 у одиночной модели, потому что она учитывает собственную долю успеха агента. Это выигрыш в калибровке, а не в ранжировании, поэтому по правилу улучшения не засчитывается.",
+  "metric_type": "pooled4",
+  "pooled": 0.135,
+  "scen": [
+   0.12,
+   0.13,
+   0.133,
+   0.155
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.013,
+   0.014
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "комбинация agent_lr_adele+adele: Brier skill +0.031, log-loss skill +0.043. Одиночная модель: Brier +0.047, log-loss +0.064",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "agent_lr_adele (одна)",
+    "pooled": 0.125,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.031,
+     0.025
+    ],
+    "vs_clad": null,
+    "note": "сценарии 0.117 / 0.129 / 0.102 / 0.150"
+   },
+   {
+    "name": "agent_shrunk_adele (со сжатием к общей модели)",
+    "pooled": 0.111,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.042,
+     0.024
+    ],
+    "vs_clad": null,
+    "note": "Brier +0.033, log-loss +0.051"
+   },
+   {
+    "name": "agent_shrunk_adele + бейзлайн",
+    "pooled": 0.123,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.037,
+     0.023
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": "Штраф общий для всех агентов, а не отдельный на каждого: отклонение от статьи ради устойчивости."
+ },
+ {
+  "id": "s_models_ridge_ht",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "ADeLe плюс время человека и длина в ridge",
+  "family": "text",
+  "level": "L1",
+  "short": "К уровням ADeLe добавили оценку времени человека и логарифм длины, в обычный и в сгруппированный ridge.",
+  "detail": "Ridge на объединённых признаках ADeLe и времени человека даёт 0.126, с длиной в придачу 0.111. Сгруппированный ridge из статьи (своя сетка штрафов на группу) даёт 0.116 и 0.108. Добавки к ADeLe ранжирование не улучшают. Время человека одно в репозитории давало 0.107.",
+  "metric_type": "pooled4",
+  "pooled": 0.126,
+  "scen": [
+   0.116,
+   0.122,
+   0.121,
+   0.145
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.018,
+   0.021
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.026, 0.256]; Brier skill -0.000, log-loss skill -0.003",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "ridge_adele_ht + бейзлайн",
+    "pooled": 0.131,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.01,
+     0.013
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "ridge_adele_ht_len",
+    "pooled": 0.111,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.041,
+     0.021
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "ridge_adele_ht_len + бейзлайн",
+    "pooled": 0.122,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.027,
+     0.012
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_adele_ht (сгруппированный ridge)",
+    "pooled": 0.116,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.057,
+     0.024
+    ],
+    "vs_clad": null,
+    "note": "Brier -0.018, log-loss -0.028"
+   },
+   {
+    "name": "grp_adele_ht_lowgrid",
+    "pooled": 0.108,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.061,
+     0.022
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_adele_ht + бейзлайн",
+    "pooled": 0.12,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.045,
+     0.021
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_models_lltm_ht",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/models",
+  "name": "LLTM с временем человека и длиной",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Совместная IRT-модель (LLTM) с ADeLe и временем человека, потом ещё с длиной.",
+  "detail": "Репозиторный AmortizedIRT, где к ADeLe добавлены log-минуты человека, а во втором варианте ещё и log-символы. Оба варианта хуже бейзлайна и хуже LLTM на одних ADeLe (0.113). Больше признаков здесь значит ниже ρ. Калибровка при этом чуть лучше бейзлайна (Brier skill +0.023).",
+  "metric_type": "pooled4",
+  "pooled": 0.098,
+  "scen": [
+   0.11,
+   0.117,
+   0.091,
+   0.072
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.061,
+   0.019
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.000, 0.230]; Brier skill +0.023, log-loss skill +0.032",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "lltm_adele_ht_len",
+    "pooled": 0.075,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.084,
+     0.012
+    ],
+    "vs_clad": null,
+    "note": "сценарии 0.096 / 0.104 / 0.075 / 0.024"
+   },
+   {
+    "name": "lltm_adele_ht + бейзлайн",
+    "pooled": 0.115,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.044,
+     0.02
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "lltm_adele_ht_len + бейзлайн",
+    "pooled": 0.094,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.062,
+     0.01
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "models/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_rerun_finetuned",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Дообученный маленький энкодер bge-small",
+  "family": "small_model",
+  "level": "L0",
+  "short": "Небольшая модель bge-small-en-v1.5 с линейной головой учится предсказывать сложность IRT по тексту задачи.",
+  "detail": "Энкодер дообучается 4 эпохи (lr 5e-5, батч 16) на сложности обучающих задач фолда, дальше sigmoid(способность минус предсказанная сложность). Это самый высокий pooled ρ экрана, 0.255, но парный интервал [-0.026, 0.310] включает ноль. Выигрыш целиком из tau2 (0.321 и 0.473 против 0.13 у ADeLe), на SOPBench он на уровне бейзлайна (0.112 и 0.114). Калибровка хуже бейзлайна: Brier skill -0.039. Среднее логитов с ADeLe даёт 0.225, все сценарии не ниже бейзлайна, но интервал [-0.011, 0.195] тоже не проходит.",
+  "metric_type": "pooled4",
+  "pooled": 0.255,
+  "scen": [
+   0.112,
+   0.114,
+   0.321,
+   0.473
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.026,
+   0.31
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.141, 0.381]; худший сценарий 0.112; Brier skill -0.039, log-loss skill -0.035",
+  "verdict": "лучше незначимо",
+  "variants": [
+   {
+    "name": "finetuned_bge_small + бейзлайн",
+    "pooled": 0.225,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.011,
+     0.195
+    ],
+    "vs_clad": null,
+    "note": "сценарии 0.161 / 0.132 / 0.311 / 0.295; Brier +0.047, log-loss +0.040"
+   }
+  ],
+  "source": "rerun/REPORT.md section 2",
+  "note": "tau2 new domain всего 3 фолда, значение 0.473 шумное: в ранних прогонах с другими зёрнами было 0.456, 0.141, -0.154. Прогон занял около 3.7 часа на MPS. Шум от зерна torch не измерялся."
+ },
+ {
+  "id": "s_rerun_probe",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Зонд скрытого состояния Qwen3-8B",
+  "family": "small_model",
+  "level": "L0",
+  "short": "Ridge по скрытому состоянию последнего токена Qwen3-8B-Base после слоя 18 или 36.",
+  "detail": "Метод Zhu и соавторов 2025 в адаптации: промпт с текстом задачи и вопросом, насколько вероятно, что ИИ-агент справится. Признак это скрытое состояние (4096 чисел). Слой 36 даёт 0.119 на уровне ADeLe и ниже его, слой 18 даёт -0.123 и значимо хуже. Результат зависит от слоя, который выбран после просмотра теста, а на tau2 new domain слой 36 почти ноль (0.021).",
+  "metric_type": "pooled4",
+  "pooled": 0.119,
+  "scen": [
+   0.132,
+   0.107,
+   0.218,
+   0.021
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.112,
+   0.119
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.031, 0.250]; Brier skill +0.007, log-loss skill -0.041",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "probe_L18",
+    "pooled": -0.123,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.384,
+     -0.054
+    ],
+    "vs_clad": null,
+    "note": "значимо хуже"
+   },
+   {
+    "name": "probe_L36 + бейзлайн",
+    "pooled": 0.12,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.078,
+     0.044
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "ridge на объединённых ADeLe и probe_L36",
+    "pooled": 0.103,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.113,
+     0.029
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "rerun/REPORT.md section 2",
+  "note": "Ridge по сложности вместо зонда по успеху, 8-битные веса, базовая модель. Признаки посчитаны один раз ранним прототипом."
+ },
+ {
+  "id": "s_rerun_entropy",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Энтропия токенов рассуждения",
+  "family": "small_model",
+  "level": "L1",
+  "short": "13 сводных признаков профиля энтропии токенов, которые Qwen3-8B читает на тексте задачи и цепочке рассуждения.",
+  "detail": "Метод Krsteski и Meyer 2026: чем неувереннее маленькая модель читает рассуждение, тем сложнее задача. Цепочки рассуждения порождает LLM прототипа на температуре 0 из текста задачи, исходы не используются. Результат около нуля (-0.011) и значимо хуже бейзлайна, интервал разницы [-0.254, -0.019]. В статье цепочки пишет Claude Sonnet 4.6 с неопубликованным промптом, у нас иначе.",
+  "metric_type": "pooled4",
+  "pooled": -0.011,
+  "scen": [
+   0.025,
+   0.066,
+   -0.008,
+   -0.126
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.254,
+   -0.019
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.080, 0.096]; Brier skill +0.004, log-loss skill +0.002",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "rerun/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_rerun_bpm",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Метрики сложности бизнес-процесса (BPM)",
+  "family": "method",
+  "level": "L0",
+  "short": "Из дерева правил запрошенного действия считаются метрики сложности процесса: CFC Кардозо, размер, число AND и OR, вложенность.",
+  "detail": "Девять столбцов по дереву правил SOPBench, помечено как 'из дерева правил'. На tau2 и banking у всех задач одна политика, поэтому там метрик нет. Из-за этого метод посчитан в отдельном пуле из двух сценариев SOPBench: 0.068 против 0.123 у бейзлайна. С ADeLe вместе 0.118, выигрыша нет.",
+  "metric_type": "sop_only",
+  "pooled": null,
+  "scen": [
+   0.086,
+   0.049,
+   null,
+   null
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "пул SOPBench: 0.068 [-0.027, 0.171] против 0.123 у бейзлайна, парный интервал [-0.161, 0.053]; вместе с ADeLe 0.118 [0.008, 0.230], парный [-0.043, 0.038]",
+  "verdict": "не на протоколе",
+  "variants": [
+   {
+    "name": "bpm_complexity + бейзлайн",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.043,
+     0.038
+    ],
+    "vs_clad": null,
+    "note": "пул SOPBench 0.118"
+   }
+  ],
+  "source": "rerun/REPORT.md section 2",
+  "note": "Число из пула двух сценариев, с четырьмя сценариями несравнимо."
+ },
+ {
+  "id": "s_rerun_forecast",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Прогноз успеха от LLM (в духе PRECOG)",
+  "family": "llm_judge",
+  "level": "L1",
+  "short": "LLM по тексту задачи называет вероятность успеха и сложность по шкале 0-100, эти два числа идут в ridge.",
+  "detail": "Zero-shot прогноз Gemini, температура 0, один вызов на задачу, кэш уже был. Это не обученный прогнозист из статьи PRECOG. Результат около нуля (-0.013), интервал разницы [-0.310, 0.036].",
+  "metric_type": "pooled4",
+  "pooled": -0.013,
+  "scen": [
+   0.031,
+   -0.008,
+   -0.075,
+   0.001
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.31,
+   0.036
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.153, 0.184]; Brier skill -0.010, log-loss skill -0.012",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "rerun/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_rerun_bge",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Ridge по эмбеддингу bge-base",
+  "family": "embed",
+  "level": "L0",
+  "short": "Ridge по эмбеддингу bge-base-en-v1.5 из репозитория, с бейзлайновым шагом ridge.",
+  "detail": "Эмбеддинг из репозитория подаётся в тот же ridge, что и ADeLe. Выходит 0.113, ниже бейзлайна, с ярким перекосом: tau2 new proc 0.314, SOPBench new domain 0.009. Среднее логитов с ADeLe 0.116, ridge на объединённых признаках 0.093.",
+  "metric_type": "pooled4",
+  "pooled": 0.113,
+  "scen": [
+   0.038,
+   0.009,
+   0.314,
+   0.089
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.109,
+   0.122
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.027, 0.244]; Brier skill +0.027, log-loss skill +0.003",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "emb_bge + бейзлайн",
+    "pooled": 0.116,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.057,
+     0.087
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "ridge на объединённых ADeLe и bge",
+    "pooled": 0.093,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.089,
+     0.027
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "rerun/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_rerun_amortized_irt",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rerun",
+  "name": "Амортизированный IRT по эмбеддингу",
+  "family": "psychometric",
+  "level": "L0",
+  "short": "IRT в духе Truong и соавторов, где сложность предсказывается из эмбеддинга и обучается вместе с агентами.",
+  "detail": "methods.AmortizedIRT на эмбеддинге bge с настройками по умолчанию. В среднем около нуля (0.004). Крайне нестабилен: tau2 new domain -0.293, Brier skill -0.185 и log-loss skill -0.653.",
+  "metric_type": "pooled4",
+  "pooled": 0.004,
+  "scen": [
+   0.006,
+   -0.027,
+   0.328,
+   -0.293
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.211,
+   0.047
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.045, 0.148]; Brier skill -0.185, log-loss skill -0.653",
+  "verdict": "хуже",
+  "variants": [],
+  "source": "rerun/REPORT.md section 2",
+  "note": ""
+ },
+ {
+  "id": "s_rubric_proc",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rubric",
+  "name": "Рубрика шагов процедуры (наша)",
+  "family": "rubric",
+  "level": "L1",
+  "short": "LLM по тексту выписывает шаги процедуры, помечает каждый одним из семи типов и считает глубину вложенности и условия отказа.",
+  "detail": "Gemini читает текст и разбивает процедуру на шаги семи типов: проверка условия, чтение документа, вопрос клиенту, запись в систему, необратимое действие, ветвление, отказ или передача человеку. Из этого 12 признаков, включая число шагов по типам, глубину, число условий отказа и вероятность отказа. Один рубрика даёт 0.088, ниже ADeLe, а вместе с ADeLe в сгруппированном ridge 0.172, в объединённом 0.148. Прирост виден, но интервал разницы [-0.060, 0.091] включает ноль, и у сгруппированного варианта хуже log-loss (-0.020), так что правило улучшения не выполнено.",
+  "metric_type": "pooled4",
+  "pooled": 0.172,
+  "scen": [
+   0.194,
+   0.179,
+   0.181,
+   0.133
+  ],
+  "vs_base": 0.041,
+  "vs_base_ci": [
+   -0.06,
+   0.091
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.053, 0.269]; Brier skill -0.002, log-loss skill -0.020; AUC внутри агента 0.578",
+  "verdict": "лучше незначимо",
+  "variants": [
+   {
+    "name": "rub_proc (одна рубрика)",
+    "pooled": 0.088,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.19,
+     0.049
+    ],
+    "vs_clad": null,
+    "note": "сценарии 0.102 / 0.091 / 0.091 / 0.067"
+   },
+   {
+    "name": "cat_proc_adele (объединённый ridge)",
+    "pooled": 0.148,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.063,
+     0.076
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "types_ridge (только счётчики типов)",
+    "pooled": 0.086,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.169,
+     0.049
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "len_ridge (только число шагов)",
+    "pooled": -0.005,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.276,
+     0.006
+    ],
+    "vs_clad": null,
+    "note": "число шагов само ничего не даёт"
+   },
+   {
+    "name": "cat_full (рубрика + ADeLe + время человека)",
+    "pooled": 0.14,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.062,
+     0.073
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_full",
+    "pooled": 0.161,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.056,
+     0.088
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "rubric/REPORT.md section 2 and 3",
+  "note": "Для tau2 и banking текст задачи без политики, модель опиралась на собственное знание домена. Повторяемость: два прогона на 100 задачах совпали по типам с kappa 0.62 (взвешенная 0.77), по числу шагов Pearson 0.77, ветвления и отказы шумные (r 0.17 и 0.34). vs_base 0.041 взято из текста отчёта."
+ },
+ {
+  "id": "s_rubric_lara",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rubric",
+  "name": "Готовность задачи по LARA / T-IPO",
+  "family": "rubric",
+  "level": "L1",
+  "short": "Пять баллов от 1 до 5 (сложность мышления, зависимость от данных, разнообразие взаимодействий, чувствительность к правилам, новизна) и итоговый уровень L1-L4.",
+  "detail": "Опросник из Li и Ye 2026, который в статье заполняют люди для задач брокерской фирмы. Здесь его заполняет одна LLM. Веса и пороги статьи взяты без изменений. Один он даёт 0.056, с ADeLe 0.133 и 0.114. Многие столбцы почти постоянны внутри бенчмарка (на SOPBench D1 имеет стандартное отклонение 0.03), поэтому разделять задачи они не могут.",
+  "metric_type": "pooled4",
+  "pooled": 0.056,
+  "scen": [
+   -0.005,
+   0.021,
+   0.066,
+   0.143
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.235,
+   0.007
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.026, 0.082]; Brier skill +0.002, log-loss skill -0.000",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "cat_lara_adele",
+    "pooled": 0.133,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.025,
+     0.029
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_lara_adele",
+    "pooled": 0.114,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.065,
+     0.018
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "rubric/REPORT.md section 2 and 3",
+  "note": "Оценка одной LLM, а не экспертов. Низкая дисперсия признаков ограничивает результат, это мало говорит об оригинальной рамке."
+ },
+ {
+  "id": "s_rubric_rpa",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rubric",
+  "name": "Критерии пригодности для RPA (Wellmann)",
+  "family": "rubric",
+  "level": "L1",
+  "short": "Тринадцать критериев пригодности процесса для роботизации, каждый от 0 до 2, плюс сумма.",
+  "detail": "Рамка Wellmann и соавторов 2020. В статье большинство критериев измеряют по журналам событий. У нас журналов нет, поэтому LLM угадывает критерии по тексту, а частота, срочность, стабильность и зрелость просто догадки о типе процесса. Результат 0.023, почти ноль. С ADeLe 0.115, выигрыша нет.",
+  "metric_type": "pooled4",
+  "pooled": 0.023,
+  "scen": [
+   0.04,
+   -0.017,
+   0.065,
+   0.004
+  ],
+  "vs_base": null,
+  "vs_base_ci": [
+   -0.202,
+   0.013
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [-0.038, 0.136]; Brier skill +0.003, log-loss skill -0.002",
+  "verdict": "хуже",
+  "variants": [
+   {
+    "name": "cat_rpa_adele",
+    "pooled": 0.115,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.049,
+     0.045
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_rpa_adele",
+    "pooled": 0.115,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.083,
+     0.07
+    ],
+    "vs_clad": null,
+    "note": "log-loss skill -0.051"
+   }
+  ],
+  "source": "rubric/REPORT.md section 2 and 3",
+  "note": ""
+ },
+ {
+  "id": "s_rubric_ladder",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/rubric",
+  "name": "Лестница формул от шагов к типам",
+  "family": "plan",
+  "level": "L1",
+  "short": "Логистические модели, где вероятность зависит от способности агента и числа шагов по типам, и версия с уровнями ADeLe.",
+  "detail": "Агентские способности подгоняются прямо в логистической модели, штраф выбирается внутренней кросс-валидацией. L1 использует только число шагов (-0.008). L2 добавляет счётчики по типам и четыре глобальных признака (0.135). L2 вместе с ADeLe даёт 0.182 с интервалом [0.046, 0.270], лучшая точка всех методов экрана рубрик, но парный интервал разницы [-0.061, 0.101] ноль включает. Главное наблюдение: тип шага несёт сигнал, а число шагов нет. Контроль lad0 без признаков уже даёт log-loss skill +0.059 против 0 у бейзлайна, то есть выигрыш по калибровке даёт просто пересчёт способностей, а не признаки.",
+  "metric_type": "pooled4",
+  "pooled": 0.182,
+  "scen": [
+   0.181,
+   0.179,
+   0.168,
+   0.199
+  ],
+  "vs_base": 0.051,
+  "vs_base_ci": [
+   -0.061,
+   0.101
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.046, 0.270]; Brier skill +0.059, log-loss skill +0.076; AUC внутри агента 0.589",
+  "verdict": "лучше незначимо",
+  "variants": [
+   {
+    "name": "lad2 (типы и глобальные признаки)",
+    "pooled": 0.135,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.142,
+     0.11
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "lad3 (плюс отклонения по агентам)",
+    "pooled": 0.137,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.141,
+     0.106
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "lad1 (только число шагов)",
+    "pooled": -0.008,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.279,
+     0.003
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "lad0 (без признаков, контроль)",
+    "pooled": 0.036,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.235,
+     0.017
+    ],
+    "vs_clad": null,
+    "note": "Brier skill +0.040, log-loss +0.059"
+   },
+   {
+    "name": "lad2_adele на очищенных данных A (25 агентов)",
+    "pooled": 0.177,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.072,
+     0.097
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "rubric/REPORT.md section 2 and 3",
+  "note": "Матрицу g я определил сам (четыре глобальных признака), других вариантов g опробован один. vs_base 0.051 взято из текста отчёта."
+ },
+ {
+  "id": "s_clean_empty",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/clean",
+  "name": "Очистка SOPBench от пустых ответов",
+  "family": "baseline",
+  "level": "reference",
+  "short": "Из данных убрали трёх агентов или отдельные случаи, где модель отвечала пустыми сообщениями, и повторили бейзлайн.",
+  "detail": "Gpt-5 (89% случаев), gpt-5-mini (47%) и gemini-2.5-pro (28%) очень часто отвечали пустыми сообщениями. Вариант A убирает их целиком (25 агентов), вариант B оставляет 28 агентов, но убирает почти пустые случаи. Сложность задач по IRT почти не меняется (Спирмен 0.990 и 0.995). Бейзлайн остаётся 0.134 (A) и 0.131 (B). Ни один вывод о методах не переворачивается: все остаются 'не лучше'. Согласие между успехом на выполнении и на отказе растёт с 0.82 до 0.91, то есть слабое согласие частично создавали пустые ответы.",
+  "metric_type": "pooled4",
+  "pooled": 0.134,
+  "scen": [
+   0.127,
+   0.131,
+   0.128,
+   0.15
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "вариант A: pooled 0.134 [0.027, 0.258]; вариант B: 0.131 [0.020, 0.250]; Спирмен новой и старой сложности 0.990 (A) и 0.995 (B); корреляция успеха на выполнении и отказе 0.821 (до) и 0.914 (A)",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "A: 25 агентов",
+    "pooled": 0.134,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "сценарии 0.127 / 0.131 / 0.128 / 0.150"
+   },
+   {
+    "name": "B: 28 агентов, пустые случаи убраны",
+    "pooled": 0.131,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "сценарии 0.113 / 0.134 / 0.128 / 0.150"
+   },
+   {
+    "name": "lad2_adele на A",
+    "pooled": 0.177,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.072,
+     0.097
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "grp_proc_adele на A",
+    "pooled": 0.162,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.074,
+     0.083
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "shares_adele на A",
+    "pooled": 0.131,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.009,
+     0.007
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "clean/REPORT.md section 3, 4, 5",
+  "note": "Это пересчёт самого бейзлайна на очищенных данных, не новый метод. tau2 не менялся. Вариант B для методов кроме бейзлайна, длины и времени человека не запускался."
+ },
+ {
+  "id": "s_pertype_ability",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/pertype",
+  "name": "Способность агента отдельно для каждого типа задач",
+  "family": "psychometric",
+  "level": "L0",
+  "short": "К одной способности агента добавляют поправку для типа задачи: семейство действия, форма дерева правил или домен.",
+  "detail": "Проверка, хватает ли одной способности на агента. Типы известны до запуска: семейство действия (создать, изменить, закрыть, оплатить, прочитать), форма дерева правил и домен. Модель logit_all даёт ρ 0.119 и 0.125, то есть ровно как бейзлайн (0.120 и 0.125). Все парные разницы внутри [-0.011, 0.017]. Внутри агента виден небольшой выигрыш AUC (0.602 против 0.580) и log-loss, но по ранжированию задач прироста нет.",
+  "metric_type": "sop_only",
+  "pooled": null,
+  "scen": [
+   0.119,
+   0.125,
+   null,
+   null
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "logit_all: ρ 0.119 / 0.125 (бейзлайн 0.120 / 0.125), парные разницы [-0.004, 0.007] и [-0.011, 0.008], AUC внутри агента 0.602 / 0.539; mirt_q3 0.121 / 0.124; в новом домене log-loss у logit_all ниже бейзлайна",
+  "verdict": "не на протоколе",
+  "variants": [
+   {
+    "name": "logit_dom (по домену)",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     0.0,
+     0.0
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.121 / 0.125; AUC внутри агента 0.612, log-loss skill +0.033 на новых процедурах"
+   },
+   {
+    "name": "logit_tree (по форме дерева)",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.0,
+     0.017
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.121 / 0.125"
+   },
+   {
+    "name": "mirt_q3 (3 фиксированных измерения)",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.004,
+     0.006
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.121 / 0.124"
+   },
+   {
+    "name": "inter_all минус main_all",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "AUC внутри агента +0.023 [0.008, 0.036] на новых процедурах: чистая часть от взаимодействия агент на тип"
+   }
+  ],
+  "source": "pertype/REPORT.md section 2, 3, 4",
+  "note": "Только SOPBench: в tau2 нет дерева правил и флагов проверок, поэтому pooled по четырём сценариям нет. Среднее двух сценариев SOPBench 0.122 против 0.123 у бейзлайна."
+ },
+ {
+  "id": "s_pertype_shares",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/pertype",
+  "name": "Доли успеха по типам вместо признаков",
+  "family": "method",
+  "level": "L0",
+  "short": "Вероятность успеха агента на типе задачи равна его сглаженной доле успеха на обучающих задачах этого типа.",
+  "detail": "Автономные модели без ADeLe: P(агент, тип) = (успехи агента на типе + kappa на общую долю агента) / (число задач + kappa). Все задачи одного типа получают одно значение, поэтому задачи внутри типа они не ранжируют. Нулевая версия без типов (share_none) даёт 0.070 и 0.074, и именно с ней, а не с константой, надо сравнивать. Семейство и форма дерева значимо хуже бейзлайна в новом домене (парные интервалы [-0.328, -0.045] и [-0.253, -0.022]).",
+  "metric_type": "sop_only",
+  "pooled": null,
+  "scen": [
+   0.026,
+   -0.076,
+   null,
+   null
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "share_fam ρ 0.026 / -0.076; share_tree 0.011 / -0.002; share_dom 0.070 / 0.074; share_none 0.070 / 0.074 (нулевая модель); share_famtree 0.047 / 0.049",
+  "verdict": "не на протоколе",
+  "variants": [
+   {
+    "name": "share_none (контроль)",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.203,
+     0.069
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.070 / 0.074"
+   },
+   {
+    "name": "share_tree",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.254,
+     0.012
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.011 / -0.002"
+   },
+   {
+    "name": "share_dom",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.203,
+     0.069
+    ],
+    "vs_clad": null,
+    "note": "ρ 0.070 / 0.074, на новом домене равно нулевой"
+   }
+  ],
+  "source": "pertype/REPORT.md section 2, 3, 4",
+  "note": "Показаны ρ для share_fam. Выигрыш log-loss у этих моделей получен из плохой калибровки harness-константы, а не из типов."
+ },
+ {
+  "id": "s_pertype_subout",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/pertype",
+  "name": "Подцели вместо общего успеха",
+  "family": "label_read",
+  "level": "reference",
+  "short": "Предсказывать отдельно 'порядок проверок соблюдён' и 'итоговое действие выполнено верно', а не только общий успех.",
+  "detail": "Из сырых запусков SOPBench достали флаги проверок: dirgraph_satisfied и action_called_correctly. Бейзлайн с теми же 18 уровнями ADeLe предсказывает их так же слабо, как общий успех. Единственный интервал ощутимо выше нуля это 'действие верно' в новом домене (0.191), но цель другая, поэтому улучшением это не считается. Рейтинг агентов по двум целям близок (Спирмен 0.90), а сложности задач почти не связаны (0.28). Для gpt-5 порядок проверок выполнен в 96% случаев, а действие в 32%.",
+  "metric_type": "sop_only",
+  "pooled": null,
+  "scen": [
+   0.101,
+   0.144,
+   null,
+   null
+  ],
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "порядок проверок: ρ 0.101 [-0.105, 0.276] / 0.144 [-0.045, 0.297]; действие верно: 0.141 [-0.008, 0.252] / 0.191 [0.098, 0.276]; успех (справка) 0.120 / 0.125; рейтинг агентов checks против action Спирмен 0.902",
+  "verdict": "не на протоколе",
+  "variants": [
+   {
+    "name": "action_called_correctly",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "ρ 0.141 / 0.191"
+   }
+  ],
+  "source": "pertype/REPORT.md section 2, 3, 4",
+  "note": "Флаги используются только как цель, не как признак. Целевые ρ посчитаны к собственной полной IRT каждой цели."
+ },
+ {
+  "id": "s_pertype_routing",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/pertype",
+  "name": "Выбор лучшего агента по типу задачи (оффлайн-маршрутизация)",
+  "family": "method",
+  "level": "reference",
+  "short": "Для каждой тестовой задачи выбрать агента с максимальной предсказанной вероятностью и посмотреть, как часто он на ней реально справился.",
+  "detail": "Если брать одного агента по общей способности, на новых процедурах реальная доля успеха 0.735, на новом домене 0.659. Модель logit_all даёт 0.766 и 0.695, logit_dom даёт 0.799 на новых процедурах (разница +0.064 [0.031, 0.099]). Лучший по всем задачам агент задним числом даёт 0.753, оракул по задаче 0.952. Выигрыш реальный, но небольшой и закрывает лишь часть пропасти до оракула. Часть выигрыша это выбор между конфигурациями одной и той же модели.",
+  "metric_type": "success_rate",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "новые процедуры: одна способность 0.735, logit_all 0.766 (+0.031 [0.001, 0.058]), logit_dom 0.799, share_dom 0.790, лучший по домену на обучении 0.759, оракул 0.952, случайный 0.465; новый домен: одна способность 0.659, logit_all 0.695, inter_all 0.728 (+0.069 [0.026, 0.119]); tau2: одна способность 0.894, выигрыша нет",
+  "verdict": "не на протоколе",
+  "variants": [
+   {
+    "name": "logit_dom",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "0.799 на новых процедурах"
+   },
+   {
+    "name": "inter_all",
+    "pooled": null,
+    "vs_base": null,
+    "vs_base_ci": null,
+    "vs_clad": null,
+    "note": "0.776 на новых процедурах, 0.728 на новом домене"
+   }
+  ],
+  "source": "pertype/REPORT.md section 2, 3, 4; clean/REPORT.md section 4 (iv)",
+  "note": "Только SOPBench. На очищенных данных A выигрыш logit_all над одной способностью падает до +0.023 [-0.004, 0.050] и теряет значимость. Заявлены как заголовок только logit_all и inter_all, остальные строки выбраны после просмотра, это гипотезы для проверки на новом бенчмарке."
+ },
+ {
+  "id": "s_targets_shares",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/targets",
+  "name": "Простые доли успеха вместо IRT",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Вместо подгонки IRT берём логит сглаженной доли успеха агента и логит сглаженной доли отказов на задаче, остальное как у бейзлайна.",
+  "detail": "Вопрос руководителя: нужен ли вообще IRT. Способность агента это логит (s+0.5)/(n+1), цель для ridge это логит доли отказов на обучающей задаче, ridge и признаки ADeLe те же. Одна константа подбирается по правдоподобию, чтобы вероятности были откалиброваны. Pooled ρ 0.128 против 0.131, разница -0.003 с узким интервалом [-0.009, 0.005]. Значит, шаг IRT на ранжирование новых задач ничего не добавляет, весь сигнал даёт признак. Зато калибровка лучше: Brier skill +0.033 и log-loss skill +0.046.",
+  "metric_type": "pooled4",
+  "pooled": 0.128,
+  "scen": [
+   0.12,
+   0.123,
+   0.112,
+   0.155
+  ],
+  "vs_base": -0.003,
+  "vs_base_ci": [
+   -0.009,
+   0.005
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.025, 0.251]; Brier skill +0.033, log-loss skill +0.046; random_cases SOPBench 0.090 против 0.092",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "shares_adele + бейзлайн",
+    "pooled": 0.129,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.004,
+     0.005
+    ],
+    "vs_clad": null,
+    "note": "Brier +0.019, log-loss +0.026"
+   },
+   {
+    "name": "shares_human_time",
+    "pooled": 0.106,
+    "vs_base": -0.025,
+    "vs_base_ci": [
+     -0.131,
+     0.106
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "shares_human_time + бейзлайн",
+    "pooled": 0.13,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.026,
+     0.04
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "shares_adele + shares_human_time + бейзлайн",
+    "pooled": 0.129,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.019,
+     0.033
+    ],
+    "vs_clad": null,
+    "note": "Brier +0.026, log-loss +0.037"
+   },
+   {
+    "name": "shares_length",
+    "pooled": 0.043,
+    "vs_base": -0.088,
+    "vs_base_ci": [
+     -0.318,
+     0.046
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "targets/REPORT.md section 2",
+  "note": "Это контроль руководителя, не метод из статьи. Выигрыш по вероятностям это калибровка константой, а не ранжирование."
+ },
+ {
+  "id": "s_targets_bb",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/targets",
+  "name": "Бета-биномиальная версия долей",
+  "family": "psychometric",
+  "level": "L1",
+  "short": "Те же доли успеха, но вместо добавки 0.5 к счётчикам подбирается бета-априор по правдоподобию.",
+  "detail": "Эмпирический Байес: Beta(a, b) оценивается на обучающих счётчиках отдельно для долей агентов и долей отказов на задачах. Pooled ρ 0.127, разница с бейзлайном -0.004 [-0.008, 0.008], то есть то же самое, что и у сглаживания +0.5. Для human_time и length ρ совпал с простыми долями до трёх знаков. Отличаются только Brier и log-loss skill (+0.035 и +0.050).",
+  "metric_type": "pooled4",
+  "pooled": 0.127,
+  "scen": [
+   0.12,
+   0.126,
+   0.108,
+   0.153
+  ],
+  "vs_base": -0.004,
+  "vs_base_ci": [
+   -0.008,
+   0.008
+  ],
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "интервал ρ [0.029, 0.251]; Brier skill +0.035, log-loss skill +0.050",
+  "verdict": "на уровне",
+  "variants": [
+   {
+    "name": "bb_adele + бейзлайн",
+    "pooled": 0.131,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.004,
+     0.007
+    ],
+    "vs_clad": null,
+    "note": "Brier +0.021, log-loss +0.029"
+   },
+   {
+    "name": "bb_human_time",
+    "pooled": 0.106,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.131,
+     0.106
+    ],
+    "vs_clad": null,
+    "note": ""
+   },
+   {
+    "name": "bb_length",
+    "pooled": 0.043,
+    "vs_base": null,
+    "vs_base_ci": [
+     -0.318,
+     0.047
+    ],
+    "vs_clad": null,
+    "note": ""
+   }
+  ],
+  "source": "targets/REPORT.md section 2",
+  "note": "Калибровочный, а не ранговый выигрыш."
+ },
+ {
+  "id": "s_targets_passk",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/targets",
+  "name": "Надёжность pass^k по повторным попыткам",
+  "family": "psychometric",
+  "level": "reference",
+  "short": "Предсказать, что агент справится во всех k попытках подряд: либо p в степени k, либо бета-биномиальная формула с перегруженностью.",
+  "detail": "На tau2 и banking у одной пары агент и задача до 4 попыток. Прогноз p^k предполагает независимые попытки, бета-биномиальный добавляет сильную зависимость внутри ячейки (phi 1.2 до 1.4 на tau2, 0.8 на banking). На tau2 независимая версия чуть лучше: бета-биномиальная завышает pass^k (0.76 против наблюдаемых 0.67 при k=2). На banking бета-биномиальная заметно лучше (Brier 0.212 против 0.244 при k=2), но потому что бейзлайновое p там занижено, а не из-за самой зависимости. Единого победителя нет, честная проверка требует сперва перекалибровать p.",
+  "metric_type": "other",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "tau2 new_procedures k=2: Brier независимые 0.2180, бета-биномиальный 0.2197, разница +0.0018 [-0.0016, +0.0048]; banking k=2: 0.2439 против 0.2123, разница -0.0316 [-0.0446, -0.0184]; k=4: 0.2237 против 0.1799, разница -0.0438 [-0.0626, -0.0262]",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "targets/REPORT.md section 3",
+  "note": "Метрика Brier на pass^k, не ρ. phi оценено на других фолдах, оценка не полностью вложенная. Порядок попыток в данных не хранится, цель считается как доля k-подмножеств."
+ },
+ {
+  "id": "s_transfer_decomp",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/transfer",
+  "name": "Способность агента = модель плюс оболочка (Terminal-Bench)",
+  "family": "psychometric",
+  "level": "reference",
+  "short": "Проверка утверждения из Agent psychometrics: способность агента раскладывается на способность модели и способность его оболочки.",
+  "detail": "На Terminal-Bench 2.0 для 101 агента, удерживаемого по очереди, сравнили разложение со средней способностью всех агентов и со способностью той же модели в других оболочках. Знание модели сильно помогает: log-loss 0.547 падает до 0.393. Но тот же эффект даёт и одна лишь способность той же модели в других оболочках (0.396), добавка оболочки всего 0.003 с интервалом, включающим ноль. На SWE-bench Verified (19 агентов) то же самое. Метод переносится на нового агента, не на новую задачу, так что на бейзлайн он не влияет.",
+  "metric_type": "other",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "Terminal-Bench: log-loss разложения 0.393, средняя 0.547, та же модель 0.396; разница с (a) -0.155 [-0.191, -0.120], с (b) -0.0034 [-0.0073, +0.0005]; AUC 0.902 против 0.800",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "transfer/REPORT.md Method 1",
+  "note": "Это не протокол новых процессов, цифры нельзя сравнивать с 0.131."
+ },
+ {
+  "id": "s_transfer_shares_irt",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/transfer",
+  "name": "Доли против IRT на Terminal-Bench",
+  "family": "psychometric",
+  "level": "reference",
+  "short": "Проверка, нужен ли IRT, если сравнивать прогнозы отдельных ячеек на Terminal-Bench.",
+  "detail": "Рейтинги агентов и задач по долям и по IRT практически совпадают (Спирмен 0.9997 и 0.99997). Для прогноза отдельных ячеек 1PL лучше сглаженных долей на 0.0216 log-loss, а 2PL и ранг-2 взаимодействие дают ещё около 0.014. Значит, IRT не нужен для ранжирования, но для прогноза ячеек полезен умеренно.",
+  "metric_type": "other",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "log-loss 1PL 0.3826; доли 0.4041 (+0.0216 [+0.0193, +0.0238]); 2PL 0.3681 (-0.0144 [-0.0170, -0.0121]); ранг-2 0.3689 (-0.0136 [-0.0179, -0.0091])",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "transfer/REPORT.md Method 2",
+  "note": "Это не протокол новых процессов, цифры нельзя сравнивать с 0.131. Псевдосчётчик 2 не подбирался, константа-референс не считалась."
+ },
+ {
+  "id": "s_transfer_overdisp",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/transfer",
+  "name": "Зависимость повторных попыток (Terminal-Bench)",
+  "family": "psychometric",
+  "level": "reference",
+  "short": "Проверка, независимы ли повторные попытки одного агента на одной задаче при IRT-вероятности.",
+  "detail": "По 12 412 ячейкам с несколькими попытками статистика Пирсона даёт отношение 2.40 при норме около 0.95 для чисто биномиальных данных. Попытки внутри ячейки сильно связаны. Поэтому pass^5 по формуле p^5 занижен: 0.214 против наблюдаемых 0.295. Вывод: pass^k надо оценивать по повторным попыткам, а не выводить из p. Причина зависимости не установлена.",
+  "metric_type": "other",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "отношение дисперсий 2.40 (ранг-2 2.04), нулевое 0.951 ± 0.022; pass^5 наблюдаемое 0.295 [0.287, 0.303], независимое 1PL 0.214",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "transfer/REPORT.md Method 3",
+  "note": "Это не протокол новых процессов, цифры нельзя сравнивать с 0.131. Причина зависимости (устойчивая особенность пары, общая среда, смешение прогонов) не выделена."
+ },
+ {
+  "id": "s_router_pilot",
+  "round": "s",
+  "date": "4 окт",
+  "folder": "prototype/screen/router_pilot",
+  "name": "План пилота: передача последнего шага более сильной модели",
+  "family": "agents_run",
+  "level": "reference",
+  "short": "Модель A делает проверки, а на финальное действие решение передаётся модели B. Запуск только спланирован.",
+  "detail": "Ничего не запускали: агентских эпизодов и платных вызовов нет, цифры взяты из чтения кода, подсчёта символов в логах и страниц с ценами. Роутер дешёвый (около 60 строк в 5 файлах). Пилот на 150 случаях с одной попыткой стоит около 29 долларов (18-52), три попытки 87 (53-155). Но в логах нашёлся риск: gpt-5 присылает пустое сообщение в 81.6% ходов, и в 170 из 288 случаев выполнения действие не вызвано. Скорее всего ответ упёрся в лимит токенов на скрытые рассуждения. Тогда вывод 'gpt-5 проверяет хорошо и редко действует' это артефакт бюджета. Сначала нужна диагностика за 5 долларов.",
+  "metric_type": "none",
+  "pooled": null,
+  "scen": null,
+  "vs_base": null,
+  "vs_base_ci": null,
+  "vs_clad": null,
+  "vs_clad_ci": null,
+  "proc": null,
+  "other_metric": "стоимость 29 долларов (18-52) за одну попытку, 87 (53-155) за три; около 3 100 вызовов и 18.6M входных токенов; пустые ответы: gpt-5 81.6%, gpt-5-mini 49.9%, gemini-2.5-pro 38.9%",
+  "verdict": "не на протоколе",
+  "variants": [],
+  "source": "router_pilot/E8_PLAN.md sections 0 and 1.5",
+  "note": "Предположение про лимит токенов не доказано, в логах нет причины остановки. Разница между рукавами меньше 7-12 процентных пунктов на 150 случаях не обнаружится. Пара gemini-2.5-flash и pro по прогнозу даёт около 1 пункта."
+ }
+]

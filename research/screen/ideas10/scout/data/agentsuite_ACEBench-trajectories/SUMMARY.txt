@@ -1,0 +1,8 @@
+source: data/agentsuite_ACEBench-trajectories
+models with per-task outcomes: 30
+distinct tasks: 1023
+groups by task_name: 17 ; sizes [20, 30, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 123]
+models covering >=95% of tasks: 30
+tasks solved by all models: 170 ; by none: 80 ; mixed: 773
+group mean pass rate (n): agent_multi_step=0.71(20); agent_multi_turn=0.58(30); normal_atom_bool=0.89(50); normal_atom_enum=0.92(50); normal_atom_list=0.86(50); normal_atom_number=0.90(50); normal_atom_object_deep=0.51(50); normal_atom_object_short=0.88(50); normal_multi_turn_user_adjust=0.79(123); normal_multi_turn_user_switch=0.75(100); normal_preference=0.68(50); normal_similar_api=0.73(50); normal_single_turn_parallel_function=0.64(100); normal_single_turn_single_function=0.74(100); special_error_param=0.84(50); special_incomplete=0.72(50); special_irrelevant=0.91(50)
+per-model pass: DeepSeek-R1-0528=0.79; DeepSeek-V3-0324=0.80; DeepSeek-V3.2-Exp-thinking-off=0.82; DeepSeek-V3.2-Exp-thinking-on=0.80; Kimi-K2-Instruct=0.81; Kimi-K2-Instruct-0905=0.81; Qwen3-235B-A22B-FP8=0.78; Qwen3-235B-A22B-Instruct-2507-FP8=0.79; Qwen3-235B-A22B-Thinking-2507-FP8=0.76; Qwen3-Coder-480B-A35B-Instruct-FP8=0.75; claude-4-opus-thinking-off=0.81; claude-4-opus-thinking-on-10k=0.80; claude-4-sonnet-thinking-off=0.81; claude-4-sonnet-thinking-on-10k=0.78; claude-4.5-sonnet-thinking-off=0.57; claude-4.5-sonnet-thinking-on-10k=0.81; gemini-2.5-flash-thinking-off=0.80; gemini-2.5-flash-thinking-on=0.79; gemini-2.5-pro-thinking-on=0.80; gpt-4.1=0.84; gpt-4.1-mini=0.82; gpt-4.1-nano=0.59; gpt-4o-20240806=0.85; gpt-4o-mini=0.78; gpt-5=0.71; gpt-5-nano=0.48; gpt-oss-120b=0.80; gpt-oss-20b=0.77; o3-high=0.81; o4-mini-high=0.73

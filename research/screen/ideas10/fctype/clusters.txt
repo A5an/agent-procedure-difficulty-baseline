@@ -1,0 +1,60 @@
+cluster 0: n=600, mean p 0.26, benches {'sop': 275, 'airline': 209, 'banking_knowledge': 53, 'retail': 42, 'telecom': 21}
+   - Agent skips looking up the user or reservation and answers from policy alone. Or it gives a vague or incorrect explanation, such as claiming insurance is refund
+   - Agent skips explicit confirmation or the cancellation reason check (must be 'no longer needed' or 'ordered by mistake'). It may accept a different reason or inf
+   - Agent skips asking for the cancellation reason, or never confirms it (change of plan vs other), before calling cancel_reservation.
+   - Agent asks the user to confirm details or fetches loyalty info unnecessarily, then books anyway when the policy requires a refusal. It may also book without tel
+cluster 1: n=844, mean p 0.30, benches {'sop': 467, 'retail': 368, 'banking_knowledge': 9}
+   - Agent applies the coupon even though a policy check failed (expired, already used, or not alice's order), or it refuses without explaining the reason. Either wa
+   - Agent returns an order that isn't delivered (pending or processed), or never checks order status. It could also try to cancel a pending order instead.
+   - The agent skips or reorders required checks: it does not call get_order_details to verify the order belongs to alice, has status 'Delivered', and contains the o
+   - Agent checks order history but misreads the order items (e.g., product name vs ID mismatch, or an order that is Canceled/Refunded) and wrongly concludes alice d
+cluster 2: n=633, mean p 0.24, benches {'sop': 494, 'banking_knowledge': 67, 'retail': 41, 'airline': 31}
+   - Agent miscomputes expected cash back (wrong rate tier, rounding, or applying a rate from the wrong card), leading to an incorrect conclusion about which transac
+   - Agent miscomputes available credit (e.g., treats credit balance as the amount remaining, or compares amount to the wrong field) and wrongly approves or refuses 
+   - Agent confuses get_account_owed_balance (loan owed) with the credit card balance and decides using the wrong figure, wrongly refusing or wrongly proceeding.
+   - Agent miscalculates the 20% limit (7000 is under 10000, so it is allowed) or misreads the date window. It then refuses for a wrong reason or gives a confused ex
+cluster 3: n=347, mean p 0.40, benches {'telecom': 346, 'banking_knowledge': 1}
+   - Agent stops after the first fixes (check can_send_mms, set the network mode, reset the APN) and never works through the full chain. It skips the data-limit chec
+   - Agent stops after the first fixes (check can_send_mms, set the network mode, reset the APN) and never works through the full chain. It skips the data-limit chec
+   - Agent stops after the first fixes (check can_send_mms, set the network mode, reset the APN) and never works through the full chain. It skips the data-limit chec
+   - Agent stops after the first fixes (check can_send_mms, set the network mode, reset the APN) and never works through the full chain. It skips the data-limit chec
+cluster 4: n=1109, mean p 0.24, benches {'sop': 947, 'retail': 84, 'banking_knowledge': 78}
+   - Agent skips the required login_user call or treats the 'identification' string sdfojngsmnlvx as a password without trying it, or calls it as a driver's license,
+   - Agent skips authenticate_admin_password (or only calls login_user with the 'identification' string) and goes straight to the cancellation check, so the required
+   - Agent skips login_user, or calls deposit_funds without logging in first, since the user only gave an 'identification' string and the agent never confirms it is 
+   - Agent skips login_user or doesn't confirm it returned true before proceeding, or proceeds despite a failed login with the odd-looking password.
+cluster 5: n=601, mean p 0.17, benches {'sop': 336, 'telecom': 114, 'retail': 77, 'banking_knowledge': 49, 'airline': 25}
+   - Agent makes unnecessary calls, such as authenticate_admin_password, asking for an admin password, or running insurance and registration checks. These add wrong 
+   - Agent makes unnecessary or unrequested tool calls, such as asking for extra confirmation, calling logout_user, or modifying the policy. These can change the fin
+   - Agent makes extra unrequested calls, such as get_account_balance, get_credit_cards or authenticate_admin_password, or asks for an admin password. These can chan
+   - Agent checks things in the wrong order (for example the credit score before admin authentication) or makes extra unneeded calls such as get_safety_box or logout
+cluster 6: n=414, mean p 0.37, benches {'sop': 402, 'banking_knowledge': 9, 'airline': 3}
+   - Agent skips internal_get_interaction_time (or assumes a date) and never verifies that 2024-12-08 falls 5-10 days after the interaction date, so it books or refu
+   - Agent skips internal_get_interaction_time (or assumes the current date from its own knowledge) and never verifies that 2025-01-10 is after the interaction time,
+   - Agent never calls internal_get_interaction_time (or misreads it) and so skips or botches the check that the current time is no later than 2024-12-01 15:00 (24h 
+   - Agent never calls internal_get_interaction_time (or trusts its own date) and so skips the 10-to-30-day check-in window; if the interaction date puts 2024-12-10 
+cluster 7: n=553, mean p 0.31, benches {'sop': 522, 'telecom': 29, 'airline': 1, 'banking_knowledge': 1}
+   - The agent never calls get_policy_details, or it skips the check that the policy type is not 'Inactive'. It submits the claim straight after login.
+   - Agent skips get_policy_details and never verifies the policy is not 'Inactive' before updating, so it updates or refuses incorrectly.
+   - The agent skips get_policy_details and does not confirm the policy type is not 'Inactive'. It may also check the policy after calling appeal_claim, which breaks
+   - Agent skips get_policy_details (or misreads it) and calls update_policy without verifying the policy type is not 'Inactive', which is the check most likely to d
+cluster 8: n=629, mean p 0.37, benches {'sop': 612, 'airline': 16, 'banking_knowledge': 1}
+   - Agent does not verify the guest's actual existing booking (never calls find_booking_info), so it assumes the old dates equal the new dates and doesn't notice th
+   - Agent does not look up the existing reservation first, so it misses that the booking may already be a double room, or has a different room type or dates than th
+   - Agent skips computing the price difference between the old booking (old room type, 3 nights) and the new double room (3 nights), because it never looks up the e
+   - Agent miscomputes the price difference between old booking (old room type, old nights) and new single-room stay, or doesn't look up the old booking via find_boo
+cluster 9: n=867, mean p 0.34, benches {'sop': 518, 'banking_knowledge': 284, 'retail': 48, 'airline': 17}
+   - Agent never calls get_credit_card_info (or get_credit_cards) to check the card's outstanding balance, or calls it without first confirming the card exists, so t
+   - Agent skips internal_check_user_credit_status, or misreads the policy's nested ANY/ALL logic (window AND exchange count under 2, OR credit excellent). It then w
+   - Agent skips internal_check_user_credit_status and calls add_review after login and order check, never verifying that alice's credit is not 'restricted' or 'susp
+   - The user says 'verify the cancellation', and the agent doesn't ask for explicit confirmation or over-asks. It may also misread a nonzero card balance and cancel
+cluster 10: n=464, mean p 0.20, benches {'sop': 405, 'banking_knowledge': 31, 'retail': 27, 'airline': 1}
+   - Agent uses wrong room_type string (e.g., 'suite' vs 'Suite') or doesn't validate it with internal_valid_room_type, causing book_room to fail or a wrong-type boo
+   - Agent uses wrong room_type string (e.g. 'Double Room' vs 'double') and does not validate via internal_valid_room_type, so the booking fails or is misapplied.
+   - The agent uses the wrong room_type string (e.g. 'double room' or 'Double' instead of the exact DB key) because it did not call internal_valid_room_type, so the 
+   - Agent uses a wrong room_type string such as 'single room' or 'Single Room' instead of the exact system value, or skips internal_valid_room_type, so the modifica
+cluster 11: n=175, mean p 0.29, benches {'telecom': 174, 'sop': 1}
+   - Agent claims the bill is paid or calls resume_line right after make_payment without re-fetching the bill to confirm status is PAID, or never has the user check 
+   - Agent claims the bill is paid or calls resume_line right after make_payment without re-fetching the bill to confirm status is PAID, or never has the user check 
+   - Agent claims the bill is paid or calls resume_line right after make_payment without re-fetching the bill to confirm status is PAID, or never has the user check 
+   - Agent claims the bill is paid or calls resume_line right after make_payment without re-fetching the bill to confirm status is PAID, or never has the user check 
