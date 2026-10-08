@@ -1,0 +1,74 @@
+{
+ "new_procedures": {
+  "adele": {
+   "rho_protocol": 0.12,
+   "rho_given_label": 0.13,
+   "rho_procedure_level": 0.304
+  },
+  "lad2_adele": {
+   "rho_protocol": 0.181,
+   "rho_given_label": 0.19,
+   "rho_procedure_level": 0.447
+  },
+  "grp_proc_adele": {
+   "rho_protocol": 0.194,
+   "rho_given_label": 0.193,
+   "rho_procedure_level": 0.507
+  },
+  "human_time": {
+   "rho_protocol": 0.093,
+   "rho_given_label": 0.144,
+   "rho_procedure_level": 0.181
+  },
+  "length": {
+   "rho_protocol": -0.02,
+   "rho_given_label": 0.025,
+   "rho_procedure_level": 0.085
+  },
+  "oracle_procedure_mean": {
+   "rho_protocol": 0.175
+  },
+  "oracle_procedure_x_label": {
+   "rho_protocol": 0.597
+  },
+  "oracle_label_only": {
+   "rho_protocol": 0.546
+  }
+ },
+ "new_domain": {
+  "adele": {
+   "rho_protocol": 0.125,
+   "rho_given_label": 0.142,
+   "rho_procedure_level": 0.231
+  },
+  "lad2_adele": {
+   "rho_protocol": 0.179,
+   "rho_given_label": 0.173,
+   "rho_procedure_level": 0.411
+  },
+  "grp_proc_adele": {
+   "rho_protocol": 0.179,
+   "rho_given_label": 0.169,
+   "rho_procedure_level": 0.438
+  },
+  "human_time": {
+   "rho_protocol": 0.131,
+   "rho_given_label": 0.187,
+   "rho_procedure_level": 0.164
+  },
+  "length": {
+   "rho_protocol": 0.032,
+   "rho_given_label": 0.074,
+   "rho_procedure_level": 0.186
+  },
+  "oracle_procedure_mean": {
+   "rho_protocol": 0.231
+  },
+  "oracle_procedure_x_label": {
+   "rho_protocol": 0.614
+  },
+  "oracle_label_only": {
+   "rho_protocol": 0.52
+  }
+ }
+}

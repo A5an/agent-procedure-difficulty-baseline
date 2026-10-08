@@ -1,0 +1,28 @@
+models: 23; distinct (service/task): 127
+task text: tasks/<service>/<difficulty>/<category>/<task>/description.md in github.com/eval-sys/mcpmark (Apache-2.0); mapping from 'desktop__music_report' to path is by last two path parts (not verified for all)
+runs per model-task: Counter({4: 1976, 1: 191, 3: 47, 2: 36})
+  claude-opus-4-1: tasks=127 mean_pass=0.299
+  claude-sonnet-4: tasks=127 mean_pass=0.281
+  deepseek-chat: tasks=127 mean_pass=0.167
+  gemini-2-5-flash: tasks=127 mean_pass=0.091
+  gemini-2-5-pro: tasks=127 mean_pass=0.157
+  glm-4-5: tasks=127 mean_pass=0.156
+  gpt-4-1: tasks=127 mean_pass=0.081
+  gpt-4-1-mini: tasks=37 mean_pass=0.027
+  gpt-4-1-nano: tasks=46 mean_pass=0.000
+  gpt-5-high: tasks=11 mean_pass=0.636
+  gpt-5-low: tasks=127 mean_pass=0.469
+  gpt-5-mini-low: tasks=127 mean_pass=0.083
+  gpt-5-nano-low: tasks=81 mean_pass=0.046
+  gpt-oss-120b: tasks=7 mean_pass=0.000
+  grok-4: tasks=127 mean_pass=0.317
+  grok-code-fast-1: tasks=127 mean_pass=0.205
+  k2: tasks=70 mean_pass=0.164
+  k2-0905: tasks=127 mean_pass=0.219
+  kimi-k2-0711: tasks=19 mean_pass=0.316
+  kimi-k2-0905: tasks=127 mean_pass=0.219
+  o3: tasks=127 mean_pass=0.254
+  o4-mini: tasks=127 mean_pass=0.171
+  qwen-3-max: tasks=74 mean_pass=0.224
+models with >=120 tasks: 15; tasks solved by none (mean=0): 27; by all: 0
+Source: https://huggingface.co/datasets/Jakumetsu/mcpmark-trajectory-log (MIT). Only meta.json downloaded (messages.json trajectories not downloaded). Benchmark MCPMark v1-0905 (127 tasks nominal).

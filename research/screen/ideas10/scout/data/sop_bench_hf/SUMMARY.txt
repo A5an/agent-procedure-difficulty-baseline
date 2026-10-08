@@ -1,0 +1,17 @@
+SOP-Bench (amazon/sop-bench on HF, CC-BY-NC-4.0): per domain files and row counts
+aircraft_inspection: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 112, 'test_set_without_outputs.csv': 38}
+content_flagging: sop.txt=True toolspecs=True csv_rows={'data.csv': 168, 'test_set_with_outputs.csv': 168, 'test_set_without_outputs.csv': 57}
+customer_service: sop.txt=True toolspecs=True csv_rows={'data.csv': 156, 'test_set_with_outputs.csv': 156}
+dangerous_goods: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 274, 'test_set_without_outputs.csv': 274}
+email_intent: sop.txt=True toolspecs=True csv_rows={'data.csv': 186, 'test_set_with_outputs.csv': 195, 'test_set_without_outputs.csv': 71}
+know_your_business: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 90, 'test_set_without_outputs.csv': 90}
+order_fulfillment: sop.txt=True toolspecs=True csv_rows={'data.csv': 3, 'test_set_with_outputs.csv': 30}
+patient_intake: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 66, 'test_set_without_outputs.csv': 23}
+referral_abuse_detection_v1: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 200, 'test_set_without_outputs.csv': 200}
+referral_abuse_detection_v2: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 200, 'test_set_without_outputs.csv': 200}
+traffic_spoofing_detection: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 200, 'test_set_without_outputs.csv': 200}
+video_annotation: sop.txt=True toolspecs=True csv_rows={'test_set_with_outputs.csv': 125, 'test_set_without_outputs.csv': 42}
+video_classification: sop.txt=True toolspecs=True csv_rows={'data.csv': 197, 'test_set_with_outputs.csv': 197, 'test_set_without_outputs.csv': 110}
+warehouse_package_inspection: sop.txt=False toolspecs=False csv_rows={}
+NO per-task results of any LLM are in this dataset (README says leaderboard 'coming soon'); outcomes would have to be produced by running agents ourselves (track E). Ground truth outputs exist in test_set_with_outputs.csv.
+warehouse_package_inspection has nested subfolders (barcode/...); not counted above. Total rows over listed CSVs about 1.9k test cases, 14 SOP folders, README says 12 domains / 2000+ tasks.

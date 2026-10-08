@@ -153,3 +153,7 @@ the same with statement-only inputs in `table5_statement_only.csv`).
 - Truong et al. Reliable and efficient amortized model-based evaluation. ICML 2025.
 - Song et al. IRT-Router. ACL 2025. Li. kNN routing, arXiv 2505.12601, 2025.
 - Kwa et al. Measuring AI ability to complete long software tasks. NeurIPS 2025. arXiv 2503.14499.
+
+## Research beyond the baseline
+
+Methods built on top of this baseline (the best reaches pooled ρ 0.354 against 0.131), their features and the reports of every experiment round are in [`research/`](research/README.md).

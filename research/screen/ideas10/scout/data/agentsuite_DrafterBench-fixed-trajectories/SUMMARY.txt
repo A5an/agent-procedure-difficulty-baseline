@@ -1,0 +1,8 @@
+source: data/agentsuite_DrafterBench-fixed-trajectories
+models with per-task outcomes: 30
+distinct tasks: 1920
+groups by task_name: 12 ; sizes [160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160]
+models covering >=95% of tasks: 30
+tasks solved by all models: 24 ; by none: 0 ; mixed: 1896
+group mean pass rate (n): add_table=0.80(160); add_text=0.85(160); add_vector=0.76(160); delete_vector=0.81(160); map_table=0.84(160); map_text=0.81(160); map_vector=0.74(160); refresh_table=0.80(160); refresh_text=0.75(160); refresh_vector=0.75(160); revise_table=0.77(160); revise_text=0.83(160)
+per-model pass: DeepSeek-R1-0528=0.81; DeepSeek-V3-0324=0.77; DeepSeek-V3.2-Exp-thinking-off=0.77; DeepSeek-V3.2-Exp-thinking-on=0.81; Kimi-K2-Instruct=0.82; Kimi-K2-Instruct-0905=0.82; Qwen3-235B-A22B-FP8=0.76; Qwen3-235B-A22B-Instruct-2507-FP8=0.78; Qwen3-235B-A22B-Thinking-2507-FP8=0.82; Qwen3-Coder-480B-A35B-Instruct-FP8=0.75; claude-4-opus-thinking-off=0.83; claude-4-opus-thinking-on-10k=0.83; claude-4-sonnet-thinking-off=0.82; claude-4-sonnet-thinking-on-10k=0.85; claude-4.5-sonnet-thinking-off=0.82; claude-4.5-sonnet-thinking-on-10k=0.86; gemini-2.5-flash-thinking-off=0.79; gemini-2.5-flash-thinking-on=0.73; gemini-2.5-pro-thinking-on=0.82; gpt-4.1=0.81; gpt-4.1-mini=0.77; gpt-4.1-nano=0.62; gpt-4o-20240806=0.77; gpt-4o-mini=0.70; gpt-5=0.85; gpt-5-nano=0.73; gpt-oss-120b=0.79; gpt-oss-20b=0.75; o3-high=0.86; o4-mini-high=0.81

@@ -1,0 +1,5 @@
+glm-5_enabled_banking_knowledge_gpt-5.2_4trials.json: agent=openai/glm-5-fp8 retrieval=openai_embeddings tasks_in_file=97 sims=307 tasks_with_sims=97 mean_reward=0.111
+gpt-5.2_none_banking_knowledge_gpt-5.2_4trials.json: agent=gpt-5.2 retrieval=qwen_embeddings tasks_in_file=97 sims=388 tasks_with_sims=97 mean_reward=0.124
+qwen3.5-397b-a17b_enabled_banking_knowledge_gpt-5.2_4trials.json: agent=openai/qwen3.5-397b retrieval=openai_embeddings tasks_in_file=97 sims=388 tasks_with_sims=97 mean_reward=0.115
+task text present (description/user_scenario/ticket), evaluation_criteria present (gold, leakage for test use), policy via domain dir in tau2-bench repo, KB docs via required_documents
+NOTE: same 97 banking_knowledge tasks as already in project (data/external/tau2-banking has 9 other agents). NOT fresh tasks; adds agents/retrieval configs. S3: sierra-tau-bench-public, 24+ more banking files up to 365MB each (not downloaded).

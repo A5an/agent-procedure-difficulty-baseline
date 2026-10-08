@@ -1,0 +1,11 @@
+out/
+out_*/
+work/
+__pycache__/
+*.pkl
+llm_cache.jsonl
+sonnet_cache*.jsonl
+opus_cache*.jsonl
+haiku_cache.jsonl
+usage.jsonl
+*.log
