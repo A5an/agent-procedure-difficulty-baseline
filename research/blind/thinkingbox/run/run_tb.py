@@ -29,11 +29,11 @@ def tasks(stage):
     return list(o[o["rank"] < n].task_id)
 
 
-def errors(path):
-    if not path.exists():
-        return None
-    return sum(1 for l in path.read_text().splitlines() if json.loads(l).get("is_system_error")
-               or (json.loads(l).get("test_result") or {}).get("is_system_error", True))
+def errors(path, expected):
+    """Runs to redo: system errors plus runs missing from the file (a crashed tb infer writes fewer rows)."""
+    recs = [json.loads(l) for l in path.read_text().splitlines()] if path.exists() else []
+    bad = sum(1 for r in recs if r.get("is_system_error") or (r.get("test_result") or {}).get("is_system_error", True))
+    return bad + max(0, expected - len(recs))
 
 
 def main(stage, agents):
@@ -42,20 +42,24 @@ def main(stage, agents):
     tl = out / "testlist.yaml"
     tl.write_text(yaml.safe_dump(tasks(stage)))
     rep = "1" if stage == "pilot" else "2"
+    expected = len(tasks(stage)) * int(rep)
     for a in agents:
         cfg = HERE / "configs" / f"{stage}_{a}.yaml"
         base = ["tb", "infer", "-c", str(cfg), "--dataset", str(TBD / "dataset"), "--agent", "think",
                 "--test-list", str(tl), "--repeat", rep, "-b", os.environ.get("BATCH", "5")]
         prev = out / f"{a}.jsonl"
-        if not prev.exists():
+        if not prev.exists() or prev.stat().st_size == 0:
             subprocess.run(base + ["-o", str(prev)], check=False)
         for k in (1, 2):
             nxt = out / f"{a}.r{k}.jsonl"
-            if errors(prev) and not nxt.exists():
-                subprocess.run(base + ["--previous-results-file", str(prev), "-o", str(nxt)], check=False)
-            if nxt.exists():
+            if errors(prev, expected) and not (nxt.exists() and nxt.stat().st_size):
+                if prev.stat().st_size if prev.exists() else 0:
+                    subprocess.run(base + ["--previous-results-file", str(prev), "-o", str(nxt)], check=False)
+                else:
+                    subprocess.run(base + ["-o", str(nxt)], check=False)
+            if nxt.exists() and nxt.stat().st_size:
                 prev = nxt
-        print(a, "final file", prev.name, "system errors left", errors(prev), flush=True)
+        print(a, "final file", prev.name, "runs to redo left", errors(prev, expected), flush=True)
 
 
 if __name__ == "__main__":

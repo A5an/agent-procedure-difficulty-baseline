@@ -36,6 +36,10 @@ REG = {"gemini-2.5-flash-lite": EU,
 _rr = {m: itertools.cycle(r) for m, r in REG.items()}
 _lock = threading.Lock()
 _tok = {"v": None, "t": 0.0}
+PRICE = {"gemini-2.5-flash-lite": (0.10, 0.40), "gemini-2.5-flash": (0.30, 2.50), "gemini-2.5-pro": (1.25, 10.00),
+         "gemini-3.8-flash": (0.75, 3.75)}
+CAP = float(os.environ.get("TB_CAP_USD", "0"))  # stop serving calls once this many USD were spent since start, 0 = off
+_spent = {"usd": 0.0}
 PROJECT = subprocess.run(["gcloud", "config", "get-value", "project"], capture_output=True, text=True).stdout.strip()
 
 
@@ -79,6 +83,8 @@ class Handler(BaseHTTPRequestHandler):
         tag, model = body["model"].split("|", 1) if "|" in body["model"] else ("", body["model"])
         if model not in REG:
             return self.reply(400, json.dumps({"error": {"message": f"unknown model {model}"}}).encode())
+        if CAP and _spent["usd"] >= CAP:
+            return self.reply(429, json.dumps({"error": {"message": f"proxy spending cap {CAP} USD reached"}}).encode())
         body["model"] = "google/" + model
         if tag.endswith(("user", "judge")):
             body.pop("reasoning_effort", None)
@@ -94,8 +100,22 @@ class Handler(BaseHTTPRequestHandler):
                 time.sleep(min(60, 2 ** attempt))
                 continue
             if r.status_code == 200:
-                u = r.json().get("usage") or {}
-                log({"t": round(time.time(), 1), "tag": tag, "model": model, "loc": loc, "attempts": attempt + 1,
+                j = r.json()
+                u = j.get("usage") or {}
+                ch = (j.get("choices") or [{}])[0]
+                msg = ch.get("message") or {}
+                empty = not msg.get("content") and not msg.get("tool_calls")
+                if empty and os.environ.get("TB_DEBUG_EMPTY"):
+                    d = HERE / "debug"
+                    d.mkdir(exist_ok=True)
+                    (d / f"{time.time():.3f}_{model}.json").write_text(json.dumps({"request": body, "response": j}))
+                pi, po = PRICE[model]
+                cached = (u.get("prompt_tokens_details") or {}).get("cached_tokens", 0)
+                with _lock:
+                    _spent["usd"] += ((u.get("prompt_tokens", 0) - cached) * pi + cached * pi * 0.1 + (
+                        u.get("completion_tokens", 0) + (u.get("completion_tokens_details") or {}).get(
+                            "reasoning_tokens", 0)) * po) / 1e6
+                log({"finish": ch.get("finish_reason"), "empty": empty, "t": round(time.time(), 1), "tag": tag, "model": model, "loc": loc, "attempts": attempt + 1,
                      "sec": round(time.time() - t0, 1), "in": u.get("prompt_tokens", 0),
                      "out": u.get("completion_tokens", 0),
                      "cached": (u.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
