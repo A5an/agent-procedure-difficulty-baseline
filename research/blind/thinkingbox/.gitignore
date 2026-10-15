@@ -6,3 +6,5 @@ __pycache__/
 runs/
 run/proxy.log
 run/debug/
+run/cap_usd.txt
+run/*.pid

@@ -12,6 +12,7 @@ The Google Cloud project is read from `gcloud config get-value project` and neve
 import itertools
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -39,7 +40,16 @@ _tok = {"v": None, "t": 0.0}
 PRICE = {"gemini-2.5-flash-lite": (0.10, 0.40), "gemini-2.5-flash": (0.30, 2.50), "gemini-2.5-pro": (1.25, 10.00),
          "gemini-3.8-flash": (0.75, 3.75)}
 CAP = float(os.environ.get("TB_CAP_USD", "0"))  # stop serving calls once this many USD were spent since start, 0 = off
+CAP_FILE = HERE / "cap_usd.txt"  # if present, its number replaces CAP at every call (raise the cap without a restart)
 _spent = {"usd": 0.0}
+# Agent turn limit: an agent request whose conversation already holds MAX_CALLS assistant tool-call turns gets a final
+# text reply instead of a model call, which ends the agent's loop (added during the main run of 15 Oct after a
+# gemini-2.5-pro episode repeated one tool call hundreds of times; no finished episode had more than 36 such turns).
+MAX_CALLS = int(os.environ.get("TB_MAX_AGENT_CALLS", "100"))
+STOP = {"id": "proxy-turn-limit", "object": "chat.completion", "model": "",
+        "choices": [{"index": 0, "finish_reason": "stop",
+                     "message": {"role": "assistant", "content": "I am unable to complete this request. <DONE>"}}],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}}
 PROJECT = subprocess.run(["gcloud", "config", "get-value", "project"], capture_output=True, text=True).stdout.strip()
 
 
@@ -55,6 +65,16 @@ def token(force=False):
 def region(model):
     with _lock:
         return next(_rr[model])
+
+
+_local = threading.local()
+
+
+def session():
+    # one keep-alive session per handler thread: fewer TLS handshakes than a new connection per call
+    if not hasattr(_local, "s"):
+        _local.s = requests.Session()
+    return _local.s
 
 
 def url(loc):
@@ -83,8 +103,18 @@ class Handler(BaseHTTPRequestHandler):
         tag, model = body["model"].split("|", 1) if "|" in body["model"] else ("", body["model"])
         if model not in REG:
             return self.reply(400, json.dumps({"error": {"message": f"unknown model {model}"}}).encode())
-        if CAP and _spent["usd"] >= CAP:
-            return self.reply(429, json.dumps({"error": {"message": f"proxy spending cap {CAP} USD reached"}}).encode())
+        cap = CAP
+        try:
+            cap = float(CAP_FILE.read_text().strip())
+        except (OSError, ValueError):
+            pass
+        if cap and _spent["usd"] >= cap:
+            return self.reply(429, json.dumps({"error": {"message": f"proxy spending cap {cap} USD reached"}}).encode())
+        if tag.endswith("agent") and sum(1 for m in body.get("messages", [])
+                                         if m.get("role") == "assistant" and m.get("tool_calls")) >= MAX_CALLS:
+            log({"t": round(time.time(), 1), "tag": tag, "model": model, "turn_limit": True, "in": 0, "out": 0,
+                 "cached": 0, "reasoning": 0})
+            return self.reply(200, json.dumps(STOP).encode())
         body["model"] = "google/" + model
         if tag.endswith(("user", "judge")):
             body.pop("reasoning_effort", None)
@@ -93,10 +123,12 @@ class Handler(BaseHTTPRequestHandler):
         for attempt in range(14):
             loc = region(model)
             try:
-                r = requests.post(url(loc), json=body, headers={"Authorization": f"Bearer {token()}"},
-                                  timeout=(20, 300))
+                r = session().post(url(loc), json=body, headers={"Authorization": f"Bearer {token()}"},
+                                   timeout=(20, 300))
             except Exception as e:
-                last = (503, json.dumps({"error": {"message": f"proxy: {type(e).__name__}"}}).encode())
+                detail = re.sub(r"projects/[^/\s'\"`]+", "projects/<P>", str(e).replace(PROJECT, "<P>"))[:160]
+                last = (503, json.dumps({"error": {"message": f"proxy: {type(e).__name__}: {detail}"}}).encode())
+                _local.__dict__.pop("s", None)
                 time.sleep(min(60, 2 ** attempt))
                 continue
             if r.status_code == 200:
@@ -121,7 +153,7 @@ class Handler(BaseHTTPRequestHandler):
                      "cached": (u.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
                      "reasoning": (u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)})
                 return self.reply(200, r.content)
-            last = (r.status_code, r.content.replace(PROJECT.encode(), b"<P>"))
+            last = (r.status_code, re.sub(rb"projects/[^/\s\"`']+", b"projects/<P>", r.content.replace(PROJECT.encode(), b"<P>")))
             if r.status_code == 401:
                 token(force=True)
                 continue
