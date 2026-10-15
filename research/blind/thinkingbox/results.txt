@@ -1,0 +1,8 @@
+tasks evaluated 405 of 405 selected; valid runs 3240/3240; mean success 0.227
+score_D          rho 0.124 [0.022, 0.224]  pacc 0.555
+score_baseline   rho -0.055 [-0.149, 0.044]  pacc 0.476
+score_length     rho 0.051 [-0.055, 0.152]  pacc 0.523
+score_D - score_baseline           +0.179 [+0.067, +0.297]
+score_D - score_length             +0.073 [-0.046, +0.204]
+score_baseline - score_length      -0.106 [-0.202, -0.013]
+point 5 of the improvement rule met: True

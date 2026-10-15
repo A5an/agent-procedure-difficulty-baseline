@@ -1,0 +1,112 @@
+{
+ "n_selected": 405,
+ "n_evaluated": 405,
+ "runs_valid": 3240,
+ "runs_total": 3240,
+ "mean_success": 0.22654320987654322,
+ "per_agent_success": {
+  "gemini-2.5-flash": 0.09012345679012346,
+  "gemini-2.5-flash-lite": 0.0024691358024691358,
+  "gemini-2.5-pro": 0.1617283950617284,
+  "gemini-3.8-flash": 0.6518518518518519
+ },
+ "rho": {
+  "score_D": 0.12435642449398804,
+  "score_baseline": -0.05468324246274112,
+  "score_length": 0.051095660416205495
+ },
+ "pacc": {
+  "score_D": 0.5546598844727993,
+  "score_baseline": 0.4755582377791189,
+  "score_length": 0.5227605828088628
+ },
+ "rho_by_domain": {
+  "auto_insurance": {
+   "score_D": 0.12300820515848282,
+   "score_baseline": -0.17774708649639978,
+   "score_length": -0.06309242593197396
+  },
+  "consulting_it_and_hr": {
+   "score_D": 0.0925922950645236,
+   "score_baseline": -0.17603085586795356,
+   "score_length": -0.0010850976023985563
+  },
+  "neobank_support": {
+   "score_D": 0.2169418544447597,
+   "score_baseline": 0.09309678984904551,
+   "score_length": 0.31619716847847845
+  },
+  "retail_and_ecommerce": {
+   "score_D": 0.08476995049122983,
+   "score_baseline": -0.042955903752612296,
+   "score_length": -0.04897768570576427
+  },
+  "travel_and_hospitality": {
+   "score_D": 0.10446981731094421,
+   "score_baseline": 0.03022084395421452,
+   "score_length": 0.05243634284268589
+  }
+ },
+ "rho_ci": {
+  "score_D": [
+   0.022234698040652284,
+   0.22412618094064798
+  ],
+  "score_baseline": [
+   -0.14874308708075243,
+   0.043976576661918634
+  ],
+  "score_length": [
+   -0.05516579425231816,
+   0.1521505018164584
+  ]
+ },
+ "diff": {
+  "score_D - score_baseline": {
+   "point": 0.17903966695672915,
+   "ci": [
+    0.06691782460561377,
+    0.29741720650689807
+   ]
+  },
+  "score_D - score_length": {
+   "point": 0.07326076407778254,
+   "ci": [
+    -0.04575129004650122,
+    0.20366655257350494
+   ]
+  },
+  "score_baseline - score_length": {
+   "point": -0.10577890287894662,
+   "ci": [
+    -0.20199842829766065,
+    -0.012508391338583084
+   ]
+  }
+ },
+ "rho_vs_each_agent": {
+  "gemini-2.5-flash": {
+   "score_D": 0.04312871148831966,
+   "score_baseline": -0.04615873880644714,
+   "score_length": -0.05434647344823528
+  },
+  "gemini-2.5-flash-lite": {
+   "score_D": -0.027029199723249762,
+   "score_baseline": -0.004782365392626144,
+   "score_length": 0.009563866684538153
+  },
+  "gemini-2.5-pro": {
+   "score_D": -0.03882939293759904,
+   "score_baseline": -0.16261890010064403,
+   "score_length": -0.08997909764082619
+  },
+  "gemini-3.8-flash": {
+   "score_D": 0.14881137463058972,
+   "score_baseline": 0.030462320914330702,
+   "score_length": 0.11181465237908494
+  }
+ },
+ "brier_p_success": 0.054840864197530856,
+ "brier_constant": 0.032705951836610285,
+ "verdict_point5": true
+}
