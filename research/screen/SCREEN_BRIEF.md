@@ -11,28 +11,28 @@ two-stage Agent psychometrics (fold IRT, then ridge from task features to diffic
 with the 18 ADeLe demand levels as features.
 
 ## Where things are
-- Public repo (READ ONLY, never modify, never commit): <repo>
+- Public repo (READ ONLY, never modify, never commit): ~/zangir-research/repo/agent-procedure-difficulty-baseline
   - data/<bench>/: responses.jsonl (agent x task outcomes), tasks.csv (case_id, domain, procedure, procedure_id, ...),
     statements.jsonl (the task text a method may see), features/*.csv|npz (length, adele, adele16, human_time, embeddings),
     irt/1d_1pl/{abilities,items}.csv (full-data IRT, used only as the evaluation target)
   - src/run_baseline.py (folds, predictors), src/evaluate.py (metrics), src/methods.py (KNNRouter, AmortizedIRT, AmortizedMIRT),
     src/llm.py (Gemini client), EVALUATION_PROTOCOL.md (metrics and the improvement rule in section 8)
   - Benchmarks: sopbench (830 tasks x 28 agents x 1 attempt), tau2 (278 x 15 x up to 4), tauk_banking (97 x 12 x 4, one domain)
-- Shared harness: research/screen/harness.py (read its docstring). It runs your
+- Shared harness: ~/zangir-research/prototype/screen/harness.py (read its docstring). It runs your
   predictors on the same folds as the baseline (fold IRT read from the repository cache), always includes constant,
   oracle and the baseline "adele", and scores with the repository evaluator. Self-test reproduced the baseline 0.131 exactly.
   Do not edit harness.py. If you need different behaviour, copy it into your folder.
-- Run Python as: PYTHONHASHSEED=0 <repo>/.venv/bin/python script.py
+- Run Python as: PYTHONHASHSEED=0 ~/zangir-research/repo/agent-procedure-difficulty-baseline/.venv/bin/python script.py
 - A custom predictor needs: fit(data, train_task_ids), predict_probability(data, agent, task) -> float, and optionally a
   dict attribute _predicted_difficulties {task: beta_hat}. See src/methods.py and the agent-psychometrics classes
   (third_party/agent-psychometrics/experiment_new_tasks/) for the `data` object (train_abilities, responses, ...).
-- Earlier prototype code for several methods (may need porting): <project>/prototype/baseline/
+- Earlier prototype code for several methods (may need porting): ~/zangir-research/prototype/baseline/
   (entropy.py, hidden_probe.py, llm_forecast.py, bpm_metrics.py, extra_methods.py, ...)
-- SOPBench raw run files with per-case grader checks: <ZR_DATA>/SOPBench-d2622008/output/<domain>/ast_<agent>-dep_full-fmt_structured-tool_full-shuffle_False.json
+- SOPBench raw run files with per-case grader checks: ~/zangir-research/prototype/data/external/SOPBench-d2622008/output/<domain>/ast_<agent>-dep_full-fmt_structured-tool_full-shuffle_False.json
   (each record: task, interactions, evaluations[0] with dirgraph_satisfied, action_called_correctly, constraint_not_violated, database_match, success). Task definitions: .../SOPBench-d2622008/data/*_tasks.json
 
 ## Rules
-1. Work only in your own folder research/screen/<your_name>/. Do not write anywhere else.
+1. Work only in your own folder ~/zangir-research/prototype/screen/<your_name>/. Do not write anywhere else.
 2. No leakage. Features may use only what the agent sees before running: statements.jsonl text, the procedure/SOP text,
    tool lists. Never use as a feature: gold actions, evaluation criteria, the hidden initial database, the should_succeed /
    action_should_succeed flag, any outcome of a test task. SOPBench rule trees restate the SOP text the agent sees, so

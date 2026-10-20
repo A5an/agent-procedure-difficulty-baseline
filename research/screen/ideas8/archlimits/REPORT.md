@@ -4,7 +4,7 @@ Saved by the main session from the agent's final message.
 
 ## Catalog: failure mechanisms of LLMs and agents, turned into case features (agent `archlimits`)
 
-I could not write files, so the whole catalog is in this message. The only file I created is the quick-screen script at `research/screen/ideas8/archlimits/screen.py`.
+I could not write files, so the whole catalog is in this message. The only file I created is the quick-screen script at `~/zangir-research/prototype/screen/ideas8/archlimits/screen.py`.
 
 **Sign convention.** In the repo, `items.csv` column `b` is higher for easier cases (SOPBench should_succeed cases have mean b +1.64). A hazard feature should therefore correlate NEGATIVELY with `b`.
 

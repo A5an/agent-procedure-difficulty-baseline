@@ -164,6 +164,6 @@ tau2 oracle is the best per-task success rate over up to 4 attempts, so it is op
 - Within-agent AUC CI uses 300 bootstrap draws on seed 0 (the protocol uses 1,000 for rho only).
 
 ## 6. Files
-- Scripts: `s01_tables.py`, `s02_types.py`, `pertype_models.py`, `s03_run.py`, `s03b_ablate.py`, `s04_eval.py`, `s05_within.py`, `s05b_within_abl.py`, `s06_routing.py`, `s07_sub.py`, `s08_tables.py` in `research/screen/pertype/`.
+- Scripts: `s01_tables.py`, `s02_types.py`, `pertype_models.py`, `s03_run.py`, `s03b_ablate.py`, `s04_eval.py`, `s05_within.py`, `s05b_within_abl.py`, `s06_routing.py`, `s07_sub.py`, `s08_tables.py` in `~/zangir-research/prototype/screen/pertype/`.
 - Data and results: `flags.csv.gz`, `types.csv`, `per_agent_subcheck.csv`, `run/eval.json` (harness evaluation), `within.json`, `within_abl.json`, `routing.json`, `sub_eval.json`, `sub_abilities.csv`, `sub/` (targets, fold IRT, obs files).
-- Run: `PYTHONHASHSEED=0 PYTHONPATH=<project>/prototype/screen <repo venv python> sNN_*.py`.
+- Run: `PYTHONHASHSEED=0 PYTHONPATH=~/zangir-research/prototype/screen <repo venv python> sNN_*.py`.

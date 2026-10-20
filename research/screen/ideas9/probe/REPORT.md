@@ -113,7 +113,7 @@ All diagnostics are in `diag.txt`.
 - The README of `ideas9/BRIEF.md` was read. HANDBOOK was not opened.
 
 ## Paths
-All under `research/screen/ideas9/probe/`:
+All under `~/zangir-research/prototype/screen/ideas9/probe/`:
 - `PREREG.md`
 - `extract.py` and `states/` (1,205 npz files), `extract.log`, `extract2.log`
 - `feats.py`, `probe_*.csv`, `probec_*.csv`, `scal_*.csv`, `len_*.csv`

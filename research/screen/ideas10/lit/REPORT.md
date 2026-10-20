@@ -2,7 +2,7 @@
 
 Saved by the main session from the agent's final message.
 
-The literature has little evidence that text-only methods reach rho 0.6 on LLM-agent difficulty, and every result I found at or above 0.6 comes from a setting we lack. I created `research/screen/ideas10/lit/` but wrote no files, so this message is the whole report. No agent runs or installs were done.
+The literature has little evidence that text-only methods reach rho 0.6 on LLM-agent difficulty, and every result I found at or above 0.6 comes from a setting we lack. I created `~/zangir-research/prototype/screen/ideas10/lit/` but wrote no files, so this message is the whole report. No agent runs or installs were done.
 
 Verification tags: **V** means I fetched the paper page or full text and checked the quoted figure there. **U** means unverified: search snippet, secondary summary or memory only. I never claim priority for anything.
 

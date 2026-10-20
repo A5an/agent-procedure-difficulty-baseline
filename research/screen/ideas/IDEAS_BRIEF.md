@@ -1,6 +1,6 @@
 # Brief for the ideas round (night of 4 to 5 Oct 2026)
 
-Read this file, then research/screen/SCREEN_BRIEF.md (data, harness, rules).
+Read this file, then ~/zangir-research/prototype/screen/SCREEN_BRIEF.md (data, harness, rules).
 Everything in SCREEN_BRIEF.md applies. This file adds what is new.
 
 ## Goal of the round
@@ -14,8 +14,8 @@ report all of them).
 - Baseline `adele` (Agent psychometrics two-stage, ridge on 18 ADeLe levels): 0.131 [0.027, 0.255];
   by scenario sop-proc 0.120, sop-dom 0.125, tau2-proc 0.128, tau2-dom 0.150.
 - Best earlier rubric results: `lad2_adele` 0.182 (paired CI vs baseline [-0.061, +0.101]), `grp_proc_adele` 0.172.
-  Their out-of-fold predictions: research/screen/rubric/out/run/<bench>/obs_<scheme>.csv.gz
-- Fine-tuned bge-small encoder 0.255, almost all from tau2: research/screen/rerun/out_final
+  Their out-of-fold predictions: ~/zangir-research/prototype/screen/rubric/out/run/<bench>/obs_<scheme>.csv.gz
+- Fine-tuned bge-small encoder 0.255, almost all from tau2: ~/zangir-research/prototype/screen/rerun/out_final
 - A gain is significant only if the paired 95% interval of the difference lies above 0. In practice that needs about +0.08.
 
 ## Facts found tonight that should shape your design
@@ -31,25 +31,25 @@ report all of them).
    SOPBench statements contain the action's policy and the customer message with its parameters (amounts, names, ids).
    Some conditions can be checked against the message alone, others need the hidden database.
 4. tau2 statements contain only the customer scenario. The domain policies are in
-   <ZR_DATA>/tau2-domains/tasks/ (airline_policy.md, retail_policy.md,
+   ~/zangir-research/prototype/data/external/tau2-domains/tasks/ (airline_policy.md, retail_policy.md,
    telecom_main_policy.md, telecom_tech_support_manual.md, telecom_tech_support_workflow.md). Any LLM feature for tau2 should
    receive the policy of its domain (the agent receives it too). This is allowed.
 5. At the procedure level (mean predicted vs mean fitted difficulty per procedure, SOPBench new domain) the baseline reaches
    0.231 and lad2_adele 0.411 (paired CI [-0.008, +0.370]). The extra metrics module reports this.
 
-## Shared tools in research/screen/ideas/
+## Shared tools in ~/zangir-research/prototype/screen/ideas/
 - `cpulock.py`: wrap every harness run (`H.run_all`, `H.evaluate_all`), every model fitting loop, embedding or big file parse in
   `with cpu_lock("<your name>"):`. Only one agent holds it at a time; the laptop overheats otherwise. Never hold it around LLM calls.
 - `metrics_extra.py`: after `H.evaluate_all`, call `metrics_extra.report(out_dir, [your columns], extra_dirs={"lad2_adele":
   ".../rubric/out/run", "grp_proc_adele": ".../rubric/out/run"}, combos=[...])`. Report its numbers too (procedure-level rho with
   paired CI, label-conditional rho, hard-case recall at 20%, selective lift at 50% coverage).
-- Existing LLM features you may reuse as inputs: the procedure rubric research/screen/rubric/features/rub_proc_<bench>.csv
+- Existing LLM features you may reuse as inputs: the procedure rubric ~/zangir-research/prototype/screen/rubric/features/rub_proc_<bench>.csv
   (12 columns), ADeLe in the repo data/<bench>/features/adele.csv, human_time.csv, length.csv. The formula ladder
-  (logistic L2 with global features) is research/screen/rubric/ladder.py.
+  (logistic L2 with global features) is ~/zangir-research/prototype/screen/rubric/ladder.py.
 
 ## Running
-- Python: `cd <your folder> && PYTHONHASHSEED=0 OMP_NUM_THREADS=4 nice -n 10 <repo>/.venv/bin/python script.py`
-- `import sys; sys.path.insert(0, "<project>/prototype/screen"); sys.path.insert(0, "research/screen/ideas")`
+- Python: `cd <your folder> && PYTHONHASHSEED=0 OMP_NUM_THREADS=4 nice -n 10 ~/zangir-research/repo/agent-procedure-difficulty-baseline/.venv/bin/python script.py`
+- `import sys; sys.path.insert(0, "~/zangir-research/prototype/screen"); sys.path.insert(0, "~/zangir-research/prototype/screen/ideas")`
   then `import harness as H, metrics_extra as X; from cpulock import cpu_lock`.
 - You may restrict the harness to `benches=["sopbench", "tau2"]` and `schemes=["new_procedures", "new_domain"]` when banking or
   random cases would cost LLM calls. Say so in the report.

@@ -57,7 +57,7 @@ Treat those as known; your value is in what is NOT on this list, or in a concret
 them that nobody wrote down yet.
 
 ## Data you may look at (read only)
-Public repo (never modify): <repo>
+Public repo (never modify): ~/zangir-research/repo/agent-procedure-difficulty-baseline
 (data/<bench>/statements.jsonl, tasks.csv, features/, irt/). SOPBench raw: prototype/data/external/SOPBench-d2622008.
 tau2 policies and tasks: prototype/data/external/tau2-domains/. tau-Knowledge banking: prototype/data/external/tau2-banking.
 Shared harness and how to run Python: prototype/screen/SCREEN_BRIEF.md and prototype/screen/ideas/IDEAS_BRIEF.md.

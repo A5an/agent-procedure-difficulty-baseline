@@ -233,4 +233,4 @@ The rating fixes (P1 to P3) rank below these. The user's hypothesis, that ADeLe 
 
 ## Files
 
-- `research/screen/ideas8/psychometric/screen1.py`
+- `~/zangir-research/prototype/screen/ideas8/psychometric/screen1.py`

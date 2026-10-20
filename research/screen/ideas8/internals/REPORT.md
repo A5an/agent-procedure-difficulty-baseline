@@ -236,4 +236,4 @@ That is 16 ideas, above the 10 to 15 target. If this has to be cut to 15, drop I
 
 Not run. Every idea needs local model inference, which the brief forbids this round.
 
-Files: only the brief at `research/screen/ideas8/BRIEF.md` was read. Nothing was written to `prototype/screen/ideas8/internals/`.
+Files: only the brief at `~/zangir-research/prototype/screen/ideas8/BRIEF.md` was read. Nothing was written to `prototype/screen/ideas8/internals/`.

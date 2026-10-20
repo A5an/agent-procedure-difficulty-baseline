@@ -139,7 +139,7 @@ n_cond_given in telecom is +0.59, and frac_cond_not_given there is -0.45. Airlin
 - I did not run `metrics_extra`, so there is no hard-case recall, selective lift or label-conditional rho for these variants.
 
 ## Paths
-Folder: `research/screen/ideas9/gap/`
+Folder: `~/zangir-research/prototype/screen/ideas9/gap/`
 - `PREREG.md`, `gap.py` (prompt and loader), `feats.py`
 - `run.py`, `score.py`, `diag.py`
 - `llm_cache.jsonl` (cache, 1,089 entries), `gap_raw.json`, `test10.json`

@@ -1,7 +1,7 @@
 # Brief for round 3 (5 Oct 2026): predict agent success cheaply, without running agents
 
-Read this file, then research/screen/ideas2/CONTEXT.md (project, data, rules) and
-research/screen/ideas/IDEAS_BRIEF.md (shared harness, metrics_extra, cpulock,
+Read this file, then ~/zangir-research/prototype/screen/ideas2/CONTEXT.md (project, data, rules) and
+~/zangir-research/prototype/screen/ideas/IDEAS_BRIEF.md (shared harness, metrics_extra, cpulock,
 how to run Python and the LLM). Everything in those files applies unless this file says otherwise.
 
 ## The research question, as the user insists
@@ -47,7 +47,7 @@ Every method must state its information level:
   call budget. Another round-2 agent (emulate_run) may still be calling Vertex, so keep parallelism at 8 or below.
 
 ## Output
-Your folder: research/screen/ideas3/<your_name>/. Keep code, caches and result
+Your folder: ~/zangir-research/prototype/screen/ideas3/<your_name>/. Keep code, caches and result
 JSON there. Writing REPORT.md may be refused for subagents, so return the FULL report as text in your final message:
 idea in two sentences and its information level, setup and variants, LLM calls, main table (pooled rho, CI, four
 scenarios, paired CI vs baseline, procedure-level rho, rho_given_label), diagnostics, honest 3-line verdict, limitations, paths.

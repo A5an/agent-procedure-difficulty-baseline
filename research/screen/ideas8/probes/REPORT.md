@@ -323,4 +323,4 @@ A shared warning for all of them: the case-level SOPBench cap cannot be beaten b
 
 Not run. Every idea needs LLM calls, and the quick screen was limited to pure-code features.
 
-Files: none written. The brief is at `research/screen/ideas8/BRIEF.md`.
+Files: none written. The brief is at `~/zangir-research/prototype/screen/ideas8/BRIEF.md`.

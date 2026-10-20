@@ -77,5 +77,5 @@ Differences between old and clean runs are mostly small (|diff| of pooled mean b
 - Nothing was tuned on test folds. The 0.08 threshold for combinations was set in the task statement.
 
 ## 4. Paths
-- Scripts: research/screen/rerun/export_features.py, run_rerun.py (PART=singles|ft|combos), finetuned.py, evaluate_rerun.py, make_tables.py, eval_stage.py
+- Scripts: ~/zangir-research/prototype/screen/rerun/export_features.py, run_rerun.py (PART=singles|ft|combos), finetuned.py, evaluate_rerun.py, make_tables.py, eval_stage.py
 - Results: out_final/eval.json and eval.txt (four-scenario pool, all methods and combinations), out_sop/eval.json and eval.txt (SOPBench-only pool with BPM), out_singles/, out_ft/, out_combos/ (raw obs files), tables.md, features/ (exported features), logs singles.log, ft.log, combos.log

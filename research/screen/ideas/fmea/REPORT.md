@@ -66,4 +66,4 @@ Full tables: diagnostics.json.
 - Business-process framing is natural to a process owner, but the numbers an LLM gives for occurrence are too unstable (retest 0.38) to rank cases.
 
 ## 7. Files
-Folder research/screen/ideas/fmea/: prompts.py, llmrun.py, build_features.py, run_screen.py, diagnostics.py, cache/fmea.jsonl, features/, retest.json, diagnostics.json, out/run/eval.json, out/run/eval.txt, out/run/extra_metrics.json.
+Folder ~/zangir-research/prototype/screen/ideas/fmea/: prompts.py, llmrun.py, build_features.py, run_screen.py, diagnostics.py, cache/fmea.jsonl, features/, retest.json, diagnostics.json, out/run/eval.json, out/run/eval.txt, out/run/extra_metrics.json.

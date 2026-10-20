@@ -23,7 +23,7 @@ Item difficulty `b` in repo data/<bench>/irt/1d_1pl/items.csv: HIGHER b = HARDER
   harness on tauk_banking with the random scheme the repo uses for it. Banking was never used to choose anything.
 - Wrap harness runs and any heavy CPU work in `with cpu_lock("<your name>")` (prototype/screen/ideas/cpulock.py).
   Never hold the lock around LLM calls or GPU inference. Never kill processes you did not start (no pkill).
-- Python for the harness: repo venv <repo>/.venv/bin/python
+- Python for the harness: repo venv ~/zangir-research/repo/agent-procedure-difficulty-baseline/.venv/bin/python
   with PYTHONHASHSEED=0 OMP_NUM_THREADS=4 nice -n 10.
 - Vertex (only the agent whose task says so): before any Python that calls it run
   `unset GEMINI_API_KEY; export LLM_BACKEND=vertex GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project 2>/dev/null)`,
