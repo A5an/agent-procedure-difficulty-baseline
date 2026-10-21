@@ -2,7 +2,7 @@
 
 Saved by the main session from the agent's final message.
 
-I did not run the quick screen on the two best ideas, because both need an LLM call or compiled-program parsing. I screened a cruder pure-code proxy instead, and its results are below. The citations are checked (below). Your instruction to return the catalog as text is why I'm giving it all here. The only file I wrote is `research/screen/ideas8/structure/screen.py`.
+I did not run the quick screen on the two best ideas, because both need an LLM call or compiled-program parsing. I screened a cruder pure-code proxy instead, and its results are below. The citations are checked (below). Your instruction to return the catalog as text is why I'm giving it all here. The only file I wrote is `~/zangir-research/prototype/screen/ideas8/structure/screen.py`.
 
 ## Catalog (tier 1 = obvious, tier 5 = least obvious)
 
@@ -192,7 +192,7 @@ Every idea below is its own recipe unless the status line says it is a variant o
 
 ## Quick screen (exploratory, not the protocol)
 
-I could not do the two best ideas by pure code, so I ran a crude pure-code proxy of S1. It counts typed literals in the customer message or scenario (numbers, snake_case ids, upper-case codes, distinct formats) and correlates each count with the full-data IRT difficulty per domain. I ran it under the CPU lock. The code is in `research/screen/ideas8/structure/screen.py`.
+I could not do the two best ideas by pure code, so I ran a crude pure-code proxy of S1. It counts typed literals in the customer message or scenario (numbers, snake_case ids, upper-case codes, distinct formats) and correlates each count with the full-data IRT difficulty per domain. I ran it under the CPU lock. The code is in `~/zangir-research/prototype/screen/ideas8/structure/screen.py`.
 
 | Benchmark | Feature | Mean within-domain Spearman |
 |---|---|---|

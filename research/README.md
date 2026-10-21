@@ -24,7 +24,7 @@ By scenario (SOPBench new procedures, SOPBench new domain, τ² new procedures, 
 the difficulty of a case inside a procedure is decided by the customer's database record, which the text does not show:
 even an oracle that knows the procedure and the perform-or-refuse label reaches only 0.614 per case.
 
-f2 passes points 1, 2 and 4 of the improvement rule (§8 of the protocol); point 5, the blind test on HANDBOOK, is open.
+f2 passes points 1, 2 and 4 of the improvement rule (§8 of the protocol); point 5, the blind test, was run on ThinkingBox-Bench (see "Experiments of the approved plan" below).
 
 Checks on data never used for selection:
 
@@ -60,6 +60,29 @@ Checks on data never used for selection:
 
 What did not work, with numbers, is in `screen/ideas10/NOTEBOOK.md` and in each folder's `REPORT.md`. Only reports are
 kept for ideas that are not part of the methods above.
+
+## Experiments of the approved plan, E1 to E8 and the blind test (13 to 21 October 2026)
+
+Each experiment has a `PREREG.md` written before the run and a `REPORT.md` with the numbers. Same protocol as above (pooled
+within-domain ρ over four scenarios, 95% bootstrap intervals over procedures, paired for differences).
+
+| experiment | folder | question | result |
+|---|---|---|---|
+| E1 | `targets/` | plain shares of solved tasks instead of IRT | ρ 0.128 vs 0.131, difference −0.003 [−0.009, +0.005]; probabilities better calibrated (Brier skill +0.033 vs 0.000) |
+| E3 | `e3/` | does an agent's strength depend on the step type | ρ 0.104 vs 0.131; log-loss interval below zero in 1 of 4 scenarios, within-agent AUC drops there: no |
+| E4 | `e4/` | does the forecast help to choose which tasks to hand to a human | top 20% hardest by f2: +1 to +3 points over random, baseline about 0, oracle +6 to +7; handing them to the strongest model does not help |
+| E5 | `ideas/pilot/` | how many pilot runs per new procedure | ρ 0.129 without pilots, 0.453 with one adaptive pilot, 0.696 with five |
+| E6 | `e6/` | pass^k from the one-attempt probability | independent attempts give 0.385 for pass^4 (observed 0.564), beta-binomial 0.579; Brier −0.019 and −0.043 vs baseline |
+| E7 | `e7/` | does the zero-shot question D transfer to code tasks | ρ 0.63 SWE-bench Verified, 0.36 Pro, 0.54 Terminal-Bench 2.0, 0.22 GSO; not worse than the judge trained in-benchmark |
+| E8 | `e8/` | two models on different steps of one task (SOPBench, 150 cases) | first model leads, second decides on the final action: 78.0% and 80.7% vs 70.0% for the best single model; the order does not matter |
+| blind | `../blind/thinkingbox/` | point 5 of the improvement rule on ThinkingBox-Bench (405 tasks, 3,240 agent runs) | D 0.124 [0.022, 0.224], baseline −0.055, text length 0.051; D minus baseline +0.179 [+0.067, +0.297] |
+
+`bias/` holds two post hoc checks without new LLM calls: whether a forecaster favours agents of its own model family
+(no, difference +0.014 [−0.037, +0.063] on τ²) and how much of D is text length (τ² 0.57 to 0.52 after removing it).
+
+The code of the earlier rounds that was left out of the first export is added in this update, with its paths moved to
+`zr_paths.py`. Third-party sources that the scripts vendored (the τ² and SOPBench source trees, scraped scouting pages), raw
+agent episodes and LLM caches are not committed.
 
 ## Layout
 
@@ -98,7 +121,7 @@ Raw LLM answers, caches and harness outputs are not committed (see `.gitignore`)
 
 ## Rules we kept
 
-- HANDBOOK.md is the blind test. Do not open it until a method is frozen.
+- HANDBOOK.md was reserved as a blind test and never opened; the blind test that was run is ThinkingBox-Bench, with predictions committed before any agent run.
 - Every run has a `PREREG.md` written before it: the variants and the main hypothesis. One run; all variants reported.
 - Numbers in reports are copied from result files, never recomputed by hand.
 

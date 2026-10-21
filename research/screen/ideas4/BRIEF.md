@@ -1,6 +1,6 @@
 # Brief for round 4 (5 Oct 2026, evening): new cheap methods that beat the baseline
 
-Read research/screen/ideas3/BRIEF.md first (all its rules apply: information
+Read ~/zangir-research/prototype/screen/ideas3/BRIEF.md first (all its rules apply: information
 levels L0/L1/L2, shared harness, metrics_extra, cpu_lock, Vertex gemini-3.8-flash with caching, no leakage, no HANDBOOK).
 Then read prototype/screen/ideas3/combo/REPORT.md and PREREG.md and run.py: that is the current best model.
 

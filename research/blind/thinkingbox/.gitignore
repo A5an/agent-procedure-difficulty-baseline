@@ -1,0 +1,10 @@
+items.jsonl
+domains.json
+work/
+*_cache.jsonl
+__pycache__/
+runs/
+run/proxy.log
+run/debug/
+run/cap_usd.txt
+run/*.pid

@@ -1,0 +1,33 @@
+mcp_proxy:
+  endpoint_url: http://127.0.0.1:7111
+  timeout: 300.0
+orchestrator:
+  type: thinkingbox
+  agent_model:
+    type: aoai
+    deployment: pilot.gemini-2.5-pro.agent|gemini-2.5-pro
+    endpoint_url: http://127.0.0.1:8091/v1/chat/completions
+    timeout: 900.0
+    max_retries_server_error: 3
+    is_reasoning: true
+    reasoning_effort: medium
+    temperature: 1.0
+    max_completion_tokens: 16384
+judge_model:
+  type: aoai
+  deployment: pilot.gemini-2.5-pro.judge|gemini-2.5-flash
+  endpoint_url: http://127.0.0.1:8091/v1/chat/completions
+  timeout: 900.0
+  max_retries_server_error: 3
+  temperature: 0.0
+  seed: 42
+  max_completion_tokens: 128
+judge_type: legacy
+user_model:
+  type: aoai
+  deployment: pilot.gemini-2.5-pro.user|gemini-2.5-flash
+  endpoint_url: http://127.0.0.1:8091/v1/chat/completions
+  timeout: 900.0
+  max_retries_server_error: 3
+  temperature: 0.3
+  max_completion_tokens: 4096

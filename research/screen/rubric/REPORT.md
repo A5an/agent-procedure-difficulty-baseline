@@ -103,8 +103,8 @@ p_refusal,,,0.955,0.872,0.52
 
 ## 6. Paths
 
-- Folder: research/screen/rubric/
+- Folder: ~/zangir-research/prototype/screen/rubric/
 - Prompts: prompts.py, appendix RUBRIC_PROMPTS.md. LLM runner and cache: llmrun.py, cache/{proc,lara,rpa}.jsonl (proc.jsonl also holds the repeat run, key rep 2).
 - Features (case_id first): features/rub_proc_<bench>.csv, rub_len, rub_types, rub_lara, rub_rpa; concatenations in features/concat/. Built by build_features.py.
 - Ladder: ladder.py. Harness run: run_screen.py (eval.json, eval.txt in out/run/), control run_lad0.py (out/run_lad0/). Agreement: agreement.py -> out/agreement.csv, out/agreement.json. Results table: make_table.py -> out/results_table.md.
-- Main eval: research/screen/rubric/out/run/eval.json (lad0 is only in out/run_lad0/eval.json).
+- Main eval: ~/zangir-research/prototype/screen/rubric/out/run/eval.json (lad0 is only in out/run_lad0/eval.json).

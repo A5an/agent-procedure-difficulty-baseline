@@ -4,7 +4,7 @@ Saved by the main session from the agent's final message.
 
 # Request-side signals: idea catalog from agent `request` (round 8, 6 Oct 2026)
 
-I could not write files, so the full catalog is below. All scripts are in `research/screen/ideas8/request/` (`screen.py`, `chk.py`, `uk.py`, `rebut.py`). I made no LLM calls, no GPU or MPS use and no agent runs.
+I could not write files, so the full catalog is below. All scripts are in `~/zangir-research/prototype/screen/ideas8/request/` (`screen.py`, `chk.py`, `uk.py`, `rebut.py`). I made no LLM calls, no GPU or MPS use and no agent runs.
 
 ## What the data showed first
 

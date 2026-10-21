@@ -62,4 +62,4 @@ The one paired interval above zero (bt_cat_adele+lad2_adele at procedure level) 
 ## 6. Not run, and paths
 
 Not run: banking and random-case schemes, a repeat at temperature above 0, adaptive pair selection (non-adaptive design only), criterion 5 confirmation.
-Paths (all in research/screen/ideas/pairwise/): pairs.py, pairs.csv, llmpairs.py, cache.jsonl, fit.py, features/bt_*.csv, run_screen.py, out/run/eval.json, out/run/extra_metrics.json, diag.py, diagnostics.json, screen.log.
+Paths (all in ~/zangir-research/prototype/screen/ideas/pairwise/): pairs.py, pairs.csv, llmpairs.py, cache.jsonl, fit.py, features/bt_*.csv, run_screen.py, out/run/eval.json, out/run/extra_metrics.json, diag.py, diagnostics.json, screen.log.

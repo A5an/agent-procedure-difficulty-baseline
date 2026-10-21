@@ -74,4 +74,4 @@ Reliability: the 4 sampled decisions at temperature 1 agree with each other in m
 Banking, random-case scheme, a second thinking level, a repeat of the main call (test-retest), medium thinking. The "L2 + ADeLe + dry" ladder was run (lad2_adele_dry), so no second run was left.
 
 ## 7. Paths
-Folder: research/screen/ideas/dryrun/. Scripts: lib.py (prompts, cached calls), fullrun.py, build_features.py, run_screen.py, diagnostics.py, ladder.py (copy). Cache: cache/calls.jsonl. Features: features/dry_*.csv, features/concat/. Results: out/run/eval.json, eval.txt, extra_metrics.json; diagnostics.json.
+Folder: ~/zangir-research/prototype/screen/ideas/dryrun/. Scripts: lib.py (prompts, cached calls), fullrun.py, build_features.py, run_screen.py, diagnostics.py, ladder.py (copy). Cache: cache/calls.jsonl. Features: features/dry_*.csv, features/concat/. Results: out/run/eval.json, eval.txt, extra_metrics.json; diagnostics.json.

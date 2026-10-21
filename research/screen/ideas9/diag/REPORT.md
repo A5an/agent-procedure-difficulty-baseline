@@ -233,7 +233,7 @@ Reading the table:
 
 ## 10. Paths
 
-All in `research/screen/ideas9/diag/`:
+All in `~/zangir-research/prototype/screen/ideas9/diag/`:
 - `diag.py`: loader, within and between rho, permutation null, fixed-effects z (`res.pkl`, `log.pkl`).
 - `summarize2.py` writes `summary2.csv` and `summary2.pkl`, the per-feature table with every column used above.
 - `classify2.py` writes `classify2.out`, the candidate, procedure-level and dead lists.

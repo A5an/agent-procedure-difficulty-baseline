@@ -52,26 +52,26 @@ records whole-task success, not step success. A planned pilot E8 (two-phase hand
 SOPBench cases, about $29) waits for approval.
 
 ## Data and code (read-only unless your task says otherwise)
-- Public baseline repo (NEVER modify): <repo>
+- Public baseline repo (NEVER modify): ~/zangir-research/repo/agent-procedure-difficulty-baseline
   data/<bench>/responses.jsonl, tasks.csv (case_id, domain, procedure, procedure_id), statements.jsonl (text a method may
   see), features/*.csv, irt/1d_1pl/items.csv (difficulty b), src/llm.py (Gemini client), EVALUATION_PROTOCOL.md
-- Shared harness: research/screen/harness.py and the rules in
-  research/screen/SCREEN_BRIEF.md and .../screen/ideas/IDEAS_BRIEF.md
-- Results of the last round: research/screen/ideas/collected.json and
+- Shared harness: ~/zangir-research/prototype/screen/harness.py and the rules in
+  ~/zangir-research/prototype/screen/SCREEN_BRIEF.md and .../screen/ideas/IDEAS_BRIEF.md
+- Results of the last round: ~/zangir-research/prototype/screen/ideas/collected.json and
   */out/**/extra_metrics.json (includes rho_given_label, procedure-level rho)
-- SOPBench release: <ZR_DATA>/SOPBench-d2622008
+- SOPBench release: ~/zangir-research/prototype/data/external/SOPBench-d2622008
   data/<domain>_tasks.json (per case: initial_database, constraints, user_known, user_prompt, action_should_succeed,
   directed_action_graph, user_goal), env/ (domain classes with the tools, evaluator.py, task.py),
   output/<domain>/ast_<agent>-dep_full-fmt_structured-tool_full-shuffle_False.json (trajectories, each record has task,
   interactions, evaluations[0] with dirgraph_satisfied, action_called_correctly, constraint_not_violated,
   database_match, success)
-- tau2 domains: <ZR_DATA>/tau2-domains
+- tau2 domains: ~/zangir-research/prototype/data/external/tau2-domains
 
 ## Rules
-1. Work and write only in your own folder research/screen/ideas2/<your_name>/.
+1. Work and write only in your own folder ~/zangir-research/prototype/screen/ideas2/<your_name>/.
 2. HANDBOOK.md is blind. Do not open anything under prototype/data/external/handbook.
-3. Python: PYTHONHASHSEED=0 OMP_NUM_THREADS=4 nice -n 10 <repo>/.venv/bin/python
-   Wrap heavy CPU work in `with cpu_lock("<name>"):` from research/screen/ideas/cpulock.py
+3. Python: PYTHONHASHSEED=0 OMP_NUM_THREADS=4 nice -n 10 ~/zangir-research/repo/agent-procedure-difficulty-baseline/.venv/bin/python
+   Wrap heavy CPU work in `with cpu_lock("<name>"):` from ~/zangir-research/prototype/screen/ideas/cpulock.py
    (sys.path.insert(0, ".../prototype/screen/ideas")). Never hold the lock around LLM calls.
 4. LLM calls only if your task allows them: repo src/llm.py with
    `LLM_BACKEND=vertex GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project 2>/dev/null)`, model gemini-3.8-flash,

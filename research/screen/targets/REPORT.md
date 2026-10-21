@@ -74,5 +74,5 @@ Findings:
 - tauk_banking has one domain and unique procedures, so it only has random_cases; it is not in the pooled four-scenario figure.
 
 ## 5. Paths
-- Scripts: research/screen/targets/shares.py (E1, variant, combos), research/screen/targets/passk.py (E6)
-- Results: research/screen/targets/run/eval.json, run/eval.txt, run/<bench>/obs_*.csv.gz; E6: passk.json; run log shares.log; table.json
+- Scripts: ~/zangir-research/prototype/screen/targets/shares.py (E1, variant, combos), ~/zangir-research/prototype/screen/targets/passk.py (E6)
+- Results: ~/zangir-research/prototype/screen/targets/run/eval.json, run/eval.txt, run/<bench>/obs_*.csv.gz; E6: passk.json; run log shares.log; table.json
