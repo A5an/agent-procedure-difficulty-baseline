@@ -1,0 +1,949 @@
+{
+ "procedure_id": "h05_hospital",
+ "domain": "hospital billing office",
+ "organization": "St. Brendan's Regional Medical Center",
+ "title": "Patient payment plan enrollment",
+ "summary": "Set up a monthly payment plan for an open hospital statement when the statement, the guarantor account and the insurance claim all qualify.",
+ "entities": {
+  "guarantor_account": {
+   "key": "account_id",
+   "description": "Guarantor accounts: the person financially responsible for hospital bills",
+   "fields": {
+    "account_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "email": "str",
+    "status": "enum:active|collections|closed"
+   }
+  },
+  "statement": {
+   "key": "statement_id",
+   "description": "Patient statements (bills) for a hospital visit or service",
+   "fields": {
+    "statement_id": "str",
+    "account_id": "ref:guarantor_account",
+    "claim_id": "ref:insurance_claim",
+    "department": "str",
+    "service_date": "date",
+    "balance": "number",
+    "status": "enum:open|on_plan|paid|in_collections"
+   }
+  },
+  "insurance_claim": {
+   "key": "claim_id",
+   "description": "The insurance claim filed for the services on a statement",
+   "fields": {
+    "claim_id": "str",
+    "payer_name": "str",
+    "status": "enum:pending|appealed|adjudicated|denied"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Monthly payment plans on file for guarantor accounts",
+   "fields": {
+    "plan_id": "str",
+    "account_id": "ref:guarantor_account",
+    "statement_id": "ref:statement",
+    "months": "int",
+    "monthly_amount": "number",
+    "first_due": "date",
+    "status": "enum:active|completed|defaulted",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "guarantor_account",
+   "description": "Look up a guarantor account by its account number."
+  },
+  {
+   "name": "find_account_by_phone",
+   "kind": "search",
+   "entity": "guarantor_account",
+   "by": [
+    "phone"
+   ],
+   "description": "Find guarantor accounts by the phone number on file."
+  },
+  {
+   "name": "find_account_by_email",
+   "kind": "search",
+   "entity": "guarantor_account",
+   "by": [
+    "email"
+   ],
+   "description": "Find guarantor accounts by the email address on file."
+  },
+  {
+   "name": "get_statement",
+   "kind": "get",
+   "entity": "statement",
+   "description": "Look up a patient statement by its statement number."
+  },
+  {
+   "name": "find_statements_by_account",
+   "kind": "search",
+   "entity": "statement",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all statements billed to a guarantor account."
+  },
+  {
+   "name": "get_insurance_claim",
+   "kind": "get",
+   "entity": "insurance_claim",
+   "description": "Look up the insurance claim behind a statement by claim number."
+  },
+  {
+   "name": "get_payment_plan",
+   "kind": "get",
+   "entity": "payment_plan",
+   "description": "Look up a payment plan by its plan number."
+  },
+  {
+   "name": "find_plans_by_account",
+   "kind": "search",
+   "entity": "payment_plan",
+   "by": [
+    "account_id"
+   ],
+   "description": "List every payment plan on file for a guarantor account (active, completed or defaulted)."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "account_id": {
+     "type": "ref:guarantor_account",
+     "description": "The guarantor account the plan belongs to."
+    },
+    "statement_id": {
+     "type": "ref:statement",
+     "description": "The statement the plan pays off."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of monthly installments."
+    },
+    "monthly_amount": {
+     "type": "number",
+     "description": "Installment amount: statement balance divided by months, rounded to the cent."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "statement_id": "args.statement_id",
+    "months": "args.months",
+    "monthly_amount": "args.monthly_amount",
+    "first_due": "add_days(today, 30)",
+    "status": "'active'",
+    "created": "today"
+   },
+   "description": "Create an active monthly payment plan for a statement. The first installment is due 30 days from today."
+  },
+  {
+   "name": "mark_statement_on_plan",
+   "kind": "update",
+   "entity": "statement",
+   "args": {
+    "statement_id": {
+     "type": "ref:statement",
+     "description": "The statement now covered by a payment plan."
+    }
+   },
+   "set": {
+    "status": "'on_plan'"
+   },
+   "description": "Mark a statement as being paid through a payment plan."
+  }
+ ],
+ "request": {
+  "statement_id": {
+   "type": "ref:statement",
+   "description": "the hospital statement (bill) you want to pay in monthly installments"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many months you want to spread the payments over"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "stmt",
+   "entity": "statement",
+   "key": "req.statement_id"
+  },
+  {
+   "name": "acct",
+   "entity": "guarantor_account",
+   "key": "stmt.account_id"
+  },
+  {
+   "name": "ins",
+   "entity": "insurance_claim",
+   "key": "stmt.claim_id"
+  }
+ ],
+ "outcomes": {
+  "set_up_plan": {
+   "kind": "perform",
+   "description": "Create the payment plan with the computed monthly amount, then mark the statement as on a plan.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "account_id": "acct.account_id",
+      "statement_id": "req.statement_id",
+      "months": "req.months",
+      "monthly_amount": "round(stmt.balance / req.months, 2)"
+     }
+    },
+    {
+     "tool": "mark_statement_on_plan",
+     "args": {
+      "statement_id": "req.statement_id"
+     }
+    }
+   ]
+  },
+  "decline": {
+   "kind": "refuse",
+   "description": "Do not set up a plan; explain the reason to the caller.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "stmt.status != 'open'",
+   "outcome": "decline",
+   "explain": "Only statements with status open can be put on a payment plan; statements already on a plan, paid, or in collections cannot."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "decline",
+   "explain": "The guarantor account behind the statement must be active; accounts in collections or closed cannot start a plan."
+  },
+  {
+   "id": "R3",
+   "when": "ins.status in ['pending', 'appealed']",
+   "outcome": "decline",
+   "explain": "If the insurance claim for the statement is still pending or under appeal, no plan can be set up until the insurer has finished."
+  },
+  {
+   "id": "R4",
+   "when": "stmt.balance < 150",
+   "outcome": "decline",
+   "explain": "Statements with a balance under 150.00 are not eligible for a payment plan."
+  },
+  {
+   "id": "R5",
+   "when": "req.months < 3 or req.months > 24 or (req.months > 12 and stmt.balance < 3000)",
+   "outcome": "decline",
+   "explain": "A plan must run 3 to 24 months, and more than 12 months is only allowed when the balance is at least 3000.00."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('payment_plan', 'account_id', acct.account_id) >= 2",
+   "outcome": "decline",
+   "explain": "An account that already has two or more payment plans on file (in any status) cannot open another one through this procedure."
+  }
+ ],
+ "default_outcome": "set_up_plan",
+ "policy_text": "## Purpose\nPatients and guarantors may ask to pay an open hospital statement in monthly installments. This procedure explains when a plan can be set up and how to set it up. No identity verification is required beyond locating the correct statement and account.\n\n## Finding the statement\nIf the caller has the statement number, look it up directly. If not, find their guarantor account by the phone number or email address on file, then list the account's statements. If the account has more than one statement, ask which one they mean (for example the department or date of service) and use the one that matches.\n\nOnce you have the statement, look up on your own the guarantor account it is billed to and the insurance claim attached to it, and list the payment plans on file for that account. The caller does not need to tell you any of this; always go by what the records show, not by what the caller believes (for example, about their balance).\n\n## Eligibility (check in this order)\n1. Statement status: only statements with status open can be placed on a plan. Statements already on a plan, paid, or in collections are not eligible.\n2. Account status: the guarantor account must be active. If it is in collections or closed, no plan can be set up.\n3. Insurance: if the insurance claim for the statement is still pending or under appeal, a plan cannot be set up yet; the balance may still change once the insurer finishes. Claims that are adjudicated or denied are fine.\n4. Minimum balance: the statement balance must be at least 150.00.\n5. Plan length: a plan must run at least 3 and at most 24 months. Plans longer than 12 months are only allowed when the statement balance is 3000.00 or more. If the caller asks for a length that is not allowed, decline that request; do not shorten or change it on your own. The caller may ask for a different length, which you then check again.\n6. Number of plans: if the account already has two or more payment plans on file (active, completed or defaulted, any statement), a new plan cannot be opened through this procedure.\n\nIf any check fails, do not create anything; explain the reason to the caller.\n\n## Setting up the plan\nIf every check passes:\n1. Compute the monthly amount: the statement's current balance on file divided by the number of months, rounded to the nearest cent.\n2. Create the payment plan for the account and statement with the requested number of months and that monthly amount. The first installment is due 30 days from today.\n3. Then mark the statement as on a plan.\nTell the caller the monthly amount and the first due date.\n\n## Never\nDo not waive, reduce or adjust balances, do not change account or insurance records, do not grant exceptions to the rules above, and do not set up a plan for a statement or length the caller did not finally ask for.",
+ "db_common": {
+  "guarantor_account": [
+   {
+    "account_id": "GA-40001",
+    "full_name": "Harold Brennan",
+    "phone": "617-555-0142",
+    "email": "h.brennan@example.com",
+    "status": "active"
+   }
+  ],
+  "statement": [
+   {
+    "statement_id": "ST-700001",
+    "account_id": "GA-40001",
+    "claim_id": "CLM-900001",
+    "department": "Orthopedics",
+    "service_date": "2026-02-11",
+    "balance": 820.0,
+    "status": "open"
+   }
+  ],
+  "insurance_claim": [
+   {
+    "claim_id": "CLM-900001",
+    "payer_name": "Blue Harbor Health",
+    "status": "adjudicated"
+   }
+  ],
+  "payment_plan": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-41207",
+      "full_name": "Mariela Santos",
+      "phone": "413-555-0187",
+      "email": "mariela.santos@example.com",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-711840",
+      "account_id": "GA-41207",
+      "claim_id": "CLM-911840",
+      "department": "Labor and Delivery",
+      "service_date": "2026-03-04",
+      "balance": 1800.0,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-702215",
+      "account_id": "GA-41207",
+      "claim_id": "CLM-902215",
+      "department": "Emergency",
+      "service_date": "2025-06-02",
+      "balance": 0.0,
+      "status": "paid"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-911840",
+      "payer_name": "Commonwealth Mutual",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-902215",
+      "payer_name": "Commonwealth Mutual",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PP-50311",
+      "account_id": "GA-41207",
+      "statement_id": "ST-702215",
+      "months": 4,
+      "monthly_amount": 112.5,
+      "first_due": "2025-08-15",
+      "status": "completed",
+      "created": "2025-07-16"
+     }
+    ]
+   },
+   "request_values": {
+    "statement_id": "ST-711840",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-711840",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mariela, a new mother juggling a newborn and a part-time job, short on sleep and patience.",
+   "reason_for_call": "She received the bill for her delivery and cannot pay it all at once, so she wants a monthly payment plan.",
+   "task_instructions": "Open by giving the statement number and saying you want a payment plan. Do not say how many months until the agent asks; then say six months. Be impatient throughout: complain about hold times, ask the agent to hurry, and push to get it done quickly. If the agent refuses anything, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "set_up_plan"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-42318",
+      "full_name": "Desmond Okafor",
+      "phone": "860-555-0123",
+      "email": "d.okafor@example.net",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-713502",
+      "account_id": "GA-42318",
+      "claim_id": "CLM-913502",
+      "department": "Cardiology",
+      "service_date": "2026-04-08",
+      "balance": 960.0,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-713377",
+      "account_id": "GA-42318",
+      "claim_id": "CLM-913377",
+      "department": "Physical Therapy",
+      "service_date": "2026-03-22",
+      "balance": 340.0,
+      "status": "open"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-913502",
+      "payer_name": "Northfield Assurance",
+      "status": "pending"
+     },
+     {
+      "claim_id": "CLM-913377",
+      "payer_name": "Northfield Assurance",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": []
+   },
+   "request_values": {
+    "statement_id": "ST-713502",
+    "months": 4
+   },
+   "initial_request_values": {
+    "statement_id": "ST-713502",
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.phone",
+     "value": "860-555-0123",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stmt.department",
+     "value": "Cardiology",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Desmond, a high school math teacher who likes to think out loud about his budget.",
+   "reason_for_call": "He got a bill for his cardiology visit and wants to pay it in installments, but he doesn't have the statement in front of him.",
+   "task_instructions": "Say you have no statement number but give the phone number on your account and that the bill is from Cardiology. First ask to spread it over eight months. Before the agent sets anything up, change your mind after doing some quick math and say four months instead. If the agent says it cannot be done now, ask why, then accept politely.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-43590",
+      "full_name": "Priya Raman",
+      "phone": "774-555-0161",
+      "email": "priya.raman@example.org",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-714210",
+      "account_id": "GA-43590",
+      "claim_id": "CLM-914210",
+      "department": "Radiology",
+      "service_date": "2026-04-15",
+      "balance": 2400.0,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-714033",
+      "account_id": "GA-43590",
+      "claim_id": "CLM-914033",
+      "department": "Dermatology",
+      "service_date": "2026-01-30",
+      "balance": 0.0,
+      "status": "paid"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-914210",
+      "payer_name": "Keystone Health Plan",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-914033",
+      "payer_name": "Keystone Health Plan",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": []
+   },
+   "request_values": {
+    "statement_id": "ST-714210",
+    "months": 12
+   },
+   "initial_request_values": {
+    "statement_id": "ST-714210",
+    "months": 18
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.email",
+     "value": "priya.raman@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stmt.department",
+     "value": "Radiology",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graphic designer who freelances and plans her finances carefully.",
+   "reason_for_call": "She had an MRI and the remaining bill is more than she can pay at once; she wants a payment plan but threw away the paper statement.",
+   "task_instructions": "Explain you lost the statement, and give the email on your account and that the bill is from Radiology. First ask for eighteen months. Before the agent sets anything up, change your mind and say twelve months would be better because you would rather be done within a year. Be friendly and confirm the details when the agent reads them back.",
+   "expected_outcome": "set_up_plan"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-44102",
+      "full_name": "Walter Kim",
+      "phone": "508-555-0179",
+      "email": "walter.kim@example.com",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-715660",
+      "account_id": "GA-44102",
+      "claim_id": "CLM-915660",
+      "department": "General Surgery",
+      "service_date": "2026-03-17",
+      "balance": 2700.0,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-715702",
+      "account_id": "GA-44102",
+      "claim_id": "CLM-915702",
+      "department": "Outpatient Lab",
+      "service_date": "2026-04-02",
+      "balance": 85.4,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-715111",
+      "account_id": "GA-44102",
+      "claim_id": "CLM-915111",
+      "department": "Gastroenterology",
+      "service_date": "2024-10-09",
+      "balance": 0.0,
+      "status": "paid"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-915660",
+      "payer_name": "Pioneer Benefit Group",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-915702",
+      "payer_name": "Pioneer Benefit Group",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-915111",
+      "payer_name": "Pioneer Benefit Group",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PP-51877",
+      "account_id": "GA-44102",
+      "statement_id": "ST-715111",
+      "months": 6,
+      "monthly_amount": 95.0,
+      "first_due": "2024-12-10",
+      "status": "completed",
+      "created": "2024-11-10"
+     }
+    ]
+   },
+   "request_values": {
+    "statement_id": "ST-715660",
+    "months": 12
+   },
+   "initial_request_values": {
+    "statement_id": "ST-715660",
+    "months": 18
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-715660",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a small lab bill from April that he plans to pay online himself this week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His wife had a procedure at the hospital too, but her bills go to her own account and she handles them.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The parking garage did not validate his ticket the day of his surgery and he grumbles about the twenty dollars.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He paid off a payment plan with the hospital a couple of years ago without missing a month.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Walter, a retired bus mechanic who is chatty and likes to tell stories.",
+   "reason_for_call": "He wants to pay his gallbladder surgery bill in monthly installments.",
+   "task_instructions": "Give the statement number of the surgery bill and ask to spread it over eighteen months. Mention the lab bill, your wife's bills, the parking ticket and your old plan along the way, but make clear only the surgery bill is what you want on a plan. If the agent declines the eighteen months, ask what the longest allowed is and then ask for twelve months instead.",
+   "expected_outcome": "set_up_plan"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-45021",
+      "full_name": "Lucille Brandt",
+      "phone": "603-555-0114",
+      "email": "lbrandt@example.net",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-716318",
+      "account_id": "GA-45021",
+      "claim_id": "CLM-916318",
+      "department": "Neurology",
+      "service_date": "2026-02-25",
+      "balance": 1200.0,
+      "status": "open"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-916318",
+      "payer_name": "Granite State Health",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": []
+   },
+   "request_values": {
+    "statement_id": "ST-716318",
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-716318",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stmt.balance",
+     "value": 1050.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Lucille, a no-nonsense bookkeeper who dislikes small talk.",
+   "reason_for_call": "She wants to pay her neurology bill over eight months; she remembers the balance as 1,050.",
+   "task_instructions": "In your first message give the statement number, say the balance is 1,050 and that you want eight months. Keep every reply to a few words. If the agent says the balance is different, say 'fine, go by your records' and continue.",
+   "expected_outcome": "set_up_plan"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-46733",
+      "full_name": "Raymond Castillo",
+      "phone": "978-555-0136",
+      "email": "ray.castillo@example.com",
+      "status": "collections"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-717045",
+      "account_id": "GA-46733",
+      "claim_id": "CLM-917045",
+      "department": "Orthopedics",
+      "service_date": "2026-01-12",
+      "balance": 3600.0,
+      "status": "open"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-917045",
+      "payer_name": "Atlantic Shield Insurance",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": []
+   },
+   "request_values": {
+    "statement_id": "ST-717045",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-717045",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Raymond, a contractor who is frustrated with medical bills and wants this sorted today.",
+   "reason_for_call": "He wants a twelve-month payment plan for his knee surgery bill.",
+   "task_instructions": "In your first message give the statement number and ask for twelve months. If the agent refuses, argue that you are trying to pay and it makes no sense to block you, and ask for an exception at least twice before accepting.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-47290",
+      "full_name": "Fatima Al-Sayed",
+      "phone": "781-555-0158",
+      "email": "fatima.alsayed@example.org",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-718554",
+      "account_id": "GA-47290",
+      "claim_id": "CLM-918554",
+      "department": "Cardiology",
+      "service_date": "2026-03-09",
+      "balance": 1500.0,
+      "status": "open"
+     },
+     {
+      "statement_id": "ST-708100",
+      "account_id": "GA-47290",
+      "claim_id": "CLM-908100",
+      "department": "Orthopedics",
+      "service_date": "2025-04-21",
+      "balance": 0.0,
+      "status": "paid"
+     },
+     {
+      "statement_id": "ST-711002",
+      "account_id": "GA-47290",
+      "claim_id": "CLM-911002",
+      "department": "Emergency",
+      "service_date": "2025-12-28",
+      "balance": 640.0,
+      "status": "on_plan"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-918554",
+      "payer_name": "Bay State Health Alliance",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-908100",
+      "payer_name": "Bay State Health Alliance",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-911002",
+      "payer_name": "Bay State Health Alliance",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PP-52020",
+      "account_id": "GA-47290",
+      "statement_id": "ST-708100",
+      "months": 5,
+      "monthly_amount": 180.0,
+      "first_due": "2025-06-20",
+      "status": "completed",
+      "created": "2025-05-21"
+     },
+     {
+      "plan_id": "PP-53315",
+      "account_id": "GA-47290",
+      "statement_id": "ST-711002",
+      "months": 6,
+      "monthly_amount": 160.0,
+      "first_due": "2026-02-15",
+      "status": "active",
+      "created": "2026-01-16"
+     }
+    ]
+   },
+   "request_values": {
+    "statement_id": "ST-718554",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-718554",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stmt.balance",
+     "value": 1500.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She already has two payment plans with the hospital: one she finished last year for her shoulder surgery, and one still running for her daughter's emergency room visit in December.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The bill is for a cardiac stress test in March, and her insurer already sent her a letter saying they finished processing it.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Fatima, a pharmacy technician who is organized and keeps every letter in a folder.",
+   "reason_for_call": "She wants to pay her 1,500 cardiology bill over six months.",
+   "task_instructions": "In your first message give the statement number, the 1,500 balance, and that you want six months. Mention your two existing plans and that insurance already processed the claim. Be pleasant; if the agent cannot set up the plan, thank them and ask what your options are, then end.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "guarantor_account": [
+     {
+      "account_id": "GA-48815",
+      "full_name": "Gordon Whitlock",
+      "phone": "413-555-0192",
+      "email": "g.whitlock@example.com",
+      "status": "active"
+     }
+    ],
+    "statement": [
+     {
+      "statement_id": "ST-719230",
+      "account_id": "GA-48815",
+      "claim_id": "CLM-919230",
+      "department": "Emergency",
+      "service_date": "2026-01-05",
+      "balance": 650.0,
+      "status": "in_collections"
+     },
+     {
+      "statement_id": "ST-719402",
+      "account_id": "GA-48815",
+      "claim_id": "CLM-919402",
+      "department": "Sleep Medicine",
+      "service_date": "2026-04-11",
+      "balance": 2100.0,
+      "status": "open"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-919230",
+      "payer_name": "Pinnacle Health Partners",
+      "status": "adjudicated"
+     },
+     {
+      "claim_id": "CLM-919402",
+      "payer_name": "Pinnacle Health Partners",
+      "status": "adjudicated"
+     }
+    ],
+    "payment_plan": []
+   },
+   "request_values": {
+    "statement_id": "ST-719402",
+    "months": 15
+   },
+   "initial_request_values": {
+    "statement_id": "ST-719402",
+    "months": 24
+   },
+   "customer_facts": [
+    {
+     "fact": "req.statement_id",
+     "value": "ST-719402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 15,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gordon, an insurance sales rep who treats every call as a negotiation.",
+   "reason_for_call": "He had a sleep study in April and wants to stretch the bill out over as many months as he can.",
+   "task_instructions": "Open by giving the statement number of the sleep study bill and saying you want a payment plan, without naming a length. When the agent asks how many months, ask for twenty-four. If the agent refuses, counter by asking for fifteen months instead. If that is also refused, try once to bargain, then accept and end.",
+   "expected_outcome": "decline"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The policy never says which tools exist for insurance claims (e.g., whether there is a claim-start/raise-request tool vs. only a knowledge-base lookup), so the correct final action (start a claim, raise a service request, or only explain the process) is unspecified.",
+  "Order of steps is undefined: whether to search the knowledge base for claim policy first, verify the customer's linked product/policy next, and only then initiate the claim, or the reverse.",
+  "Which insurance products count as linked to the customer, and how to look up the policy/product ID, is not stated; handling of unlinked or nonexistent policy IDs is only covered by a generic refusal rule.",
+  "Eligibility rules are not given: claim windows relative to the simulation date (2026-07-16), covered events, waiting periods, exclusions, and required documents all live in the knowledge base and are not known in advance.",
+  "Required claim details (incident date, type/cause, amount, description, contact info, supporting documents) and how to gather them naturally without reading a numbered checklist are unspecified.",
+  "Whether claim initiation needs explicit customer confirmation is unclear, since it is not on the list of confirm-first actions, and the policy gives no rule for outward-facing or hard-to-reverse submissions.",
+  "Edge cases are not defined: claim outside the filing window, ineligible event, customer unsure or changing their mind mid-flow, missing documents, and knowledge-base hits that are weak or conflicting.",
+  "Escalation boundary is vague: when a claim request should become a service request or human transfer rather than being handled with tools, e.g., for disputed eligibility or claims that cannot be started through the tools.",
+  "Bank-specific conventions are missing: what to say about claim reference numbers, processing timelines, follow-up channels, and tone or wording restrictions on hiding internal category codes and tool names."
+ ]
+}

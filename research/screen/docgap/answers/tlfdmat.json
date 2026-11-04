@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Policy never lists a create-FD tool or its required parameters (source account, amount, tenure, interest payout/compounding, auto-renewal, nominee), so which inputs must be collected and which defaults are acceptable is unspecified",
+  "No explicit confirmation requirement for creating an FD (confirmation is listed only for close/block/cancel/stop), yet FD booking is hard to reverse and likely carries premature-closure penalties; unclear whether to confirm before booking",
+  "Order of steps is only implied by the arrow chain: whether to fetch balance first, look up rate via the knowledge base or a rate tool, compute maturity via a tool or manually, and whether to re-check the balance at the end",
+  "Rate lookup specifics: which scheme/tenor/slab applies (senior citizen, tenure bands, minimum amount, cumulative vs non-cumulative), and what to do when the knowledge base returns weak hits",
+  "Maturity calculation conventions: compounding frequency, day-count, TDS, rounding, and whether to use a calculator tool or the bank's own formula; the quoted maturity amount must match the tool output",
+  "Edge cases: insufficient balance, amount below the minimum FD, tenure outside allowed range, minimum balance to maintain in the savings account, sweep or lien rules, joint accounts, and what to do when the customer changes the amount or tenure mid-flow",
+  "Final balance step: whether the final balance should reflect the post-debit amount, and how to handle the discrepancy if the FD is only 'projected' (booked vs. only simulated) or if the balance doesn't change as expected",
+  "Customer behavior: may ask for several tenure comparisons, back out after seeing the maturity value, refuse to confirm, give vague amounts ('most of my balance'), or ask about an unlinked account as the debit source",
+  "Simulation date (2026-07-16) drives maturity date computation, and conventions for rolling a maturity that lands on a holiday or weekend are not specified",
+  "Ground truth is likely determined by the final database state (FD created with exact parameters, account debited), so any ambiguity on defaults such as payout type or auto-renew changes correctness"
+ ]
+}

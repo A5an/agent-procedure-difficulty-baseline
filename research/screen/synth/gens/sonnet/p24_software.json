@@ -1,0 +1,720 @@
+{
+ "procedure_id": "p24_software",
+ "domain": "software subscription billing",
+ "organization": "Cloudlane Software",
+ "title": "Mid-term seat reductions on annual plans",
+ "summary": "Reduce the seat count on an annual subscription and issue a prorated credit note when the account and subscription qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer billing accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "billing_email": "str",
+    "status": "enum:active|suspended|closed",
+    "balance_due": "number"
+   }
+  },
+  "subscription": {
+   "key": "subscription_id",
+   "description": "Software subscriptions belonging to an account",
+   "fields": {
+    "subscription_id": "str",
+    "account_id": "ref:account",
+    "plan": "enum:starter|team|business",
+    "billing_cycle": "enum:monthly|annual",
+    "seats": "int",
+    "seat_price": "number",
+    "renewal_date": "date"
+   }
+  },
+  "credit_note": {
+   "key": "credit_id",
+   "description": "Credit notes issued to subscriptions",
+   "fields": {
+    "credit_id": "str",
+    "subscription_id": "ref:subscription",
+    "amount": "number",
+    "reason": "enum:seat_reduction|other",
+    "issued": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for billing manager approval of seat reductions",
+   "fields": {
+    "request_id": "str",
+    "subscription_id": "ref:subscription",
+    "requested_seats": "int",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a billing account by account number."
+  },
+  {
+   "name": "find_account_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "billing_email"
+   ],
+   "description": "Find accounts by the billing email address on file."
+  },
+  {
+   "name": "get_subscription",
+   "kind": "get",
+   "entity": "subscription",
+   "description": "Look up a subscription by subscription number."
+  },
+  {
+   "name": "find_subscriptions_by_account",
+   "kind": "search",
+   "entity": "subscription",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all subscriptions of an account."
+  },
+  {
+   "name": "update_seats",
+   "kind": "update",
+   "entity": "subscription",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription to change."
+    },
+    "seats": {
+     "type": "int",
+     "description": "The new total number of seats."
+    }
+   },
+   "set": {
+    "seats": "args.seats"
+   },
+   "description": "Set the number of seats on a subscription."
+  },
+  {
+   "name": "create_credit_note",
+   "kind": "create",
+   "entity": "credit_note",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription receiving the credit."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount, rounded to two decimals."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "amount": "args.amount",
+    "reason": "'seat_reduction'",
+    "issued": "today"
+   },
+   "description": "Issue a credit note for a seat reduction."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription the request is about."
+    },
+    "requested_seats": {
+     "type": "int",
+     "description": "The seat count the customer asked for."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "requested_seats": "args.requested_seats",
+    "created": "today"
+   },
+   "description": "Open a request for a billing manager to approve a large seat reduction."
+  }
+ ],
+ "request": {
+  "subscription_id": {
+   "type": "ref:subscription",
+   "description": "the subscription whose seats you want to reduce"
+  },
+  "new_seats": {
+   "type": "int",
+   "description": "the total number of seats you want to have after the reduction"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "sub",
+   "entity": "subscription",
+   "key": "req.subscription_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "sub.account_id"
+  }
+ ],
+ "outcomes": {
+  "reduce": {
+   "kind": "perform",
+   "description": "Reduce the seats and issue the prorated credit note.",
+   "calls": [
+    {
+     "tool": "update_seats",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "seats": "req.new_seats"
+     }
+    },
+    {
+     "tool": "create_credit_note",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "amount": "round((sub.seats - req.new_seats) * sub.seat_price * days_between(today, sub.renewal_date) / 365, 2)"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The credit is large: open an approval request instead of changing anything.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "requested_seats": "req.new_seats"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the subscription; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active accounts can reduce seats."
+  },
+  {
+   "id": "R2",
+   "when": "acct.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "Accounts with an unpaid balance cannot reduce seats."
+  },
+  {
+   "id": "R3",
+   "when": "sub.billing_cycle != 'annual'",
+   "outcome": "refuse",
+   "explain": "Only annual subscriptions can be reduced mid-term with a credit."
+  },
+  {
+   "id": "R4",
+   "when": "req.new_seats < 3 or req.new_seats >= sub.seats",
+   "outcome": "refuse",
+   "explain": "The new seat count must be a reduction and at least 3 seats."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, sub.renewal_date) < 30",
+   "outcome": "refuse",
+   "explain": "Within 30 days of renewal, seat reductions must wait until the renewal."
+  },
+  {
+   "id": "R6",
+   "when": "(sub.seats - req.new_seats) * sub.seat_price * days_between(today, sub.renewal_date) / 365 > 500",
+   "outcome": "approval",
+   "explain": "If the prorated credit exceeds 500.00, a billing manager must approve it."
+  }
+ ],
+ "default_outcome": "reduce",
+ "policy_text": "## Who can ask\nCustomers contact us to reduce the number of seats on a subscription. Find the subscription by its subscription number. If the customer does not have it, find the account by the billing email address on file and list the account's subscriptions; ask which one they mean if there is more than one. Go by what the database says, not by what the customer believes about their plan, dates or balance.\n\n## When a reduction is allowed\n- The account must be active. Suspended or closed accounts cannot reduce seats.\n- The account must have no unpaid balance (balance due must be 0).\n- Only annual subscriptions qualify. Monthly subscriptions are declined.\n- The new seat count must be lower than the current seat count and at least 3 seats.\n- If the renewal date is less than 30 days away, decline; the customer can change seats at renewal.\n- The credit is the number of removed seats x the annual price per seat x the days remaining until the renewal date / 365, rounded to two decimals. If this credit is more than 500.00, do not change the subscription. Open an approval request with the requested seat count and tell the customer a billing manager will follow up.\n\n## What to do\nIf everything is fine and the credit is 500.00 or less, first set the subscription to the new seat count, then issue a credit note for the computed amount. Do both, in that order.\nIf you cannot identify the subscription or learn the number of seats wanted, make no changes.\n\n## Never\nDo not waive unpaid balances, do not make exceptions to the rules above, do not choose a different seat count than the customer asked for, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-1000",
+    "company_name": "Orchard Bakery Co",
+    "billing_email": "office@orchardbakery.example.com",
+    "status": "active",
+    "balance_due": 0
+   }
+  ],
+  "subscription": [
+   {
+    "subscription_id": "S-1000",
+    "account_id": "A-1000",
+    "plan": "starter",
+    "billing_cycle": "monthly",
+    "seats": 4,
+    "seat_price": 10,
+    "renewal_date": "2026-06-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2001",
+      "company_name": "Brightwell Dental Group",
+      "billing_email": "billing@brightwelldental.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4101",
+      "account_id": "A-2001",
+      "plan": "team",
+      "billing_cycle": "annual",
+      "seats": 12,
+      "seat_price": 180,
+      "renewal_date": "2026-12-01"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4101",
+    "new_seats": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.renewal_date",
+     "value": "2026-12-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her last invoice was paid in full back in April.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The plan is an annual one that renews at the start of December.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, the practice manager of a dental group. Impatient and always short on time.",
+   "reason_for_call": "Four contractors left the practice and she no longer needs their seats.",
+   "task_instructions": "State your request, subscription number, the target of 8 seats, and the extra details in your first messages. Be impatient and ask the agent to hurry, but answer questions.",
+   "expected_outcome": "reduce"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2002",
+      "company_name": "Harlow Print Studio",
+      "billing_email": "accounts@harlowprint.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4202",
+      "account_id": "A-2002",
+      "plan": "team",
+      "billing_cycle": "annual",
+      "seats": 9,
+      "seat_price": 160,
+      "renewal_date": "2027-02-01"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4202",
+    "new_seats": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_seats",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a new office assistant who started this week and was handed the task without any paperwork.",
+   "reason_for_call": "His boss asked him to cut the team down to four seats, but he has no account papers.",
+   "task_instructions": "Say you want to go down to 4 seats. You do not know the subscription number, the account number or which billing email is on file. Cooperate and accept it if the agent cannot proceed.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2003",
+      "company_name": "Nordic Pines Cafe",
+      "billing_email": "owner@nordicpines.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4303",
+      "account_id": "A-2003",
+      "plan": "team",
+      "billing_cycle": "annual",
+      "seats": 10,
+      "seat_price": 150,
+      "renewal_date": "2026-06-10"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4303",
+    "new_seats": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.renewal_date",
+     "value": "2026-09-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jonas, a cafe owner who answers in as few words as possible.",
+   "reason_for_call": "The cafe closed one location and he wants fewer seats.",
+   "task_instructions": "Give your subscription number, 6 seats, and say it renews 2026-09-10. Keep every answer very short and never elaborate. Accept the result.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2004",
+      "company_name": "Kestrel Logistics",
+      "billing_email": "finance@kestrellogistics.example.com",
+      "status": "active",
+      "balance_due": 240
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4404",
+      "account_id": "A-2004",
+      "plan": "business",
+      "billing_cycle": "annual",
+      "seats": 25,
+      "seat_price": 100,
+      "renewal_date": "2027-01-15"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4404",
+    "new_seats": 20
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4404",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 20,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 240,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a logistics coordinator who is blunt and in a hurry.",
+   "reason_for_call": "Five dispatchers moved to another department and he wants to drop their seats.",
+   "task_instructions": "Give your subscription number and say you want to cut seats. Only say it is 20 seats when asked. If asked about unpaid invoices, admit there is an open invoice of 240. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2005",
+      "company_name": "Mosaic Legal",
+      "billing_email": "admin@mosaiclegal.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4505",
+      "account_id": "A-2005",
+      "plan": "team",
+      "billing_cycle": "monthly",
+      "seats": 15,
+      "seat_price": 12,
+      "renewal_date": "2026-06-20"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4505",
+    "new_seats": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4505",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.billing_cycle",
+     "value": "annual",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a law firm administrator. Polite and cooperative.",
+   "reason_for_call": "Two paralegals left and she wants to drop to 10 seats and get credit for the unused time.",
+   "task_instructions": "Give your subscription number and the 10 seats you want. Say you are sure the plan is billed annually. Answer questions politely and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2006",
+      "company_name": "Pellegrino Design Studio",
+      "billing_email": "studio@pellegrinodesign.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4601",
+      "account_id": "A-2006",
+      "plan": "team",
+      "billing_cycle": "monthly",
+      "seats": 6,
+      "seat_price": 15,
+      "renewal_date": "2026-06-05"
+     },
+     {
+      "subscription_id": "S-4602",
+      "account_id": "A-2006",
+      "plan": "business",
+      "billing_cycle": "annual",
+      "seats": 14,
+      "seat_price": 90,
+      "renewal_date": "2027-03-01"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4602",
+    "new_seats": 9
+   },
+   "initial_request_values": {
+    "new_seats": 11
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.billing_email",
+     "value": "studio@pellegrinodesign.example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 9,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.plan",
+     "value": "business",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Giulia, a studio founder who is friendly but a little indecisive.",
+   "reason_for_call": "Her studio shrank and she wants to reduce seats on the business plan, but she does not know the subscription number.",
+   "task_instructions": "Start by asking to go down to 11 seats. Give the billing email. Before anything is done, change your mind and say you actually want 9 seats. If asked which subscription, say it is the business plan.",
+   "expected_outcome": "reduce"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2007",
+      "company_name": "Tidewater Analytics",
+      "billing_email": "ops@tidewateranalytics.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4701",
+      "account_id": "A-2007",
+      "plan": "business",
+      "billing_cycle": "annual",
+      "seats": 8,
+      "seat_price": 300,
+      "renewal_date": "2026-11-15"
+     },
+     {
+      "subscription_id": "S-4702",
+      "account_id": "A-2007",
+      "plan": "team",
+      "billing_cycle": "annual",
+      "seats": 20,
+      "seat_price": 120,
+      "renewal_date": "2026-09-30"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4702",
+    "new_seats": 15
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4702",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 15,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "They also have a separate business subscription for the data team that they are keeping as is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once had a billing dispute about a duplicate charge in 2024 that was already resolved.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The company is moving to a new office next month.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Dev, an operations lead who writes very tersely.",
+   "reason_for_call": "He wants to reduce the team plan from 20 to 15 seats.",
+   "task_instructions": "Give the subscription number and 15 seats. Keep answers very short. You may mention in passing the side details about the other subscription, the old dispute and the office move, but do not ask for anything about them.",
+   "expected_outcome": "reduce"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-2008",
+      "company_name": "Calloway Robotics",
+      "billing_email": "billing@callowayrobotics.example.com",
+      "status": "active",
+      "balance_due": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-4801",
+      "account_id": "A-2008",
+      "plan": "business",
+      "billing_cycle": "annual",
+      "seats": 30,
+      "seat_price": 200,
+      "renewal_date": "2027-01-15"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-4801",
+    "new_seats": 20
+   },
+   "initial_request_values": {
+    "new_seats": 28
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-4801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_seats",
+     "value": 20,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, an engineering director who decides quickly but sometimes revises.",
+   "reason_for_call": "Her robotics company is cutting a project and she wants fewer seats.",
+   "task_instructions": "First ask to reduce to 28 seats and give the subscription number. Before anything is done, say you have thought again and want to go down to 20 seats instead. If the agent says a manager must approve it, accept that.",
+   "expected_outcome": "approval"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

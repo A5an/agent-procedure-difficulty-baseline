@@ -1,0 +1,14 @@
+{
+ "gap_score": 9,
+ "gaps": [
+  "The policy says nothing about gold loan sizing: no LTV ratio, per-gram rate, purity (karat) rules, or how eligible loan amount is computed; all of this must come from the knowledge base, and the correct answer depends on what it returns.",
+  "Which tools exist for gold loans is unspecified (e.g. a calculator, a gold rate lookup, or only KB search), so the exact steps and their order are unclear.",
+  "The inputs needed are not defined: weight, purity, ornament type, deductions for stones, and whether the customer has an existing gold loan to be looked up.",
+  "It is unclear whether the final action is purely informational (an estimate with caveats) or something further, such as raising a service request, branch referral, or starting an application.",
+  "Edge cases are unspecified: weak or conflicting KB hits, amounts below the minimum or above the maximum loan size, unsupported items (coins, bars, stones), and purity below the accepted threshold.",
+  "Rules for the scheme or tenure choice, interest rate, processing fees, and the rate or valuation date are not given, so it is unclear whether the answer should be indicative or binding.",
+  "The policy does not say how to handle customer behavior: vague inputs, requests for a guaranteed quote, comparisons across schemes, or asking about someone else's gold loan or an unlinked ID.",
+  "It is unclear when escalation or transfer applies, since the valuation usually needs physical appraisal at a branch.",
+  "Bank-specific conventions are not stated: units (grams, tola), rounding, the currency format, and whether the current gold price is available to the assistant."
+ ]
+}

@@ -1,0 +1,966 @@
+{
+ "procedure_id": "p09_gym",
+ "domain": "gym and fitness club",
+ "organization": "Northpeak Fitness Clubs",
+ "title": "Membership freeze requests",
+ "summary": "Pause a member's gym membership and billing for a set number of days when the membership qualifies, or send long and medical freezes to membership services for review.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "People who hold one or more Northpeak memberships",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "home_club": "str"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Individual membership contracts held by members",
+   "fields": {
+    "membership_id": "str",
+    "member_id": "ref:member",
+    "plan": "enum:basic|plus|premium|family_swim",
+    "status": "enum:active|frozen|suspended|cancelled",
+    "start_date": "date",
+    "contract_end": "date",
+    "freezes_used_this_year": "int",
+    "balance_due": "number",
+    "freeze_until": "date",
+    "billing_id": "ref:billing_account"
+   }
+  },
+  "billing_account": {
+   "key": "billing_id",
+   "description": "The recurring direct-debit billing attached to a membership",
+   "fields": {
+    "billing_id": "str",
+    "monthly_fee": "number",
+    "billing_status": "enum:active|paused",
+    "next_charge_date": "date"
+   }
+  },
+  "freeze_record": {
+   "key": "freeze_id",
+   "description": "Log of freezes applied to memberships",
+   "fields": {
+    "freeze_id": "str",
+    "membership_id": "ref:membership",
+    "start_date": "date",
+    "days": "int",
+    "reason": "enum:travel|medical|personal"
+   }
+  },
+  "freeze_review": {
+   "key": "review_id",
+   "description": "Freeze requests waiting for a decision by membership services",
+   "fields": {
+    "review_id": "str",
+    "membership_id": "ref:membership",
+    "days": "int",
+    "reason": "enum:travel|medical|personal",
+    "status": "enum:pending|approved|declined",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member profile by member number."
+  },
+  {
+   "name": "find_member_by_phone",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "phone"
+   ],
+   "description": "Find members by the phone number on file."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership contract by membership number."
+  },
+  {
+   "name": "find_memberships_by_member",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all memberships held by a member."
+  },
+  {
+   "name": "get_billing_account",
+   "kind": "get",
+   "entity": "billing_account",
+   "description": "Look up the billing account attached to a membership by billing id."
+  },
+  {
+   "name": "freeze_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to freeze."
+    },
+    "days": {
+     "type": "int",
+     "description": "Length of the freeze in days, starting today."
+    }
+   },
+   "set": {
+    "status": "'frozen'",
+    "freeze_until": "add_days(today, args.days)",
+    "contract_end": "add_days(rec.contract_end, args.days)",
+    "freezes_used_this_year": "rec.freezes_used_this_year + 1"
+   },
+   "description": "Freeze a membership starting today for the given number of days; extends the contract end by the same number of days and counts one freeze for this year."
+  },
+  {
+   "name": "pause_billing",
+   "kind": "update",
+   "entity": "billing_account",
+   "args": {
+    "billing_id": {
+     "type": "ref:billing_account",
+     "description": "The billing account of the membership being frozen."
+    },
+    "days": {
+     "type": "int",
+     "description": "Length of the freeze in days."
+    }
+   },
+   "set": {
+    "billing_status": "'paused'",
+    "next_charge_date": "add_days(rec.next_charge_date, args.days)"
+   },
+   "description": "Pause direct-debit billing and push the next charge date back by the freeze length."
+  },
+  {
+   "name": "log_freeze",
+   "kind": "create",
+   "entity": "freeze_record",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership that was frozen."
+    },
+    "days": {
+     "type": "int",
+     "description": "Length of the freeze in days."
+    },
+    "reason": {
+     "type": "enum:travel|medical|personal",
+     "description": "Reason the member gave for the freeze."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "start_date": "today",
+    "days": "args.days",
+    "reason": "args.reason"
+   },
+   "description": "Record a freeze that has been applied, starting today."
+  },
+  {
+   "name": "create_freeze_review",
+   "kind": "create",
+   "entity": "freeze_review",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership the request is about."
+    },
+    "days": {
+     "type": "int",
+     "description": "Requested freeze length in days."
+    },
+    "reason": {
+     "type": "enum:travel|medical|personal",
+     "description": "Reason the member gave for the freeze."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "days": "args.days",
+    "reason": "args.reason",
+    "status": "'pending'",
+    "created": "today"
+   },
+   "description": "Send a freeze request to membership services for review instead of applying it."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to freeze"
+  },
+  "freeze_days": {
+   "type": "int",
+   "description": "how many days you want the freeze to last, starting today"
+  },
+  "freeze_reason": {
+   "type": "enum:travel|medical|personal",
+   "description": "why you want to freeze: travel, medical, or personal reasons"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "ms",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "mbr",
+   "entity": "member",
+   "key": "ms.member_id"
+  },
+  {
+   "name": "bill",
+   "entity": "billing_account",
+   "key": "ms.billing_id"
+  }
+ ],
+ "outcomes": {
+  "freeze": {
+   "kind": "perform",
+   "description": "Freeze the membership, pause billing, and log the freeze.",
+   "calls": [
+    {
+     "tool": "freeze_membership",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.freeze_days"
+     }
+    },
+    {
+     "tool": "pause_billing",
+     "args": {
+      "billing_id": "ms.billing_id",
+      "days": "req.freeze_days"
+     }
+    },
+    {
+     "tool": "log_freeze",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.freeze_days",
+      "reason": "req.freeze_reason"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Medical or long freeze: send the request to membership services instead of freezing.",
+   "calls": [
+    {
+     "tool": "create_freeze_review",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.freeze_days",
+      "reason": "req.freeze_reason"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "The freeze cannot be granted; explain why and change nothing.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "ms.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active memberships can be frozen; frozen, suspended or cancelled memberships cannot."
+  },
+  {
+   "id": "R2",
+   "when": "ms.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "A membership with any outstanding balance cannot be frozen until the balance is paid."
+  },
+  {
+   "id": "R3",
+   "when": "req.freeze_days < 7 or req.freeze_days > 90",
+   "outcome": "refuse",
+   "explain": "A freeze must be between 7 and 90 days long."
+  },
+  {
+   "id": "R4",
+   "when": "ms.freezes_used_this_year >= 2",
+   "outcome": "refuse",
+   "explain": "A membership can be frozen at most twice per calendar year."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, ms.contract_end) < 30",
+   "outcome": "refuse",
+   "explain": "A membership whose contract ends in fewer than 30 days cannot be frozen."
+  },
+  {
+   "id": "R6",
+   "when": "req.freeze_reason == 'medical' or req.freeze_days > 60",
+   "outcome": "review",
+   "explain": "Medical freezes and freezes longer than 60 days go to membership services for review instead of being applied."
+  }
+ ],
+ "default_outcome": "freeze",
+ "policy_text": "## Purpose\nMembers may ask to put a membership on hold (a freeze) while they travel, recover from an injury or illness, or for personal reasons. A freeze starts today, pauses billing, and adds the frozen days to the end of the contract.\n\n## Finding the membership\nIf the member gives a membership number, look it up directly. Otherwise find the member profile by the phone number or the email address on file, then list that member's memberships. If the member holds more than one membership, ask which one they mean (for example by plan) and make sure you work on the right one. If you cannot find the member or cannot tell which membership they mean, do not make any change. No further identity check is required for freeze requests.\n\nYou also need from the member: how many days they want to freeze, and the reason (travel, medical or personal). Ask if they have not said.\n\n## When a freeze cannot be granted\nCheck these in order and decline if any applies:\n1. The membership must be active. Memberships that are already frozen, suspended or cancelled cannot be frozen.\n2. The membership must have no outstanding balance. If any amount is due, the member must pay it first.\n3. A freeze must last at least 7 days and at most 90 days. Requests outside this range are declined; do not shorten or lengthen the request yourself.\n4. A membership can be frozen at most twice per calendar year. If two freezes have already been used this year, decline.\n5. If the contract ends in fewer than 30 days from today, the membership cannot be frozen.\n\nAlways go by what the system shows, not by what the member believes about their balance, freezes used or contract dates.\n\n## Freezes that need review\nIf none of the above applies but the reason is medical, or the freeze is longer than 60 days, do not freeze the membership yourself. Open a freeze review for membership services with the requested number of days and the reason, and tell the member that membership services will contact them (medical freezes need a doctor's note).\n\n## Applying a freeze\nOtherwise apply the freeze, in this order:\n1. Freeze the membership for the requested number of days.\n2. Pause billing on the membership's billing account for the same number of days.\n3. Log the freeze with the number of days and the reason.\n\n## Never\nDo not waive balances, do not make exceptions to the limits above, do not freeze a membership that goes to review, and do not change any membership the member did not ask about.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1001",
+    "full_name": "Grace Okafor",
+    "email": "grace.okafor@example.com",
+    "phone": "555-0100",
+    "home_club": "Riverside"
+   }
+  ],
+  "membership": [
+   {
+    "membership_id": "MS-10010",
+    "member_id": "M-1001",
+    "plan": "plus",
+    "status": "active",
+    "start_date": "2025-03-01",
+    "contract_end": "2027-02-28",
+    "freezes_used_this_year": 0,
+    "balance_due": 0,
+    "freeze_until": null,
+    "billing_id": "B-10010"
+   }
+  ],
+  "billing_account": [
+   {
+    "billing_id": "B-10010",
+    "monthly_fee": 49.0,
+    "billing_status": "active",
+    "next_charge_date": "2026-06-01"
+   }
+  ],
+  "freeze_record": [
+   {
+    "freeze_id": "F-00001",
+    "membership_id": "MS-10010",
+    "start_date": "2025-08-04",
+    "days": 14,
+    "reason": "travel"
+   }
+  ],
+  "freeze_review": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2041",
+      "full_name": "Tobias Brandt",
+      "email": "tobias.brandt@example.com",
+      "phone": "555-0142",
+      "home_club": "Eastgate"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30411",
+      "member_id": "M-2041",
+      "plan": "plus",
+      "status": "active",
+      "start_date": "2025-09-01",
+      "contract_end": "2026-08-31",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70411"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70411",
+      "monthly_fee": 49.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30411",
+    "freeze_days": 75,
+    "freeze_reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.phone",
+     "value": "555-0142",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 75,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "travel",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tobias, a software consultant leaving for a two-and-a-half-month project in Singapore. Impatient and used to getting things done quickly.",
+   "reason_for_call": "He is flying out soon and wants his gym membership frozen while he is away so he stops paying for it.",
+   "task_instructions": "You do not know your membership number; give the phone number on your account. Ask for a 75-day freeze for travel. If the agent says it has to go to review instead of being frozen now, complain and insist twice that it be applied immediately, then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2188",
+      "full_name": "Priya Nair",
+      "email": "priya.nair.fit@example.com",
+      "phone": "555-0177",
+      "home_club": "Riverside"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30520",
+      "member_id": "M-2188",
+      "plan": "basic",
+      "status": "active",
+      "start_date": "2025-11-15",
+      "contract_end": "2026-11-14",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70520"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70520",
+      "monthly_fee": 29.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-15"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30520",
+    "freeze_days": 14,
+    "freeze_reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.full_name",
+     "value": "Priya Nair",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "personal",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "freeze_days": 30
+   },
+   "persona": "Priya, a graduate student moving apartments. She recently switched phone numbers and has a new email, and she lost her membership card.",
+   "reason_for_call": "She is busy with a move and wants to pause her gym membership for a while.",
+   "task_instructions": "First ask for a 30-day freeze for personal reasons, then before anything is done say two weeks is enough. Give your name. You do not know your membership number, your old phone number or which email the gym has. If the agent cannot help, accept it.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2230",
+      "full_name": "Marcus Lee",
+      "email": "marcus.lee@example.com",
+      "phone": "555-0193",
+      "home_club": "Northside"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30601",
+      "member_id": "M-2230",
+      "plan": "basic",
+      "status": "cancelled",
+      "start_date": "2023-01-10",
+      "contract_end": "2024-01-09",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70601"
+     },
+     {
+      "membership_id": "MS-30602",
+      "member_id": "M-2230",
+      "plan": "premium",
+      "status": "active",
+      "start_date": "2026-01-01",
+      "contract_end": "2026-12-31",
+      "freezes_used_this_year": 1,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70602"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70601",
+      "monthly_fee": 25.0,
+      "billing_status": "paused",
+      "next_charge_date": "2024-01-10"
+     },
+     {
+      "billing_id": "B-70602",
+      "monthly_fee": 79.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30602",
+    "freeze_days": 21,
+    "freeze_reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.email",
+     "value": "marcus.lee@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ms.plan",
+     "value": "premium",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "personal",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a chef who works long hours and types short messages between shifts.",
+   "reason_for_call": "He wants three weeks off from the gym while his restaurant opens a new menu.",
+   "task_instructions": "Give your email and say you want to freeze for 21 days. You do not know the membership number. Answer only what is asked in as few words as possible: the plan is Premium, the reason is personal.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2315",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@example.com",
+      "phone": "555-0211",
+      "home_club": "Eastgate"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30577",
+      "member_id": "M-2315",
+      "plan": "premium",
+      "status": "active",
+      "start_date": "2025-07-01",
+      "contract_end": "2027-06-30",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70577"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70577",
+      "monthly_fee": 79.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30577",
+    "freeze_days": 30,
+    "freeze_reason": "medical"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30577",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "medical",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, an architect who just had knee surgery and is frustrated about paying for a gym she cannot use.",
+   "reason_for_call": "She wants her membership frozen for a month while she recovers.",
+   "task_instructions": "In your first message give your membership number and ask for a 30-day medical freeze. If the agent says it must go to review, argue twice that it should just be frozen now since the surgery is obvious, then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2402",
+      "full_name": "Hannah Kowalski",
+      "email": "hannah.k@example.com",
+      "phone": "555-0234",
+      "home_club": "Riverside"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30690",
+      "member_id": "M-2402",
+      "plan": "plus",
+      "status": "active",
+      "start_date": "2025-10-01",
+      "contract_end": "2026-09-30",
+      "freezes_used_this_year": 1,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70690"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70690",
+      "monthly_fee": 49.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30690",
+    "freeze_days": 14,
+    "freeze_reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30690",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "travel",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ms.freezes_used_this_year",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a nurse going on a two-week holiday. Brief and to the point.",
+   "reason_for_call": "She wants to freeze her membership for her holiday, though she thinks she may already have used both freezes this year.",
+   "task_instructions": "Give your membership number, say 14 days for travel, and mention you think you already used two freezes this year. Keep answers very short.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2517",
+      "full_name": "Daniel Osei",
+      "email": "daniel.osei@example.com",
+      "phone": "555-0258",
+      "home_club": "Eastgate"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30702",
+      "member_id": "M-2517",
+      "plan": "premium",
+      "status": "active",
+      "start_date": "2025-06-11",
+      "contract_end": "2026-06-10",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70702"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70702",
+      "monthly_fee": 79.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30702",
+    "freeze_days": 30,
+    "freeze_reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30702",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "travel",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ms.contract_end",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It's my Premium membership at the Eastgate club.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I haven't frozen my membership at all this year.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Daniel, a friendly teacher planning a month of travel over the summer.",
+   "reason_for_call": "He wants to freeze his membership for 30 days while he travels and mentions his contract runs until June 10.",
+   "task_instructions": "Give your membership number, the 30 days, the travel reason and your contract end date in your first message, and mention the extra details naturally. If the agent declines, accept politely and ask what your options are.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2633",
+      "full_name": "Sofia Mendes",
+      "email": "sofia.mendes@example.com",
+      "phone": "555-0276",
+      "home_club": "Northside"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30815",
+      "member_id": "M-2633",
+      "plan": "plus",
+      "status": "active",
+      "start_date": "2025-12-01",
+      "contract_end": "2026-11-30",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70815"
+     },
+     {
+      "membership_id": "MS-30816",
+      "member_id": "M-2633",
+      "plan": "family_swim",
+      "status": "active",
+      "start_date": "2026-02-01",
+      "contract_end": "2027-01-31",
+      "freezes_used_this_year": 0,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70816"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70815",
+      "monthly_fee": 49.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     },
+     {
+      "billing_id": "B-70816",
+      "monthly_fee": 35.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30815",
+    "freeze_days": 120,
+    "freeze_reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30815",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 120,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "travel",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My daughter's swim membership is going great and she loves her lessons, so leave that one as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year I had a problem with a broken locker, but that got sorted out.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was going to ask about personal training package prices, but never mind, that can wait.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "freeze_days": 21
+   },
+   "persona": "Sofia, a talkative journalist whose overseas assignment keeps getting longer.",
+   "reason_for_call": "She is going abroad for work and wants to pause her own gym membership.",
+   "task_instructions": "Give your membership number and first ask for a 21-day travel freeze. Chat about the other things. Before anything is done, say the assignment was just extended and you actually need 120 days. If the agent declines, accept it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2749",
+      "full_name": "Kenji Watanabe",
+      "email": "kenji.w@example.com",
+      "phone": "555-0299",
+      "home_club": "Riverside"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30930",
+      "member_id": "M-2749",
+      "plan": "basic",
+      "status": "active",
+      "start_date": "2025-08-15",
+      "contract_end": "2027-08-14",
+      "freezes_used_this_year": 2,
+      "balance_due": 0,
+      "freeze_until": null,
+      "billing_id": "B-70930"
+     }
+    ],
+    "billing_account": [
+     {
+      "billing_id": "B-70930",
+      "monthly_fee": 29.0,
+      "billing_status": "active",
+      "next_charge_date": "2026-06-15"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30930",
+    "freeze_days": 28,
+    "freeze_reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30930",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 28,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.freeze_reason",
+     "value": "personal",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kenji, a polite accountant heading into tax-season crunch with no time to train.",
+   "reason_for_call": "He wants to pause his membership for about four weeks during a busy period at work.",
+   "task_instructions": "Give your membership number and say you want to freeze it. Tell the agent 28 days and that the reason is personal only when asked. If the agent declines, thank them and accept.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

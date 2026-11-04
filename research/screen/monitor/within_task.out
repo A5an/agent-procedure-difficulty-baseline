@@ -1,0 +1,3 @@
+sopbench  tasks with mixed outcomes  769 | within-task AUC monitor 0.828 | pooled AUC: difficulty only 0.756, monitor 0.844, difficulty + monitor 0.905
+tau2      tasks with mixed outcomes  155 | within-task AUC monitor 0.632 | pooled AUC: difficulty only 0.779, monitor 0.644, difficulty + monitor 0.734
+tib       tasks with mixed outcomes   38 | within-task AUC monitor 0.697 | pooled AUC: difficulty only 0.674, monitor 0.837, difficulty + monitor 0.838

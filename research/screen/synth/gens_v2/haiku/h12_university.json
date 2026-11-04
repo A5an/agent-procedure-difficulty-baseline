@@ -1,0 +1,808 @@
+{
+ "procedure_id": "h12_university",
+ "domain": "university housing",
+ "organization": "Halvorsen University Residence Services",
+ "title": "Housing contract extensions",
+ "summary": "Extend a resident's housing contract by a number of days, with an extension charge and notice, when the resident, contract and building qualify.",
+ "entities": {
+  "resident": {
+   "key": "resident_id",
+   "description": "Students and staff who hold university housing",
+   "fields": {
+    "resident_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:enrolled|withdrawn|graduated",
+    "balance_due": "number"
+   }
+  },
+  "building": {
+   "key": "building_id",
+   "description": "Residence halls and apartment buildings",
+   "fields": {
+    "building_id": "str",
+    "name": "str",
+    "daily_rate": "number",
+    "renovation_hold": "bool"
+   }
+  },
+  "housing_contract": {
+   "key": "contract_id",
+   "description": "A resident's agreement to live in one room for a term",
+   "fields": {
+    "contract_id": "str",
+    "resident_id": "ref:resident",
+    "building_id": "ref:building",
+    "room": "str",
+    "end_date": "date",
+    "status": "enum:active|ended|pending",
+    "extensions": "int"
+   }
+  },
+  "housing_charge": {
+   "key": "charge_id",
+   "description": "Charges added to a resident's university account",
+   "fields": {
+    "charge_id": "str",
+    "resident_id": "ref:resident",
+    "amount": "number",
+    "reason": "enum:extension|other",
+    "created": "date"
+   }
+  },
+  "housing_notice": {
+   "key": "notice_id",
+   "description": "Notices recorded on a housing contract",
+   "fields": {
+    "notice_id": "str",
+    "contract_id": "ref:housing_contract",
+    "kind": "enum:extension|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_resident",
+   "kind": "get",
+   "entity": "resident",
+   "description": "Look up a resident by resident ID."
+  },
+  {
+   "name": "find_residents_by_email",
+   "kind": "search",
+   "entity": "resident",
+   "by": [
+    "email"
+   ],
+   "description": "Find residents by the email address on file."
+  },
+  {
+   "name": "get_building",
+   "kind": "get",
+   "entity": "building",
+   "description": "Look up a building by building ID."
+  },
+  {
+   "name": "get_housing_contract",
+   "kind": "get",
+   "entity": "housing_contract",
+   "description": "Look up a housing contract by contract ID."
+  },
+  {
+   "name": "find_contracts_by_resident",
+   "kind": "search",
+   "entity": "housing_contract",
+   "by": [
+    "resident_id"
+   ],
+   "description": "List all housing contracts held by a resident."
+  },
+  {
+   "name": "extend_contract",
+   "kind": "update",
+   "entity": "housing_contract",
+   "args": {
+    "contract_id": {
+     "type": "ref:housing_contract",
+     "description": "The contract to extend."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to add to the end date."
+    }
+   },
+   "set": {
+    "end_date": "add_days(rec.end_date, args.days)",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Move a contract's end date later by a number of days and count one extension."
+  },
+  {
+   "name": "create_housing_charge",
+   "kind": "create",
+   "entity": "housing_charge",
+   "args": {
+    "resident_id": {
+     "type": "ref:resident",
+     "description": "The resident to charge."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Charge amount in dollars."
+    }
+   },
+   "fields": {
+    "resident_id": "args.resident_id",
+    "amount": "args.amount",
+    "reason": "'extension'",
+    "created": "today"
+   },
+   "description": "Add an extension charge to a resident's university account."
+  },
+  {
+   "name": "create_housing_notice",
+   "kind": "create",
+   "entity": "housing_notice",
+   "args": {
+    "contract_id": {
+     "type": "ref:housing_contract",
+     "description": "The contract the notice is about."
+    },
+    "notice_kind": {
+     "type": "enum:extension|other",
+     "description": "Kind of notice."
+    }
+   },
+   "fields": {
+    "contract_id": "args.contract_id",
+    "kind": "args.notice_kind",
+    "created": "today"
+   },
+   "description": "Record a notice on a housing contract."
+  }
+ ],
+ "request": {
+  "contract_id": {
+   "type": "ref:housing_contract",
+   "description": "the housing contract you want extended"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many extra days you want"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "contract",
+   "entity": "housing_contract",
+   "key": "req.contract_id"
+  },
+  {
+   "name": "resident",
+   "entity": "resident",
+   "key": "contract.resident_id"
+  },
+  {
+   "name": "building",
+   "entity": "building",
+   "key": "contract.building_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Charge the resident for the extension, extend the contract by the requested days, and record an extension notice.",
+   "calls": [
+    {
+     "tool": "create_housing_charge",
+     "args": {
+      "resident_id": "resident.resident_id",
+      "amount": "min(building.daily_rate * req.days, 300)"
+     }
+    },
+    {
+     "tool": "extend_contract",
+     "args": {
+      "contract_id": "contract.contract_id",
+      "days": "req.days"
+     }
+    },
+    {
+     "tool": "create_housing_notice",
+     "args": {
+      "contract_id": "contract.contract_id",
+      "notice_kind": "'extension'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no changes and explain to the resident which requirement is not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "resident.status != 'enrolled'",
+   "outcome": "refuse",
+   "explain": "Only currently enrolled residents may extend a housing contract."
+  },
+  {
+   "id": "R2",
+   "when": "contract.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active contracts can be extended."
+  },
+  {
+   "id": "R3",
+   "when": "contract.extensions >= 2",
+   "outcome": "refuse",
+   "explain": "A contract can be extended at most twice."
+  },
+  {
+   "id": "R4",
+   "when": "building.renovation_hold",
+   "outcome": "refuse",
+   "explain": "Contracts in a building under renovation hold cannot be extended."
+  },
+  {
+   "id": "R5",
+   "when": "resident.balance_due > 500",
+   "outcome": "refuse",
+   "explain": "Residents owing more than 500.00 cannot extend."
+  },
+  {
+   "id": "R6",
+   "when": "req.days < 1 or req.days > 30",
+   "outcome": "refuse",
+   "explain": "An extension must be between 1 and 30 days."
+  },
+  {
+   "id": "R7",
+   "when": "contract.end_date < today",
+   "outcome": "refuse",
+   "explain": "A contract whose end date has already passed cannot be extended."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who to help\nResidents ask to extend their housing contract by a number of days. Find the contract before doing anything else.\n\n## Finding the contract\nIf the resident gives a contract ID, look it up. If not, find the resident by the email address on file, then list their contracts. If there is more than one contract, ask which room or building they mean and use the answer to pick the right one. Once you have the contract, look up the resident who holds it and the building it is in. Do not rely on what the resident says about these records; check the system.\n\n## Checks before any change\nCheck the following, in this order:\n1. The resident's status must be enrolled. Withdrawn or graduated residents cannot extend.\n2. The contract's status must be active.\n3. The contract must have been extended fewer than two times so far.\n4. The building must not be under renovation hold.\n5. The resident's balance due must be 500.00 or less.\n6. The number of days must be at least 1 and at most 30. Do not shorten a longer request; decline it and ask for a number of days within the limit.\n7. The contract's end date must not be before today.\n\nIf any check fails, make no changes. Explain the reason in plain words. Do not offer exceptions or charge waivers.\n\n## Extending a contract\nIf every check passes, make three changes in this order:\n- Create an extension charge for the resident. The amount is the building's daily rate multiplied by the number of days requested, and never more than 300.00. The charge is recorded with the reason extension.\n- Extend the contract by the number of days requested. This moves its end date later and adds one to its extension count.\n- Create an extension notice on the contract.\n\nThen tell the resident the new end date and the amount charged.\n\n## Never\nDo not waive or reduce charges, do not extend a contract for a resident who failed a check, and do not change anything the resident did not ask for.",
+ "db_common": {
+  "building": [
+   {
+    "building_id": "B-101",
+    "name": "Aldine Hall",
+    "daily_rate": 14.0,
+    "renovation_hold": false
+   },
+   {
+    "building_id": "B-102",
+    "name": "Marsh House",
+    "daily_rate": 19.5,
+    "renovation_hold": false
+   },
+   {
+    "building_id": "B-103",
+    "name": "Kessler Court",
+    "daily_rate": 25.0,
+    "renovation_hold": true
+   },
+   {
+    "building_id": "B-104",
+    "name": "Pell Commons",
+    "daily_rate": 17.0,
+    "renovation_hold": false
+   }
+  ],
+  "resident": [
+   {
+    "resident_id": "R-1001",
+    "full_name": "Priya Sundaram",
+    "email": "priya.s@example.edu",
+    "status": "graduated",
+    "balance_due": 0.0
+   },
+   {
+    "resident_id": "R-1002",
+    "full_name": "Tomasz Wierzba",
+    "email": "t.wierzba@example.edu",
+    "status": "enrolled",
+    "balance_due": 0.0
+   }
+  ],
+  "housing_contract": [
+   {
+    "contract_id": "HC-5001",
+    "resident_id": "R-1001",
+    "building_id": "B-101",
+    "room": "204",
+    "end_date": "2026-05-15",
+    "status": "ended",
+    "extensions": 0
+   },
+   {
+    "contract_id": "HC-5002",
+    "resident_id": "R-1002",
+    "building_id": "B-104",
+    "room": "11C",
+    "end_date": "2026-08-14",
+    "status": "active",
+    "extensions": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2101",
+      "full_name": "Hana Okafor",
+      "email": "hana.okafor@example.edu",
+      "status": "enrolled",
+      "balance_due": 42.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7101",
+      "resident_id": "R-2101",
+      "building_id": "B-102",
+      "room": "312",
+      "end_date": "2026-08-10",
+      "status": "active",
+      "extensions": 0
+     },
+     {
+      "contract_id": "HC-7102",
+      "resident_id": "R-2101",
+      "building_id": "B-101",
+      "room": "118",
+      "end_date": "2025-12-19",
+      "status": "ended",
+      "extensions": 1
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7101",
+    "days": 10
+   },
+   "initial_request_values": {
+    "contract_id": "HC-7101",
+    "days": 40
+   },
+   "customer_facts": [
+    {
+     "fact": "resident.email",
+     "value": "hana.okafor@example.edu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.room",
+     "value": "312",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a second-year graduate student who is brisk and a little impatient on the phone.",
+   "reason_for_call": "She has an internship starting later and wants more time in her Marsh House room before moving her things.",
+   "task_instructions": "You do not know your contract number and do not have it. Your first message asks for 40 extra days. If the agent says that is too long, switch to 10 days without arguing. Give your email address in your first message, and say your room number as soon as the agent lists your contracts.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2202",
+      "full_name": "Mateus Lindqvist",
+      "email": "m.lindqvist@example.edu",
+      "status": "enrolled",
+      "balance_due": 0.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7201",
+      "resident_id": "R-2202",
+      "building_id": "B-104",
+      "room": "07",
+      "end_date": "2026-07-31",
+      "status": "active",
+      "extensions": 1
+     },
+     {
+      "contract_id": "HC-7202",
+      "resident_id": "R-2202",
+      "building_id": "B-101",
+      "room": "22",
+      "end_date": "2025-06-30",
+      "status": "ended",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7201",
+    "days": 14
+   },
+   "initial_request_values": {
+    "contract_id": "HC-7201",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "resident.email",
+     "value": "m.lindqvist@example.edu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.room",
+     "value": "07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mateus, a polite postdoc who types short sentences.",
+   "reason_for_call": "He wants two more weeks in his Pell Commons apartment while his lab work runs late.",
+   "task_instructions": "You do not know your contract number. Your first message asks for 5 extra days. If the agent suggests a different number, switch to 14 days. Give your email address in your first message.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2303",
+      "full_name": "Dara Quist",
+      "email": "dara.quist@example.edu",
+      "status": "enrolled",
+      "balance_due": 0.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7301",
+      "resident_id": "R-2303",
+      "building_id": "B-101",
+      "room": "14",
+      "end_date": "2026-09-05",
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7301",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.extensions",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dara, a sophomore who is quick and terse.",
+   "reason_for_call": "She needs one more week in her room before the lease handover.",
+   "task_instructions": "Give the contract number and the number of days in your first message. Say upfront that you believe you have already extended this contract twice. Give very short answers and only what is asked.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2404",
+      "full_name": "Owen Brandt",
+      "email": "owen.brandt@example.edu",
+      "status": "enrolled",
+      "balance_due": 0.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7401",
+      "resident_id": "R-2404",
+      "building_id": "B-104",
+      "room": "3B",
+      "end_date": "2026-05-10",
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7401",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7401",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Owen, a cooperative junior who answers every question the agent asks.",
+   "reason_for_call": "He wants two more weeks in his Pell Commons room while he waits for a summer job to start.",
+   "task_instructions": "Give the contract number in your first message. Do not mention the number of days until the agent asks how many days you want. Answer the agent's questions helpfully, and accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2505",
+      "full_name": "Lucia Ferraro",
+      "email": "lucia.f@example.edu",
+      "status": "enrolled",
+      "balance_due": 120.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7501",
+      "resident_id": "R-2505",
+      "building_id": "B-102",
+      "room": "408",
+      "end_date": "2026-08-28",
+      "status": "active",
+      "extensions": 1
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7501",
+    "days": 21
+   },
+   "initial_request_values": {
+    "contract_id": "HC-7501",
+    "days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.extensions",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You live in Marsh House, room 408.",
+     "kind": "helpful"
+    },
+    {
+     "text": "You already extended your stay once last spring.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Lucia, a graduate student who is persistent but polite.",
+   "reason_for_call": "She wants three more weeks in her Marsh House room to finish a lab project.",
+   "task_instructions": "Your first request is 45 days. When the agent refuses, ask for 21 days instead and accept it. Give the contract number in your first message.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2606",
+      "full_name": "Ben Achterberg",
+      "email": "ben.achterberg@example.edu",
+      "status": "withdrawn",
+      "balance_due": 0.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7601",
+      "resident_id": "R-2606",
+      "building_id": "B-101",
+      "room": "201",
+      "end_date": "2026-08-22",
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7601",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7601",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "resident.email",
+     "value": "ben.achterberg@example.edu",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ben, a former student who withdrew in January to start a job and has not moved out yet.",
+   "reason_for_call": "He wants ten more days to finish packing his room.",
+   "task_instructions": "Give the contract number, the 10 days and your email address in your first message. When refused, argue that you need the room and ask for an exception. Ask once more, then accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2707",
+      "full_name": "Nkechi Obi",
+      "email": "nkechi.obi@example.edu",
+      "status": "enrolled",
+      "balance_due": 640.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7701",
+      "resident_id": "R-2707",
+      "building_id": "B-104",
+      "room": "21",
+      "end_date": "2026-07-15",
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7701",
+    "days": 12
+   },
+   "initial_request_values": {
+    "contract_id": "HC-7701",
+    "days": 25
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7701",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "resident.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nkechi, a senior who is sure her account was cleared after she paid last month.",
+   "reason_for_call": "She wants twelve more days in her Pell Commons room.",
+   "task_instructions": "Your first request is 25 days. Give the contract number in your first message and say you believe your balance is zero. When refused, ask for 12 days instead. Accept a refusal after that and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2808",
+      "full_name": "Gabriel Ruiz-Tate",
+      "email": "gabriel.rt@example.edu",
+      "status": "enrolled",
+      "balance_due": 0.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-7801",
+      "resident_id": "R-2808",
+      "building_id": "B-103",
+      "room": "5",
+      "end_date": "2026-09-12",
+      "status": "active",
+      "extensions": 0
+     },
+     {
+      "contract_id": "HC-7802",
+      "resident_id": "R-2808",
+      "building_id": "B-101",
+      "room": "16",
+      "end_date": "2025-12-18",
+      "status": "ended",
+      "extensions": 1
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-7801",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-7801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Your sister lives in Marsh House and was charged a late fee there last year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You had a parking permit problem at Aldine Hall two years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You are waiting for a reimbursement from the travel office for a conference.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Gabriel, a graduate student who is pushy and sure everything should be easy.",
+   "reason_for_call": "He wants two more weeks in his Kessler Court room for a thesis deadline.",
+   "task_instructions": "Give the contract number and the 14 days in your first message. If refused, argue and ask for an exception twice, then accept and end the call. Bring up your distractor points while arguing.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

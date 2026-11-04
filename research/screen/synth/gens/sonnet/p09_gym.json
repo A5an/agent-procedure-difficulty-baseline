@@ -1,0 +1,761 @@
+{
+ "procedure_id": "p09_gym",
+ "domain": "gym and fitness club",
+ "organization": "Ironwood Fitness Club",
+ "title": "Membership freezes",
+ "summary": "Freeze an active gym membership for a number of months when the member and the membership qualify, or send longer freezes for approval.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Club members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "balance_due": "number"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Memberships held by members",
+   "fields": {
+    "membership_id": "str",
+    "member_id": "ref:member",
+    "contact_email": "str",
+    "plan": "enum:basic|premium|student",
+    "status": "enum:active|frozen|cancelled",
+    "monthly_fee": "number",
+    "freeze_count": "int",
+    "contract_end": "date",
+    "resume_date": "date"
+   }
+  },
+  "freeze_record": {
+   "key": "freeze_id",
+   "description": "Record of each freeze applied to a membership",
+   "fields": {
+    "freeze_id": "str",
+    "membership_id": "ref:membership",
+    "months": "int",
+    "start_date": "date",
+    "status": "enum:active|ended"
+   }
+  },
+  "billing_adjustment": {
+   "key": "adjustment_id",
+   "description": "Charges added to a membership account",
+   "fields": {
+    "adjustment_id": "str",
+    "membership_id": "ref:membership",
+    "amount": "number",
+    "kind": "enum:freeze_fee",
+    "created": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a manager to approve a long freeze",
+   "fields": {
+    "request_id": "str",
+    "membership_id": "ref:membership",
+    "months": "int",
+    "reason": "enum:long_freeze",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership by its membership number."
+  },
+  {
+   "name": "find_memberships_by_email",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "contact_email"
+   ],
+   "description": "Find memberships by the contact email address on the membership."
+  },
+  {
+   "name": "freeze_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to freeze."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months to freeze."
+    }
+   },
+   "set": {
+    "status": "'frozen'",
+    "freeze_count": "rec.freeze_count + 1",
+    "resume_date": "add_days(today, args.months * 30)"
+   },
+   "description": "Mark a membership as frozen, count one freeze and set the resume date to 30 days per frozen month from today."
+  },
+  {
+   "name": "create_freeze_record",
+   "kind": "create",
+   "entity": "freeze_record",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The frozen membership."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months frozen."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "months": "args.months",
+    "start_date": "today",
+    "status": "'active'"
+   },
+   "description": "Log a freeze starting today for a membership."
+  },
+  {
+   "name": "create_billing_adjustment",
+   "kind": "create",
+   "entity": "billing_adjustment",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to charge."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Freeze fee amount to charge."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "amount": "args.amount",
+    "kind": "'freeze_fee'",
+    "created": "today"
+   },
+   "description": "Add a freeze fee charge to the membership account."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership the freeze is for."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months requested."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "months": "args.months",
+    "reason": "'long_freeze'",
+    "created": "today"
+   },
+   "description": "Open a request for a manager to approve a long freeze."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to freeze"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many months you want the freeze to last"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "mship",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "mship.member_id"
+  }
+ ],
+ "outcomes": {
+  "freeze": {
+   "kind": "perform",
+   "description": "Freeze the membership, log the freeze and charge the freeze fee.",
+   "calls": [
+    {
+     "tool": "freeze_membership",
+     "args": {
+      "membership_id": "req.membership_id",
+      "months": "req.months"
+     }
+    },
+    {
+     "tool": "create_freeze_record",
+     "args": {
+      "membership_id": "req.membership_id",
+      "months": "req.months"
+     }
+    },
+    {
+     "tool": "create_billing_adjustment",
+     "args": {
+      "membership_id": "req.membership_id",
+      "amount": "req.months * 5"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "Freeze is longer than 3 months: open a manager approval request instead of freezing.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "membership_id": "req.membership_id",
+      "months": "req.months"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not freeze; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "mship.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active memberships can be frozen."
+  },
+  {
+   "id": "R2",
+   "when": "mem.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "Members with an unpaid balance cannot freeze."
+  },
+  {
+   "id": "R3",
+   "when": "mship.freeze_count >= 2",
+   "outcome": "refuse",
+   "explain": "A membership can be frozen at most twice per calendar year."
+  },
+  {
+   "id": "R4",
+   "when": "req.months > 6",
+   "outcome": "refuse",
+   "explain": "A freeze cannot be longer than 6 months."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, mship.contract_end) < 60",
+   "outcome": "refuse",
+   "explain": "Memberships whose contract ends in less than 60 days cannot be frozen."
+  },
+  {
+   "id": "R6",
+   "when": "req.months > 3",
+   "outcome": "approval",
+   "explain": "Freezes of more than 3 and up to 6 months need manager approval instead of being applied directly."
+  }
+ ],
+ "default_outcome": "freeze",
+ "policy_text": "## Who can ask\nMembers can ask to freeze their membership by phone or chat. No further identity check is needed beyond locating the right membership.\n\n## Finding the membership\nUse the membership number if the member has it. Otherwise search by the contact email address on the membership. If several memberships come back, ask which one (for example by plan) the member means. If you cannot identify the membership or learn how many months the member wants, do not change anything; tell the member what you would need.\n\n## When a freeze is allowed\nAlways go by the records in the system, not by what the member believes.\n- The membership must be active. Frozen or cancelled memberships cannot be frozen.\n- The member must have no unpaid balance. Any balance due above 0.00 means no freeze.\n- A membership can be frozen at most twice per calendar year (the freeze count on the membership shows freezes already used).\n- A freeze can last at most 6 months. Requests for more are declined, not shortened.\n- If the membership contract ends in less than 60 days from today, it cannot be frozen.\n- Freezes of up to 3 months are applied directly. Freezes of more than 3 and up to 6 months are not applied by you: open a manager approval request for the requested number of months and tell the member a manager will follow up.\n\n## Applying a freeze\nWhen a freeze of 1 to 3 months is allowed, do these three things in order: freeze the membership for the requested months, log the freeze record for the same months, and add a freeze fee of 5.00 per frozen month to the billing account.\n\n## Never\nDo not waive the freeze fee, do not make exceptions to the limits, do not freeze when the rules say no, and do not change anything the member did not ask for.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1001",
+    "full_name": "Ana Lucia Ortiz",
+    "email": "ana.ortiz@example.org",
+    "balance_due": 0
+   }
+  ],
+  "membership": [
+   {
+    "membership_id": "MS-10001",
+    "member_id": "M-1001",
+    "contact_email": "ana.ortiz@example.org",
+    "plan": "premium",
+    "status": "active",
+    "monthly_fee": 59,
+    "freeze_count": 0,
+    "contract_end": "2027-06-30",
+    "resume_date": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2201",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30011",
+      "member_id": "M-2201",
+      "contact_email": "priya.raman@example.com",
+      "plan": "premium",
+      "status": "active",
+      "monthly_fee": 59,
+      "freeze_count": 0,
+      "contract_end": "2027-01-31",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30011",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "mship.contact_email",
+     "value": "priya.raman@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a software tester recovering from a knee operation. Impatient and short on time.",
+   "reason_for_call": "Her surgeon told her no training for two months and she wants to stop paying while she recovers.",
+   "task_instructions": "Say you want to freeze for two months and give your email address. You do not know your membership number. Be impatient and ask the agent to hurry, but answer questions.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2202",
+      "full_name": "Tomas Weber",
+      "email": "tomas.w@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30021",
+      "member_id": "M-2202",
+      "contact_email": "tomas.w@example.com",
+      "plan": "basic",
+      "status": "active",
+      "monthly_fee": 35,
+      "freeze_count": 0,
+      "contract_end": "2027-02-28",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30021",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Tomas Weber",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a teacher who just got a new phone and lost his gym app login.",
+   "reason_for_call": "He wants to pause his gym membership over a long work project.",
+   "task_instructions": "First ask for a freeze of two months. Before anything is done, say you actually need three months. Give your name only. You do not remember your membership number and you use several email addresses so you cannot say which one the club has. Accept it if the agent cannot help.",
+   "initial_request_values": {
+    "months": 2
+   },
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2203",
+      "full_name": "Keiko Tanaka",
+      "email": "keiko.t@example.org",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30031",
+      "member_id": "M-2203",
+      "contact_email": "keiko.t@example.org",
+      "plan": "student",
+      "status": "active",
+      "monthly_fee": 29,
+      "freeze_count": 1,
+      "contract_end": "2026-12-15",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30031",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mship.contact_email",
+     "value": "keiko.t@example.org",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Keiko, a university student who answers in as few words as possible.",
+   "reason_for_call": "She will be away on an exchange semester and wants to freeze.",
+   "task_instructions": "Ask to freeze for 3 months. Keep every answer to a few words and give only what is asked. You do not know your membership number; give your email address when asked.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2204",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30041",
+      "member_id": "M-2204",
+      "contact_email": "marcus.bell@example.com",
+      "plan": "premium",
+      "status": "active",
+      "monthly_fee": 59,
+      "freeze_count": 0,
+      "contract_end": "2027-03-01",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30041",
+    "months": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30041",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a sales manager heading overseas for a placement. Direct and demanding.",
+   "reason_for_call": "He is relocating for five months and wants his membership frozen.",
+   "task_instructions": "State your membership number and that you want five months in your first message. If the agent says a manager must approve, push back and ask the agent to just freeze it directly at least twice, then accept the approval request.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2205",
+      "full_name": "Sofia Alvarez",
+      "email": "sofia.alvarez@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30051",
+      "member_id": "M-2205",
+      "contact_email": "sofia.alvarez@example.com",
+      "plan": "basic",
+      "status": "active",
+      "monthly_fee": 35,
+      "freeze_count": 1,
+      "contract_end": "2027-02-10",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30051",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30051",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 25,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a nurse who gives very short replies.",
+   "reason_for_call": "She wants a one month freeze while she is on a work trip. She thinks she still owes 25 for a personal training session.",
+   "task_instructions": "Give your membership number, say one month, and mention that you think you owe 25. Keep replies very short. Accept whatever the agent finds in the system.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2206",
+      "full_name": "Daniel Okoye",
+      "email": "daniel.okoye@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30061",
+      "member_id": "M-2206",
+      "contact_email": "daniel.okoye@example.com",
+      "plan": "premium",
+      "status": "active",
+      "monthly_fee": 59,
+      "freeze_count": 2,
+      "contract_end": "2027-04-30",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30061",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30061",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mship.freeze_count",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He froze the membership once in January and again in March this year.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He pays the premium plan monthly and has no outstanding balance.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Daniel, a friendly warehouse supervisor who is open about his history with the club.",
+   "reason_for_call": "He has a busy season at work and wants two months frozen.",
+   "task_instructions": "Give your membership number and that you want two months. Mention your earlier freezes and that you have no balance. Answer questions politely and accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2207",
+      "full_name": "Hannah Berg",
+      "email": "hannah.berg@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30071",
+      "member_id": "M-2207",
+      "contact_email": "hannah.berg@example.com",
+      "plan": "premium",
+      "status": "active",
+      "monthly_fee": 59,
+      "freeze_count": 0,
+      "contract_end": "2027-05-01",
+      "resume_date": null
+     },
+     {
+      "membership_id": "MS-30072",
+      "member_id": "M-2207",
+      "contact_email": "hannah.berg@example.com",
+      "plan": "basic",
+      "status": "active",
+      "monthly_fee": 35,
+      "freeze_count": 0,
+      "contract_end": "2027-05-01",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30071",
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30071",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 8,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also holds a second, basic membership that she uses for her daughter's swim lessons and does not want to freeze.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She bought a protein shake at the front desk last week and the card machine was slow.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She loves the Thursday spin class and has been going for three years.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is also moving apartments next month.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannah, a consultant who chats a lot and mentions many side stories.",
+   "reason_for_call": "She wants to freeze her premium membership while she is abroad on assignment.",
+   "task_instructions": "First ask for a two month freeze of your premium membership. Before anything is done, say your assignment was extended and you need eight months. Mention the side stories naturally. If the agent declines, accept it.",
+   "initial_request_values": {
+    "months": 2
+   },
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2208",
+      "full_name": "Victor Nguyen",
+      "email": "victor.nguyen@example.com",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-30081",
+      "member_id": "M-2208",
+      "contact_email": "victor.nguyen@example.com",
+      "plan": "basic",
+      "status": "active",
+      "monthly_fee": 35,
+      "freeze_count": 0,
+      "contract_end": "2026-07-05",
+      "resume_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-30081",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-30081",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Victor, a bus driver who is polite and helpful.",
+   "reason_for_call": "He wants to freeze his membership while he has a shoulder injury.",
+   "task_instructions": "Give your membership number and say you want to freeze it. Tell the agent the number of months (two) only when asked. Accept the agent's answer politely.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,616 @@
+{
+ "procedure_id": "p08_city",
+ "domain": "city parking permits",
+ "organization": "Harbor Bend Municipal Parking Office",
+ "title": "Permit renewals",
+ "summary": "Renew a residential or commercial parking permit for a number of months when the holder, the vehicle plate and the permit qualify.",
+ "entities": {
+  "permit_holder": {
+   "key": "holder_id",
+   "description": "People or businesses that hold parking permits with the city",
+   "fields": {
+    "holder_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "unpaid_fines": "number"
+   }
+  },
+  "parking_permit": {
+   "key": "permit_id",
+   "description": "Parking permits issued for a vehicle in a city zone",
+   "fields": {
+    "permit_id": "str",
+    "holder_id": "ref:permit_holder",
+    "plate": "str",
+    "zone": "str",
+    "status": "enum:active|suspended|cancelled",
+    "renewals": "int",
+    "expires": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_permit",
+   "kind": "get",
+   "entity": "parking_permit",
+   "description": "Look up a parking permit by its permit number."
+  },
+  {
+   "name": "find_permits_by_plate",
+   "kind": "search",
+   "entity": "parking_permit",
+   "by": [
+    "plate"
+   ],
+   "description": "List all permits, current and old, issued for a vehicle plate."
+  },
+  {
+   "name": "get_holder",
+   "kind": "get",
+   "entity": "permit_holder",
+   "description": "Look up a permit holder by holder number."
+  },
+  {
+   "name": "renew_permit",
+   "kind": "update",
+   "entity": "parking_permit",
+   "args": {
+    "permit_id": {
+     "type": "ref:parking_permit",
+     "description": "The permit to renew."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months to add to the expiry date."
+    }
+   },
+   "set": {
+    "expires": "add_days(rec.expires, args.months * 30)",
+    "renewals": "rec.renewals + 1"
+   },
+   "description": "Extend the expiry date of a permit by the given number of months (30 days each) and count one renewal."
+  }
+ ],
+ "request": {
+  "permit_id": {
+   "type": "ref:parking_permit",
+   "description": "the parking permit you want renewed"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many months you want to add to the permit"
+  }
+ },
+ "claims": {
+  "plate": {
+   "type": "str",
+   "description": "the license plate number registered on the permit"
+  }
+ },
+ "bindings": [
+  {
+   "name": "permit",
+   "entity": "parking_permit",
+   "key": "req.permit_id"
+  },
+  {
+   "name": "holder",
+   "entity": "permit_holder",
+   "key": "permit.holder_id"
+  }
+ ],
+ "outcomes": {
+  "renew": {
+   "kind": "perform",
+   "description": "Renew the permit for the requested number of months.",
+   "calls": [
+    {
+     "tool": "renew_permit",
+     "args": {
+      "permit_id": "req.permit_id",
+      "months": "req.months"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not renew the permit; explain the reason.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.plate != permit.plate",
+   "outcome": "refuse",
+   "explain": "The caller must state the plate registered on the permit before any renewal."
+  },
+  {
+   "id": "R2",
+   "when": "permit.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active permits can be renewed; suspended or cancelled permits cannot."
+  },
+  {
+   "id": "R3",
+   "when": "holder.unpaid_fines > 0",
+   "outcome": "refuse",
+   "explain": "A holder who owes unpaid parking fines cannot renew any permit."
+  },
+  {
+   "id": "R4",
+   "when": "req.months > 12 or permit.renewals >= 4",
+   "outcome": "refuse",
+   "explain": "A renewal can add at most 12 months, and a permit can be renewed at most four times in total."
+  }
+ ],
+ "default_outcome": "renew",
+ "policy_text": "## Who can ask\nPermit holders can ask to renew a parking permit by phone or at the counter. Before changing anything, find the permit and the holder it belongs to, and confirm the caller's identity: the license plate they give must match the plate registered on the permit. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the permit\nUse the permit number if the caller has it. If they do not, ask for the license plate and search by it. If the search finds exactly one permit, use that permit. If it finds no permit, or more than one, do not renew anything; ask the caller for more detail and tell them what you need to identify the permit.\n\n## When a renewal is allowed\n- The license plate the caller gives must match the plate on the permit.\n- The permit must be active. Suspended or cancelled permits cannot be renewed.\n- The holder must have no unpaid parking fines. If the holder owes any amount, the renewal is refused until the fines are paid.\n- A renewal can add at most 12 months. Requests for more are declined, not shortened.\n- A permit can be renewed at most four times in total. Once it has been renewed four times, it cannot be renewed again.\n\nIf all of this is in order, renew the permit for the number of months the caller asked for. Each month adds 30 days to the expiry date, and the renewal counts once. Then tell the caller the new expiry date shown on the record.\n\n## Never\nDo not waive or reduce fines, do not renew a permit for a caller who failed the plate check, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "permit_holder": [
+   {
+    "holder_id": "H-1009",
+    "full_name": "Gordon Ash",
+    "email": "gordon.ash@example.org",
+    "unpaid_fines": 0.0
+   }
+  ],
+  "parking_permit": [
+   {
+    "permit_id": "P-1009",
+    "holder_id": "H-1009",
+    "plate": "ULA 1000",
+    "zone": "Zone 1 - Harbor",
+    "status": "active",
+    "renewals": 0,
+    "expires": "2026-08-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-7710",
+      "full_name": "Sofia Marchetti",
+      "email": "sofia.m@example.org",
+      "unpaid_fines": 40.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-7710",
+      "holder_id": "H-7710",
+      "plate": "BX 4471",
+      "zone": "Zone 3 - Old Town",
+      "status": "active",
+      "renewals": 1,
+      "expires": "2026-06-10"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-7710",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-7710",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "BX 4471",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "holder.unpaid_fines",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "permit_id": "P-7710",
+    "months": 6
+   },
+   "persona": "Sofia Marchetti, a florist who drives a small delivery van to the market every morning. Brisk and polite.",
+   "reason_for_call": "She wants to keep her van's permit running for the summer and is sure her account is clear of fines.",
+   "task_instructions": "In your first message, give the permit number, the plate and say you want six months. Say early that you have no outstanding fines. After the agent answers, before anything is done, switch to asking for three months instead and say six was too much. Answer any question politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-2208",
+      "full_name": "Marcus Tan",
+      "email": "marcus.tan@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-2208",
+      "holder_id": "H-2208",
+      "plate": "RNQ 2290",
+      "zone": "Zone 2 - Riverside",
+      "status": "active",
+      "renewals": 2,
+      "expires": "2026-07-01"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-2208",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-2208",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "RNQ 2290",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus Tan, a bicycle courier who is always between jobs. Very brief.",
+   "reason_for_call": "He needs his courier permit renewed before the summer rush.",
+   "task_instructions": "Give the permit number, the plate and the number of months in your first message. Keep every answer to a few words. Do not add anything else.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-3305",
+      "full_name": "Teodor Vasquez",
+      "email": "teodor.v@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-3305",
+      "holder_id": "H-3305",
+      "plate": "LMN 8803",
+      "zone": "Zone 1 - Harbor",
+      "status": "active",
+      "renewals": 0,
+      "expires": "2026-06-15"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-3305",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-3305",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "LMN 8803",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Teodor Vasquez, a dockworker on rotating shifts who is short on time and dislikes waiting on hold.",
+   "reason_for_call": "He wants his harbor-side permit extended for three months before his next rotation.",
+   "task_instructions": "Give the permit number and say you want three months in your first message. Be impatient and ask the agent to hurry. Give the plate only when the agent asks for it, and only then. Accept whatever the agent says and end once the renewal is done.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-4418",
+      "full_name": "Wren Okafor",
+      "email": "wren.okafor@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-4418",
+      "holder_id": "H-4418",
+      "plate": "CVD 3016",
+      "zone": "Zone 2 - Lakeside",
+      "status": "active",
+      "renewals": 1,
+      "expires": "2026-06-30"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-4418",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-4418",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "CVD 3016",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "holder.unpaid_fines",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The account is in the name Wren Okafor, and I have held this permit since 2023.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I paid my last parking fine in March and I still have the receipt on my phone.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Wren Okafor, a landscape designer who drives between job sites all week. Friendly and organized.",
+   "reason_for_call": "She wants the lakeside permit renewed for a full year so she does not have to think about it again.",
+   "task_instructions": "In your first message, give the permit number, the plate, the twelve months you want, and say you have no unpaid fines. Mention your name and the receipt when it fits the conversation. Answer any question politely.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-5590",
+      "full_name": "Dimitri Kowal",
+      "email": "d.kowal@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-5590",
+      "holder_id": "H-5590",
+      "plate": "TRX 7741",
+      "zone": "Zone 4 - University",
+      "status": "active",
+      "renewals": 0,
+      "expires": "2026-06-02"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-5590",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dimitri Kowal, a delivery driver whose paper permit was inside a van that was towed last week. He is stressed and speaks in short sentences.",
+   "reason_for_call": "He wants six more months on the university-zone permit for the van.",
+   "task_instructions": "Say you want six months. You do not know the permit number, and you cannot remember the plate. If the agent asks for either, say you do not know and that the paper is gone. Do not guess. Keep every answer to a few words.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-6631",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-6631",
+      "holder_id": "H-6631",
+      "plate": "HJK 2056",
+      "zone": "Zone 5 - Eastgate",
+      "status": "active",
+      "renewals": 2,
+      "expires": "2026-07-12"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-6631",
+    "months": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "claim.plate",
+     "value": "HJK 2056",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya Raman, a schoolteacher who moved districts last year and keeps her car's permit current. Polite and patient.",
+   "reason_for_call": "She wants four more months on the permit for her car, but she has lost track of the permit number.",
+   "task_instructions": "Say you do not have the permit number. In your first message, give the plate and say you want four months. Answer any question the agent asks politely, and give the plate again if asked.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-8829",
+      "full_name": "Hana Lindqvist",
+      "email": "hana.l@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-8829",
+      "holder_id": "H-8829",
+      "plate": "ZRT 6093",
+      "zone": "Zone 3 - Old Town",
+      "status": "active",
+      "renewals": 2,
+      "expires": "2026-05-31"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-8829",
+    "months": 18
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-8829",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 18,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "ZRT 6093",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "permit_id": "P-8829",
+    "months": 6
+   },
+   "persona": "Hana Lindqvist, a dental assistant who takes the bus on most days and only needs the car for weekend trips. Calm and direct.",
+   "reason_for_call": "She wants to keep the old-town permit alive for the car she uses on weekends, and she is going to be away for a long stretch.",
+   "task_instructions": "In your first message, give only the permit number. When the agent asks how many months you want, say six. When the agent explains the next steps, before anything is done, switch to asking for eighteen months instead and say six would not cover your absence. Give the plate only when the agent asks for it. Accept the agent's answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "permit_holder": [
+     {
+      "holder_id": "H-8841",
+      "full_name": "Callum Brennan",
+      "email": "callum.b@example.org",
+      "unpaid_fines": 0.0
+     }
+    ],
+    "parking_permit": [
+     {
+      "permit_id": "P-8842",
+      "holder_id": "H-8841",
+      "plate": "DKF 1182",
+      "zone": "Zone 2 - Riverside",
+      "status": "active",
+      "renewals": 4,
+      "expires": "2026-06-25"
+     },
+     {
+      "permit_id": "P-8843",
+      "holder_id": "H-8841",
+      "plate": "DKF 1190",
+      "zone": "Zone 2 - Riverside",
+      "status": "active",
+      "renewals": 1,
+      "expires": "2026-09-14"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-8842",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-8842",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.plate",
+     "value": "DKF 1182",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My wife's car also has a permit with us, and that one was renewed in March, so you don't need to touch it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I got a parking ticket on Lake Road two years ago, and I paid it online the same week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I'm thinking about switching to a bike next year, but for now I still drive every day.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Callum Brennan, a contractor with a full schedule and little patience for phone trees.",
+   "reason_for_call": "He wants his work van's permit renewed for six months before the next job season.",
+   "task_instructions": "In your first message, give the permit number, the plate and say you want six months. If the agent refuses, argue that you have always renewed on time and ask for an exception. Repeat the request for an exception a second time, then accept the answer and end the call. Mention the other permit and the old ticket if the conversation allows.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 7,
+  "cases_dropped": [
+   "c6"
+  ]
+ }
+}

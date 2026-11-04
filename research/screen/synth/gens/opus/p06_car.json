@@ -1,0 +1,799 @@
+{
+ "procedure_id": "p06_car",
+ "domain": "car rental",
+ "organization": "Meridian Drive Car Rental",
+ "title": "Rental extensions",
+ "summary": "Extend the return date of an active rental and post the extension charge when the renter and rental qualify, or send long rentals to a branch manager for approval.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Renter accounts",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "account_status": "enum:active|blocked",
+    "outstanding_balance": "number"
+   }
+  },
+  "rental": {
+   "key": "rental_id",
+   "description": "Rental agreements, current and past",
+   "fields": {
+    "rental_id": "str",
+    "customer_id": "ref:customer",
+    "vehicle_model": "str",
+    "vehicle_class": "enum:economy|compact|midsize|suv|minivan",
+    "plate": "str",
+    "pickup_branch": "str",
+    "pickup_date": "date",
+    "return_date": "date",
+    "daily_rate": "number",
+    "status": "enum:active|returned|cancelled",
+    "extensions": "int"
+   }
+  },
+  "extension_charge": {
+   "key": "charge_id",
+   "description": "Charges posted for rental extensions",
+   "fields": {
+    "charge_id": "str",
+    "rental_id": "ref:rental",
+    "days": "int",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Extension requests waiting for branch manager approval",
+   "fields": {
+    "request_id": "str",
+    "rental_id": "ref:rental",
+    "days": "int",
+    "reason": "enum:long_term|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a renter account by customer number."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find renter accounts by the email address on file."
+  },
+  {
+   "name": "get_rental",
+   "kind": "get",
+   "entity": "rental",
+   "description": "Look up a rental agreement by its agreement number."
+  },
+  {
+   "name": "find_rentals_by_customer",
+   "kind": "search",
+   "entity": "rental",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all rental agreements (current and past) of a renter account."
+  },
+  {
+   "name": "extend_rental",
+   "kind": "update",
+   "entity": "rental",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental agreement to extend."
+    },
+    "extra_days": {
+     "type": "int",
+     "description": "Number of days to add to the return date."
+    }
+   },
+   "set": {
+    "return_date": "add_days(rec.return_date, args.extra_days)",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Move the return date of a rental later by a number of days and count one extension."
+  },
+  {
+   "name": "create_extension_charge",
+   "kind": "create",
+   "entity": "extension_charge",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental agreement the charge is for."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days the rental was extended."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Charge amount: extension days times the agreement's daily rate."
+    }
+   },
+   "fields": {
+    "rental_id": "args.rental_id",
+    "days": "args.days",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Post the charge for a rental extension to the agreement."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental agreement the request is about."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of extra days the renter asked for."
+    },
+    "reason": {
+     "type": "enum:long_term|other",
+     "description": "Why manager approval is needed."
+    }
+   },
+   "fields": {
+    "rental_id": "args.rental_id",
+    "days": "args.days",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send an extension request to the branch manager for approval instead of extending directly."
+  }
+ ],
+ "request": {
+  "rental_id": {
+   "type": "ref:rental",
+   "description": "the rental agreement you want to extend"
+  },
+  "extra_days": {
+   "type": "int",
+   "description": "how many extra days you want to keep the car"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "rental",
+   "entity": "rental",
+   "key": "req.rental_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "rental.customer_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the return date by the requested days, then post the extension charge.",
+   "calls": [
+    {
+     "tool": "extend_rental",
+     "args": {
+      "rental_id": "req.rental_id",
+      "extra_days": "req.extra_days"
+     }
+    },
+    {
+     "tool": "create_extension_charge",
+     "args": {
+      "rental_id": "req.rental_id",
+      "days": "req.extra_days",
+      "amount": "req.extra_days * rental.daily_rate"
+     }
+    }
+   ]
+  },
+  "manager_approval": {
+   "kind": "perform",
+   "description": "The rental would run longer than 30 days in total: send the request to the branch manager instead of extending.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "rental_id": "rental.rental_id",
+      "days": "req.extra_days",
+      "reason": "'long_term'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not extend; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "rental.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only rentals that are currently active can be extended."
+  },
+  {
+   "id": "R2",
+   "when": "cust.account_status == 'blocked'",
+   "outcome": "refuse",
+   "explain": "Renters whose account is blocked cannot extend a rental."
+  },
+  {
+   "id": "R3",
+   "when": "cust.outstanding_balance > 0",
+   "outcome": "refuse",
+   "explain": "Renters with any unpaid balance on their account cannot extend until it is paid."
+  },
+  {
+   "id": "R4",
+   "when": "req.extra_days < 1 or req.extra_days > 14",
+   "outcome": "refuse",
+   "explain": "One extension can add between 1 and 14 days; longer requests are declined, not shortened."
+  },
+  {
+   "id": "R5",
+   "when": "rental.extensions >= 2",
+   "outcome": "refuse",
+   "explain": "A rental agreement can be extended at most twice."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(rental.pickup_date, add_days(rental.return_date, req.extra_days)) > 30",
+   "outcome": "manager_approval",
+   "explain": "If the rental would run more than 30 days from pickup to the new return date, send a manager approval request instead of extending."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Purpose\nRenters can call or chat to keep their car longer than the return date on their agreement. This document explains how to find the agreement, when an extension is allowed, and what to record.\n\n## Finding the agreement\nAsk for the rental agreement number (it starts with RA- and is printed on the contract and the confirmation email). If the renter does not have it, find their account with the email address on file and list the account's rentals; if there is more than one, ask which car they have (the vehicle model) and pick the matching agreement. You cannot search by name or phone number. If you cannot identify the agreement, do not change anything; ask them to call back with the agreement number or the email address on file, or to visit a branch. No further identity verification is required for extensions.\n\nAlso ask how many extra days they want if they have not said.\n\n## Checks, in this order\n1. The rental must be active. Agreements that are returned or cancelled cannot be extended.\n2. The renter's account must not be blocked.\n3. The renter must have no unpaid balance on their account. Any amount above 0.00 means the extension is declined until it is paid; you cannot waive or take payment for it in this conversation.\n4. One extension adds at least 1 and at most 14 days. If the renter asks for more than 14 days, decline the request; do not shorten it to 14 days on your own.\n5. An agreement can be extended at most twice. If it has already been extended two times, decline.\n6. Long rentals: count the days from the pickup date to the new return date (current return date plus the extra days). If that is more than 30 days, do not extend. Instead create a manager approval request for the agreement with the number of extra days requested and reason long_term, and tell the renter the branch manager will contact them.\n\nAlways go by the dates, balance and extension count in our records, even if the renter remembers them differently.\n\n## Making the extension\nIf every check passes, first extend the rental by the number of days requested (this moves the return date and counts one extension). Then post the extension charge for the same number of days, with amount equal to the extra days times the agreement's daily rate. Tell the renter the new return date and the charge.\n\n## Never\nDo not extend a rental that fails a check, do not waive balances or change rates, do not split or shorten a request on the renter's behalf, and do not change any agreement the renter did not ask about.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1004",
+    "full_name": "Rosa Delgado",
+    "email": "rosa.delgado@example.net",
+    "phone": "+1-303-555-0144",
+    "account_status": "active",
+    "outstanding_balance": 0
+   }
+  ],
+  "rental": [
+   {
+    "rental_id": "RA-260518-01",
+    "customer_id": "C-1004",
+    "vehicle_model": "Honda Civic",
+    "vehicle_class": "compact",
+    "plate": "CO-7HKR214",
+    "pickup_branch": "Denver Union Station",
+    "pickup_date": "2026-05-18",
+    "return_date": "2026-05-25",
+    "daily_rate": 44.0,
+    "status": "active",
+    "extensions": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9102",
+      "full_name": "Abigail Turner",
+      "email": "a.turner@hollisbuild.com",
+      "phone": "+1-720-555-0198",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260517-08",
+      "customer_id": "C-9102",
+      "vehicle_model": "Toyota Corolla",
+      "vehicle_class": "compact",
+      "plate": "CO-4TCX881",
+      "pickup_branch": "Boulder Pearl Street",
+      "pickup_date": "2026-05-17",
+      "return_date": "2026-05-21",
+      "daily_rate": 43.0,
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260517-08",
+    "extra_days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.full_name",
+     "value": "Abigail Turner",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Abigail, a site supervisor calling from a job site between inspections. Few words, no patience for small talk.",
+   "reason_for_call": "She wants to keep her rental car three more days, but the contract is in the glovebox of a car her colleague drove off in and the booking was made through her former employer's email, which she cannot remember.",
+   "task_instructions": "Answer in as few words as possible. Give your name and that you want three more days. You do not have the agreement number and you do not know which email address the booking is under; say so if asked. If the agent cannot find it, accept that and end the conversation.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4418",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "phone": "+1-415-555-0172",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260512-07",
+      "customer_id": "C-4418",
+      "vehicle_model": "Toyota RAV4",
+      "vehicle_class": "suv",
+      "plate": "CA-9RVB302",
+      "pickup_branch": "San Francisco Airport",
+      "pickup_date": "2026-05-12",
+      "return_date": "2026-05-22",
+      "daily_rate": 61.0,
+      "status": "active",
+      "extensions": 0
+     },
+     {
+      "rental_id": "RA-260301-33",
+      "customer_id": "C-4418",
+      "vehicle_model": "Kia Rio",
+      "vehicle_class": "economy",
+      "plate": "CA-2KRO557",
+      "pickup_branch": "Oakland Downtown",
+      "pickup_date": "2026-03-01",
+      "return_date": "2026-03-04",
+      "daily_rate": 35.0,
+      "status": "returned",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260512-07",
+    "extra_days": 5
+   },
+   "initial_request_values": {
+    "extra_days": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260512-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Back in March she rented a small Kia for a weekend in Oakland and there was a question about a scratch, which was settled at the time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She asks whether she could drop the car off in Los Angeles instead, then decides she will bring it back to the airport after all.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She mentions she is collecting loyalty points and wonders how many she has, but says it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her nephew's booster seat is in the back of the SUV and she jokes she will need to keep the car just for that.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a conference organizer in San Francisco whose event schedule keeps shifting. Chatty and friendly, jumps between topics.",
+   "reason_for_call": "Her conference got extended and she needs the SUV she picked up at the airport for longer than planned.",
+   "task_instructions": "Give the agreement number early. First ask to keep the car nine more days. Before the agent makes any change, say you just checked the new schedule and only need five more days, and ask for five. Along the way mention the March rental, ask about dropping off in Los Angeles but decide against it, and mention loyalty points and the booster seat, without pursuing any of them.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5302",
+      "full_name": "Gareth Lowe",
+      "email": "gareth.lowe@example.co.uk",
+      "phone": "+1-206-555-0133",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260502-14",
+      "customer_id": "C-5302",
+      "vehicle_model": "Hyundai Elantra",
+      "vehicle_class": "compact",
+      "plate": "WA-6HEL470",
+      "pickup_branch": "Seattle Sea-Tac",
+      "pickup_date": "2026-05-02",
+      "return_date": "2026-05-21",
+      "daily_rate": 42.5,
+      "status": "active",
+      "extensions": 2
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260502-14",
+    "extra_days": 4
+   },
+   "initial_request_values": {
+    "extra_days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260502-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.extensions",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a British visiting lecturer in Seattle, polite but a little absent-minded about paperwork.",
+   "reason_for_call": "His stay keeps getting longer and he wants the car a bit more; he is sure he has extended only once so far.",
+   "task_instructions": "Give the agreement number and say you have only extended once before. First ask for a week more. Before anything is done, change your mind and ask for just four more days instead. If the agent says the agreement has already been extended twice and declines, express mild surprise, then accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6127",
+      "full_name": "Marisol Fuentes",
+      "email": "marisol.fuentes@example.com",
+      "phone": "+1-512-555-0161",
+      "account_status": "active",
+      "outstanding_balance": 85.4
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260515-02",
+      "customer_id": "C-6127",
+      "vehicle_model": "Ford Explorer",
+      "vehicle_class": "suv",
+      "plate": "TX-8FEX615",
+      "pickup_branch": "Austin Bergstrom Airport",
+      "pickup_date": "2026-05-15",
+      "return_date": "2026-05-21",
+      "daily_rate": 78.0,
+      "status": "active",
+      "extensions": 0
+     },
+     {
+      "rental_id": "RA-260210-19",
+      "customer_id": "C-6127",
+      "vehicle_model": "Nissan Versa",
+      "vehicle_class": "economy",
+      "plate": "TX-3NVR208",
+      "pickup_branch": "Austin Downtown",
+      "pickup_date": "2026-02-10",
+      "return_date": "2026-02-13",
+      "daily_rate": 34.0,
+      "status": "returned",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260515-02",
+    "extra_days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "marisol.fuentes@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.vehicle_model",
+     "value": "Ford Explorer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a real-estate agent in Austin juggling showings, impatient and used to getting her way.",
+   "reason_for_call": "She needs the Explorer three more days to drive clients around, but she does not have her contract with her.",
+   "task_instructions": "Give your email and say you have the Ford Explorer and want three more days. You do not know the agreement number. If the agent refuses, insist that you are a regular customer and ask for an exception at least twice, suggesting they just add it to your bill. After the second refusal, accept grudgingly and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7031",
+      "full_name": "Thomas Okafor",
+      "email": "t.okafor@example.net",
+      "phone": "+1-404-555-0117",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260516-11",
+      "customer_id": "C-7031",
+      "vehicle_model": "Chevrolet Malibu",
+      "vehicle_class": "midsize",
+      "plate": "GA-5CML902",
+      "pickup_branch": "Atlanta Midtown",
+      "pickup_date": "2026-05-16",
+      "return_date": "2026-05-23",
+      "daily_rate": 49.0,
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260516-11",
+    "extra_days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260516-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Thomas, a retired engineer visiting his daughter in Atlanta. Courteous, organized, has his contract in hand.",
+   "reason_for_call": "His granddaughter's graduation was moved and he wants to keep the car four more days.",
+   "task_instructions": "In your first message give the agreement number and say you want four more days. Answer any question politely and confirm when asked.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7744",
+      "full_name": "Hana Kowalczyk",
+      "email": "hana.kowalczyk@example.com",
+      "phone": "+1-312-555-0189",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260424-05",
+      "customer_id": "C-7744",
+      "vehicle_model": "Subaru Outback",
+      "vehicle_class": "suv",
+      "plate": "IL-7SOB341",
+      "pickup_branch": "Chicago O'Hare",
+      "pickup_date": "2026-04-24",
+      "return_date": "2026-05-22",
+      "daily_rate": 55.0,
+      "status": "active",
+      "extensions": 1
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260424-05",
+    "extra_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260424-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 10,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a traveling nurse on a contract assignment near Chicago, tired after night shifts and short-tempered on the phone.",
+   "reason_for_call": "Her assignment was extended and she needs the Outback longer.",
+   "task_instructions": "Give the agreement number and say you need the car longer, but state the number of days (ten) only when asked. If the agent says the request has to go to a manager instead of being done right away, complain and demand they just extend it now, at least twice, then accept the manager review.",
+   "expected_outcome": "manager_approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8015",
+      "full_name": "Daniel Brennan",
+      "email": "dan.brennan@example.org",
+      "phone": "+1-303-555-0126",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260510-21",
+      "customer_id": "C-8015",
+      "vehicle_model": "Volkswagen Jetta",
+      "vehicle_class": "compact",
+      "plate": "CO-1VWJ736",
+      "pickup_branch": "Denver International Airport",
+      "pickup_date": "2026-05-10",
+      "return_date": "2026-05-24",
+      "daily_rate": 47.0,
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260510-21",
+    "extra_days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260510-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.pickup_date",
+     "value": "2026-05-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.extensions",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He picked up the Volkswagen Jetta at the Denver airport branch on May 10.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His contract says the car is due back on May 24, and he has never extended it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The car is the compact class at 47 dollars a day.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Daniel, a software consultant on a project in Denver. Clear, polite and precise.",
+   "reason_for_call": "His project was extended by three weeks and he wants to keep the Jetta for that whole time.",
+   "task_instructions": "Give the agreement number, the pickup date, that you have never extended, and that you want three more weeks (21 days) in your first message. You need the full three weeks; do not reduce the request. If the agent declines, thank them and say you will return the car and book a new rental.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8890",
+      "full_name": "Kenji Watanabe",
+      "email": "kenji.w@example.jp",
+      "phone": "+1-808-555-0152",
+      "account_status": "active",
+      "outstanding_balance": 0
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "RA-260425-16",
+      "customer_id": "C-8890",
+      "vehicle_model": "Mitsubishi Mirage",
+      "vehicle_class": "economy",
+      "plate": "HI-4MMR519",
+      "pickup_branch": "Honolulu Airport",
+      "pickup_date": "2026-04-25",
+      "return_date": "2026-05-21",
+      "daily_rate": 36.0,
+      "status": "active",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "RA-260425-16",
+    "extra_days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "RA-260425-16",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.pickup_date",
+     "value": "2026-05-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kenji, a photographer on a long shoot in Hawaii. Speaks in short phrases and does not elaborate.",
+   "reason_for_call": "He wants six more days with the car and believes he picked it up in early May.",
+   "task_instructions": "Very short answers. Give the agreement number, six days, and say you picked the car up on May 5. If the agent says the request goes to a manager, reply briefly that it is fine.",
+   "expected_outcome": "manager_approval"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

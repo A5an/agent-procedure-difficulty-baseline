@@ -1,0 +1,721 @@
+{
+ "procedure_id": "p18_pet",
+ "domain": "pet insurance",
+ "organization": "Harborline Pet Insurance",
+ "title": "Vet visit reimbursement claims",
+ "summary": "File a reimbursement claim for a policyholder's vet visit when the policy is active, the visit falls after the waiting period, and the visit is recent enough.",
+ "entities": {
+  "holder": {
+   "key": "holder_id",
+   "description": "Policyholders who own one or more pet insurance policies",
+   "fields": {
+    "holder_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "city": "str"
+   }
+  },
+  "policy": {
+   "key": "policy_id",
+   "description": "Pet insurance policies, one per insured pet",
+   "fields": {
+    "policy_id": "str",
+    "holder_id": "ref:holder",
+    "pet_name": "str",
+    "species": "enum:dog|cat",
+    "status": "enum:active|lapsed|cancelled",
+    "waiting_period_ends": "date",
+    "plan": "enum:basic|plus|complete"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Reimbursement claims filed for vet visits",
+   "fields": {
+    "claim_id": "str",
+    "policy_id": "ref:policy",
+    "visit_date": "date",
+    "amount": "number",
+    "status": "enum:submitted|paid|denied",
+    "filed_on": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a pet insurance policy by its policy number."
+  },
+  {
+   "name": "get_holder",
+   "kind": "get",
+   "entity": "holder",
+   "description": "Look up a policyholder by holder ID."
+  },
+  {
+   "name": "find_policies_by_pet",
+   "kind": "search",
+   "entity": "policy",
+   "by": [
+    "pet_name",
+    "species"
+   ],
+   "description": "Find policies by the insured pet's name and species. Use it when the caller does not have the policy number."
+  },
+  {
+   "name": "create_claim",
+   "kind": "create",
+   "entity": "claim",
+   "args": {
+    "policy_id": {
+     "type": "ref:policy",
+     "description": "The policy the claim is filed under."
+    },
+    "visit_date": {
+     "type": "date",
+     "description": "The date of the vet visit."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The total amount to be reimbursed."
+    }
+   },
+   "fields": {
+    "policy_id": "args.policy_id",
+    "visit_date": "args.visit_date",
+    "amount": "args.amount",
+    "status": "'submitted'",
+    "filed_on": "today"
+   },
+   "description": "File a reimbursement claim for a vet visit under a policy. The claim is recorded as submitted."
+  }
+ ],
+ "request": {
+  "policy_id": {
+   "type": "ref:policy",
+   "description": "the policy number for your insured pet"
+  },
+  "visit_date": {
+   "type": "date",
+   "description": "the date of the vet visit you want reimbursed"
+  },
+  "amount": {
+   "type": "number",
+   "description": "the total amount of the vet bill you want reimbursed"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "policy",
+   "entity": "policy",
+   "key": "req.policy_id"
+  },
+  {
+   "name": "holder",
+   "entity": "holder",
+   "key": "policy.holder_id"
+  }
+ ],
+ "outcomes": {
+  "file_claim": {
+   "kind": "perform",
+   "description": "File the reimbursement claim for the vet visit under the policy.",
+   "calls": [
+    {
+     "tool": "create_claim",
+     "args": {
+      "policy_id": "req.policy_id",
+      "visit_date": "req.visit_date",
+      "amount": "req.amount"
+     }
+    }
+   ]
+  },
+  "decline": {
+   "kind": "refuse",
+   "description": "Do not file the claim; explain which condition applies.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "policy.status != 'active'",
+   "outcome": "decline",
+   "explain": "Only active policies can file claims; lapsed or cancelled policies are declined."
+  },
+  {
+   "id": "R2",
+   "when": "req.visit_date < policy.waiting_period_ends",
+   "outcome": "decline",
+   "explain": "Vet visits before the policy's waiting period end date are not covered."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(req.visit_date, today) > 90",
+   "outcome": "decline",
+   "explain": "A claim must be for a vet visit no more than 90 days before today."
+  }
+ ],
+ "default_outcome": "file_claim",
+ "policy_text": "## Who can ask\nPolicyholders can ask to file a reimbursement claim for a vet visit by phone or chat. Before filing anything, identify the policy the claim is for.\n\n## Finding the policy\nIf the caller gives a policy number, look up that policy. If they do not have the number, search by the pet's name and species. If that finds exactly one policy, use it. If it finds no policy or more than one, ask for more information and do not file until you have exactly one policy.\n\n## What you need to file\nThe policy number, the date of the vet visit, and the total amount to be reimbursed. Ask for anything that is missing.\n\n## When a claim is declined\nDo not file a claim when any of these is true:\n- The policy status is not active. Lapsed or cancelled policies cannot file claims.\n- The vet visit date is earlier than the policy's waiting period end date. A visit on the waiting period end date itself is covered.\n- The vet visit was more than 90 days before today's date.\n\nThe policy's own status and dates decide these conditions. If the caller's belief about a status or date differs from the record, go by the record and explain it to the caller.\n\n## When a claim is filed\nIf none of the conditions above applies, file one claim under the policy with the visit date and the amount the caller gave. The claim is recorded as submitted. Tell the caller the claim has been submitted and what amount was recorded.\n\n## Never\nDo not file a claim under a policy you could not identify. Do not change the amount, the visit date, or the policy the caller gave you.",
+ "db_common": {
+  "holder": [
+   {
+    "holder_id": "H-100",
+    "full_name": "Greg Lindqvist",
+    "email": "g.lindqvist@example.org",
+    "city": "Tacoma"
+   }
+  ],
+  "policy": [
+   {
+    "policy_id": "P-1001",
+    "holder_id": "H-100",
+    "pet_name": "Milo",
+    "species": "dog",
+    "status": "active",
+    "waiting_period_ends": "2026-01-10",
+    "plan": "plus"
+   }
+  ],
+  "claim": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-201",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "city": "Oakland"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2201",
+      "holder_id": "H-201",
+      "pet_name": "Biscuit",
+      "species": "dog",
+      "status": "active",
+      "waiting_period_ends": "2025-12-01",
+      "plan": "plus"
+     },
+     {
+      "policy_id": "P-2202",
+      "holder_id": "H-201",
+      "pet_name": "Juniper",
+      "species": "cat",
+      "status": "active",
+      "waiting_period_ends": "2025-12-01",
+      "plan": "basic"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-5501",
+      "policy_id": "P-2202",
+      "visit_date": "2026-03-02",
+      "amount": 180.0,
+      "status": "paid",
+      "filed_on": "2026-03-09"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "P-2201",
+    "visit_date": "2026-04-08",
+    "amount": 412.5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-2201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-04-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 412.5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Biscuit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Juniper, my cat, had her yearly shots last month and I already sent that bill in March.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I'm thinking about getting a quote for a second cat later this year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Biscuit's arthritis has been tricky, but he's doing better on the new food.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister says I should switch plans, but I'm not doing that today.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a dental hygienist who is short on time and gets annoyed by long questions.",
+   "reason_for_call": "Biscuit had a tooth extraction at the vet on April 8 and she wants the bill reimbursed.",
+   "task_instructions": "Start by giving your policy number, the vet visit date, and the amount. You are impatient. If the agent asks more than one follow-up question, complain that it is simple. If you are refused, argue and ask for an exception twice before accepting. Do not bring up your cat unless the agent asks about other pets, and then say she is not part of this claim.",
+   "expected_outcome": "file_claim"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-202",
+      "full_name": "Tomas Reyes",
+      "email": "t.reyes@example.org",
+      "city": "Austin"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-3305",
+      "holder_id": "H-202",
+      "pet_name": "Ziggy",
+      "species": "cat",
+      "status": "active",
+      "waiting_period_ends": "2026-06-15",
+      "plan": "complete"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-3305",
+    "visit_date": "2026-04-22",
+    "amount": 260.5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-3305",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-04-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 260.5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.waiting_period_ends",
+     "value": "2026-03-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Ziggy",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a warehouse supervisor who is convinced he has been insured for a year already.",
+   "reason_for_call": "Ziggy was seen for a skin infection on April 22 and Tomas wants the vet bill reimbursed.",
+   "task_instructions": "In your first message, give the policy number, the visit date, and the amount. Say early that the waiting period ended March 1 because the policy started last year. You are pushy. If the agent says the visit is not covered, argue and ask for an exception twice, then accept it and end the call.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-203",
+      "full_name": "Mei Lin Chou",
+      "email": "meilin.c@example.org",
+      "city": "Seattle"
+     },
+     {
+      "holder_id": "H-204",
+      "full_name": "Gabe Morrow",
+      "email": "gabe.m@example.org",
+      "city": "Denver"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-4410",
+      "holder_id": "H-203",
+      "pet_name": "Rosie",
+      "species": "cat",
+      "status": "active",
+      "waiting_period_ends": "2025-11-30",
+      "plan": "plus"
+     },
+     {
+      "policy_id": "P-4402",
+      "holder_id": "H-204",
+      "pet_name": "Rosie",
+      "species": "dog",
+      "status": "active",
+      "waiting_period_ends": "2025-10-15",
+      "plan": "basic"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-4410",
+    "visit_date": "2026-05-02",
+    "amount": 140.0
+   },
+   "initial_request_values": {
+    "amount": 95.0
+   },
+   "customer_facts": [
+    {
+     "fact": "policy.pet_name",
+     "value": "Rosie",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.species",
+     "value": "cat",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-05-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 140.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mei Lin, a graduate student who is rushing between classes.",
+   "reason_for_call": "Rosie had a dental cleaning on May 2 and Mei Lin wants the bill covered.",
+   "task_instructions": "You do not know the policy number. Give the pet's name and species when asked, and the visit date. In your first message, ask for 95 dollars to be reimbursed. After the agent responds, say you looked at the bill again and the total is 140 dollars, so claim 140 dollars instead. Do not give a policy number.",
+   "expected_outcome": "file_claim"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-205",
+      "full_name": "Marisol Quintero",
+      "email": "m.quintero@example.org",
+      "city": "Phoenix"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-5508",
+      "holder_id": "H-205",
+      "pet_name": "Cocoa",
+      "species": "dog",
+      "status": "active",
+      "waiting_period_ends": "2025-09-30",
+      "plan": "complete"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-5508",
+    "visit_date": "2026-04-27",
+    "amount": 345.0
+   },
+   "initial_request_values": {
+    "amount": 300.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-5508",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-04-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 345.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.status",
+     "value": "active",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Cocoa",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The invoice is from Harbor Vet Clinic and is dated April 27 for Cocoa's ear treatment.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I'm the account holder, and my name is the same as the one on the policy.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marisol, an office manager who keeps every receipt in a folder.",
+   "reason_for_call": "Cocoa had an ear infection treated on April 27 and Marisol wants it reimbursed.",
+   "task_instructions": "Start by giving your policy number, the pet's name, the visit date, and that the policy shows as active. Mention the Harbor Vet invoice. Your first amount is 300 dollars, which was the vet's estimate. Before the agent files anything, check the invoice and correct the amount to 345 dollars.",
+   "expected_outcome": "file_claim"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-206",
+      "full_name": "Ines Carvalho",
+      "email": "ines.c@example.org",
+      "city": "Newark"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-6601",
+      "holder_id": "H-206",
+      "pet_name": "Pancho",
+      "species": "dog",
+      "status": "lapsed",
+      "waiting_period_ends": "2025-08-01",
+      "plan": "plus"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-6601",
+    "visit_date": "2026-05-04",
+    "amount": 118.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-6601",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-05-04",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 118.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.status",
+     "value": "active",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Pancho",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines, a teacher who pays her premiums by autopay and assumes everything is current.",
+   "reason_for_call": "Pancho was limping after a fall, she saw the vet on May 4, and she wants the bill reimbursed.",
+   "task_instructions": "Be friendly and answer questions clearly. Say early that the policy is active and paid. If the agent says the claim cannot be filed, accept it politely and end the call.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-207",
+      "full_name": "Benedikt Nowak",
+      "email": "b.nowak@example.org",
+      "city": "Milwaukee"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-6610",
+      "holder_id": "H-207",
+      "pet_name": "Pepper",
+      "species": "dog",
+      "status": "active",
+      "waiting_period_ends": "2025-08-15",
+      "plan": "basic"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-6610",
+    "visit_date": "2026-05-11",
+    "amount": 77.25
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-6610",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-05-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 77.25,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Pepper",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Benedikt, a cheerful retiree who likes to keep things simple.",
+   "reason_for_call": "Pepper had a routine checkup and vaccinations on May 11, and he wants the bill reimbursed.",
+   "task_instructions": "In your first message, state your policy number, the pet's name, the visit date, and the amount. Answer any questions clearly and keep your answers short.",
+   "expected_outcome": "file_claim"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-208",
+      "full_name": "Hao Tran",
+      "email": "hao.tran@example.org",
+      "city": "Boise"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-7701",
+      "holder_id": "H-208",
+      "pet_name": "Otto",
+      "species": "dog",
+      "status": "active",
+      "waiting_period_ends": "2025-10-20",
+      "plan": "plus"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-7701",
+    "visit_date": "2026-04-30",
+    "amount": 220.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.visit_date",
+     "value": "2026-04-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 220.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.species",
+     "value": "dog",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hao, who just moved and is calling from a borrowed phone.",
+   "reason_for_call": "His dog had a vet visit on April 30 and he wants the bill reimbursed.",
+   "task_instructions": "Answer in very few words. You do not have the policy number, and you do not remember the name you gave the pet when you signed up. You can say the pet is a dog. Do not guess names. Accept it if the agent cannot find the policy.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "holder": [
+     {
+      "holder_id": "H-209",
+      "full_name": "Alice Kowalczyk",
+      "email": "a.kowalczyk@example.org",
+      "city": "Buffalo"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-8802",
+      "holder_id": "H-209",
+      "pet_name": "Nala",
+      "species": "cat",
+      "status": "active",
+      "waiting_period_ends": "2025-10-01",
+      "plan": "complete"
+     }
+    ],
+    "claim": []
+   },
+   "request_values": {
+    "policy_id": "P-8802",
+    "visit_date": "2026-01-29",
+    "amount": 305.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "P-8802",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 305.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.visit_date",
+     "value": "2026-01-29",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Alice, a nurse who answers in short sentences.",
+   "reason_for_call": "Nala had a dental procedure, and Alice wants the bill reimbursed.",
+   "task_instructions": "Give your policy number and the amount in your first message. Give the visit date only when the agent asks for it. Keep every answer under ten words.",
+   "expected_outcome": "decline"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

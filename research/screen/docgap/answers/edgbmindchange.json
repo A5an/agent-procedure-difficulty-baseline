@@ -1,0 +1,17 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which account's balance is checked and how the account is identified when the customer has multiple linked accounts",
+  "What 'first tenure' and 'revised tenure' are (specific months/years) and how the customer expresses them; the one-line description gives no values",
+  "Which deposit product or scheme the rate is for (regular FD, senior citizen, tax saver, recurring) and how the product ID is looked up",
+  "Whether rate lookups should come from a tool or from the knowledge base, and what to do if hits are weak or tenure is not offered",
+  "Why the tenure is revised (customer changes mind after seeing the rate, or compares) and which tenure is finally used to create the FD",
+  "FD principal amount, funding source account, maturity instruction, nominee, and interest payout/compounding options, none of which are specified",
+  "Whether explicit customer confirmation is needed before create FD; the policy lists confirmation only for closure, card block, mandate cancel and cheque stop, so create FD is ambiguous",
+  "Minimum and maximum deposit amounts, minimum balance rules, and what to do if the balance is insufficient (refuse, suggest lower amount, escalate)",
+  "Final balance check: whether it should show the post-debit balance and be reconciled against the original balance minus the FD amount",
+  "Customer behavior edge cases: customer cancels after the rates, asks for an unlinked account, gives an ambiguous amount, or asks for premature-withdrawal terms",
+  "Bank conventions: rounding, interest rate format (p.a.), applicable rate on the simulation date 2026-07-16, and senior-citizen or special-rate eligibility",
+  "Whether to disclose tool names or internal fields is covered, but how to present rates (table versus prose) and how much detail to include is not specified"
+ ]
+}

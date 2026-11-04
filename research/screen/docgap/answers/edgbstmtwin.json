@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools exist and which one returns the account open date (deposit vs. loan vs. card account) and whether the open date must be looked up or is given by the customer",
+  "What 'corrected window' means: who corrects it (customer correction mid-conversation, or the open date overriding the requested start), and whether the window is clamped to the account open date",
+  "Order of steps: whether to fetch transactions first and then generate the statement, or whether the statement is a separate action (e.g., sent/emailed/requested) and whether it needs confirmation",
+  "Final action: whether 'statement' means fetching/displaying a statement, emailing it, or raising a service request, and delivery channel/format",
+  "Window boundaries: inclusive/exclusive dates, date format, handling of the simulation date 2026-07-16 as end date, future dates, or start dates before account opening",
+  "Edge cases: customer requests range exceeding a max statement period, empty transaction results, pagination or transaction count limits, multiple accounts and which one is meant",
+  "Customer behavior: how they change or correct the dates, ambiguous relative dates ('last 3 months', 'since I opened'), possible change of mind, or an unlinked account ID",
+  "Whether the same window must be reused exactly for both transactions and statement, and how to reconcile if the statement tool only accepts month/period granularity",
+  "Bank conventions: fees for statements, statement type (mini vs. full), whether KB search is needed for statement rules or limits, and how to phrase results without exposing tool/field names"
+ ]
+}

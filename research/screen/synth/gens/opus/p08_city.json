@@ -1,0 +1,744 @@
+{
+ "procedure_id": "p08_city",
+ "domain": "city parking permits",
+ "organization": "City of Port Maren, Department of Transportation and Parking",
+ "title": "Residential parking permit renewals",
+ "summary": "Renew a resident's on-street parking permit for six or twelve months when the resident is verified and the permit qualifies.",
+ "entities": {
+  "resident": {
+   "key": "resident_id",
+   "description": "Residents registered with the city's parking permit program",
+   "fields": {
+    "resident_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "address_line": "str",
+    "postcode": "str",
+    "unpaid_penalties": "number"
+   }
+  },
+  "permit": {
+   "key": "permit_id",
+   "description": "Residential on-street parking permits, one per vehicle",
+   "fields": {
+    "permit_id": "str",
+    "resident_id": "ref:resident",
+    "zone": "str",
+    "plate": "str",
+    "vehicle": "str",
+    "status": "enum:active|expired|revoked",
+    "expiry_date": "date",
+    "last_renewed": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_resident",
+   "kind": "get",
+   "entity": "resident",
+   "description": "Look up a registered resident by resident ID."
+  },
+  {
+   "name": "find_resident_by_email",
+   "kind": "search",
+   "entity": "resident",
+   "by": [
+    "email"
+   ],
+   "description": "Find residents by the email address on file."
+  },
+  {
+   "name": "get_permit",
+   "kind": "get",
+   "entity": "permit",
+   "description": "Look up a parking permit by its permit number (format P-######)."
+  },
+  {
+   "name": "find_permits_by_resident",
+   "kind": "search",
+   "entity": "permit",
+   "by": [
+    "resident_id"
+   ],
+   "description": "List every parking permit held by a resident."
+  },
+  {
+   "name": "find_permits_by_plate",
+   "kind": "search",
+   "entity": "permit",
+   "by": [
+    "plate"
+   ],
+   "description": "Find parking permits by the vehicle registration plate printed on the permit."
+  },
+  {
+   "name": "renew_permit",
+   "kind": "update",
+   "entity": "permit",
+   "args": {
+    "permit_id": {
+     "type": "ref:permit",
+     "description": "The permit to renew."
+    },
+    "months": {
+     "type": "int",
+     "description": "Renewal term in months: 6 or 12."
+    }
+   },
+   "set": {
+    "expiry_date": "add_days(rec.expiry_date, 365 if args.months == 12 else 182)",
+    "last_renewed": "today",
+    "status": "'active'"
+   },
+   "description": "Renew a permit. A 12-month renewal adds 365 days to the current expiry date and a 6-month renewal adds 182 days. Records today as the renewal date."
+  }
+ ],
+ "request": {
+  "permit_id": {
+   "type": "ref:permit",
+   "description": "the parking permit you want renewed"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many months you want to renew it for"
+  }
+ },
+ "claims": {
+  "postcode": {
+   "type": "str",
+   "description": "the postcode of your registered home address"
+  }
+ },
+ "bindings": [
+  {
+   "name": "permit",
+   "entity": "permit",
+   "key": "req.permit_id"
+  },
+  {
+   "name": "res",
+   "entity": "resident",
+   "key": "permit.resident_id"
+  }
+ ],
+ "outcomes": {
+  "renew": {
+   "kind": "perform",
+   "description": "Renew the permit for the requested term.",
+   "calls": [
+    {
+     "tool": "renew_permit",
+     "args": {
+      "permit_id": "req.permit_id",
+      "months": "req.months"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not renew. Explain the reason to the resident.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postcode != res.postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the postcode of the permit holder's registered address before any renewal."
+  },
+  {
+   "id": "R2",
+   "when": "permit.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active permits can be renewed. Expired or revoked permits need a new application."
+  },
+  {
+   "id": "R3",
+   "when": "res.unpaid_penalties > 50",
+   "outcome": "refuse",
+   "explain": "Residents with more than 50.00 in unpaid parking penalties cannot renew."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(today, permit.expiry_date) > 45 or req.months not in [6, 12]",
+   "outcome": "refuse",
+   "explain": "A permit can only be renewed in the 45 days before it expires, and only for 6 or 12 months."
+  }
+ ],
+ "default_outcome": "renew",
+ "policy_text": "## Purpose\nResidents of Port Maren can renew a residential on-street parking permit by phone or chat. This document explains how to verify the caller, find the permit and decide whether the renewal can go ahead.\n\n## Finding the permit\nIf the resident has the permit number (it starts with P- and appears on the permit and on the renewal reminder letter), look it up directly. If they do not have it, you can search by the vehicle registration plate on the permit. You can also find the resident by the email address on file and list their permits. If they hold more than one permit, ask which vehicle they mean. If you cannot identify the permit, do not guess. Explain what is needed and make no change. Also confirm the renewal term the resident wants before renewing.\n\n## Verifying the caller\nBefore renewing, ask for the postcode of the permit holder's registered home address. It must match the postcode on file for the resident who holds the permit. If it does not match, or the caller cannot give it, do not renew.\n\n## When a renewal is allowed\n- **Permit status.** Only an active permit can be renewed. If the permit is expired or revoked, it cannot be renewed. The resident must submit a new permit application through the city's online portal.\n- **Unpaid penalties.** If the resident owes more than 50.00 in unpaid parking penalties, the permit cannot be renewed until the balance is paid. A balance of 50.00 or less does not block renewal.\n- **Renewal window.** A permit can be renewed only in the 45 days before its expiry date. If the expiry date is more than 45 days away, ask the resident to call back once they are inside the window.\n- **Renewal term.** Renewals are for 6 months or 12 months only. Other terms are not available.\n\nAlways go by the dates, statuses and balances in our records, even if the resident remembers them differently.\n\n## Completing the renewal\nIf every check passes, renew the permit for the term the resident asked for. A 12-month renewal adds 365 days to the current expiry date. A 6-month renewal adds 182 days. Tell the resident the new expiry date.\n\n## Never\n- Do not renew without a matching postcode.\n- Do not waive, reduce or ignore unpaid penalties.\n- Do not make exceptions to the renewal window or to the status rule.\n- Do not renew a permit the resident did not ask about, or change any other permit on their account.",
+ "db_common": {
+  "resident": [
+   {
+    "resident_id": "R-10001",
+    "full_name": "Henrietta Vos",
+    "email": "h.vos@portmaren.net",
+    "phone": "555-0140",
+    "address_line": "12 Chandler Row",
+    "postcode": "PM1 2BB",
+    "unpaid_penalties": 0
+   },
+   {
+    "resident_id": "R-10002",
+    "full_name": "Gareth Lomax",
+    "email": "glomax@mailbox.pm",
+    "phone": "555-0177",
+    "address_line": "88 Quay Street",
+    "postcode": "PM4 3KS",
+    "unpaid_penalties": 15.0
+   }
+  ],
+  "permit": [
+   {
+    "permit_id": "P-400101",
+    "resident_id": "R-10001",
+    "zone": "Z1 Old Town",
+    "plate": "MV14 HVS",
+    "vehicle": "Grey Toyota Yaris",
+    "status": "active",
+    "expiry_date": "2026-10-02",
+    "last_renewed": "2025-10-01"
+   },
+   {
+    "permit_id": "P-400233",
+    "resident_id": "R-10002",
+    "zone": "Z4 Harbourside",
+    "plate": "PL09 GLX",
+    "vehicle": "Blue Ford Focus",
+    "status": "active",
+    "expiry_date": "2026-06-18",
+    "last_renewed": "2025-06-16"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20417",
+      "full_name": "Malik Osei",
+      "email": "malik.osei@mailbox.pm",
+      "phone": "555-0311",
+      "address_line": "4 Lantern Wharf",
+      "postcode": "PM2 5LW",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-431208",
+      "resident_id": "R-20417",
+      "zone": "Z4 Harbourside",
+      "plate": "KT21 MBX",
+      "vehicle": "Black Skoda Octavia",
+      "status": "active",
+      "expiry_date": "2026-08-31",
+      "last_renewed": "2025-08-28"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-431208",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-431208",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "permit.expiry_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM2 5LW",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 6
+   },
+   "persona": "Malik, a ferry engineer who works rotating shifts. He is organised and likes to sort things out early, but he sometimes mixes up dates.",
+   "reason_for_call": "He is sure his parking permit runs out on 10 June and wants to renew it before he leaves for a long work rotation.",
+   "task_instructions": "Open by saying you want to renew your permit for six months, give the permit number, and say it expires on 10 June. Before the agent completes anything, change your mind and ask for twelve months instead. Give your postcode if asked. If the agent says the permit is not yet in the renewal window, accept it and say you will call back later.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20533",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@portmaren.net",
+      "phone": "555-0352",
+      "address_line": "27 Mercer Lane",
+      "postcode": "PM1 3HD",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-432019",
+      "resident_id": "R-20533",
+      "zone": "Z1 Old Town",
+      "plate": "LR19 PKA",
+      "vehicle": "Red Honda Jazz",
+      "status": "active",
+      "expiry_date": "2026-06-05",
+      "last_renewed": "2025-06-03"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-432019",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-432019",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM1 3HD",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a pharmacist on a short break who types quickly and says as little as possible.",
+   "reason_for_call": "Her residential parking permit is about to expire and she wants to renew it for a year.",
+   "task_instructions": "In your first message, give the permit number, say you want twelve months, and give your postcode, all in one short line. Answer any further question in a few words. Do not elaborate.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20688",
+      "full_name": "Declan Hughes",
+      "email": "dhughes@mailbox.pm",
+      "phone": "555-0398",
+      "address_line": "9 Willow Bank",
+      "postcode": "PM5 8NE",
+      "unpaid_penalties": 35.0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-433457",
+      "resident_id": "R-20688",
+      "zone": "Z2 Riverside",
+      "plate": "VN70 HDE",
+      "vehicle": "White VW Transporter",
+      "status": "active",
+      "expiry_date": "2026-06-30",
+      "last_renewed": "2025-12-29"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-433457",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-433457",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM5 8NE",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Declan, a self-employed plumber calling between jobs from his van. He is impatient and hates being on the phone.",
+   "reason_for_call": "He wants another six months on his parking permit so he can keep parking the van outside his house.",
+   "task_instructions": "Give the permit number and say you want six months. Give your postcode only when the agent asks for it, and complain that this is taking too long. If the agent refuses anything, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20741",
+      "full_name": "Sofia Lindqvist",
+      "email": "sofia.lindqvist@portmaren.net",
+      "phone": "555-0420",
+      "address_line": "51 Scholars Walk",
+      "postcode": "PM3 1AJ",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-434002",
+      "resident_id": "R-20741",
+      "zone": "Z3 University Quarter",
+      "plate": "BX68 SLQ",
+      "vehicle": "Green Nissan Leaf",
+      "status": "active",
+      "expiry_date": "2026-06-14",
+      "last_renewed": "2025-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-434002",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-434002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM3 1AJ",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "permit.expiry_date",
+     "value": "2026-06-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.unpaid_penalties",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I got the city's renewal reminder letter, and it says my permit expires on 14 June.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I paid my only parking ticket back in February, so I shouldn't owe anything.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The permit is for my green Nissan Leaf, plate BX68 SLQ.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Sofia, a university librarian who is friendly, thorough and likes to have her paperwork in front of her.",
+   "reason_for_call": "Her renewal reminder letter arrived and she wants to renew her permit for a full year.",
+   "task_instructions": "Give the permit number, ask for twelve months, and give your postcode in your first message. Mention the reminder letter and its expiry date, and that you paid your only ticket in February. Answer every question politely.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20855",
+      "full_name": "Bogdan Petrescu",
+      "email": "b.petrescu@workmail.pm",
+      "phone": "555-0467",
+      "address_line": "3 Anchor Terrace",
+      "postcode": "PM4 6RG",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-435119",
+      "resident_id": "R-20855",
+      "zone": "Z4 Harbourside",
+      "plate": "FG17 BPR",
+      "vehicle": "Silver Citroen Berlingo",
+      "status": "active",
+      "expiry_date": "2026-06-12",
+      "last_renewed": "2025-06-10"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-435119",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "res.full_name",
+     "value": "Bogdan Petrescu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM4 6RG",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bogdan, a warehouse supervisor calling from work. He is curt and gives one-line answers.",
+   "reason_for_call": "He wants a year's renewal on the permit for the family van his wife drives every day. He threw away the reminder letter, does not know the van's plate by heart, and cannot remember which email address he registered with.",
+   "task_instructions": "Give your name and say you want to renew for twelve months. You do not have the permit number, the plate, or the email on file, and you say so briefly if asked. Give your postcode if asked. Keep every answer very short. If the agent cannot find the permit, accept it and end.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-20962",
+      "full_name": "Amara Nwosu",
+      "email": "amara.nwosu@mailbox.pm",
+      "phone": "555-0503",
+      "address_line": "16 Ferryman Close",
+      "postcode": "PM2 9TB",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-436230",
+      "resident_id": "R-20962",
+      "zone": "Z2 Riverside",
+      "plate": "HJ66 ANW",
+      "vehicle": "Blue Kia Picanto",
+      "status": "active",
+      "expiry_date": "2026-06-20",
+      "last_renewed": "2025-12-19"
+     },
+     {
+      "permit_id": "P-436231",
+      "resident_id": "R-20962",
+      "zone": "Z2 Riverside",
+      "plate": "WP23 KTE",
+      "vehicle": "Grey Hyundai Tucson",
+      "status": "active",
+      "expiry_date": "2027-01-15",
+      "last_renewed": "2026-01-14"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-436230",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "res.email",
+     "value": "amara.nwosu@mailbox.pm",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "permit.plate",
+     "value": "HJ66 ANW",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM2 9TB",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Amara, a secondary school teacher with two cars in the household. She is warm, patient and happy to help the agent.",
+   "reason_for_call": "She wants to renew the permit for her small blue car for another six months but cannot find the permit number.",
+   "task_instructions": "Explain that you don't have the permit number. Give your email address and the plate of the car you mean, and say you want six months. Give your postcode when asked. Cooperate with any questions.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-21077",
+      "full_name": "Thomas Becker",
+      "email": "t.becker@portmaren.net",
+      "phone": "555-0549",
+      "address_line": "40 Bellfounders Yard",
+      "postcode": "PM1 7WX",
+      "unpaid_penalties": 120.0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-437314",
+      "resident_id": "R-21077",
+      "zone": "Z1 Old Town",
+      "plate": "OE72 TBK",
+      "vehicle": "Black BMW 3 Series",
+      "status": "active",
+      "expiry_date": "2026-06-08",
+      "last_renewed": "2025-06-06"
+     },
+     {
+      "permit_id": "P-437315",
+      "resident_id": "R-21077",
+      "zone": "Z1 Old Town",
+      "plate": "CD19 TBM",
+      "vehicle": "Silver Mini Cooper",
+      "status": "active",
+      "expiry_date": "2026-06-25",
+      "last_renewed": "2025-06-24"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-437314",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-437314",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM1 7WX",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "if_asked"
+    }
+   ],
+   "initial_request_values": {
+    "permit_id": "P-437315"
+   },
+   "extra_details": [],
+   "persona": "Thomas, an accountant with two cars who tends to think out loud and reconsider his choices mid-conversation.",
+   "reason_for_call": "One of his household's permits is about to expire and he wants to renew it.",
+   "task_instructions": "Give your postcode and start by asking to renew the permit for the silver Mini (give its permit number). Before the agent completes anything, realise the BMW's permit expires sooner and switch to that one, giving its permit number. Do not mention the renewal term until the agent asks; when asked, say twelve months. If the agent declines the renewal, ask what you need to do, then accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-21190",
+      "full_name": "Valentina Rossi",
+      "email": "valentina.rossi@mailbox.pm",
+      "phone": "555-0586",
+      "address_line": "7 Marina Parade",
+      "postcode": "PM5 2DQ",
+      "unpaid_penalties": 0
+     }
+    ],
+    "permit": [
+     {
+      "permit_id": "P-438405",
+      "resident_id": "R-21190",
+      "zone": "Z5 Marina",
+      "plate": "SN65 VRS",
+      "vehicle": "White Fiat 500",
+      "status": "expired",
+      "expiry_date": "2026-05-02",
+      "last_renewed": "2025-05-01"
+     },
+     {
+      "permit_id": "P-438406",
+      "resident_id": "R-21190",
+      "zone": "Z5 Marina",
+      "plate": "YA21 GRO",
+      "vehicle": "Grey Renault Clio",
+      "status": "active",
+      "expiry_date": "2026-12-01",
+      "last_renewed": "2025-12-01"
+     }
+    ]
+   },
+   "request_values": {
+    "permit_id": "P-438405",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.permit_id",
+     "value": "P-438405",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "PM5 2DQ",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My partner has a separate permit for the grey Clio, and that one is fine until December.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The street sweeper keeps coming on Tuesdays even though the signs say Thursday, and I've been meaning to complain about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My mother visits every other weekend and last year I bought her a visitor pass.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We might move to the Old Town next spring, but nothing is decided yet.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Valentina, a restaurant manager who is chatty, easily sidetracked and quickly irritated by bureaucracy.",
+   "reason_for_call": "She was away for most of April and wants to renew the permit for her white Fiat for a year.",
+   "task_instructions": "Give the permit number, your postcode, and say you want twelve months. Drift into side topics about the street sweeper, your partner's permit, your mother's visits and a possible move. If the agent refuses, argue that you were only a few weeks late and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

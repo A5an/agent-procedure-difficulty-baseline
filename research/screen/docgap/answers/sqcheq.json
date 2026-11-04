@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Policy never names the tools or APIs for history lookup, stop cheque, or ordering a new cheque book, nor which accounts are eligible or how to pick among multiple linked accounts.",
+  "Exact step order is unspecified: whether history check is mandatory before stopping, how to identify the lost cheque (number, range, amount, date, payee), and whether to verify the cheque has not already been cleared.",
+  "Edge cases: cheque already paid or cleared in history, a range of cheques lost, a post-dated cheque, a cheque number not found, or an unlinked account ID.",
+  "Stop-payment rules are not stated: charges or fees, a reason code for 'lost', whether partial ranges are allowed, and how long the stop remains valid.",
+  "New cheque book ordering is unspecified: leaves count, delivery address or branch pickup, fees, eligibility, whether it needs a separate service request or a tool, and whether it must follow the stop.",
+  "Confirmation details: the policy requires confirming the stop but does not say whether ordering the new book needs its own confirmation or what must be summarized before confirming.",
+  "Customer behavior is unspecified: they may change their mind, give vague details, refuse fees, or ask for a block on the whole book instead of a single cheque.",
+  "The knowledge base may hold the real rules (fees, timelines, lost-cheque process), but the policy does not say which queries to run or how to handle weak search hits for this flow.",
+  "Escalation boundaries: when a failed tool call or an ineligible account should lead to a service request versus a human transfer, and what the final state should be (stop done and book ordered, or only one)."
+ ]
+}

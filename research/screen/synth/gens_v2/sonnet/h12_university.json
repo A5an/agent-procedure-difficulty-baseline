@@ -1,0 +1,835 @@
+{
+ "procedure_id": "h12_university",
+ "domain": "university housing",
+ "organization": "Northgate University Housing Services",
+ "title": "Early move-out and contract release",
+ "summary": "Release a resident from a housing contract before its end date, refund the unused prepaid rent minus a release fee, and free the room.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Students who hold housing contracts",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "balance_due": "number"
+   }
+  },
+  "building": {
+   "key": "building_id",
+   "description": "Residence halls",
+   "fields": {
+    "building_id": "str",
+    "name": "str",
+    "early_release_open": "bool"
+   }
+  },
+  "room": {
+   "key": "room_id",
+   "description": "Individual rooms in residence halls",
+   "fields": {
+    "room_id": "str",
+    "building_id": "ref:building",
+    "room_number": "str",
+    "status": "enum:occupied|vacant"
+   }
+  },
+  "contract": {
+   "key": "contract_id",
+   "description": "Housing contracts between a student and a room",
+   "fields": {
+    "contract_id": "str",
+    "student_id": "ref:student",
+    "room_id": "ref:room",
+    "monthly_rent": "number",
+    "paid_through": "date",
+    "term_end": "date",
+    "status": "enum:active|terminated",
+    "program": "enum:standard|residence_scholar"
+   }
+  },
+  "refund": {
+   "key": "refund_id",
+   "description": "Rent refunds issued to students",
+   "fields": {
+    "refund_id": "str",
+    "contract_id": "ref:contract",
+    "amount": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_contract",
+   "kind": "get",
+   "entity": "contract",
+   "description": "Look up a housing contract by its contract number."
+  },
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student number."
+  },
+  {
+   "name": "get_room",
+   "kind": "get",
+   "entity": "room",
+   "description": "Look up a room by room id."
+  },
+  {
+   "name": "get_building",
+   "kind": "get",
+   "entity": "building",
+   "description": "Look up a residence hall by building id."
+  },
+  {
+   "name": "find_students_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "email"
+   ],
+   "description": "Find students by the email address on file."
+  },
+  {
+   "name": "find_contracts_by_student",
+   "kind": "search",
+   "entity": "contract",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all housing contracts of a student."
+  },
+  {
+   "name": "create_refund",
+   "kind": "create",
+   "entity": "refund",
+   "args": {
+    "contract_id": {
+     "type": "ref:contract",
+     "description": "The contract the refund is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Refund amount in dollars, rounded to 2 decimals."
+    }
+   },
+   "fields": {
+    "contract_id": "args.contract_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a rent refund for a contract."
+  },
+  {
+   "name": "end_contract",
+   "kind": "update",
+   "entity": "contract",
+   "args": {
+    "contract_id": {
+     "type": "ref:contract",
+     "description": "The contract to end."
+    },
+    "move_out_date": {
+     "type": "date",
+     "description": "The approved move-out date."
+    }
+   },
+   "set": {
+    "status": "'terminated'",
+    "term_end": "args.move_out_date"
+   },
+   "description": "Mark a contract as terminated and set its end date to the move-out date."
+  },
+  {
+   "name": "release_room",
+   "kind": "update",
+   "entity": "room",
+   "args": {
+    "room_id": {
+     "type": "ref:room",
+     "description": "The room to release."
+    }
+   },
+   "set": {
+    "status": "'vacant'"
+   },
+   "description": "Mark a room as vacant so it can be reassigned."
+  }
+ ],
+ "request": {
+  "contract_id": {
+   "type": "ref:contract",
+   "description": "the housing contract you want to end early"
+  },
+  "move_out_date": {
+   "type": "date",
+   "description": "the date you want to move out"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "con",
+   "entity": "contract",
+   "key": "req.contract_id"
+  },
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "con.student_id"
+  },
+  {
+   "name": "room",
+   "entity": "room",
+   "key": "con.room_id"
+  },
+  {
+   "name": "bld",
+   "entity": "building",
+   "key": "room.building_id"
+  }
+ ],
+ "outcomes": {
+  "release": {
+   "kind": "perform",
+   "description": "Refund the unused prepaid rent less the release fee, end the contract, and free the room.",
+   "calls": [
+    {
+     "tool": "create_refund",
+     "args": {
+      "contract_id": "req.contract_id",
+      "amount": "round(con.monthly_rent / 30 * days_between(req.move_out_date, con.paid_through) - min(150, 0.2 * con.monthly_rent), 2)"
+     }
+    },
+    {
+     "tool": "end_contract",
+     "args": {
+      "contract_id": "req.contract_id",
+      "move_out_date": "req.move_out_date"
+     }
+    },
+    {
+     "tool": "release_room",
+     "args": {
+      "room_id": "room.room_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not release the contract; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "con.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active contracts can be released early."
+  },
+  {
+   "id": "R2",
+   "when": "con.program == 'residence_scholar'",
+   "outcome": "refuse",
+   "explain": "Residence Scholar contracts cannot be released early."
+  },
+  {
+   "id": "R3",
+   "when": "stu.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "A student with an unpaid balance cannot be released until it is paid."
+  },
+  {
+   "id": "R4",
+   "when": "not bld.early_release_open",
+   "outcome": "refuse",
+   "explain": "Residence halls closed to early release do not accept early move-outs."
+  },
+  {
+   "id": "R5",
+   "when": "req.move_out_date < add_days(today, 7)",
+   "outcome": "refuse",
+   "explain": "The move-out date must be at least 7 days after today."
+  },
+  {
+   "id": "R6",
+   "when": "con.term_end < add_days(today, 30)",
+   "outcome": "refuse",
+   "explain": "Contracts ending within 30 days of today must run to their end date."
+  },
+  {
+   "id": "R7",
+   "when": "days_between(req.move_out_date, con.paid_through) < 15",
+   "outcome": "refuse",
+   "explain": "At least 15 days of prepaid rent must remain after the move-out date."
+  }
+ ],
+ "default_outcome": "release",
+ "policy_text": "## Purpose\nResidents may ask to end a housing contract early. This procedure covers early move-out and contract release by phone or chat.\n\n## Finding the contract\nUse the contract number if the resident has it. If not, ask for the email address on file, find the student, and list their contracts. If the student has more than one contract, ask which room or contract they mean and use the active one they describe. If the resident can give neither the contract number nor an email address that finds them, you cannot identify the contract and must not change anything. You also need the move-out date the resident wants; ask for it if it was not given.\n\nNo further identity check is required, but you must always go by what the records show, not by what the resident believes.\n\n## When an early release is allowed\nLook up the contract, the student it belongs to, the room, and the residence hall of that room. Decline the request if any of the following is true:\n- The contract is not active (for example already terminated).\n- The contract is under the Residence Scholar program. These contracts cannot be released early.\n- The student has an unpaid balance greater than 0.00.\n- The residence hall is not open to early release.\n- The requested move-out date is less than 7 days after today.\n- The contract's end date is less than 30 days after today. Such contracts must run to their end.\n- Fewer than 15 days remain between the requested move-out date and the date the rent is paid through.\nDo not offer a different date unless the resident asks for one; if they do, re-check all conditions for the new date.\n\n## What to do when the release is allowed\nDo these three things, in this order:\n1. Create a refund for the contract. The refund amount is: (monthly rent / 30) x (number of days from the move-out date to the paid-through date) minus the release fee. The release fee is 20% of the monthly rent, but never more than 150.00. Round the result to 2 decimals.\n2. End the contract, using the requested move-out date.\n3. Release the room so it is marked vacant.\nThen tell the resident the refund amount.\n\n## Never\nDo not waive the unpaid balance, the notice period, the release fee or any other rule, do not make exceptions for any reason, and do not change anything the resident did not ask for. If the request is declined, explain the reason plainly and make no changes.",
+ "db_common": {
+  "building": [
+   {
+    "building_id": "B-OAK",
+    "name": "Oakwood Hall",
+    "early_release_open": true
+   },
+   {
+    "building_id": "B-ELM",
+    "name": "Elm Court",
+    "early_release_open": true
+   },
+   {
+    "building_id": "B-CED",
+    "name": "Cedar House",
+    "early_release_open": true
+   },
+   {
+    "building_id": "B-MAP",
+    "name": "Maple Tower",
+    "early_release_open": false
+   }
+  ],
+  "student": [
+   {
+    "student_id": "S-1001",
+    "full_name": "Lena Okafor",
+    "email": "lena.okafor@example.edu",
+    "balance_due": 0
+   }
+  ],
+  "room": [
+   {
+    "room_id": "R-001",
+    "building_id": "B-OAK",
+    "room_number": "001",
+    "status": "occupied"
+   }
+  ],
+  "contract": [
+   {
+    "contract_id": "C-1001",
+    "student_id": "S-1001",
+    "room_id": "R-001",
+    "monthly_rent": 900,
+    "paid_through": "2026-07-31",
+    "term_end": "2026-12-18",
+    "status": "active",
+    "program": "standard"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-210",
+      "building_id": "B-OAK",
+      "room_number": "210",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7101",
+      "student_id": "S-3101",
+      "room_id": "R-210",
+      "monthly_rent": 900,
+      "paid_through": "2026-07-31",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7101",
+    "move_out_date": "2026-06-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.email",
+     "value": "priya.nair@example.edu",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "move_out_date": "2026-06-30"
+   },
+   "persona": "Priya, a graduate student who just accepted an internship in another city. Polite but a bit indecisive.",
+   "reason_for_call": "She wants to leave her dorm room early for a summer internship but does not have her contract paperwork at hand.",
+   "task_instructions": "You do not know your contract number. Start by asking to move out on June 30. Give your email when asked. Before the agent does anything, say your internship starts earlier and change the move-out date to June 10. Then accept the outcome.",
+   "expected_outcome": "release"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3102",
+      "full_name": "Marcus Bell",
+      "email": "m.bell@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-315",
+      "building_id": "B-ELM",
+      "room_number": "315",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7102",
+      "student_id": "S-3102",
+      "room_id": "R-315",
+      "monthly_rent": 600,
+      "paid_through": "2026-06-30",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7102",
+    "move_out_date": "2026-06-08"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.email",
+     "value": "m.bell@example.edu",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "move_out_date": "2026-05-22"
+   },
+   "persona": "Marcus, a junior who is moving back home after a family event. Hurried and slightly stressed.",
+   "reason_for_call": "He wants to give up his dorm room early and move home.",
+   "task_instructions": "You do not know your contract number. First ask to move out on May 22. After the agent replies, realise you cannot be packed that fast and change it to June 8 before anything is done. Give your email when asked.",
+   "expected_outcome": "release"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3103",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-118",
+      "building_id": "B-CED",
+      "room_number": "118",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7103",
+      "student_id": "S-3103",
+      "room_id": "R-118",
+      "monthly_rent": 750,
+      "paid_through": "2026-07-15",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7103",
+    "move_out_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.balance_due",
+     "value": 40,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a quiet exchange student heading home early. Writes in very short messages.",
+   "reason_for_call": "She wants to move out of her room on June 1.",
+   "task_instructions": "Keep every answer to a few words. In your first message give the contract number, the date, and say you think you still owe 40 dollars for a lost key. Do not elaborate further.",
+   "expected_outcome": "release"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3104",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.edu",
+      "balance_due": 85
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-402",
+      "building_id": "B-OAK",
+      "room_number": "402",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7104",
+      "student_id": "S-3104",
+      "room_id": "R-402",
+      "monthly_rent": 900,
+      "paid_through": "2026-07-31",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7104",
+    "move_out_date": "2026-06-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-15",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a sophomore transferring to another university. Friendly and cooperative.",
+   "reason_for_call": "He is transferring schools and wants to end his housing contract early.",
+   "task_instructions": "Say you want to end your housing contract early and give the contract number. Give the move-out date when asked. Answer all questions helpfully and accept the result.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3105",
+      "full_name": "Hannah Kim",
+      "email": "hannah.kim@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-221",
+      "building_id": "B-ELM",
+      "room_number": "221",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7105",
+      "student_id": "S-3105",
+      "room_id": "R-221",
+      "monthly_rent": 1200,
+      "paid_through": "2026-07-31",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7105",
+    "move_out_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "con.paid_through",
+     "value": "2026-07-31",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She paid her rent in one single payment that covers everything through the end of July.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her room is on the second floor of Elm Court.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "move_out_date": "2026-05-23"
+   },
+   "persona": "Hannah, a nursing student who got a job offer out of state. Practical and willing to compromise.",
+   "reason_for_call": "She wants to leave her single room at the end of the spring term, earlier than her contract allows.",
+   "task_instructions": "First ask to move out on May 23, in three days. If the agent declines, ask instead for June 2 and accept whatever the agent decides. Mention your rent is paid through July and the room is in Elm Court.",
+   "expected_outcome": "release"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3106",
+      "full_name": "Devon Carter",
+      "email": "devon.carter@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-105",
+      "building_id": "B-CED",
+      "room_number": "105",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7106",
+      "student_id": "S-3106",
+      "room_id": "R-105",
+      "monthly_rent": 750,
+      "paid_through": "2026-07-31",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "residence_scholar"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7106",
+    "move_out_date": "2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Devon, a confident senior who wants to move in with friends off campus. Impatient.",
+   "reason_for_call": "He wants to end his dorm contract on June 12 and get money back.",
+   "task_instructions": "Give the contract number and the date in your first message. If refused, argue that you have paid on time and ask for an exception at least twice before you accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3107",
+      "full_name": "Yuki Tanaka",
+      "email": "yuki.tanaka@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-330",
+      "building_id": "B-ELM",
+      "room_number": "330",
+      "status": "occupied"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7107",
+      "student_id": "S-3107",
+      "room_id": "R-330",
+      "monthly_rent": 600,
+      "paid_through": "2026-06-12",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7107",
+    "move_out_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "con.paid_through",
+     "value": "2026-07-31",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "move_out_date": "2026-05-22"
+   },
+   "persona": "Yuki, a first-year student going abroad for the summer. Polite, persistent, likes to bargain.",
+   "reason_for_call": "She wants to leave her room before the term ends and believes she has paid for the whole summer.",
+   "task_instructions": "Say you believe your rent is paid through July 31. First ask to move out on May 22. If the agent declines, ask for June 1 instead. Accept the agent's final answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-3108",
+      "full_name": "Omar Haddad",
+      "email": "omar.haddad@example.edu",
+      "balance_due": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "R-440",
+      "building_id": "B-MAP",
+      "room_number": "440",
+      "status": "occupied"
+     },
+     {
+      "room_id": "R-102",
+      "building_id": "B-OAK",
+      "room_number": "102",
+      "status": "vacant"
+     }
+    ],
+    "contract": [
+     {
+      "contract_id": "C-7108",
+      "student_id": "S-3108",
+      "room_id": "R-440",
+      "monthly_rent": 900,
+      "paid_through": "2026-07-31",
+      "term_end": "2026-12-18",
+      "status": "active",
+      "program": "standard"
+     },
+     {
+      "contract_id": "C-7109",
+      "student_id": "S-3108",
+      "room_id": "R-102",
+      "monthly_rent": 800,
+      "paid_through": "2025-12-20",
+      "term_end": "2025-12-20",
+      "status": "terminated",
+      "program": "standard"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "C-7108",
+    "move_out_date": "2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "C-7108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.move_out_date",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He lived in Oakwood Hall last year before moving to his current tower room.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He has a parking permit he also wants to look at someday.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His roommate is already planning to stay for the fall.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once had a noise complaint that was resolved last semester.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Omar, a busy engineering student with a lot going on. Impatient and demanding.",
+   "reason_for_call": "He wants to end his current dorm contract on June 12 to start a summer job near his family.",
+   "task_instructions": "Give the contract number for the current room and the date upfront. Mention your side stories freely. If refused, push back and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The tool/API sequence is not specified: how to look up the insurance policy (which tool lists policies, how to fetch details such as premium amount, due date, frequency, and policy status) is left to guesswork.",
+  "Which payment modes are supported for the policy (e.g., auto-debit/ECS/NACH mandate, UPI AutoPay, card standing instruction) and which tool or knowledge-base query reveals them is not stated; the policy only says to search the KB.",
+  "The final action is unclear: whether the assistant creates a mandate directly with a tool, raises a service request for the insurer or back office, or just explains the process and transfers to a human.",
+  "Required inputs for the auto-debit are not defined: which debit account to use (and whether it must be linked to the customer), the max debit amount, start date, frequency, and whether the customer must explicitly confirm each of these before setup.",
+  "Confirmation requirements are ambiguous: the policy lists confirmation only for irreversible actions (cancel_mandate, etc.), so it does not say whether creating a mandate needs confirmation, nor whether replacing or cancelling an existing mandate is in scope.",
+  "Edge cases are not covered: the policy already has an active auto-debit, the policy is lapsed, matured or in a grace period, the premium is due imminently relative to the simulation date (2026-07-16), insufficient balance, the debit account is dormant or not eligible, or the insurer is not supported for mandates.",
+  "Customer behavior is unknown: they may supply an unlinked policy or account ID (refuse), ask for a mode the bank does not support, change their mind mid-flow, ask about charges or lead time, or ask about unrelated policies.",
+  "Bank-specific conventions are not given: mandate registration lead time, cut-off dates, caps on the debit amount, fees, and whether the insurer must approve; all of these would have to come from the KB, and the quality of the retrieved answers is uncertain.",
+  "Escalation boundaries are fuzzy: it is unclear when a failed or unsupported mandate should become a service request versus a human transfer, and what details the request should carry.",
+  "The expected end state and what counts as success is unspecified (a mandate ID returned, a pending request, or just information), which makes grading of the final database state or the closing message ambiguous."
+ ]
+}

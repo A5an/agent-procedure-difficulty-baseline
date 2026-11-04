@@ -1,0 +1,739 @@
+{
+ "procedure_id": "p07_university",
+ "domain": "university registrar",
+ "organization": "Halvorsen State University Registrar's Office",
+ "title": "Course withdrawal and tuition credit",
+ "summary": "Withdraw a student from an enrolled course before the withdrawal deadline, record the reason and issue the correct tuition credit.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Enrolled students",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "program": "str"
+   }
+  },
+  "course": {
+   "key": "course_id",
+   "description": "Course catalog for the current and recent terms",
+   "fields": {
+    "course_id": "str",
+    "title": "str",
+    "term": "str",
+    "tuition": "number",
+    "refund_deadline": "date",
+    "withdraw_deadline": "date"
+   }
+  },
+  "enrollment": {
+   "key": "enrollment_id",
+   "description": "A student's registration in a course",
+   "fields": {
+    "enrollment_id": "str",
+    "student_id": "ref:student",
+    "course_id": "ref:course",
+    "status": "enum:enrolled|waitlisted|withdrawn|completed",
+    "withdrawn_on": "date"
+   }
+  },
+  "withdrawal_record": {
+   "key": "record_id",
+   "description": "Permanent record of a course withdrawal",
+   "fields": {
+    "record_id": "str",
+    "enrollment_id": "ref:enrollment",
+    "reason": "enum:medical|work|family|schedule|personal",
+    "created": "date"
+   }
+  },
+  "tuition_credit": {
+   "key": "credit_id",
+   "description": "Credits applied to a student's account after a withdrawal",
+   "fields": {
+    "credit_id": "str",
+    "enrollment_id": "ref:enrollment",
+    "amount": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student number."
+  },
+  {
+   "name": "find_student_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "email"
+   ],
+   "description": "Find students by the university email address on file."
+  },
+  {
+   "name": "get_course",
+   "kind": "get",
+   "entity": "course",
+   "description": "Look up a course by its course code, including tuition and deadlines."
+  },
+  {
+   "name": "get_enrollment",
+   "kind": "get",
+   "entity": "enrollment",
+   "description": "Look up an enrollment by its enrollment number."
+  },
+  {
+   "name": "find_enrollments_by_student",
+   "kind": "search",
+   "entity": "enrollment",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all enrollments of a student."
+  },
+  {
+   "name": "mark_enrollment_withdrawn",
+   "kind": "update",
+   "entity": "enrollment",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment to withdraw."
+    }
+   },
+   "set": {
+    "status": "'withdrawn'",
+    "withdrawn_on": "today"
+   },
+   "description": "Set an enrollment to withdrawn and stamp today's date as the withdrawal date."
+  },
+  {
+   "name": "create_withdrawal_record",
+   "kind": "create",
+   "entity": "withdrawal_record",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment that was withdrawn."
+    },
+    "reason": {
+     "type": "enum:medical|work|family|schedule|personal",
+     "description": "The reason the student gave for withdrawing."
+    }
+   },
+   "fields": {
+    "enrollment_id": "args.enrollment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Create the permanent withdrawal record for an enrollment."
+  },
+  {
+   "name": "create_tuition_credit",
+   "kind": "create",
+   "entity": "tuition_credit",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment the credit relates to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in dollars."
+    }
+   },
+   "fields": {
+    "enrollment_id": "args.enrollment_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Apply a tuition credit to the student's account for a withdrawn course."
+  }
+ ],
+ "request": {
+  "enrollment_id": {
+   "type": "ref:enrollment",
+   "description": "the enrollment (registration) you want to withdraw from"
+  },
+  "reason": {
+   "type": "enum:medical|work|family|schedule|personal",
+   "description": "your reason for withdrawing: medical, work, family, schedule or personal"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "enr",
+   "entity": "enrollment",
+   "key": "req.enrollment_id"
+  },
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "enr.student_id"
+  },
+  {
+   "name": "crs",
+   "entity": "course",
+   "key": "enr.course_id"
+  }
+ ],
+ "outcomes": {
+  "withdraw": {
+   "kind": "perform",
+   "description": "Withdraw the student, record the reason and issue the tuition credit.",
+   "calls": [
+    {
+     "tool": "mark_enrollment_withdrawn",
+     "args": {
+      "enrollment_id": "req.enrollment_id"
+     }
+    },
+    {
+     "tool": "create_withdrawal_record",
+     "args": {
+      "enrollment_id": "req.enrollment_id",
+      "reason": "req.reason"
+     }
+    },
+    {
+     "tool": "create_tuition_credit",
+     "args": {
+      "enrollment_id": "req.enrollment_id",
+      "amount": "crs.tuition if days_between(today, crs.refund_deadline) >= 0 else round(crs.tuition * 0.5, 2)"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not withdraw the student; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "enr.status != 'enrolled'",
+   "outcome": "refuse",
+   "explain": "Only an enrollment with status enrolled can be withdrawn."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(today, crs.withdraw_deadline) < 0",
+   "outcome": "refuse",
+   "explain": "Withdrawals are not allowed after the course's withdrawal deadline."
+  }
+ ],
+ "default_outcome": "withdraw",
+ "policy_text": "## Who can ask\nStudents contact the Registrar's Office to withdraw from a course. No further identity questions are required beyond locating the correct enrollment.\n\n## Finding the enrollment\nUse the enrollment number if the student has it. Otherwise find the student by the university email address on file, list their enrollments and ask which course they mean if there is more than one. If you cannot identify the enrollment, do not change anything. You also need the student's reason for withdrawing: medical, work, family, schedule or personal. Ask for it if it was not given.\n\n## When a withdrawal is allowed\n- The enrollment must have status enrolled. Waitlisted, already withdrawn and completed enrollments cannot be withdrawn.\n- The withdrawal must be made on or before the course's withdrawal deadline. After that date the request is declined. No exceptions can be made by this office, and the decision is based on the dates in the course record, not on what the student remembers.\n\n## What to do when the withdrawal is allowed\nDo these three things, in this order:\n1. Mark the enrollment as withdrawn.\n2. Create the withdrawal record with the student's reason.\n3. Create a tuition credit. If today is on or before the course's refund deadline, the credit is the full course tuition. If today is after the refund deadline (but still within the withdrawal deadline), the credit is 50% of the course tuition, rounded to cents.\n\n## When it is not allowed\nExplain briefly why, using the status or deadline on record, and make no changes.\n\n## Never\nDo not withdraw a student from any course other than the one requested, do not offer a larger credit than stated here, do not waive or extend deadlines, and do not promise cash refunds; the credit is applied to the student's account.",
+ "db_common": {
+  "course": [
+   {
+    "course_id": "CHEM101",
+    "title": "Introductory Chemistry",
+    "term": "Summer 2026",
+    "tuition": 1800,
+    "refund_deadline": "2026-05-29",
+    "withdraw_deadline": "2026-06-19"
+   },
+   {
+    "course_id": "HIST210",
+    "title": "Modern European History",
+    "term": "Summer 2026",
+    "tuition": 1500,
+    "refund_deadline": "2026-05-29",
+    "withdraw_deadline": "2026-06-19"
+   },
+   {
+    "course_id": "MATH240",
+    "title": "Linear Algebra",
+    "term": "Summer 2026",
+    "tuition": 1650,
+    "refund_deadline": "2026-05-15",
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "course_id": "BIO150",
+    "title": "Principles of Biology",
+    "term": "Summer 2026",
+    "tuition": 1800,
+    "refund_deadline": "2026-05-15",
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "course_id": "ENGL305",
+    "title": "Creative Writing",
+    "term": "Summer 2026",
+    "tuition": 1500,
+    "refund_deadline": "2026-05-29",
+    "withdraw_deadline": "2026-06-19"
+   },
+   {
+    "course_id": "CS130",
+    "title": "Programming Fundamentals",
+    "term": "Summer 2026",
+    "tuition": 1800,
+    "refund_deadline": "2026-05-22",
+    "withdraw_deadline": "2026-06-05"
+   },
+   {
+    "course_id": "ECON220",
+    "title": "Intermediate Microeconomics",
+    "term": "Spring 2026",
+    "tuition": 1650,
+    "refund_deadline": "2026-02-06",
+    "withdraw_deadline": "2026-04-17"
+   },
+   {
+    "course_id": "PSYC101",
+    "title": "Introduction to Psychology",
+    "term": "Spring 2026",
+    "tuition": 1500,
+    "refund_deadline": "2026-02-06",
+    "withdraw_deadline": "2026-04-17"
+   }
+  ],
+  "student": [
+   {
+    "student_id": "S-0900",
+    "full_name": "Lena Fischer",
+    "email": "lena.fischer@halvorsen.example.edu",
+    "program": "Chemistry BSc"
+   }
+  ],
+  "enrollment": [
+   {
+    "enrollment_id": "E-4900",
+    "student_id": "S-0900",
+    "course_id": "CHEM101",
+    "status": "enrolled",
+    "withdrawn_on": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1001",
+      "full_name": "Maya Okafor",
+      "email": "maya.okafor@halvorsen.example.edu",
+      "program": "Nursing BSN"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5001",
+      "student_id": "S-1001",
+      "course_id": "CHEM101",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5001",
+    "reason": "medical"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "medical",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Maya, a nursing student who is recovering from surgery. Polite and clear.",
+   "reason_for_call": "Her doctor told her to rest this summer, so she wants to drop her chemistry course.",
+   "task_instructions": "In your first message say you want to withdraw from your course, give the enrollment number and say the reason is medical. Answer any question politely and confirm when asked.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1002",
+      "full_name": "Daniel Ruiz",
+      "email": "daniel.ruiz@halvorsen.example.edu",
+      "program": "Economics BA"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5002",
+      "student_id": "S-1002",
+      "course_id": "ECON220",
+      "status": "completed",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5002",
+    "reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "personal",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, an economics major who is unhappy with how a course went. Calm and cooperative.",
+   "reason_for_call": "He wants to withdraw from his microeconomics course because he is worried about his grade.",
+   "task_instructions": "Say you want to withdraw from the course and give the enrollment number. Give your reason (personal) only when the agent asks for it. Accept the answer politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1003",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@halvorsen.example.edu",
+      "program": "Biology BSc"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5003",
+      "student_id": "S-1003",
+      "course_id": "BIO150",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5003",
+    "reason": "family"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reason",
+     "value": "family",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.full_name",
+     "value": "Priya Nair",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.course_id",
+     "value": "BIO150",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a stressed student calling from her cousin's phone. She is impatient and insists things be done right now.",
+   "reason_for_call": "She needs to leave her biology course because of a family emergency abroad, but she lost the confirmation email and cannot remember which email address the university has for her.",
+   "task_instructions": "Give your name and the family reason. You do not have the enrollment number and cannot say which email address is on file. If the agent cannot proceed, push back and ask them to just do it anyway at least twice, then accept.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1004",
+      "full_name": "Tomas Weber",
+      "email": "tomas.weber@halvorsen.example.edu",
+      "program": "Psychology BA"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5004",
+      "student_id": "S-1004",
+      "course_id": "PSYC101",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5004",
+    "reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "personal",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "crs.withdraw_deadline",
+     "value": "2026-06-19",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a psychology student who thinks he still has plenty of time. Friendly but a bit scatterbrained.",
+   "reason_for_call": "He wants to withdraw from his psychology course and believes the deadline is not until June.",
+   "task_instructions": "First ask to withdraw with the reason 'work'. Before anything is done, change your mind and say the real reason is personal. State upfront that you believe the withdrawal deadline is June 19. Give the enrollment number. If refused, accept it.",
+   "initial_request_values": {
+    "reason": "work"
+   },
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1005",
+      "full_name": "Hannah Lindqvist",
+      "email": "hannah.lindqvist@halvorsen.example.edu",
+      "program": "Mathematics BSc"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5005",
+      "student_id": "S-1005",
+      "course_id": "MATH240",
+      "status": "enrolled",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "E-5006",
+      "student_id": "S-1005",
+      "course_id": "CS130",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5005",
+    "reason": "schedule"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "schedule",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She is also enrolled in a programming course, which she is keeping.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She lost her parking permit last month and had to get a replacement.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was on the dean's list two years ago.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannah, a math student with a new summer job. Very brief and to the point.",
+   "reason_for_call": "A new summer job clashes with her linear algebra class, so she wants to withdraw from it.",
+   "task_instructions": "Keep every answer to a few words. Give the enrollment number and the schedule reason. Mention the other details only briefly if they come up naturally. Do not elaborate.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1006",
+      "full_name": "Jamal Carter",
+      "email": "jamal.carter@halvorsen.example.edu",
+      "program": "English BA"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5007",
+      "student_id": "S-1006",
+      "course_id": "ENGL305",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5007",
+    "reason": "work"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5007",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "work",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.status",
+     "value": "enrolled",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.email",
+     "value": "jamal.carter@halvorsen.example.edu",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The course is Creative Writing in the Summer 2026 term.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His university email address is jamal.carter@halvorsen.example.edu.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Jamal, an English major working two jobs. Short on time and words.",
+   "reason_for_call": "He took on full-time hours at work and can no longer attend his creative writing course.",
+   "task_instructions": "Keep answers very short. Say you want to withdraw, and give the enrollment number, the reason (work) and that you are currently enrolled. Mention the course name and your university email in passing. Confirm briefly when asked.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1007",
+      "full_name": "Sofia Marchetti",
+      "email": "sofia.marchetti@halvorsen.example.edu",
+      "program": "History BA"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5008",
+      "student_id": "S-1007",
+      "course_id": "HIST210",
+      "status": "enrolled",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "E-5009",
+      "student_id": "S-1007",
+      "course_id": "BIO150",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5008",
+    "reason": "schedule"
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.email",
+     "value": "sofia.marchetti@halvorsen.example.edu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.course_id",
+     "value": "HIST210",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.reason",
+     "value": "schedule",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a history major who has just been offered an internship. Friendly, a little indecisive.",
+   "reason_for_call": "She wants to drop her European history course but does not have the enrollment number to hand.",
+   "task_instructions": "Start by saying you want to withdraw because of a medical issue. Before anything is done, correct yourself and say the real reason is your schedule because of an internship. Give your university email. You do not know the enrollment number; if asked which course, say it is your Modern European History course and give the course code if you are asked for it.",
+   "initial_request_values": {
+    "reason": "medical"
+   },
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-1008",
+      "full_name": "Kevin Osei",
+      "email": "kevin.osei@halvorsen.example.edu",
+      "program": "Economics BA"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "E-5010",
+      "student_id": "S-1008",
+      "course_id": "ECON220",
+      "status": "enrolled",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "E-5010",
+    "reason": "family"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "E-5010",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "family",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kevin, an economics student who is frustrated and in a hurry. Believes rules should bend for good reasons.",
+   "reason_for_call": "He wants to withdraw from his microeconomics course because of family obligations and wants his tuition credited.",
+   "task_instructions": "State the enrollment number and the family reason in your first message. If refused, argue that your family situation justifies an exception and ask for one at least twice, then accept the decision.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which history tool/filters to use and how far back to look: the description says 'History' but not date range, which card or account, or how to identify the suspicious transaction(s).",
+  "Freeze vs permanent block: policy permits a permanent block only when the card is stolen or compromised and the customer explicitly confirms. The fraud scenario is ambiguous about whether to freeze first, offer a choice, or go straight to a block, and what to do if the customer only says 'I don't recognize this charge'.",
+  "Order of steps: whether to block the card before or after the dispute is raised, and whether the dispute requires the card to be blocked first.",
+  "Final action and dispute mechanics: which dispute or service request type and category applies (unauthorized debit vs merchant dispute vs duplicate charge), which fields are required (transaction ID, amount, date, description), and whether to raise a request or transfer to a human.",
+  "Knowledge base lookups: dispute time limits, liability rules, chargeback and provisional credit policies, and replacement card process are not in the policy and would need searching, with an unknown quality of results.",
+  "Customer behavior: they may change their mind about blocking, refuse confirmation, give a vague or wrong transaction, dispute multiple transactions, mix legitimate and fraudulent charges, or ask for a replacement card or a refund guarantee.",
+  "Edge cases: card already blocked or frozen, transaction outside the dispute window, transaction already pending vs posted, card not linked to the customer, no matching transactions found, and tool errors.",
+  "Bank conventions: what to tell the customer about timelines, reference numbers, replacement card delivery, and whether to proactively suggest freezing or blocking when the customer only asked about history.",
+  "Simulation date is 2026-07-16, which determines whether a transaction falls inside a dispute window and how 'recent' is interpreted; the exact cutoff rules are not given."
+ ]
+}

@@ -1,0 +1,851 @@
+{
+ "procedure_id": "h09_bike",
+ "domain": "bike share membership",
+ "organization": "Willamette Wheels Bike Share",
+ "title": "Membership pauses",
+ "summary": "Pause an annual bike share membership for a number of days and push its end date back by the same number of days, when the rider, the membership and the plan qualify.",
+ "entities": {
+  "rider": {
+   "key": "rider_id",
+   "description": "Registered riders and their billing accounts",
+   "fields": {
+    "rider_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "billing_zip": "str",
+    "account_status": "enum:active|suspended|closed",
+    "balance_due": "number"
+   }
+  },
+  "plan": {
+   "key": "plan_id",
+   "description": "Catalog of membership plans and their pause terms",
+   "fields": {
+    "plan_id": "str",
+    "name": "str",
+    "annual_fee": "number",
+    "pausable": "bool",
+    "max_pause_days": "int"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Memberships held by riders, one record per membership term",
+   "fields": {
+    "membership_id": "str",
+    "rider_id": "ref:rider",
+    "plan_id": "ref:plan",
+    "status": "enum:active|paused|expired|cancelled",
+    "start_date": "date",
+    "end_date": "date",
+    "auto_renew": "bool"
+   }
+  },
+  "membership_pause": {
+   "key": "pause_id",
+   "description": "Pauses taken on a membership, past and current",
+   "fields": {
+    "pause_id": "str",
+    "membership_id": "ref:membership",
+    "start_date": "date",
+    "end_date": "date",
+    "days": "int"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_rider",
+   "kind": "get",
+   "entity": "rider",
+   "description": "Look up a rider account by rider ID. Shows account status, billing ZIP code and any balance due."
+  },
+  {
+   "name": "find_rider_by_email",
+   "kind": "search",
+   "entity": "rider",
+   "by": [
+    "email"
+   ],
+   "description": "Find rider accounts by the email address on file."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a membership plan in the catalog by plan ID. Shows whether the plan can be paused and the longest pause allowed."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership by membership number. Shows the rider, the plan, status, start date and end date."
+  },
+  {
+   "name": "find_memberships_by_rider",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "rider_id"
+   ],
+   "description": "List all memberships (current and past) held by a rider."
+  },
+  {
+   "name": "find_pauses_by_membership",
+   "kind": "search",
+   "entity": "membership_pause",
+   "by": [
+    "membership_id"
+   ],
+   "description": "List every pause ever recorded on a membership."
+  },
+  {
+   "name": "pause_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to pause."
+    },
+    "new_end_date": {
+     "type": "date",
+     "description": "The membership's new end date: its current end date plus the number of pause days."
+    }
+   },
+   "set": {
+    "status": "'paused'",
+    "end_date": "args.new_end_date"
+   },
+   "description": "Put a membership on pause and move its end date to the given new end date."
+  },
+  {
+   "name": "record_pause",
+   "kind": "create",
+   "entity": "membership_pause",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership being paused."
+    },
+    "days": {
+     "type": "int",
+     "description": "Length of the pause in days."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "start_date": "today",
+    "end_date": "add_days(today, args.days)",
+    "days": "args.days"
+   },
+   "description": "Log a pause on a membership, starting today and lasting the given number of days."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to pause"
+  },
+  "pause_days": {
+   "type": "int",
+   "description": "how many days you want your membership paused"
+  }
+ },
+ "claims": {
+  "billing_zip": {
+   "type": "str",
+   "description": "the billing ZIP code on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "mem",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "rider",
+   "entity": "rider",
+   "key": "mem.rider_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "mem.plan_id"
+  }
+ ],
+ "outcomes": {
+  "pause": {
+   "kind": "perform",
+   "description": "Pause the membership starting today and extend its end date by the number of pause days, then log the pause.",
+   "calls": [
+    {
+     "tool": "pause_membership",
+     "args": {
+      "membership_id": "req.membership_id",
+      "new_end_date": "add_days(mem.end_date, req.pause_days)"
+     }
+    },
+    {
+     "tool": "record_pause",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.pause_days"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not pause the membership; explain which requirement is not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.billing_zip != rider.billing_zip",
+   "outcome": "refuse",
+   "explain": "The caller must give the billing ZIP code on the rider account that holds the membership before any change."
+  },
+  {
+   "id": "R2",
+   "when": "rider.account_status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only riders whose account is active can pause a membership."
+  },
+  {
+   "id": "R3",
+   "when": "rider.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "A membership cannot be paused while the rider account has any unpaid balance."
+  },
+  {
+   "id": "R4",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only a membership that is currently active can be paused."
+  },
+  {
+   "id": "R5",
+   "when": "not plan.pausable",
+   "outcome": "refuse",
+   "explain": "The membership's plan must allow pauses."
+  },
+  {
+   "id": "R6",
+   "when": "req.pause_days < 7 or req.pause_days > plan.max_pause_days",
+   "outcome": "refuse",
+   "explain": "A pause must last at least 7 days and no more than the plan's maximum pause length."
+  },
+  {
+   "id": "R7",
+   "when": "db_count('membership_pause', 'membership_id', mem.membership_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A membership can be paused at most twice; if two pauses are already recorded, no more are allowed."
+  },
+  {
+   "id": "R8",
+   "when": "days_between(mem.start_date, today) < 60",
+   "outcome": "refuse",
+   "explain": "A membership must have been held for at least 60 days since its start date before it can be paused."
+  },
+  {
+   "id": "R9",
+   "when": "days_between(today, mem.end_date) < 30",
+   "outcome": "refuse",
+   "explain": "A membership with fewer than 30 days left before its end date cannot be paused."
+  }
+ ],
+ "default_outcome": "pause",
+ "policy_text": "## Purpose\nAnnual members sometimes need a break from riding (travel, injury, a season away). A pause stops the membership for a set number of days starting today and moves the membership's end date back by the same number of days, so the member does not lose paid time.\n\n## Finding the membership\nUse the membership number if the member has it. If not, find the rider account with the email address on file, then list that rider's memberships and confirm with the member which one they mean. Look up the rider account that holds the membership and the plan the membership is on yourself; the member will usually not know these details.\n\n## Identity check\nBefore making any change, ask for the billing ZIP code on the account. It must match the billing ZIP code on the rider account that holds the membership. If it does not match, or the member cannot give it, do not pause anything.\n\n## When a pause is allowed\nCheck all of the following, always against our records, not against what the member believes:\n1. The rider account must be active. Suspended or closed accounts cannot pause.\n2. The rider account must have no unpaid balance. If any amount is due (more than 0.00), the member must pay it before a pause can be set up.\n3. The membership itself must be active. Memberships that are already paused, expired or cancelled cannot be paused.\n4. The plan must allow pauses. Check the plan in the catalog; some plans (for example Monthly Flex and Corporate Annual) cannot be paused at all.\n5. The pause must be at least 7 days long and no longer than the maximum pause length of the member's plan. If the member asks for more than the maximum, decline the request as asked; do not shorten it on your own. If they then ask for a length that fits, assess that new request.\n6. A membership can be paused at most two times. List all pauses recorded on the membership (past and current); if there are already two or more, decline.\n7. The membership must have been held for at least 60 days, counted from its start date to today.\n8. The membership must have at least 30 days left, counted from today to its current end date. Memberships ending in fewer than 30 days cannot be paused.\n\n## Setting up the pause\nIf everything above is fine, do the following in this order:\n1. Pause the membership with its new end date. Compute the new end date as the membership's current end date (from our records) plus the number of pause days the member asked for. Example: an end date of 2026-08-31 with a 30-day pause gives a new end date of 2026-09-30.\n2. Record the pause on the membership with the number of pause days. The pause always starts today.\nThen tell the member the new end date.\n\n## Never\nDo not pause a membership for a caller who failed the identity check. Do not waive or adjust balances, do not change plans, and do not change the pause length, start date or end date to something the member did not ask for. Do not make exceptions to the limits above, however urgent the request.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_id": "PL-ACOM",
+    "name": "Annual Commuter",
+    "annual_fee": 149.0,
+    "pausable": true,
+    "max_pause_days": 60
+   },
+   {
+    "plan_id": "PL-ASTU",
+    "name": "Annual Student",
+    "annual_fee": 89.0,
+    "pausable": true,
+    "max_pause_days": 90
+   },
+   {
+    "plan_id": "PL-MFLX",
+    "name": "Monthly Flex",
+    "annual_fee": 216.0,
+    "pausable": false,
+    "max_pause_days": 0
+   },
+   {
+    "plan_id": "PL-CORP",
+    "name": "Corporate Annual",
+    "annual_fee": 120.0,
+    "pausable": false,
+    "max_pause_days": 0
+   }
+  ],
+  "rider": [
+   {
+    "rider_id": "RD-10007",
+    "full_name": "Gretchen Albers",
+    "email": "g.albers@example.net",
+    "phone": "503-555-0144",
+    "billing_zip": "97202",
+    "account_status": "active",
+    "balance_due": 0
+   }
+  ],
+  "membership": [
+   {
+    "membership_id": "MB-200007",
+    "rider_id": "RD-10007",
+    "plan_id": "PL-ACOM",
+    "status": "active",
+    "start_date": "2025-11-01",
+    "end_date": "2026-10-31",
+    "auto_renew": true
+   }
+  ],
+  "membership_pause": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-21483",
+      "full_name": "Mariela Fuentes",
+      "email": "mariela.fuentes@example.org",
+      "phone": "503-555-0182",
+      "billing_zip": "97214",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-314270",
+      "rider_id": "RD-21483",
+      "plan_id": "PL-ACOM",
+      "status": "active",
+      "start_date": "2025-09-01",
+      "end_date": "2026-08-31",
+      "auto_renew": false
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-314270",
+    "pause_days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-314270",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97214",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mariela, a landscape architect who commutes by bike every day. Warm, organized and polite.",
+   "reason_for_call": "She is leaving for a month-long work assignment abroad and does not want to waste a month of her annual membership.",
+   "task_instructions": "Open by asking to pause your membership for 30 days and give your membership number. Give your billing ZIP code when the agent asks for it. Answer any questions clearly and thank the agent at the end.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-30552",
+      "full_name": "Desmond Achebe",
+      "email": "d.achebe@example.com",
+      "phone": "971-555-0127",
+      "billing_zip": "97217",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-408815",
+      "rider_id": "RD-30552",
+      "plan_id": "PL-ASTU",
+      "status": "active",
+      "start_date": "2025-10-15",
+      "end_date": "2026-10-28",
+      "auto_renew": false
+     }
+    ],
+    "membership_pause": [
+     {
+      "pause_id": "PS-7710",
+      "membership_id": "MB-408815",
+      "start_date": "2026-01-05",
+      "end_date": "2026-01-19",
+      "days": 14
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-408815",
+    "pause_days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "rider.email",
+     "value": "d.achebe@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97217",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Desmond, a graduate student typing quickly between lab sessions. Uses as few words as possible.",
+   "reason_for_call": "He is going home for three weeks and wants to pause his student membership, but he does not have his membership number.",
+   "task_instructions": "Say you want a 21-day pause and give your email. You do not know your membership number. Answer every question in a few words only and never add anything extra. Give the ZIP code only when asked.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-44109",
+      "full_name": "Bradley Kowalczyk",
+      "email": "brad.kowalczyk@example.org",
+      "phone": "503-555-0165",
+      "billing_zip": "97209",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-517302",
+      "rider_id": "RD-44109",
+      "plan_id": "PL-ACOM",
+      "status": "active",
+      "start_date": "2025-12-02",
+      "end_date": "2026-12-01",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-517302",
+    "pause_days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-517302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 45,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97209",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.end_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Brad, a sales manager who is always in a hurry and expects to be told no by customer service.",
+   "reason_for_call": "He broke his wrist and cannot ride for about six weeks, and he wants to pause his membership. He is convinced his membership runs out in early June.",
+   "task_instructions": "Be impatient. In your first message give your membership number, your billing ZIP code and the 45 days you want, and say your membership ends around June 10. Push the agent to hurry up. If the agent hesitates or refuses, argue and demand an exception at least twice. If the agent tells you a different end date, accept their records.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-52876",
+      "full_name": "Ingrid Solberg",
+      "email": "ingrid.solberg@example.net",
+      "phone": "503-555-0119",
+      "billing_zip": "97206",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-602241",
+      "rider_id": "RD-52876",
+      "plan_id": "PL-ACOM",
+      "status": "active",
+      "start_date": "2025-06-13",
+      "end_date": "2026-06-12",
+      "auto_renew": false
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-602241",
+    "pause_days": 60
+   },
+   "initial_request_values": {
+    "pause_days": 90
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-602241",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 60,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97206",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "plan.max_pause_days",
+     "value": 90,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ingrid, a retired schoolteacher who likes to bargain and is sure she read that her plan allows a three-month pause.",
+   "reason_for_call": "She is spending the summer at her sister's cabin and wants to stretch her membership so it covers the autumn.",
+   "task_instructions": "Start by asking for a 90-day pause, give your membership number and billing ZIP code, and say your plan allows 90-day pauses. If the agent refuses, haggle and ask for 60 days instead. If that is refused too, ask once whether anything can be done, then accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-63390",
+      "full_name": "Tavita Faleolo",
+      "email": "tavita.f@example.com",
+      "phone": "971-555-0153",
+      "billing_zip": "97211",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-713568",
+      "rider_id": "RD-63390",
+      "plan_id": "PL-ACOM",
+      "status": "active",
+      "start_date": "2026-04-10",
+      "end_date": "2027-04-09",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-713568",
+    "pause_days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-713568",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97211",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.start_date",
+     "value": "2026-04-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I signed up on April 10 this year, during the spring sign-up promotion.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It's the Annual Commuter plan, the 149-dollar one.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The account is under my own name, Tavita Faleolo, and I've never owed you anything.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tavita, a restaurant owner who is direct and gets frustrated when rules seem arbitrary.",
+   "reason_for_call": "She just bought the membership but her doctor told her not to ride for a month after minor knee surgery, and she wants to pause it.",
+   "task_instructions": "In your first message give your membership number, billing ZIP code, the 30 days you want and that you signed up on April 10. Mention the plan name and that the account is in your name. If refused, argue that you are paying for nothing and ask for an exception at least twice, then accept reluctantly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-74021",
+      "full_name": "Hiroshi Tanabe",
+      "email": "h.tanabe@example.org",
+      "phone": "503-555-0108",
+      "billing_zip": "97232",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-820114",
+      "rider_id": "RD-74021",
+      "plan_id": "PL-MFLX",
+      "status": "active",
+      "start_date": "2026-01-20",
+      "end_date": "2026-12-19",
+      "auto_renew": true
+     },
+     {
+      "membership_id": "MB-610093",
+      "rider_id": "RD-74021",
+      "plan_id": "PL-ACOM",
+      "status": "expired",
+      "start_date": "2024-03-01",
+      "end_date": "2025-02-28",
+      "auto_renew": false
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-820114",
+    "pause_days": 28
+   },
+   "initial_request_values": {
+    "pause_days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-820114",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 28,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97232",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I lost one of your loaner helmets last summer and paid for it at the time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I had an annual commuter membership a couple of years ago before I switched.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The dock at the Lloyd Center station has been broken for a week, by the way.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was also wondering how much e-bikes cost per minute now, but never mind that.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hiroshi, a chatty software tester who tends to wander off topic.",
+   "reason_for_call": "He is traveling to Japan for a family wedding and wants to pause his current membership while he is away.",
+   "task_instructions": "Give your membership number and billing ZIP code early and ask for a 14-day pause. While chatting, mention the helmet, your old membership, the broken dock and e-bike prices. Before the agent does anything, say you just realized the trip is four weeks and change your request to 28 days. Accept the agent's answer politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-85537",
+      "full_name": "Ophelia Nkemelu",
+      "email": "ophelia.nk@example.com",
+      "phone": "971-555-0176",
+      "billing_zip": "97203",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-925806",
+      "rider_id": "RD-85537",
+      "plan_id": "PL-ACOM",
+      "status": "active",
+      "start_date": "2025-07-01",
+      "end_date": "2026-07-14",
+      "auto_renew": false
+     }
+    ],
+    "membership_pause": [
+     {
+      "pause_id": "PS-8124",
+      "membership_id": "MB-925806",
+      "start_date": "2026-02-02",
+      "end_date": "2026-02-16",
+      "days": 14
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-925806",
+    "pause_days": 60
+   },
+   "initial_request_values": {
+    "pause_days": 75
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-925806",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 60,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97203",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ophelia, a freelance photographer who negotiates everything but stays friendly.",
+   "reason_for_call": "She has a long photography job out of state this summer and wants to pause her membership for as long as she can.",
+   "task_instructions": "Give your membership number and ask for a 75-day pause. Give your billing ZIP code when asked. If the agent says 75 days is too long, ask for 60 days instead. Be pleasant throughout.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "rider": [
+     {
+      "rider_id": "RD-96260",
+      "full_name": "Leopold Varga",
+      "email": "leo.varga@example.net",
+      "phone": "503-555-0131",
+      "billing_zip": "97219",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MB-130447",
+      "rider_id": "RD-96260",
+      "plan_id": "PL-ASTU",
+      "status": "active",
+      "start_date": "2025-09-01",
+      "end_date": "2026-10-05",
+      "auto_renew": false
+     }
+    ],
+    "membership_pause": [
+     {
+      "pause_id": "PS-6630",
+      "membership_id": "MB-130447",
+      "start_date": "2025-12-15",
+      "end_date": "2025-12-29",
+      "days": 14
+     },
+     {
+      "pause_id": "PS-7952",
+      "membership_id": "MB-130447",
+      "start_date": "2026-03-09",
+      "end_date": "2026-03-30",
+      "days": 21
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MB-130447",
+    "pause_days": 20
+   },
+   "initial_request_values": {
+    "pause_days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MB-130447",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pause_days",
+     "value": 20,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_zip",
+     "value": "97219",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Leo, an undergraduate who is easygoing and a bit indecisive.",
+   "reason_for_call": "He is doing a summer field course outside the city and wants to pause his student membership.",
+   "task_instructions": "In your first message give your membership number and billing ZIP code and ask for a 30-day pause. Before the agent does anything, say you checked the course dates and you only need 20 days. Accept the agent's decision calmly.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

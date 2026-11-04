@@ -1,0 +1,14 @@
+{
+ "gap_score": 6,
+ "gaps": [
+  "Which tools list mandates and how to identify the specific mandate (by ID, merchant, amount) when the customer is vague or several mandates match; policy never names a list-mandates tool or its fields",
+  "Order is implied (list, confirm, cancel, re-list) but the policy does not say whether to list first before asking which one to cancel, or whether the re-list is mandatory after cancellation",
+  "Whether cancellation requires explicit confirmation of the specific mandate (policy says confirm, but not the format, or what counts as sufficient confirmation, e.g. an earlier 'cancel it' vs. a fresh yes)",
+  "Customer behavior: changing their mind, refusing to confirm, asking to cancel multiple mandates, or giving an ID that is not linked to them (refuse, but how to phrase it and whether to continue)",
+  "Edge cases: mandate already cancelled or inactive, no mandates found, cancel tool fails or returns an error, mandate with pending or upcoming debit, cancellation fees or notice periods that may be in the knowledge base",
+  "Whether to search the knowledge base for mandate cancellation rules (effective date, impact on pending debits, merchant notification) before cancelling, and how to handle weak search hits",
+  "How to present the re-listed results: showing statuses, whether to verify the cancelled mandate shows as cancelled, and what to do if it still appears active",
+  "Bank conventions for what 'mandate' means (UPI autopay, NACH, standing instruction, direct debit), which affects which tool and which wording to use with the customer",
+  "Whether to escalate or raise a service request if cancellation cannot be done via tools"
+ ]
+}

@@ -1,0 +1,793 @@
+{
+ "procedure_id": "p05_hotel",
+ "domain": "hotel chain",
+ "organization": "Harbor Crest Hotels",
+ "title": "Stay extensions",
+ "summary": "Extend a guest's current stay by a number of nights when the reservation and the room allow it.",
+ "entities": {
+  "guest": {
+   "key": "guest_id",
+   "description": "Guests who hold reservations",
+   "fields": {
+    "guest_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "loyalty_tier": "enum:member|silver|gold|platinum"
+   }
+  },
+  "room": {
+   "key": "room_number",
+   "description": "Rooms in the hotel and when the next guest arrives in each",
+   "fields": {
+    "room_number": "str",
+    "room_type": "str",
+    "next_arrival": "date"
+   }
+  },
+  "reservation": {
+   "key": "reservation_id",
+   "description": "Stays booked by guests",
+   "fields": {
+    "reservation_id": "str",
+    "guest_id": "ref:guest",
+    "room_number": "ref:room",
+    "checkin_date": "date",
+    "checkout_date": "date",
+    "nightly_rate": "number",
+    "status": "enum:confirmed|checked_in|checked_out|cancelled",
+    "extensions_count": "int"
+   }
+  },
+  "folio_charge": {
+   "key": "charge_id",
+   "description": "Charges posted to a reservation's folio",
+   "fields": {
+    "charge_id": "str",
+    "reservation_id": "ref:reservation",
+    "amount": "number",
+    "kind": "enum:stay_extension|other",
+    "created": "date"
+   }
+  },
+  "stay_change": {
+   "key": "change_id",
+   "description": "Log of changes made to a stay",
+   "fields": {
+    "change_id": "str",
+    "reservation_id": "ref:reservation",
+    "nights": "int",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_guest",
+   "kind": "get",
+   "entity": "guest",
+   "description": "Look up a guest by guest ID."
+  },
+  {
+   "name": "get_room",
+   "kind": "get",
+   "entity": "room",
+   "description": "Look up a room by room number."
+  },
+  {
+   "name": "get_reservation",
+   "kind": "get",
+   "entity": "reservation",
+   "description": "Look up a reservation by reservation number."
+  },
+  {
+   "name": "find_reservations_by_room",
+   "kind": "search",
+   "entity": "reservation",
+   "by": [
+    "room_number"
+   ],
+   "description": "List all reservations ever booked for a room, past and current. Use the check-in date to pick the right one."
+  },
+  {
+   "name": "extend_reservation",
+   "kind": "update",
+   "entity": "reservation",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation to extend."
+    },
+    "nights": {
+     "type": "int",
+     "description": "Number of nights to add to the checkout date."
+    }
+   },
+   "set": {
+    "checkout_date": "add_days(rec.checkout_date, args.nights)",
+    "extensions_count": "rec.extensions_count + 1"
+   },
+   "description": "Move the checkout date later by a number of nights and count one extension on the reservation."
+  },
+  {
+   "name": "post_folio_charge",
+   "kind": "create",
+   "entity": "folio_charge",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation to charge."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to post."
+    }
+   },
+   "fields": {
+    "reservation_id": "args.reservation_id",
+    "amount": "args.amount",
+    "kind": "'stay_extension'",
+    "created": "today"
+   },
+   "description": "Post a stay extension charge to a reservation's folio."
+  },
+  {
+   "name": "log_stay_change",
+   "kind": "create",
+   "entity": "stay_change",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation that changed."
+    },
+    "nights": {
+     "type": "int",
+     "description": "Nights added."
+    }
+   },
+   "fields": {
+    "reservation_id": "args.reservation_id",
+    "nights": "args.nights",
+    "created": "today"
+   },
+   "description": "Record in the stay log that the reservation was extended by a number of nights."
+  }
+ ],
+ "request": {
+  "reservation_id": {
+   "type": "ref:reservation",
+   "description": "the reservation number for the stay you want to extend"
+  },
+  "nights": {
+   "type": "int",
+   "description": "how many extra nights you want"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "res",
+   "entity": "reservation",
+   "key": "req.reservation_id"
+  },
+  {
+   "name": "guest",
+   "entity": "guest",
+   "key": "res.guest_id"
+  },
+  {
+   "name": "room",
+   "entity": "room",
+   "key": "res.room_number"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the reservation by the requested nights, post the charge for those nights, and log the change.",
+   "calls": [
+    {
+     "tool": "extend_reservation",
+     "args": {
+      "reservation_id": "res.reservation_id",
+      "nights": "req.nights"
+     }
+    },
+    {
+     "tool": "post_folio_charge",
+     "args": {
+      "reservation_id": "res.reservation_id",
+      "amount": "req.nights * res.nightly_rate"
+     }
+    },
+    {
+     "tool": "log_stay_change",
+     "args": {
+      "reservation_id": "res.reservation_id",
+      "nights": "req.nights"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not extend the stay; explain which limit applies.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "res.status != 'checked_in'",
+   "outcome": "refuse",
+   "explain": "Only guests who are currently checked in can extend their stay."
+  },
+  {
+   "id": "R2",
+   "when": "res.extensions_count >= 2",
+   "outcome": "refuse",
+   "explain": "A reservation can be extended at most twice."
+  },
+  {
+   "id": "R3",
+   "when": "req.nights > 3",
+   "outcome": "refuse",
+   "explain": "Each extension can add at most 3 nights."
+  },
+  {
+   "id": "R4",
+   "when": "add_days(res.checkout_date, req.nights) > room.next_arrival",
+   "outcome": "refuse",
+   "explain": "The new checkout date cannot be later than the next arrival date for the room."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who can ask\nGuests can ask to extend their stay by phone or in the front desk chat. An extension adds nights to the guest's current reservation. This procedure does not require an identity check.\n\n## Finding the reservation\nUse the reservation number if the guest gives it. If they do not know it, ask for the room number and the check-in date. Search the reservations for that room and choose the one whose check-in date matches. If you cannot identify exactly one reservation, make no change and tell the guest what you still need.\n\nOnce you have the reservation, look up the guest it belongs to and the room it is in.\n\n## When a stay can be extended\n- The guest must be checked in. Reservations that are confirmed, checked out or cancelled cannot be extended.\n- A reservation can be extended at most twice. If the reservation record already shows two extensions, decline. Go by the count on the record, even if the guest remembers a different number.\n- Each extension can add at most 3 nights. Requests for more are declined, not shortened.\n- The new checkout date must be no later than the next arrival date for that room. If it would be later, decline.\n\n## When the extension is allowed\nIf all of this is fine, extend the reservation by the number of nights the guest asked for. Then:\n1. Move the checkout date later by those nights and count one extension on the reservation.\n2. Post one stay extension charge to the reservation's folio for the nights added, at the reservation's nightly rate.\n3. Record the change in the stay log, showing the nights added.\n\nTell the guest the new checkout date and the amount charged.\n\n## When it is declined\nMake no change at all. Tell the guest which limit applies, in plain words, and that the front desk can discuss other options.\n\n## Never\nDo not waive or reduce any charge, do not add more nights than the guest asked for, do not change the room, and do not make any change the guest did not ask for.",
+ "db_common": {
+  "guest": [
+   {
+    "guest_id": "G-0999",
+    "full_name": "Hannah Ruiz",
+    "email": "hannah.ruiz@example.org",
+    "loyalty_tier": "member"
+   }
+  ],
+  "room": [
+   {
+    "room_number": "1101",
+    "room_type": "Garden Room",
+    "next_arrival": "2026-05-25"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-4410",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "loyalty_tier": "gold"
+     },
+     {
+      "guest_id": "G-2208",
+      "full_name": "Kenji Watanabe",
+      "email": "kenji.w@example.org",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "612",
+      "room_type": "Queen Deluxe",
+      "next_arrival": "2026-05-26"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-30271",
+      "guest_id": "G-4410",
+      "room_number": "612",
+      "checkin_date": "2026-05-17",
+      "checkout_date": "2026-05-22",
+      "nightly_rate": 189.0,
+      "status": "checked_in",
+      "extensions_count": 0
+     },
+     {
+      "reservation_id": "RS-29850",
+      "guest_id": "G-2208",
+      "room_number": "612",
+      "checkin_date": "2026-04-02",
+      "checkout_date": "2026-04-06",
+      "nightly_rate": 176.0,
+      "status": "checked_out",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-30271",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "res.room_number",
+     "value": "612",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.checkin_date",
+     "value": "2026-05-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a management consultant in town for a client project, travelling alone and always in a hurry between meetings.",
+   "reason_for_call": "Her client project has run longer than planned and she needs two more nights at the hotel.",
+   "task_instructions": "You do not know your reservation number. In your first message, say your room number, your check-in date and that you want two more nights. Answer any question in as few words as possible and do not elaborate.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-5530",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.org",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "508",
+      "room_type": "Executive King",
+      "next_arrival": "2026-05-29"
+     },
+     {
+      "room_number": "301",
+      "room_type": "Standard Double",
+      "next_arrival": "2026-06-12"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-31044",
+      "guest_id": "G-5530",
+      "room_number": "508",
+      "checkin_date": "2026-05-18",
+      "checkout_date": "2026-05-23",
+      "nightly_rate": 224.0,
+      "status": "checked_in",
+      "extensions_count": 2
+     },
+     {
+      "reservation_id": "RS-31090",
+      "guest_id": "G-5530",
+      "room_number": "301",
+      "checkin_date": "2026-06-10",
+      "checkout_date": "2026-06-14",
+      "nightly_rate": 139.0,
+      "status": "confirmed",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-31044",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-31044",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My June booking with you is a separate reservation at a different property, so it has nothing to do with this stay.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I already settled the restaurant bill from last night on my own card.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My wife is flying in on Thursday and will be joining me for the weekend.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a sales director who travels every week and is polite to front desk staff.",
+   "reason_for_call": "A client meeting has been moved and he would like two more nights in his room.",
+   "task_instructions": "Give your reservation number and the number of nights you want in your first message. Be cooperative, answer questions clearly, and accept the answer politely if the agent declines.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-6093",
+      "full_name": "Helen Okafor",
+      "email": "helen.okafor@example.org",
+      "loyalty_tier": "member"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "720",
+      "room_type": "Classic Twin",
+      "next_arrival": "2026-06-01"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-40112",
+      "guest_id": "G-6093",
+      "room_number": "720",
+      "checkin_date": "2026-05-16",
+      "checkout_date": "2026-05-21",
+      "nightly_rate": 265.0,
+      "status": "checked_in",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-40112",
+    "nights": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-40112",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 5,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Helen, a retired nurse who is extending her stay for a family wedding and keeps her sentences short.",
+   "reason_for_call": "She wants to stay longer so she can attend the wedding weekend.",
+   "task_instructions": "State your reservation number in your first message. Only tell the agent how many nights you want when asked. Answer briefly and do not offer extra information.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-8821",
+      "full_name": "Tomasz Nowak",
+      "email": "tomasz.n@example.org",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "415",
+      "room_type": "Queen Standard",
+      "next_arrival": "2026-05-23"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-52009",
+      "guest_id": "G-8821",
+      "room_number": "415",
+      "checkin_date": "2026-05-18",
+      "checkout_date": "2026-05-21",
+      "nightly_rate": 150.0,
+      "status": "checked_in",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-52009",
+    "nights": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-52009",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a contractor working on a building site nearby who is friendly and easygoing.",
+   "reason_for_call": "The site work has been extended, so he would like three more nights at the hotel.",
+   "task_instructions": "State your reservation number and the three nights you want in your first message. Be cooperative and accept the answer politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-9015",
+      "full_name": "Elena Vasquez",
+      "email": "elena.vasquez@example.org",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "207",
+      "room_type": "Harbor View King",
+      "next_arrival": "2026-06-05"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-63370",
+      "guest_id": "G-9015",
+      "room_number": "207",
+      "checkin_date": "2026-05-15",
+      "checkout_date": "2026-05-22",
+      "nightly_rate": 172.5,
+      "status": "checked_in",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-63370",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-63370",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.extensions_count",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I checked in on the fifteenth of May.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I'm in the harbor-view room, the one the front desk gave me at check-in.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Elena, an event planner whose schedule is always behind and who is short on patience.",
+   "reason_for_call": "A conference she is running has overrun, and she needs two more nights.",
+   "task_instructions": "In your first message, give your reservation number, say you want two more nights, and say you have not extended this stay before. Be impatient and push for a quick answer. If the agent refuses, argue twice and ask for an exception before you accept.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-3307",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.org",
+      "loyalty_tier": "member"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "230",
+      "room_type": "Business Queen",
+      "next_arrival": "2026-05-30"
+     },
+     {
+      "room_number": "118",
+      "room_type": "Standard Double",
+      "next_arrival": "2026-05-26"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-71158",
+      "guest_id": "G-3307",
+      "room_number": "230",
+      "checkin_date": "2026-05-19",
+      "checkout_date": "2026-05-21",
+      "nightly_rate": 128.0,
+      "status": "checked_in",
+      "extensions_count": 1
+     },
+     {
+      "reservation_id": "RS-70612",
+      "guest_id": "G-3307",
+      "room_number": "118",
+      "checkin_date": "2026-04-10",
+      "checkout_date": "2026-04-14",
+      "nightly_rate": 119.0,
+      "status": "checked_out",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-71158",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-71158",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My April stay with you was fine, although the room was a little noisy at night.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The minibar charge on my account looks wrong, but I will sort that out with accounts later.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I might also want a late checkout on my last day, but I will decide that another time.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "reservation_id": "RS-71158",
+    "nights": 5
+   },
+   "persona": "Tomas, a sales engineer who is organised and talks in a businesslike way.",
+   "reason_for_call": "A project has been extended and he first thinks he needs five more nights, but then realises two will do.",
+   "task_instructions": "In your first message, give your reservation number and ask for five more nights. If the agent says no or asks about the limit, say that two nights is fine and ask for those instead. Do not mention the minibar or the late checkout unless the agent asks about them.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-1452",
+      "full_name": "Anders Lind",
+      "email": "anders.lind@example.org",
+      "loyalty_tier": "member"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "533",
+      "room_type": "Queen Standard",
+      "next_arrival": "2026-06-02"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-80877",
+      "guest_id": "G-1452",
+      "room_number": "533",
+      "checkin_date": "2026-05-18",
+      "checkout_date": "2026-05-22",
+      "nightly_rate": 210.0,
+      "status": "checked_in",
+      "extensions_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-80877",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Anders, a travelling sales representative who is impatient and in a rush, and who lost his key card and his booking confirmation.",
+   "reason_for_call": "He wants two more nights at the hotel and expects the front desk to simply find his booking.",
+   "task_instructions": "You do not know your reservation number and cannot name your room number. You remember only that you arrived last week. Give your name only if the agent asks for it. Ask for two more nights. If the agent refuses or cannot find your stay, argue and ask for an exception at least twice before you accept and end the call.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-6120",
+      "full_name": "Sofia Marchetti",
+      "email": "sofia.m@example.org",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "room": [
+     {
+      "room_number": "912",
+      "room_type": "Corner Suite",
+      "next_arrival": "2026-05-28"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RS-90415",
+      "guest_id": "G-6120",
+      "room_number": "912",
+      "checkin_date": "2026-05-14",
+      "checkout_date": "2026-05-21",
+      "nightly_rate": 245.0,
+      "status": "checked_in",
+      "extensions_count": 1
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RS-90415",
+    "nights": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RS-90415",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.extensions_count",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "reservation_id": "RS-90415",
+    "nights": 4
+   },
+   "persona": "Sofia, a fashion buyer who is sure of her facts and speaks confidently.",
+   "reason_for_call": "She is in town for a buying trip that has run over, and she needs a few more nights.",
+   "task_instructions": "In your first message, give your reservation number, say that you have already extended your stay twice and believe that is the limit, and ask for four more nights. If the agent says there is a problem or a limit, switch to two nights and ask for those instead. Be polite throughout.",
+   "expected_outcome": "extend"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which history tool/view to use first (transaction history vs. statement vs. card history) and what date range or filters to apply is unspecified",
+  "What 'raise request' means in practice: which request/dispute category applies (e.g., unauthorized debit, duplicate charge, failed transaction) and how to map customer wording to it without exposing internal codes",
+  "Which fields are required to raise the request (transaction ID, amount, date, description, reason) and how to obtain them from history vs. ask the customer",
+  "Order of operations: whether to check history before raising the request, whether to confirm with the customer before raising, and whether the balance check comes after the request is raised",
+  "What the balance step entails: which account/product, whether to report before/after the request, and whether a pending dispute/provisional credit changes the balance shown",
+  "Whether to search the knowledge base for dispute/chargeback process, timelines, or eligibility before raising, and what to do when hits are weak",
+  "Policy does not say when a service request is appropriate versus a card freeze/block (e.g., for suspected fraud) or cancelling a mandate, so the correct final action is ambiguous",
+  "How to describe the request outcome to the customer (reference number, expected resolution time) without leaking internal category codes or tool/field names",
+  "Edge cases: multiple matching transactions, no matching transaction found, transaction on an unlinked account/card, ambiguous amounts, duplicate request already raised",
+  "Customer behavior: may change their mind, decline to raise, give vague details, or ask for internal codes directly; handling of refusal and non-mutation is not specified",
+  "Whether raising a service request counts as a mutation requiring explicit confirmation (policy lists only specific irreversible actions)",
+  "Bank conventions such as date interpretation ('last week', 'yesterday' relative to 2026-07-16), currency/format of amounts, and the number of transactions to display"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The policy names no loan tools at all (only deposit closure, cards, mandates, cheques), so which lookup, quote, and foreclosure-request tools exist and how they chain is unspecified.",
+  "The final action is unclear: whether foreclosure is executed directly, raised as a service request, or only quoted and then transferred to a human, and whether a service request is the expected terminal step.",
+  "Confirmation is required only for the listed irreversible actions, and loan foreclosure is not among them, so it is unclear whether and when to ask for explicit confirmation before submitting.",
+  "The policy does not say how to identify the loan when the customer has several, or what to do when they give an unlinked or nonexistent loan ID.",
+  "Foreclosure rules are left to the knowledge base: lock-in period, prepayment penalty by loan type and rate (floating vs. fixed), notice period, minimum amount, and partial vs. full prepayment.",
+  "The quote's validity date, how interest accrues up to the foreclosure date, and which date to use (the simulation date or a customer-chosen future date) are not specified.",
+  "Edge cases are unaddressed: overdue EMIs or arrears, loans already closed or in a prior foreclosure request, a joint or co-borrower loan, and secured loans where collateral must be released.",
+  "Customer behavior is unspecified: they may only want a quote and then decline, change their mind after seeing the penalty, ask for a partial prepayment instead, or dispute the charges. The policy says only 'do not mutate' in those cases.",
+  "The quote's presentation format (which charges to itemize) is unspecified, and the rule against exposing internal field names constrains how it can be shown.",
+  "The quote's source of truth when the knowledge base and tool output disagree, and the handling of weak knowledge-base hits for loan-specific rules, are not specified.",
+  "Post-request communication is unspecified: whether to give a reference number, timelines, the NOC or closure letter process, and next steps such as paying the quoted amount."
+ ]
+}

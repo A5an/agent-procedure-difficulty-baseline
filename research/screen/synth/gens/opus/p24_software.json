@@ -1,0 +1,767 @@
+{
+ "procedure_id": "p24_software",
+ "domain": "software subscription billing",
+ "organization": "Corvane Software Ltd.",
+ "title": "Invoice refund requests",
+ "summary": "Refund a paid subscription invoice when the account and the charge qualify, or route large refunds to the billing review team.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer billing accounts (one per organization)",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "billing_email": "str",
+    "contact_name": "str",
+    "status": "enum:active|suspended|closed",
+    "past_due_balance": "number"
+   }
+  },
+  "invoice": {
+   "key": "invoice_id",
+   "description": "Invoices issued for subscription charges",
+   "fields": {
+    "invoice_id": "str",
+    "account_id": "ref:account",
+    "product": "str",
+    "invoice_date": "date",
+    "amount": "number",
+    "kind": "enum:renewal|new_purchase|upgrade|seat_addon",
+    "status": "enum:paid|unpaid|refunded|disputed",
+    "active_days_after_charge": "int"
+   }
+  },
+  "refund": {
+   "key": "refund_id",
+   "description": "Refunds issued against invoices",
+   "fields": {
+    "refund_id": "str",
+    "invoice_id": "ref:invoice",
+    "amount": "number",
+    "reason": "enum:accidental_renewal|unused_service|duplicate_charge",
+    "issued": "date"
+   }
+  },
+  "billing_review": {
+   "key": "review_id",
+   "description": "Cases handed to the billing review team for approval",
+   "fields": {
+    "review_id": "str",
+    "invoice_id": "ref:invoice",
+    "reason": "enum:high_value|other",
+    "opened": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a billing account by its account ID."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "billing_email"
+   ],
+   "description": "Find billing accounts by the billing email address on file."
+  },
+  {
+   "name": "get_invoice",
+   "kind": "get",
+   "entity": "invoice",
+   "description": "Look up an invoice by its invoice number. Shows the product, date, amount, invoice kind, payment status and how many days the product was used after the charge."
+  },
+  {
+   "name": "find_invoices_by_account",
+   "kind": "search",
+   "entity": "invoice",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all invoices of a billing account."
+  },
+  {
+   "name": "issue_refund",
+   "kind": "create",
+   "entity": "refund",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice being refunded."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The refund amount; always the full invoice amount."
+    },
+    "reason": {
+     "type": "enum:accidental_renewal|unused_service|duplicate_charge",
+     "description": "The customer's reason for the refund."
+    }
+   },
+   "fields": {
+    "invoice_id": "args.invoice_id",
+    "amount": "args.amount",
+    "reason": "args.reason",
+    "issued": "today"
+   },
+   "description": "Issue a refund to the original payment method for an invoice."
+  },
+  {
+   "name": "mark_invoice_refunded",
+   "kind": "update",
+   "entity": "invoice",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice that has just been refunded."
+    }
+   },
+   "set": {
+    "status": "'refunded'"
+   },
+   "description": "Set an invoice's status to refunded. Use right after issuing its refund."
+  },
+  {
+   "name": "open_billing_review",
+   "kind": "create",
+   "entity": "billing_review",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice the review is about."
+    },
+    "reason": {
+     "type": "enum:high_value|other",
+     "description": "Why the billing review team must approve it."
+    }
+   },
+   "fields": {
+    "invoice_id": "args.invoice_id",
+    "reason": "args.reason",
+    "opened": "today"
+   },
+   "description": "Open a case for the billing review team to approve a refund."
+  }
+ ],
+ "request": {
+  "invoice_id": {
+   "type": "ref:invoice",
+   "description": "the invoice you want refunded"
+  },
+  "refund_reason": {
+   "type": "enum:accidental_renewal|unused_service|duplicate_charge",
+   "description": "why you want the refund: the subscription renewed by accident, you did not use what you paid for, or you were charged twice"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "inv",
+   "entity": "invoice",
+   "key": "req.invoice_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "inv.account_id"
+  }
+ ],
+ "outcomes": {
+  "refund": {
+   "kind": "perform",
+   "description": "Refund the full invoice amount, then mark the invoice as refunded.",
+   "calls": [
+    {
+     "tool": "issue_refund",
+     "args": {
+      "invoice_id": "req.invoice_id",
+      "amount": "inv.amount",
+      "reason": "req.refund_reason"
+     }
+    },
+    {
+     "tool": "mark_invoice_refunded",
+     "args": {
+      "invoice_id": "req.invoice_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The invoice is over 1,000.00: open a billing review with reason high_value instead of refunding.",
+   "calls": [
+    {
+     "tool": "open_billing_review",
+     "args": {
+      "invoice_id": "inv.invoice_id",
+      "reason": "'high_value'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refund; explain the reason to the customer.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "inv.status != 'paid'",
+   "outcome": "refuse",
+   "explain": "Only invoices with status paid can be refunded; unpaid, already refunded or disputed invoices cannot."
+  },
+  {
+   "id": "R2",
+   "when": "acct.past_due_balance > 0",
+   "outcome": "refuse",
+   "explain": "No refunds are issued while the account has any past-due balance."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(inv.invoice_date, today) > 30",
+   "outcome": "refuse",
+   "explain": "Refunds are only possible within 30 days of the invoice date."
+  },
+  {
+   "id": "R4",
+   "when": "req.refund_reason == 'accidental_renewal' and inv.kind != 'renewal'",
+   "outcome": "refuse",
+   "explain": "The accidental-renewal reason only applies to renewal invoices."
+  },
+  {
+   "id": "R5",
+   "when": "inv.active_days_after_charge > 5 and req.refund_reason != 'duplicate_charge'",
+   "outcome": "refuse",
+   "explain": "If the product was used on more than 5 days after the charge, it can only be refunded as a duplicate charge."
+  },
+  {
+   "id": "R6",
+   "when": "inv.amount > 1000",
+   "outcome": "review",
+   "explain": "Refunds over 1,000.00 need billing review approval, so open a high_value review instead of refunding."
+  }
+ ],
+ "default_outcome": "refund",
+ "policy_text": "## Purpose\nCustomers may ask us to refund a subscription invoice. This policy explains when an agent may refund an invoice directly, when it must go to the billing review team, and when the request must be declined. Refunds are always for the full invoice amount; we do not issue partial refunds.\n\n## Finding the invoice\nIf the customer has the invoice number (it is printed on the invoice and the receipt email), look it up directly. If not, find their account using the billing email address on file, then list the account's invoices and use the invoice date, amount or product the customer describes to pick the right one. If you cannot find the account or cannot tell which invoice they mean, do not guess and do not refund anything; explain what information you need. Account details such as company name alone are not enough to find an account.\n\nAlso ask the customer for the reason for the refund. It must be one of these:\n- accidental_renewal: the subscription renewed when they did not mean it to;\n- unused_service: they did not use what they paid for;\n- duplicate_charge: they were billed twice for the same thing.\n\n## Checks, in this order\n1. Invoice status. Only invoices with status paid can be refunded. Unpaid, already refunded, or disputed invoices cannot be refunded through this process.\n2. Past-due balance. If the account has any past-due balance (more than 0.00), no refund can be issued until it is paid. Go by the balance in our records, not the customer's recollection.\n3. Refund window. The request must be made within 30 days of the invoice date. An invoice dated exactly 30 days ago still qualifies; older invoices do not. Use the invoice date in our records.\n4. Accidental renewal. The accidental_renewal reason only applies to invoices of kind renewal. If the customer gives that reason for any other kind of invoice (new purchase, upgrade, seat add-on), decline.\n5. Usage after the charge. If the record shows the product was used on more than 5 days after the charge, the invoice can only be refunded for the reason duplicate_charge. For any other reason, decline.\n6. Large amounts. If the invoice amount is more than 1,000.00 and all the checks above pass, do not refund it yourself. Open a billing review with reason high_value and tell the customer the billing review team will contact them.\n\n## Issuing the refund\nIf all checks pass and the amount is 1,000.00 or less: first issue the refund for the full invoice amount with the customer's reason, then mark the invoice as refunded. Do both steps.\n\n## Never\nDo not issue partial refunds or credits, waive past-due balances, or make exceptions to the 30-day window or the usage rule. Do not pick the reason for the customer. Do not refund or change any invoice other than the one the customer asked about.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACC-1001",
+    "company_name": "Brightline Logistics",
+    "billing_email": "ap@brightline-logistics.com",
+    "contact_name": "Gwen Albright",
+    "status": "active",
+    "past_due_balance": 0
+   }
+  ],
+  "invoice": [
+   {
+    "invoice_id": "INV-260310-0101",
+    "account_id": "ACC-1001",
+    "product": "Corvane Fleet Planner",
+    "invoice_date": "2026-03-10",
+    "amount": 1188.0,
+    "kind": "renewal",
+    "status": "paid",
+    "active_days_after_charge": 60
+   }
+  ],
+  "refund": [
+   {
+    "refund_id": "RF-20251",
+    "invoice_id": "INV-260310-0101",
+    "amount": 0.01,
+    "reason": "duplicate_charge",
+    "issued": "2026-03-12"
+   }
+  ],
+  "billing_review": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-3104",
+      "company_name": "Halverson Dental Group",
+      "billing_email": "office@halversondental.com",
+      "contact_name": "Marta Halverson",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260511-0412",
+      "account_id": "ACC-3104",
+      "product": "ChartDesk Pro (12 seats)",
+      "invoice_date": "2026-05-11",
+      "amount": 864.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 0
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260511-0412",
+    "refund_reason": "accidental_renewal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260511-0412",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "accidental_renewal",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.invoice_date",
+     "value": "2026-05-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.amount",
+     "value": 864.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The practice moved to a different charting system in March, so nobody has logged into ChartDesk since the renewal went through.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The renewal reminder email was missed because the office manager was on leave; it is a renewal of the existing yearly subscription, not a new purchase.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marta Halverson, owner of a busy three-chair dental practice. Impatient, short on time between patients, used to getting things done quickly.",
+   "reason_for_call": "The practice's yearly charting software subscription renewed automatically nine days ago even though they had stopped using it, and she wants the money back.",
+   "task_instructions": "In your first message give the invoice number, say it renewed by accident, and mention the date and amount on the invoice. Mention that nobody has used the software since the renewal and that the reminder was missed. Be impatient: ask how long this will take and push the agent to just do it if they ask anything you think is unnecessary. If the refund is done, accept and end.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-5528",
+      "company_name": "Pinecrest Montessori",
+      "billing_email": "accounts@pinecrestmontessori.org",
+      "contact_name": "Daniel Okafor",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260509-0377",
+      "account_id": "ACC-5528",
+      "product": "Corvane ClassBoard",
+      "invoice_date": "2026-05-09",
+      "amount": 420.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 1
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260509-0377",
+    "refund_reason": "unused_service"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.refund_reason",
+     "value": "unused_service",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.company_name",
+     "value": "Pinecrest Montessori",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.amount",
+     "value": 420.0,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel Okafor, a newly hired school administrator who is friendly and eager to help but still learning the school's systems.",
+   "reason_for_call": "The school was charged for a classroom software subscription they no longer use, and the head teacher asked him to get it refunded.",
+   "task_instructions": "Explain that you want a refund because the school no longer uses the software, and give the school's name. You do not have the invoice; the previous administrator handled billing and you do not know which email address the account is registered under. Answer questions as best you can (you know the charge was 420). If the agent cannot find the account, accept that politely and say you will find the invoice and call back.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-4419",
+      "company_name": "Kestrel Audio Labs",
+      "billing_email": "billing@kestrelaudio.io",
+      "contact_name": "Ines Varga",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260408-1187",
+      "account_id": "ACC-4419",
+      "product": "Corvane SoundVault Team",
+      "invoice_date": "2026-04-08",
+      "amount": 596.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 0
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260408-1187",
+    "refund_reason": "unused_service"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260408-1187",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "unused_service",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.invoice_date",
+     "value": "2026-05-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines Varga, a sound engineer who answers in as few words as possible.",
+   "reason_for_call": "Her studio paid for an audio storage subscription it never used, and she believes the charge was at the start of May.",
+   "task_instructions": "First message: the invoice number, that you never used it, and that it was charged on May 1. Keep every reply to a few words. Do not elaborate. If the agent says the date is different and declines, reply briefly and accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2276",
+      "company_name": "Tamsin Reeve Photography",
+      "billing_email": "studio@tamsinreeve.co.uk",
+      "contact_name": "Tamsin Reeve",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260502-0930",
+      "account_id": "ACC-2276",
+      "product": "Corvane ProofRoom Studio",
+      "invoice_date": "2026-05-02",
+      "amount": 299.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 14
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260502-0930",
+    "refund_reason": "unused_service"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260502-0930",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "unused_service",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tamsin Reeve, a freelance wedding photographer who feels the software was not worth the money and is irritated about it.",
+   "reason_for_call": "She wants her money back for a client-proofing software subscription that she feels she has hardly used since it was charged.",
+   "task_instructions": "Give the invoice number and say you want a refund. Only when asked for the reason, say you did not really use it. If the agent declines because of usage, argue that you only opened it to look at a few galleries and it did not count, and ask for an exception at least twice. Then accept grudgingly and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-6093",
+      "company_name": "Larchmont Property Partners",
+      "billing_email": "finance@larchmontpp.com",
+      "contact_name": "Hiroshi Tanabe",
+      "status": "active",
+      "past_due_balance": 340.5
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260512-0655",
+      "account_id": "ACC-6093",
+      "product": "Corvane LeaseLedger Plus",
+      "invoice_date": "2026-05-12",
+      "amount": 540.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 0
+     },
+     {
+      "invoice_id": "INV-260320-0412",
+      "account_id": "ACC-6093",
+      "product": "Corvane LeaseLedger Seat Add-on",
+      "invoice_date": "2026-03-20",
+      "amount": 340.5,
+      "kind": "seat_addon",
+      "status": "unpaid",
+      "active_days_after_charge": 55
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260512-0655",
+    "refund_reason": "accidental_renewal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260512-0655",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "accidental_renewal",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.past_due_balance",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hiroshi Tanabe, a calm and courteous finance manager at a property management firm who is confident the company's books are in order.",
+   "reason_for_call": "The company's lease accounting subscription renewed by accident after they decided to switch providers, and he wants the renewal refunded.",
+   "task_instructions": "Give the invoice number, explain it renewed by accident, and mention early that your account is fully paid up with nothing outstanding. If the agent says there is an overdue balance, ask politely what it relates to, accept the answer, and say you will look into paying it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-6640",
+      "company_name": "Ostrava Design Studio",
+      "billing_email": "billing@ostravadesign.cz",
+      "contact_name": "Petra Novakova",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260501-0218",
+      "account_id": "ACC-6640",
+      "product": "Corvane Layerline Team",
+      "invoice_date": "2026-05-01",
+      "amount": 149.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 18
+     },
+     {
+      "invoice_id": "INV-260503-0219",
+      "account_id": "ACC-6640",
+      "product": "Corvane Layerline Team",
+      "invoice_date": "2026-05-03",
+      "amount": 149.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 16
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260503-0219",
+    "refund_reason": "duplicate_charge"
+   },
+   "initial_request_values": {
+    "refund_reason": "unused_service"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.billing_email",
+     "value": "billing@ostravadesign.cz",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.invoice_date",
+     "value": "2026-05-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "duplicate_charge",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Petra Novakova, the studio manager of a small design agency; organized and polite, thinks out loud.",
+   "reason_for_call": "Her studio was billed for its monthly design software on May 1 and again on May 3, and she wants the second charge back.",
+   "task_instructions": "You do not have the invoice number; give the billing email and say the charge you want back is the one from May 3. At first say you want a refund because the studio did not use what that charge paid for. Before the agent does anything, correct yourself: the team does use the software, the real problem is that you were charged twice for the same month, so you want it refunded as a duplicate charge. Answer questions helpfully.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-7012",
+      "company_name": "Northwind Freight Analytics",
+      "billing_email": "it-billing@northwindfa.com",
+      "contact_name": "Callum Rhys",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260515-0771",
+      "account_id": "ACC-7012",
+      "product": "Corvane RouteSight Enterprise",
+      "invoice_date": "2026-05-15",
+      "amount": 2400.0,
+      "kind": "renewal",
+      "status": "paid",
+      "active_days_after_charge": 0
+     },
+     {
+      "invoice_id": "INV-260415-0640",
+      "account_id": "ACC-7012",
+      "product": "Corvane RouteSight Seat Add-on",
+      "invoice_date": "2026-04-15",
+      "amount": 320.0,
+      "kind": "seat_addon",
+      "status": "paid",
+      "active_days_after_charge": 30
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260515-0771",
+    "refund_reason": "accidental_renewal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260515-0771",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "accidental_renewal",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The seat add-on bought in April is fine and should stay as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "They had a single sign-on support ticket last year that took a while to resolve.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The team might come back to the product next year if the budget allows.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Callum Rhys, IT lead at a freight analytics firm. Curt, types in fragments.",
+   "reason_for_call": "The firm's yearly route-planning subscription renewed by accident after they decided to drop it, and he wants it refunded.",
+   "task_instructions": "First message: the invoice number and that it renewed by accident. Keep replies very short. Mention briefly, one at a time when it fits, that the April seat add-on is fine, that you had an SSO ticket last year, and that you might return next year. If the agent says it must go to a review team, accept with a short reply.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-8125",
+      "company_name": "Saltmarsh Brewing Co.",
+      "billing_email": "accounts@saltmarshbrewing.com",
+      "contact_name": "Rosa Delgado",
+      "status": "active",
+      "past_due_balance": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-260506-0533",
+      "account_id": "ACC-8125",
+      "product": "Corvane TapRoom POS Seat Add-on (6 seats)",
+      "invoice_date": "2026-05-06",
+      "amount": 360.0,
+      "kind": "seat_addon",
+      "status": "paid",
+      "active_days_after_charge": 2
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-260506-0533",
+    "refund_reason": "unused_service"
+   },
+   "initial_request_values": {
+    "refund_reason": "accidental_renewal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-260506-0533",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_reason",
+     "value": "unused_service",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa Delgado, co-owner of a small craft brewery, cheerful and a bit scattered.",
+   "reason_for_call": "She added extra point-of-sale seats for a summer taproom expansion that fell through, and the seats have barely been used.",
+   "task_instructions": "Give the invoice number in your first message and say at first that it was charged by accidental renewal. Before the agent does anything, correct yourself: it was not a renewal at all, you added seats you then did not use, so you want the refund because the seats went unused. Be friendly and answer questions clearly.",
+   "expected_outcome": "refund"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

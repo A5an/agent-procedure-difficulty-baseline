@@ -1,0 +1,974 @@
+{
+ "procedure_id": "h10_cloud",
+ "domain": "cloud hosting billing",
+ "organization": "Nimbus Harbor Cloud",
+ "title": "SLA outage credit requests",
+ "summary": "Issue a service credit to a customer's account for a confirmed outage that affected one of their subscriptions, or send large credits for approval.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer billing accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "status": "enum:active|suspended|closed",
+    "past_due": "number",
+    "credit_balance": "number"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Service plan catalog with SLA terms",
+   "fields": {
+    "plan_code": "str",
+    "plan_name": "str",
+    "min_minutes": "int",
+    "max_credit_percent": "int"
+   }
+  },
+  "subscription": {
+   "key": "subscription_id",
+   "description": "Hosted services a customer pays for each month",
+   "fields": {
+    "subscription_id": "str",
+    "account_id": "ref:account",
+    "billing_email": "str",
+    "service_name": "str",
+    "region": "str",
+    "plan_code": "ref:plan",
+    "monthly_fee": "number",
+    "last_credit_date": "date"
+   }
+  },
+  "incident": {
+   "key": "incident_id",
+   "description": "Provider-side outage records",
+   "fields": {
+    "incident_id": "str",
+    "service_name": "str",
+    "region": "str",
+    "status": "enum:confirmed|investigating|not_an_outage",
+    "ended_on": "date",
+    "downtime_minutes": "int"
+   }
+  },
+  "credit_memo": {
+   "key": "memo_id",
+   "description": "SLA credits already issued to subscriptions",
+   "fields": {
+    "memo_id": "str",
+    "subscription_id": "ref:subscription",
+    "incident_id": "ref:incident",
+    "amount": "number",
+    "issued": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a billing manager to approve a credit",
+   "fields": {
+    "request_id": "str",
+    "subscription_id": "ref:subscription",
+    "incident_id": "ref:incident",
+    "reason": "enum:large_credit|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a billing account by account number."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a service plan and its SLA terms by plan code."
+  },
+  {
+   "name": "get_subscription",
+   "kind": "get",
+   "entity": "subscription",
+   "description": "Look up a subscription by subscription number."
+  },
+  {
+   "name": "find_subscriptions_by_email",
+   "kind": "search",
+   "entity": "subscription",
+   "by": [
+    "billing_email"
+   ],
+   "description": "List subscriptions that use a given billing email address."
+  },
+  {
+   "name": "get_incident",
+   "kind": "get",
+   "entity": "incident",
+   "description": "Look up an outage incident by incident number."
+  },
+  {
+   "name": "find_credit_memos_by_subscription",
+   "kind": "search",
+   "entity": "credit_memo",
+   "by": [
+    "subscription_id"
+   ],
+   "description": "List all SLA credits already issued to a subscription."
+  },
+  {
+   "name": "create_credit_memo",
+   "kind": "create",
+   "entity": "credit_memo",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription being credited."
+    },
+    "incident_id": {
+     "type": "ref:incident",
+     "description": "The incident the credit is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in dollars, rounded to 2 decimals."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "incident_id": "args.incident_id",
+    "amount": "args.amount",
+    "issued": "today"
+   },
+   "description": "Record an SLA credit memo for a subscription and incident."
+  },
+  {
+   "name": "add_account_credit",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account to credit."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Amount to add to the credit balance."
+    }
+   },
+   "set": {
+    "credit_balance": "rec.credit_balance + args.amount"
+   },
+   "description": "Add an amount to the account's credit balance."
+  },
+  {
+   "name": "mark_subscription_credited",
+   "kind": "update",
+   "entity": "subscription",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription that was credited."
+    }
+   },
+   "set": {
+    "last_credit_date": "today"
+   },
+   "description": "Set the subscription's last credit date to today."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription concerned."
+    },
+    "incident_id": {
+     "type": "ref:incident",
+     "description": "The incident concerned."
+    },
+    "reason": {
+     "type": "enum:large_credit|other",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "incident_id": "args.incident_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a billing manager to approve a credit."
+  }
+ ],
+ "request": {
+  "subscription_id": {
+   "type": "ref:subscription",
+   "description": "the hosting subscription that was affected by the outage"
+  },
+  "incident_id": {
+   "type": "ref:incident",
+   "description": "the incident number from the provider's outage notice"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "sub",
+   "entity": "subscription",
+   "key": "req.subscription_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "sub.account_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "sub.plan_code"
+  },
+  {
+   "name": "inc",
+   "entity": "incident",
+   "key": "req.incident_id"
+  }
+ ],
+ "outcomes": {
+  "issue_credit": {
+   "kind": "perform",
+   "description": "Issue the SLA credit: record the memo, add it to the account balance, and stamp the subscription.",
+   "calls": [
+    {
+     "tool": "create_credit_memo",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "incident_id": "req.incident_id",
+      "amount": "min(round(sub.monthly_fee * inc.downtime_minutes / 4320, 2), round(sub.monthly_fee * plan.max_credit_percent / 100, 2))"
+     }
+    },
+    {
+     "tool": "add_account_credit",
+     "args": {
+      "account_id": "acct.account_id",
+      "amount": "min(round(sub.monthly_fee * inc.downtime_minutes / 4320, 2), round(sub.monthly_fee * plan.max_credit_percent / 100, 2))"
+     }
+    },
+    {
+     "tool": "mark_subscription_credited",
+     "args": {
+      "subscription_id": "req.subscription_id"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The credit is large: open an approval request for a billing manager instead of issuing it.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "incident_id": "req.incident_id",
+      "reason": "'large_credit'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not issue a credit; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only accounts that are active can receive SLA credits."
+  },
+  {
+   "id": "R2",
+   "when": "inc.status != 'confirmed'",
+   "outcome": "refuse",
+   "explain": "The incident must be confirmed as an outage by the provider."
+  },
+  {
+   "id": "R3",
+   "when": "sub.service_name != inc.service_name or sub.region != inc.region",
+   "outcome": "refuse",
+   "explain": "The incident must have affected the same service and region as the subscription."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(inc.ended_on, today) > 30",
+   "outcome": "refuse",
+   "explain": "Credits must be requested within 30 days after the incident ended."
+  },
+  {
+   "id": "R5",
+   "when": "inc.downtime_minutes < plan.min_minutes",
+   "outcome": "refuse",
+   "explain": "The downtime must reach the minimum minutes set by the subscription's plan."
+  },
+  {
+   "id": "R6",
+   "when": "acct.past_due > 0",
+   "outcome": "refuse",
+   "explain": "Accounts with an overdue balance cannot receive credits."
+  },
+  {
+   "id": "R7",
+   "when": "db_count('credit_memo', 'subscription_id', sub.subscription_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A subscription can receive at most two SLA credits in total."
+  },
+  {
+   "id": "R8",
+   "when": "min(round(sub.monthly_fee * inc.downtime_minutes / 4320, 2), round(sub.monthly_fee * plan.max_credit_percent / 100, 2)) > 150",
+   "outcome": "approval",
+   "explain": "Credits above 150.00 need a billing manager's approval instead of being issued directly."
+  }
+ ],
+ "default_outcome": "issue_credit",
+ "policy_text": "## Purpose\nCustomers may ask for a service credit when an outage affected one of their hosting subscriptions. You handle these requests by chat or phone.\n\n## Finding the records\nYou need the subscription number and the incident number from the provider's outage notice. If the customer does not have the subscription number, list subscriptions by the billing email address they give and ask which service they mean if there are several. Always ask for the incident number if it was not given. Then look up the subscription, the account that owns it, the plan on the subscription, and the incident. The customer will not know the account status, the plan terms or the credit history, so check them yourself in the system. Always go by the system, not by what the customer believes.\n\n## When a credit is allowed\nRefuse the request, in this order of checks, if any of these is true:\n1. The account is not active (suspended or closed).\n2. The incident is not confirmed (status investigating or not_an_outage).\n3. The incident's service or region differs from the subscription's service or region.\n4. The incident ended more than 30 days before today.\n5. The incident's downtime in minutes is lower than the plan's minimum minutes.\n6. The account has any past-due amount greater than 0.\n7. The subscription already has two or more credit memos on record (list them with the credit memo search).\n\n## Computing the credit\nCredit = the smaller of (a) monthly fee x downtime minutes / 4320, and (b) monthly fee x the plan's max credit percent / 100. Round each to 2 decimals before taking the smaller one.\n\n## Outcomes\n- If the credit is more than 150.00, do not issue it. Open an approval request with reason large_credit and tell the customer a billing manager will review it.\n- Otherwise, issue the credit by doing these three steps in order: create a credit memo for the subscription and incident with the computed amount; add the same amount to the account's credit balance; mark the subscription as credited today.\n\nWhen you refuse, explain the reason briefly. Offer a transfer to a human agent only if the customer insists after a clear explanation.\n\n## Never\nDo not promise or issue a different amount than computed, do not waive the checks, do not credit more than one incident per request, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_code": "STD",
+    "plan_name": "Standard",
+    "min_minutes": 60,
+    "max_credit_percent": 25
+   },
+   {
+    "plan_code": "PRM",
+    "plan_name": "Premium",
+    "min_minutes": 30,
+    "max_credit_percent": 40
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3101",
+      "company_name": "Brightwave Studios",
+      "status": "active",
+      "past_due": 89.0,
+      "credit_balance": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5101",
+      "account_id": "A-3101",
+      "billing_email": "ops@brightwave.example",
+      "service_name": "Managed Database",
+      "region": "eu-west",
+      "plan_code": "STD",
+      "monthly_fee": 120.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7001",
+      "service_name": "Managed Database",
+      "region": "eu-west",
+      "status": "confirmed",
+      "ended_on": "2026-05-12",
+      "downtime_minutes": 180
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5101",
+    "incident_id": "INC-7001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7001",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, an operations lead at a small design studio. Polite and organized.",
+   "reason_for_call": "Her studio's database was down for a few hours last week and she wants the service credit.",
+   "task_instructions": "Say you want a credit for the outage and give the subscription number. Give the incident number from the outage email only when asked. Answer politely and accept the result.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3201",
+      "company_name": "Kestrel Logistics",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 35.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5201",
+      "account_id": "A-3201",
+      "billing_email": "it@kestrel.example",
+      "service_name": "Kubernetes Cluster",
+      "region": "us-east",
+      "plan_code": "PRM",
+      "monthly_fee": 300.0,
+      "last_credit_date": "2026-04-02"
+     },
+     {
+      "subscription_id": "S-5202",
+      "account_id": "A-3201",
+      "billing_email": "it@kestrel.example",
+      "service_name": "Object Storage",
+      "region": "eu-west",
+      "plan_code": "STD",
+      "monthly_fee": 75.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7002",
+      "service_name": "Kubernetes Cluster",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-05-15",
+      "downtime_minutes": 240
+     },
+     {
+      "incident_id": "INC-6901",
+      "service_name": "Kubernetes Cluster",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-02-09",
+      "downtime_minutes": 120
+     },
+     {
+      "incident_id": "INC-6902",
+      "service_name": "Kubernetes Cluster",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-04-01",
+      "downtime_minutes": 90
+     }
+    ],
+    "credit_memo": [
+     {
+      "memo_id": "CM-4001",
+      "subscription_id": "S-5201",
+      "incident_id": "INC-6901",
+      "amount": 10.0,
+      "issued": "2026-02-10"
+     },
+     {
+      "memo_id": "CM-4002",
+      "subscription_id": "S-5201",
+      "incident_id": "INC-6902",
+      "amount": 7.5,
+      "issued": "2026-04-02"
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5201",
+    "incident_id": "INC-7002"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7002",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The same company also has an object storage subscription in Europe that was not affected by this outage.",
+     "kind": "distractor"
+    },
+    {
+     "text": "They are planning to move a reporting database to the provider next quarter.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year they had a disagreement about an invoice that was later fixed.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A new colleague named Tomas started on the platform team this month.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, an impatient infrastructure manager at a logistics firm who thinks outages deserve compensation every time.",
+   "reason_for_call": "His company's Kubernetes cluster was down for four hours and he wants a credit again.",
+   "task_instructions": "State the request and both numbers right away. If refused, argue that the outage was serious and ask for an exception at least twice before accepting. Mention the other details naturally while talking.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3301",
+      "company_name": "Harborline Freight",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5301",
+      "account_id": "A-3301",
+      "billing_email": "finance@harborline.example",
+      "service_name": "Object Storage",
+      "region": "us-east",
+      "plan_code": "STD",
+      "monthly_fee": 60.0,
+      "last_credit_date": null
+     },
+     {
+      "subscription_id": "S-5302",
+      "account_id": "A-3301",
+      "billing_email": "finance@harborline.example",
+      "service_name": "Load Balancer",
+      "region": "us-east",
+      "plan_code": "PRM",
+      "monthly_fee": 90.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7003",
+      "service_name": "Object Storage",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-05-14",
+      "downtime_minutes": 40
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5301",
+    "incident_id": "INC-7003"
+   },
+   "customer_facts": [
+    {
+     "fact": "sub.billing_email",
+     "value": "finance@harborline.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7003",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.service_name",
+     "value": "Object Storage",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dev, a bookkeeper who dislikes long chats and does not keep subscription numbers.",
+   "reason_for_call": "He wants a credit for a storage outage but does not know the subscription number.",
+   "task_instructions": "Keep answers very short. Give the billing email and the incident number. Say which service only when asked. Accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3401",
+      "company_name": "Pinecrest Analytics",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 10.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5401",
+      "account_id": "A-3401",
+      "billing_email": "admin@pinecrest.example",
+      "service_name": "Compute Instances",
+      "region": "us-east",
+      "plan_code": "STD",
+      "monthly_fee": 90.0,
+      "last_credit_date": null
+     },
+     {
+      "subscription_id": "S-5402",
+      "account_id": "A-3401",
+      "billing_email": "admin@pinecrest.example",
+      "service_name": "VPN Gateway",
+      "region": "us-east",
+      "plan_code": "STD",
+      "monthly_fee": 40.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7004",
+      "service_name": "Compute Instances",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-05-17",
+      "downtime_minutes": 216
+     },
+     {
+      "incident_id": "INC-7005",
+      "service_name": "VPN Gateway",
+      "region": "us-east",
+      "status": "confirmed",
+      "ended_on": "2026-05-16",
+      "downtime_minutes": 100
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5401",
+    "incident_id": "INC-7004"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5401",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7004",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "subscription_id": "S-5402",
+    "incident_id": "INC-7005"
+   },
+   "persona": "Elena, a data engineer who is a bit scattered and checks her notes while talking.",
+   "reason_for_call": "She wants a credit for an outage but first mixes up which of her services she meant.",
+   "task_instructions": "First ask for a credit for your VPN gateway outage. Before anything is done, say you actually meant the compute instances outage and ask for that one instead. Give the subscription number only when asked.",
+   "expected_outcome": "issue_credit"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3501",
+      "company_name": "Solstice Games",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5501",
+      "account_id": "A-3501",
+      "billing_email": "billing@solstice.example",
+      "service_name": "Compute Instances",
+      "region": "ap-south",
+      "plan_code": "PRM",
+      "monthly_fee": 250.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7006",
+      "service_name": "Compute Instances",
+      "region": "ap-south",
+      "status": "confirmed",
+      "ended_on": "2026-05-11",
+      "downtime_minutes": 216
+     },
+     {
+      "incident_id": "INC-7007",
+      "service_name": "Compute Instances",
+      "region": "ap-south",
+      "status": "confirmed",
+      "ended_on": "2026-05-18",
+      "downtime_minutes": 20
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5501",
+    "incident_id": "INC-7006"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inc.downtime_minutes",
+     "value": 360,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "incident_id": "INC-7007"
+   },
+   "persona": "Jonas, a game studio sysadmin who negotiates hard and remembers outages as longer than they were.",
+   "reason_for_call": "His servers had outages recently and he wants compensation.",
+   "task_instructions": "First ask for credit for the most recent short outage and say it felt long. If refused, ask instead about the earlier outage and say you believe it lasted about six hours. Accept whatever the agent computes from the system.",
+   "expected_outcome": "issue_credit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3601",
+      "company_name": "Vantage Retail Group",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 120.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5601",
+      "account_id": "A-3601",
+      "billing_email": "cloud@vantage.example",
+      "service_name": "Compute Instances",
+      "region": "us-west",
+      "plan_code": "PRM",
+      "monthly_fee": 800.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7010",
+      "service_name": "Compute Instances",
+      "region": "us-west",
+      "status": "confirmed",
+      "ended_on": "2026-05-13",
+      "downtime_minutes": 1080
+     },
+     {
+      "incident_id": "INC-7011",
+      "service_name": "Load Balancer",
+      "region": "us-west",
+      "status": "confirmed",
+      "ended_on": "2026-05-14",
+      "downtime_minutes": 300
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5601",
+    "incident_id": "INC-7010"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5601",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7010",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "incident_id": "INC-7011"
+   },
+   "persona": "Sandra, a retail IT director who is direct and negotiates every point.",
+   "reason_for_call": "Her company's online store lost servers for most of a day and she wants a credit.",
+   "task_instructions": "First ask for credit for the load balancer incident from your notice. If refused, say the real problem was the compute instances outage and ask for that incident instead. Give all numbers right away.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3701",
+      "company_name": "Redwood Clinics",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5701",
+      "account_id": "A-3701",
+      "billing_email": "it@redwood.example",
+      "service_name": "Managed Database",
+      "region": "eu-central",
+      "plan_code": "STD",
+      "monthly_fee": 150.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7012",
+      "service_name": "Managed Database",
+      "region": "eu-central",
+      "status": "confirmed",
+      "ended_on": "2026-04-12",
+      "downtime_minutes": 300
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5701",
+    "incident_id": "INC-7012"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5701",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inc.ended_on",
+     "value": "2026-05-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gerald, an office manager at a clinic network, impatient and sure of his dates.",
+   "reason_for_call": "He wants a credit for a database outage that he says ended on the first of May.",
+   "task_instructions": "State the request, the numbers and that the outage ended on May 1. If refused, argue that you are within the time limit and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3801",
+      "company_name": "Lumen Photography",
+      "status": "active",
+      "past_due": 0,
+      "credit_balance": 5.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-5801",
+      "account_id": "A-3801",
+      "billing_email": "hello@lumenphoto.example",
+      "service_name": "Object Storage",
+      "region": "us-west",
+      "plan_code": "STD",
+      "monthly_fee": 100.0,
+      "last_credit_date": null
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-7020",
+      "service_name": "Object Storage",
+      "region": "us-west",
+      "status": "confirmed",
+      "ended_on": "2026-05-10",
+      "downtime_minutes": 2000
+     },
+     {
+      "incident_id": "INC-7021",
+      "service_name": "Object Storage",
+      "region": "us-west",
+      "status": "confirmed",
+      "ended_on": "2026-05-01",
+      "downtime_minutes": 90
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-5801",
+    "incident_id": "INC-7020"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-5801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-7020",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inc.status",
+     "value": "confirmed",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The provider's status page lists the storage outage as confirmed and says it lasted over thirty hours.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The account is fully paid up with no overdue invoices.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "incident_id": "INC-7021"
+   },
+   "persona": "Mira, a freelance photographer who keeps her archive online. Friendly but a little disorganized.",
+   "reason_for_call": "She lost access to her photo storage for a long stretch and wants a credit.",
+   "task_instructions": "Start by asking for credit for the earlier, shorter storage incident. Before anything is done, say you meant the longer outage and ask for that one. Give all details upfront and mention the status page and paid-up account.",
+   "expected_outcome": "issue_credit"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

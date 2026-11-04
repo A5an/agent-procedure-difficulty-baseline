@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The description gives only a rough arrow chain; it does not say which tools to call for each step (benefit/eligibility lookup vs. knowledge-base search, deposit listing, rate lookup, balance fetch) or their order.",
+  "Which product the 'senior benefit' applies to is unspecified: a senior-citizen FD rate premium, or another scheme. The age threshold and the customer's DOB or age source are not stated, so the ineligibility check depends on KB content and customer profile data.",
+  "'Standard rate' is ambiguous: the policy does not say whether it means the regular FD rate for a particular tenure, for the customer's existing FD, or for a new FD. Tenure, amount and compounding details are unspecified.",
+  "'FD -> balance' is unclear: it could be the balance of an existing FD, the savings account balance needed to fund a new FD, or both. The policy does not say which one the customer wants.",
+  "The final action is unspecified: informational only, opening a new FD (no open-deposit step or confirmation rule is in the policy), or something else. It is unclear whether a mutation is expected at all.",
+  "The policy lists no tool for creating an FD and does not say whether the customer must confirm before opening one.",
+  "Customer behavior is unknown: whether they push back on the ineligibility, ask for an exception, change their mind, or supply an unlinked ID.",
+  "Edge cases are unspecified: borderline age (e.g., turning 60 soon, relative to the 2026-07-16 simulation date), multiple FDs or accounts, weak KB hits needing re-search, and whether to escalate or raise a service request if the customer insists on the benefit.",
+  "Bank-specific conventions are missing: rate display format, rounding, currency formatting, how to word the ineligibility, and whether to proactively offer alternatives such as the standard rate."
+ ]
+}

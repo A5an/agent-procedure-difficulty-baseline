@@ -1,0 +1,765 @@
+{
+ "procedure_id": "h07_school",
+ "domain": "school district transport",
+ "organization": "Cedar Valley Unified School District, Transportation Office",
+ "title": "Mid-term bus pass cancellation with prorated refund",
+ "summary": "Cancel an active school bus pass from a chosen date and refund the unused part of the fare, minus a processing fee, when the pass, student and route qualify.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Students registered for district transport",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "guardian_email": "str",
+    "account_hold": "bool"
+   }
+  },
+  "route": {
+   "key": "route_id",
+   "description": "Bus routes operated by the district",
+   "fields": {
+    "route_id": "str",
+    "name": "str",
+    "service_type": "enum:regular|special_education",
+    "capacity": "int",
+    "seats_taken": "int"
+   }
+  },
+  "bus_pass": {
+   "key": "pass_id",
+   "description": "Bus passes bought for a student for a term",
+   "fields": {
+    "pass_id": "str",
+    "student_id": "ref:student",
+    "route_id": "ref:route",
+    "fare_type": "enum:paid|free",
+    "daily_rate": "number",
+    "term_end": "date",
+    "status": "enum:active|cancelled",
+    "cancelled_on": "date"
+   }
+  },
+  "refund": {
+   "key": "refund_id",
+   "description": "Refunds issued for cancelled passes",
+   "fields": {
+    "refund_id": "str",
+    "pass_id": "ref:bus_pass",
+    "amount": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student number."
+  },
+  {
+   "name": "find_students_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "guardian_email"
+   ],
+   "description": "Find students by the guardian email address on file."
+  },
+  {
+   "name": "get_bus_pass",
+   "kind": "get",
+   "entity": "bus_pass",
+   "description": "Look up a bus pass by pass number."
+  },
+  {
+   "name": "find_passes_by_student",
+   "kind": "search",
+   "entity": "bus_pass",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all bus passes of a student."
+  },
+  {
+   "name": "get_route",
+   "kind": "get",
+   "entity": "route",
+   "description": "Look up a bus route by route number."
+  },
+  {
+   "name": "create_refund",
+   "kind": "create",
+   "entity": "refund",
+   "args": {
+    "pass_id": {
+     "type": "ref:bus_pass",
+     "description": "The pass being refunded."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Refund amount in dollars, rounded to 2 decimals."
+    }
+   },
+   "fields": {
+    "pass_id": "args.pass_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a refund for a bus pass."
+  },
+  {
+   "name": "cancel_pass",
+   "kind": "update",
+   "entity": "bus_pass",
+   "args": {
+    "pass_id": {
+     "type": "ref:bus_pass",
+     "description": "The pass to cancel."
+    },
+    "cancel_date": {
+     "type": "date",
+     "description": "The date the cancellation takes effect."
+    }
+   },
+   "set": {
+    "status": "'cancelled'",
+    "cancelled_on": "args.cancel_date"
+   },
+   "description": "Mark a bus pass as cancelled effective on a date."
+  },
+  {
+   "name": "release_seat",
+   "kind": "update",
+   "entity": "route",
+   "args": {
+    "route_id": {
+     "type": "ref:route",
+     "description": "The route whose seat is released."
+    }
+   },
+   "set": {
+    "seats_taken": "rec.seats_taken - 1"
+   },
+   "description": "Free one seat on a route."
+  }
+ ],
+ "request": {
+  "pass_id": {
+   "type": "ref:bus_pass",
+   "description": "the bus pass you want cancelled"
+  },
+  "cancel_date": {
+   "type": "date",
+   "description": "the date from which you want the pass to stop"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "bp",
+   "entity": "bus_pass",
+   "key": "req.pass_id"
+  },
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "bp.student_id"
+  },
+  {
+   "name": "route",
+   "entity": "route",
+   "key": "bp.route_id"
+  }
+ ],
+ "outcomes": {
+  "refund": {
+   "kind": "perform",
+   "description": "Refund the unused fare, cancel the pass and release the seat.",
+   "calls": [
+    {
+     "tool": "create_refund",
+     "args": {
+      "pass_id": "req.pass_id",
+      "amount": "round(days_between(req.cancel_date, bp.term_end) * bp.daily_rate - 5, 2)"
+     }
+    },
+    {
+     "tool": "cancel_pass",
+     "args": {
+      "pass_id": "req.pass_id",
+      "cancel_date": "req.cancel_date"
+     }
+    },
+    {
+     "tool": "release_seat",
+     "args": {
+      "route_id": "bp.route_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not cancel or refund; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "bp.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active passes can be cancelled."
+  },
+  {
+   "id": "R2",
+   "when": "stu.account_hold",
+   "outcome": "refuse",
+   "explain": "Students whose transport account has a balance hold cannot have a pass cancelled or refunded."
+  },
+  {
+   "id": "R3",
+   "when": "route.service_type == 'special_education'",
+   "outcome": "refuse",
+   "explain": "Passes on special-education routes are handled by the Special Education Office, not here."
+  },
+  {
+   "id": "R4",
+   "when": "bp.fare_type == 'free'",
+   "outcome": "refuse",
+   "explain": "Free passes have nothing to refund and are not cancelled through this procedure."
+  },
+  {
+   "id": "R5",
+   "when": "req.cancel_date < today",
+   "outcome": "refuse",
+   "explain": "The cancellation date cannot be in the past."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(today, req.cancel_date) > 30",
+   "outcome": "refuse",
+   "explain": "The cancellation date can be at most 30 days from today."
+  },
+  {
+   "id": "R7",
+   "when": "days_between(req.cancel_date, bp.term_end) < 10",
+   "outcome": "refuse",
+   "explain": "Fewer than 10 days left before the term end means no refund is given."
+  }
+ ],
+ "default_outcome": "refund",
+ "policy_text": "## Who this is for\nGuardians may ask the Transportation Office to cancel a student's bus pass part-way through the term and refund the unused fare. No identity questions are required beyond finding the right pass.\n\n## Finding the pass\nUse the pass number if the guardian has it. Otherwise find the student by the guardian email address on file, list the student's passes, and ask which one is meant if there is more than one. Also ask for the date from which the pass should stop (the cancellation date). Then look up the student and the route the pass belongs to; guardians will not know their details, so check them yourself.\n\n## When a cancellation can be done\nDo not make any change if any of the following applies:\n- The pass is not active (already cancelled).\n- The student's transport account has a balance hold.\n- The pass is on a special-education route. The Special Education Office handles those passes.\n- The pass is a free pass (no fare was paid).\n- The cancellation date is earlier than today.\n- The cancellation date is more than 30 days after today.\n- There are fewer than 10 days between the cancellation date and the pass's term end date. Too little is left to refund.\nDo not offer exceptions or a different date on your own; explain the reason briefly.\n\n## How to compute the refund\nRemaining days = the number of calendar days from the cancellation date to the term end date (term end minus cancellation date). Refund = remaining days x the pass's daily rate, minus a flat 5.00 processing fee, rounded to 2 decimals. The fee is never waived.\n\n## What to do when everything is fine\nMake these three changes, in this order:\n1. Create a refund for the pass with the computed amount.\n2. Cancel the pass effective on the cancellation date.\n3. Release one seat on the pass's route.\nThen tell the guardian the refund amount.\n\n## Never\nDo not waive the processing fee, do not backdate, do not change anything the guardian did not ask for, and do not cancel passes of other students.",
+ "db_common": {
+  "route": [
+   {
+    "route_id": "R-12",
+    "name": "Maple Ridge Loop",
+    "service_type": "regular",
+    "capacity": 52,
+    "seats_taken": 41
+   },
+   {
+    "route_id": "R-27",
+    "name": "Eastgate Express",
+    "service_type": "regular",
+    "capacity": 48,
+    "seats_taken": 38
+   },
+   {
+    "route_id": "R-31",
+    "name": "Door-to-Door Special Education",
+    "service_type": "special_education",
+    "capacity": 14,
+    "seats_taken": 12
+   }
+  ],
+  "student": [
+   {
+    "student_id": "S-1000",
+    "full_name": "Walter Lindqvist",
+    "guardian_email": "lindqvist.family@example.org",
+    "account_hold": false
+   }
+  ],
+  "bus_pass": [
+   {
+    "pass_id": "P-4000",
+    "student_id": "S-1000",
+    "route_id": "R-12",
+    "fare_type": "paid",
+    "daily_rate": 2.4,
+    "term_end": "2026-06-26",
+    "status": "active",
+    "cancelled_on": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2001",
+      "full_name": "Marisol Vega",
+      "guardian_email": "m.vega@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4101",
+      "student_id": "S-2001",
+      "route_id": "R-12",
+      "fare_type": "paid",
+      "daily_rate": 2.4,
+      "term_end": "2026-06-30",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4101",
+    "cancel_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bp.term_end",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a hurried mother who works two jobs and expects fast service.",
+   "reason_for_call": "Her daughter will stop taking the bus at the start of June because the family is moving closer to school.",
+   "task_instructions": "Say early that you believe the pass ends around the 5th of June so there is little to refund. Be impatient. When the agent gives the refund amount, object to the 5.00 processing fee and ask for it to be waived at least twice before accepting.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2002",
+      "full_name": "Tomas Brandt",
+      "guardian_email": "brandt.h@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4102",
+      "student_id": "S-2002",
+      "route_id": "R-27",
+      "fare_type": "paid",
+      "daily_rate": 2.1,
+      "term_end": "2026-08-14",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4102",
+    "cancel_date": "2026-07-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-07-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Henrik, a stern father who dislikes bureaucracy.",
+   "reason_for_call": "His son will leave for a summer program in mid-July and he wants the pass cancelled from then with a refund now.",
+   "task_instructions": "State the pass number and the July date in your first message. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2003",
+      "full_name": "Priya Natarajan",
+      "guardian_email": "priya.n@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4103",
+      "student_id": "S-2003",
+      "route_id": "R-27",
+      "fare_type": "paid",
+      "daily_rate": 1.85,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4103",
+    "cancel_date": "2026-05-29"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-05-29",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a quiet guardian who writes in very short messages.",
+   "reason_for_call": "Her son will start getting rides from a relative and no longer needs the bus.",
+   "task_instructions": "Keep every answer to a few words. Give the pass number first. Give the date only when asked.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2004",
+      "full_name": "Noah Okafor",
+      "guardian_email": "okafor.c@example.org",
+      "account_hold": false
+     },
+     {
+      "student_id": "S-2005",
+      "full_name": "Grace Okafor",
+      "guardian_email": "okafor.c@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4104",
+      "student_id": "S-2004",
+      "route_id": "R-12",
+      "fare_type": "paid",
+      "daily_rate": 2.4,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     },
+     {
+      "pass_id": "P-4105",
+      "student_id": "S-2005",
+      "route_id": "R-31",
+      "fare_type": "paid",
+      "daily_rate": 3.1,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4105",
+    "cancel_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her older son just graduated from the middle school's band program last week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The bus was twenty minutes late several times back in March.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was thinking about asking for a different pickup stop next fall but has decided not to.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "pass_id": "P-4104"
+   },
+   "persona": "Chidi's mother Carol, a talkative parent of two children who ride the bus.",
+   "reason_for_call": "She wants to stop one of her children's bus passes early because the family's schedule is changing.",
+   "task_instructions": "First ask to cancel the pass of your son Noah, using his pass number. Before anything is done, say you made a mistake and it is your daughter Grace's pass you want cancelled, and give that pass number. Mention the side stories casually. Accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2006",
+      "full_name": "Deshawn Whitaker",
+      "guardian_email": "whitaker.r@example.org",
+      "account_hold": false
+     },
+     {
+      "student_id": "S-2007",
+      "full_name": "Aaliyah Whitaker",
+      "guardian_email": "whitaker.r@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4106",
+      "student_id": "S-2006",
+      "route_id": "R-27",
+      "fare_type": "paid",
+      "daily_rate": 2.25,
+      "term_end": "2026-08-14",
+      "status": "active",
+      "cancelled_on": null
+     },
+     {
+      "pass_id": "P-4107",
+      "student_id": "S-2007",
+      "route_id": "R-12",
+      "fare_type": "paid",
+      "daily_rate": 2.4,
+      "term_end": "2026-08-14",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4106",
+    "cancel_date": "2026-06-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His daughter's pass on a different route stays as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The family bought a new car last month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once lost a bus pass card and got a replacement two years ago.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "cancel_date": "2026-07-10"
+   },
+   "persona": "Ray, a pragmatic father who bargains for dates.",
+   "reason_for_call": "His son Deshawn will not need the summer-extended bus pass for the whole period and Ray wants a refund for the unused part.",
+   "task_instructions": "First ask for the pass to end on 10 July. If the agent refuses, ask instead for 15 June. Mention the side stories casually. Accept the result.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2008",
+      "full_name": "Elena Rossi",
+      "guardian_email": "elena.rossi.mom@example.org",
+      "account_hold": true
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4108",
+      "student_id": "S-2008",
+      "route_id": "R-12",
+      "fare_type": "paid",
+      "daily_rate": 2.4,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4108",
+    "cancel_date": "2026-06-03"
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.guardian_email",
+     "value": "elena.rossi.mom@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Giulia, a friendly mother who has misplaced the pass paperwork.",
+   "reason_for_call": "Her daughter will stop riding the bus in early June and she would like a refund of the unused fare.",
+   "task_instructions": "You do not remember the pass number. Give your email address and the date 3 June. Answer questions politely and accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2009",
+      "full_name": "Hiroshi Tanaka",
+      "guardian_email": "tanaka.k@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4109",
+      "student_id": "S-2009",
+      "route_id": "R-27",
+      "fare_type": "paid",
+      "daily_rate": 2.0,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4109",
+    "cancel_date": "2026-06-22"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4109",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-22",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kenji, a father who tries to get the best deal.",
+   "reason_for_call": "His son has finished exams early and Kenji wants a refund for the last weeks of the bus pass.",
+   "task_instructions": "Give the pass number and first ask for the pass to be cancelled back-dated to 10 May. After the agent refuses, ask instead for 22 June, but give that date only after the agent asks which date you want. Accept the final decision.",
+   "expected_outcome": "refuse",
+   "initial_request_values": {
+    "cancel_date": "2026-05-10"
+   }
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2010",
+      "full_name": "Fatima Al-Sayed",
+      "guardian_email": "alsayed.n@example.org",
+      "account_hold": false
+     }
+    ],
+    "bus_pass": [
+     {
+      "pass_id": "P-4110",
+      "student_id": "S-2010",
+      "route_id": "R-12",
+      "fare_type": "paid",
+      "daily_rate": 2.6,
+      "term_end": "2026-06-26",
+      "status": "active",
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "P-4110",
+    "cancel_date": "2026-06-08"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "P-4110",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.cancel_date",
+     "value": "2026-06-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bp.fare_type",
+     "value": "paid",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The family paid the full fare by card at the start of the term.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The pass is for the regular neighbourhood route, not the special-education service.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "cancel_date": "2026-06-18"
+   },
+   "persona": "Nadia, an organized mother who likes to explain her situation.",
+   "reason_for_call": "Her daughter's family is moving away in June and she wants the bus pass stopped with a refund.",
+   "task_instructions": "Start by asking for the pass to end on 18 June. Before anything is done, say you made a mistake and the date should be 8 June. Mention the pass number, that the fare was paid, and the other helpful details in your messages.",
+   "expected_outcome": "refund"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

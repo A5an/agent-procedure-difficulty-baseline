@@ -1,0 +1,721 @@
+{
+ "procedure_id": "p05_hotel",
+ "domain": "hotel chain",
+ "organization": "Meridian Stay Hotels",
+ "title": "Points room upgrades",
+ "summary": "Upgrade a confirmed standard room to a deluxe room by redeeming loyalty points when the booking, the guest's points and the hotel's availability allow it.",
+ "entities": {
+  "guest": {
+   "key": "guest_id",
+   "description": "Loyalty program members",
+   "fields": {
+    "guest_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tier": "enum:member|silver|gold|platinum",
+    "points_balance": "int"
+   }
+  },
+  "reservation": {
+   "key": "reservation_id",
+   "description": "Room reservations",
+   "fields": {
+    "reservation_id": "str",
+    "guest_id": "ref:guest",
+    "hotel_city": "str",
+    "room_type": "enum:standard|deluxe",
+    "check_in": "date",
+    "nights": "int",
+    "status": "enum:confirmed|cancelled|checked_in",
+    "upgrade_inventory_id": "ref:room_inventory"
+   }
+  },
+  "room_inventory": {
+   "key": "inventory_id",
+   "description": "Deluxe room availability pools per hotel",
+   "fields": {
+    "inventory_id": "str",
+    "hotel_city": "str",
+    "rooms_available": "int"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_guest",
+   "kind": "get",
+   "entity": "guest",
+   "description": "Look up a loyalty member by guest id."
+  },
+  {
+   "name": "find_guest_by_email",
+   "kind": "search",
+   "entity": "guest",
+   "by": [
+    "email"
+   ],
+   "description": "Find loyalty members by the email address on file."
+  },
+  {
+   "name": "get_reservation",
+   "kind": "get",
+   "entity": "reservation",
+   "description": "Look up a reservation by reservation number."
+  },
+  {
+   "name": "find_reservations_by_guest",
+   "kind": "search",
+   "entity": "reservation",
+   "by": [
+    "guest_id"
+   ],
+   "description": "List all reservations of a loyalty member."
+  },
+  {
+   "name": "get_room_inventory",
+   "kind": "get",
+   "entity": "room_inventory",
+   "description": "Look up the deluxe room availability pool by inventory id."
+  },
+  {
+   "name": "set_room_type",
+   "kind": "update",
+   "entity": "reservation",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation to change."
+    },
+    "room_type": {
+     "type": "enum:standard|deluxe",
+     "description": "The new room type."
+    }
+   },
+   "set": {
+    "room_type": "args.room_type"
+   },
+   "description": "Change the room type of a reservation."
+  },
+  {
+   "name": "deduct_points",
+   "kind": "update",
+   "entity": "guest",
+   "args": {
+    "guest_id": {
+     "type": "ref:guest",
+     "description": "The member whose points are redeemed."
+    },
+    "points": {
+     "type": "int",
+     "description": "Number of points to deduct."
+    }
+   },
+   "set": {
+    "points_balance": "rec.points_balance - args.points"
+   },
+   "description": "Deduct loyalty points from a member's balance."
+  },
+  {
+   "name": "reduce_inventory",
+   "kind": "update",
+   "entity": "room_inventory",
+   "args": {
+    "inventory_id": {
+     "type": "ref:room_inventory",
+     "description": "The availability pool to reduce."
+    }
+   },
+   "set": {
+    "rooms_available": "rec.rooms_available - 1"
+   },
+   "description": "Take one deluxe room out of the hotel's available pool."
+  }
+ ],
+ "request": {
+  "reservation_id": {
+   "type": "ref:reservation",
+   "description": "the reservation you want upgraded to a deluxe room"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "res",
+   "entity": "reservation",
+   "key": "req.reservation_id"
+  },
+  {
+   "name": "guest",
+   "entity": "guest",
+   "key": "res.guest_id"
+  },
+  {
+   "name": "inv",
+   "entity": "room_inventory",
+   "key": "res.upgrade_inventory_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Upgrade the room to deluxe, deduct the points and take one deluxe room from availability.",
+   "calls": [
+    {
+     "tool": "set_room_type",
+     "args": {
+      "reservation_id": "req.reservation_id",
+      "room_type": "'deluxe'"
+     }
+    },
+    {
+     "tool": "deduct_points",
+     "args": {
+      "guest_id": "guest.guest_id",
+      "points": "4000 * res.nights"
+     }
+    },
+    {
+     "tool": "reduce_inventory",
+     "args": {
+      "inventory_id": "inv.inventory_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not upgrade; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "res.status != 'confirmed' or res.room_type != 'standard'",
+   "outcome": "refuse",
+   "explain": "Only confirmed reservations currently booked in a standard room can be upgraded."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(today, res.check_in) < 2",
+   "outcome": "refuse",
+   "explain": "Upgrades must be requested at least 2 days before check-in."
+  },
+  {
+   "id": "R3",
+   "when": "guest.points_balance < 4000 * res.nights",
+   "outcome": "refuse",
+   "explain": "The member needs at least 4000 points per night of the stay."
+  },
+  {
+   "id": "R4",
+   "when": "inv.rooms_available < 1",
+   "outcome": "refuse",
+   "explain": "No deluxe room may be available at the hotel."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Who can ask\nLoyalty members can ask by phone or chat to upgrade a reservation from a standard room to a deluxe room using points. Find the reservation and the member it belongs to before changing anything.\n\n## Finding the reservation\nUse the reservation number if the member has it. Otherwise find the member by the email address on file, list their reservations and ask which stay they mean if there is more than one. If you cannot identify the reservation, do not change anything; tell the member what you would need.\n\n## When an upgrade is allowed\n- The reservation must be confirmed and currently booked in a standard room. Cancelled or checked-in reservations, and reservations already in a deluxe room, cannot be upgraded.\n- The request must be made at least 2 days before the check-in date. Check-in tomorrow or today is too late.\n- The upgrade costs 4000 points per night of the stay. The member's points balance must cover the full cost; partial payment is not possible.\n- The hotel must have at least one deluxe room available in its availability pool (rooms_available of 1 or more).\n\nIf all of this is fine, do these three steps in order: change the room type of the reservation to deluxe, deduct 4000 points times the number of nights from the member's balance, and reduce the hotel's deluxe availability by one room. Then confirm to the member.\n\nIf any condition fails, decline and explain the reason clearly.\n\n## Never\nDo not grant upgrades for free or for fewer points, do not make exceptions for the check-in deadline or availability, and do not change anything the member did not ask for. Go by the records, not by what the caller believes their balance or booking is.",
+ "db_common": {
+  "room_inventory": [
+   {
+    "inventory_id": "INV-001",
+    "hotel_city": "Chicago",
+    "rooms_available": 5
+   },
+   {
+    "inventory_id": "INV-002",
+    "hotel_city": "Lisbon",
+    "rooms_available": 3
+   },
+   {
+    "inventory_id": "INV-003",
+    "hotel_city": "Denver",
+    "rooms_available": 0
+   },
+   {
+    "inventory_id": "INV-004",
+    "hotel_city": "Singapore",
+    "rooms_available": 2
+   },
+   {
+    "inventory_id": "INV-005",
+    "hotel_city": "Austin",
+    "rooms_available": 4
+   },
+   {
+    "inventory_id": "INV-006",
+    "hotel_city": "Vienna",
+    "rooms_available": 6
+   },
+   {
+    "inventory_id": "INV-007",
+    "hotel_city": "Boston",
+    "rooms_available": 1
+   },
+   {
+    "inventory_id": "INV-008",
+    "hotel_city": "Seattle",
+    "rooms_available": 2
+   }
+  ],
+  "guest": [
+   {
+    "guest_id": "G-1000",
+    "full_name": "Pat Ellis",
+    "email": "pat.ellis@example.com",
+    "tier": "silver",
+    "points_balance": 15000
+   }
+  ],
+  "reservation": [
+   {
+    "reservation_id": "R-49001",
+    "guest_id": "G-1000",
+    "hotel_city": "Boston",
+    "room_type": "standard",
+    "check_in": "2026-09-01",
+    "nights": 2,
+    "status": "confirmed",
+    "upgrade_inventory_id": "INV-007"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2101",
+      "full_name": "Mira Kowalski",
+      "email": "mira.k@example.com",
+      "tier": "gold",
+      "points_balance": 20000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-51001",
+      "guest_id": "G-2101",
+      "hotel_city": "Chicago",
+      "room_type": "standard",
+      "check_in": "2026-06-10",
+      "nights": 3,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-001"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-51001"
+   },
+   "customer_facts": [
+    {
+     "fact": "guest.email",
+     "value": "mira.k@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.hotel_city",
+     "value": "Chicago",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mira, a consultant who types short messages between meetings.",
+   "reason_for_call": "She has a trip to Chicago booked and wants a nicer room, but she lost the confirmation number.",
+   "task_instructions": "Keep answers very short. Say you want a deluxe upgrade and give your email. Do not know the reservation number. Answer only what is asked.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2102",
+      "full_name": "Tomas Berg",
+      "email": "tomas.berg@example.com",
+      "tier": "platinum",
+      "points_balance": 30000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-52001",
+      "guest_id": "G-2102",
+      "hotel_city": "Lisbon",
+      "room_type": "standard",
+      "check_in": "2026-05-21",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-002"
+     },
+     {
+      "reservation_id": "R-52002",
+      "guest_id": "G-2102",
+      "hotel_city": "Vienna",
+      "room_type": "deluxe",
+      "check_in": "2026-08-01",
+      "nights": 4,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-006"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-52001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-52001",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a later stay in Vienna that he is looking forward to.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He stayed with the chain in Prague two years ago and loved the breakfast.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He may ask the hotel about airport transfers later.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomas, a platinum member and frequent traveler, friendly and chatty.",
+   "reason_for_call": "He arrives in Lisbon tomorrow and decided today he wants a deluxe room for the trip.",
+   "task_instructions": "Give the reservation number for the Lisbon stay and ask for the upgrade. Mention your side stories naturally. Answer clearly and accept the agent's decision politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2103",
+      "full_name": "Yuki Tanaka",
+      "email": "yuki.t@example.com",
+      "tier": "silver",
+      "points_balance": 3500
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-53001",
+      "guest_id": "G-2103",
+      "hotel_city": "Austin",
+      "room_type": "standard",
+      "check_in": "2026-07-04",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-005"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-53001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-53001",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "guest.points_balance",
+     "value": 3500,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yuki, a designer who answers in as few words as possible.",
+   "reason_for_call": "She wants to use her points for a deluxe room on her Austin holiday.",
+   "task_instructions": "Ask for a deluxe upgrade for your Austin holiday but do not volunteer the reservation number; give it only when the agent asks for it. Reply with a few words only. State your points balance only if asked. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2104",
+      "full_name": "Carlos Ruiz",
+      "email": "carlos.ruiz@example.com",
+      "tier": "platinum",
+      "points_balance": 50000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-54001",
+      "guest_id": "G-2104",
+      "hotel_city": "Denver",
+      "room_type": "standard",
+      "check_in": "2026-06-15",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-003"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-54001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-54001",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Carlos, a polite platinum member with plenty of points.",
+   "reason_for_call": "He wants to upgrade his Denver stay to a deluxe room with points.",
+   "task_instructions": "State the reservation number and ask for the deluxe upgrade in your first message. Answer questions politely and accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2105",
+      "full_name": "Hannah Weiss",
+      "email": "hannah.w@example.com",
+      "tier": "gold",
+      "points_balance": 9000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-55001",
+      "guest_id": "G-2105",
+      "hotel_city": "Singapore",
+      "room_type": "standard",
+      "check_in": "2026-07-20",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-004"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-55001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-55001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.room_type",
+     "value": "standard",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.check_in",
+     "value": "2026-07-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The booking is for two nights in Singapore.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The booking confirmation email says the status is confirmed.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hannah, an impatient executive who dislikes delays.",
+   "reason_for_call": "She wants a deluxe room for her Singapore stay and expects it to be quick.",
+   "task_instructions": "Give the reservation number, say it is a standard room with check-in on July 20, and mention it is two nights and confirmed. Push the agent to hurry and complain about waiting, but answer questions.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2106",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "tier": "silver",
+      "points_balance": 16000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-56001",
+      "guest_id": "G-2106",
+      "hotel_city": "Boston",
+      "room_type": "standard",
+      "check_in": "2026-06-25",
+      "nights": 3,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-007"
+     },
+     {
+      "reservation_id": "R-56002",
+      "guest_id": "G-2106",
+      "hotel_city": "Seattle",
+      "room_type": "standard",
+      "check_in": "2026-05-21",
+      "nights": 1,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-008"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-56001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-56001",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She recently changed jobs and travels more now.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She once lost a room key card at a hotel in Seattle.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is curious whether the chain has a hotel in Toronto.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a friendly marketing manager who is a bit indecisive.",
+   "reason_for_call": "She wants a deluxe upgrade on one of her bookings.",
+   "task_instructions": "First ask to upgrade your Seattle stay. Before anything is done, say you actually meant the longer Boston stay and give that reservation number instead. Then proceed normally.",
+   "initial_request_values": {
+    "reservation_id": "R-56002"
+   },
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2109",
+      "full_name": "Dmitri Volkov",
+      "email": "d.volkov@example.com",
+      "tier": "member",
+      "points_balance": 12000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-59001",
+      "guest_id": "G-2109",
+      "hotel_city": "Seattle",
+      "room_type": "standard",
+      "check_in": "2026-07-01",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-008"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-59001"
+   },
+   "customer_facts": [
+    {
+     "fact": "guest.full_name",
+     "value": "Dmitri Volkov",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.hotel_city",
+     "value": "Seattle",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dmitri, a pushy caller on a new phone who has lost his booking emails.",
+   "reason_for_call": "He wants a deluxe upgrade for his Seattle stay but has no confirmation number and does not remember which email he used to join the program.",
+   "task_instructions": "Give your name and say the hotel is in Seattle. You do not have the reservation number and cannot say which email is on file. Insist the agent just find it by your name and ask for help at least twice, then accept.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "guest": [
+     {
+      "guest_id": "G-2108",
+      "full_name": "Samuel Okoye",
+      "email": "s.okoye@example.com",
+      "tier": "platinum",
+      "points_balance": 13000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-58001",
+      "guest_id": "G-2108",
+      "hotel_city": "Vienna",
+      "room_type": "standard",
+      "check_in": "2026-09-12",
+      "nights": 3,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-006"
+     },
+     {
+      "reservation_id": "R-58002",
+      "guest_id": "G-2108",
+      "hotel_city": "Chicago",
+      "room_type": "deluxe",
+      "check_in": "2026-08-02",
+      "nights": 2,
+      "status": "confirmed",
+      "upgrade_inventory_id": "INV-001"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-58001"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-58001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "guest.points_balance",
+     "value": 20000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a platinum member who thinks he has more points than he does.",
+   "reason_for_call": "He wants to spend points on a deluxe room and is unsure which of his bookings to use it on.",
+   "task_instructions": "First ask to upgrade your Chicago booking. Then change your mind and ask for the Vienna booking instead, giving its reservation number. Say you believe you have about 20000 points. Go by what the agent tells you.",
+   "initial_request_values": {
+    "reservation_id": "R-58002"
+   },
+   "expected_outcome": "upgrade"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

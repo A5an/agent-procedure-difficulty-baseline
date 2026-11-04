@@ -1,0 +1,309 @@
+{
+ "g38": {
+  "n_seeded_eps": 120,
+  "seeded_fail_mean": 0.3416666666666666,
+  "real_fail_mean": 0.4416666666666667,
+  "doc_fail_mean": 0.30833333333333335,
+  "rho_seeded (primary)": [
+   0.6974469435884654,
+   0.3984506803674129,
+   0.8703951651645141
+  ],
+  "rho_doc": [
+   0.21893500336755448,
+   -0.3288899483069001,
+   0.6804224980429127
+  ],
+  "seeded_minus_doc": [
+   0.4785119402209109,
+   0.017750839808365084,
+   0.9843941889337766
+  ],
+  "rho_seeded_graded": [
+   0.6401578676962091,
+   0.2997918865751548,
+   0.8627185318771476
+  ],
+  "rho_mf_seeded": [
+   0.6529240692512174,
+   0.29474336157920783,
+   0.8677475237571474
+  ],
+  "level: mean |seeded rate - real rate|": 0.19999999999999998
+ },
+ "flash": {
+  "n_seeded_eps": 120,
+  "seeded_fail_mean": 0.2916666666666667,
+  "real_fail_mean": 0.3916666666666667,
+  "doc_fail_mean": 0.4583333333333333,
+  "rho_seeded (primary)": [
+   0.8028143610061836,
+   0.5380651964106689,
+   0.9277016218564739
+  ],
+  "rho_doc": [
+   0.6373541222409358,
+   0.3479670422732193,
+   0.8173999679164079
+  ],
+  "seeded_minus_doc": [
+   0.16546023876524785,
+   -0.12851515630440077,
+   0.46254478903532453
+  ],
+  "rho_seeded_graded": [
+   0.7901318878063689,
+   0.5545885427116171,
+   0.9149977026258078
+  ],
+  "rho_mf_seeded": [
+   0.7900078184341095,
+   0.49033515256179344,
+   0.9447344360243187
+  ],
+  "level: mean |seeded rate - real rate|": 0.14999999999999997
+ },
+ "per_family": {
+  "edgaineligible": {
+   "g38": {
+    "real": 1,
+    "doc": 1,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 1,
+    "doc": 3,
+    "seeded": 2
+   }
+  },
+  "edgamandwrong": {
+   "g38": {
+    "real": 0,
+    "doc": 0,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 0,
+    "doc": 1,
+    "seeded": 0
+   }
+  },
+  "edgbcarddisamb": {
+   "g38": {
+    "real": 6,
+    "doc": 4,
+    "seeded": 6
+   },
+   "flash": {
+    "real": 6,
+    "doc": 4,
+    "seeded": 6
+   }
+  },
+  "edgbmatelig": {
+   "g38": {
+    "real": 0,
+    "doc": 1,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 2,
+    "doc": 4,
+    "seeded": 1
+   }
+  },
+  "edgbmindchange": {
+   "g38": {
+    "real": 1,
+    "doc": 1,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 0,
+    "doc": 3,
+    "seeded": 0
+   }
+  },
+  "edgbstmtwin": {
+   "g38": {
+    "real": 6,
+    "doc": 0,
+    "seeded": 3
+   },
+   "flash": {
+    "real": 4,
+    "doc": 3,
+    "seeded": 4
+   }
+  },
+  "hpgold": {
+   "g38": {
+    "real": 2,
+    "doc": 1,
+    "seeded": 2
+   },
+   "flash": {
+    "real": 0,
+    "doc": 1,
+    "seeded": 0
+   }
+  },
+  "hpservice": {
+   "g38": {
+    "real": 3,
+    "doc": 0,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 1,
+    "doc": 0,
+    "seeded": 0
+   }
+  },
+  "sq2fdladder": {
+   "g38": {
+    "real": 2,
+    "doc": 4,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 1,
+    "doc": 4,
+    "seeded": 0
+   }
+  },
+  "sq2gold": {
+   "g38": {
+    "real": 5,
+    "doc": 5,
+    "seeded": 4
+   },
+   "flash": {
+    "real": 6,
+    "doc": 5,
+    "seeded": 6
+   }
+  },
+  "sq2insur": {
+   "g38": {
+    "real": 5,
+    "doc": 1,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 3,
+    "doc": 4,
+    "seeded": 1
+   }
+  },
+  "sq2mandaudit": {
+   "g38": {
+    "real": 0,
+    "doc": 0,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 0,
+    "doc": 0,
+    "seeded": 0
+   }
+  },
+  "sq2rdsize": {
+   "g38": {
+    "real": 1,
+    "doc": 3,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 1,
+    "doc": 5,
+    "seeded": 1
+   }
+  },
+  "sqclose": {
+   "g38": {
+    "real": 0,
+    "doc": 4,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 6,
+    "doc": 4,
+    "seeded": 4
+   }
+  },
+  "sqfd": {
+   "g38": {
+    "real": 3,
+    "doc": 2,
+    "seeded": 1
+   },
+   "flash": {
+    "real": 0,
+    "doc": 2,
+    "seeded": 0
+   }
+  },
+  "sqreloc": {
+   "g38": {
+    "real": 3,
+    "doc": 3,
+    "seeded": 4
+   },
+   "flash": {
+    "real": 4,
+    "doc": 2,
+    "seeded": 6
+   }
+  },
+  "sqrenew": {
+   "g38": {
+    "real": 2,
+    "doc": 1,
+    "seeded": 0
+   },
+   "flash": {
+    "real": 1,
+    "doc": 0,
+    "seeded": 1
+   }
+  },
+  "tlacctdet": {
+   "g38": {
+    "real": 2,
+    "doc": 0,
+    "seeded": 5
+   },
+   "flash": {
+    "real": 1,
+    "doc": 0,
+    "seeded": 0
+   }
+  },
+  "tlprodoff": {
+   "g38": {
+    "real": 6,
+    "doc": 6,
+    "seeded": 5
+   },
+   "flash": {
+    "real": 6,
+    "doc": 5,
+    "seeded": 3
+   }
+  },
+  "tlreqstat": {
+   "g38": {
+    "real": 5,
+    "doc": 0,
+    "seeded": 6
+   },
+   "flash": {
+    "real": 4,
+    "doc": 5,
+    "seeded": 0
+   }
+  }
+ },
+ "spend_exp3": 9.509
+}

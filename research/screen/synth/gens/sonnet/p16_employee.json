@@ -1,0 +1,671 @@
+{
+ "procedure_id": "p16_employee",
+ "domain": "employee HR self-service",
+ "organization": "Northgate Logistics Group",
+ "title": "Paid time off requests",
+ "summary": "Submit a paid time off request for an employee when the employee, balance, length, notice and department calendar allow it.",
+ "entities": {
+  "department": {
+   "key": "department_id",
+   "description": "Departments and their leave blackout periods",
+   "fields": {
+    "department_id": "str",
+    "name": "str",
+    "blackout_start": "date",
+    "blackout_end": "date"
+   }
+  },
+  "employee": {
+   "key": "employee_id",
+   "description": "Employees",
+   "fields": {
+    "employee_id": "str",
+    "full_name": "str",
+    "work_email": "str",
+    "birth_date": "date",
+    "status": "enum:active|on_leave|terminated",
+    "department_id": "ref:department",
+    "pto_balance": "number"
+   }
+  },
+  "pto_request": {
+   "key": "request_id",
+   "description": "Submitted paid time off requests",
+   "fields": {
+    "request_id": "str",
+    "employee_id": "ref:employee",
+    "start_date": "date",
+    "days": "int",
+    "status": "enum:pending|approved",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_employee",
+   "kind": "get",
+   "entity": "employee",
+   "description": "Look up an employee by employee number."
+  },
+  {
+   "name": "find_employee_by_email",
+   "kind": "search",
+   "entity": "employee",
+   "by": [
+    "work_email"
+   ],
+   "description": "Find employees by the work email address on file."
+  },
+  {
+   "name": "get_department",
+   "kind": "get",
+   "entity": "department",
+   "description": "Look up a department by its department number, including its leave blackout period."
+  },
+  {
+   "name": "create_pto_request",
+   "kind": "create",
+   "entity": "pto_request",
+   "args": {
+    "employee_id": {
+     "type": "ref:employee",
+     "description": "The employee taking time off."
+    },
+    "start_date": {
+     "type": "date",
+     "description": "First day of the time off."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of working days requested."
+    }
+   },
+   "fields": {
+    "employee_id": "args.employee_id",
+    "start_date": "args.start_date",
+    "days": "args.days",
+    "status": "'pending'",
+    "created": "today"
+   },
+   "description": "Submit a pending paid time off request for an employee."
+  }
+ ],
+ "request": {
+  "employee_id": {
+   "type": "ref:employee",
+   "description": "your employee number"
+  },
+  "start_date": {
+   "type": "date",
+   "description": "the first day you want to be off"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many working days of paid time off you want"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "emp",
+   "entity": "employee",
+   "key": "req.employee_id"
+  },
+  {
+   "name": "dept",
+   "entity": "department",
+   "key": "emp.department_id"
+  }
+ ],
+ "outcomes": {
+  "submit": {
+   "kind": "perform",
+   "description": "Submit the paid time off request as asked.",
+   "calls": [
+    {
+     "tool": "create_pto_request",
+     "args": {
+      "employee_id": "req.employee_id",
+      "start_date": "req.start_date",
+      "days": "req.days"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not submit the request; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != emp.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "emp.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active employees can request paid time off here."
+  },
+  {
+   "id": "R3",
+   "when": "req.days > emp.pto_balance",
+   "outcome": "refuse",
+   "explain": "The request cannot exceed the available PTO balance."
+  },
+  {
+   "id": "R4",
+   "when": "req.days > 10 or days_between(today, req.start_date) < 2",
+   "outcome": "refuse",
+   "explain": "A request is at most 10 working days and must start at least 2 days from today."
+  },
+  {
+   "id": "R5",
+   "when": "req.start_date >= dept.blackout_start and req.start_date <= dept.blackout_end",
+   "outcome": "refuse",
+   "explain": "The start date may not fall inside the department's blackout period."
+  }
+ ],
+ "default_outcome": "submit",
+ "policy_text": "## Who can ask\nEmployees can request paid time off (PTO) through HR self-service. Before changing anything, find the employee record and confirm identity: the date of birth the caller gives must match the one on file. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the employee\nUse the employee number if the caller has it. Otherwise find the employee by the work email address on file. If the caller can give neither, you cannot identify them and cannot proceed. Do not guess from names alone.\n\n## When a request can be submitted\n- The employee's status must be active. Employees on leave or terminated cannot submit PTO requests.\n- The days requested may not exceed the employee's current PTO balance.\n- A single request is at most 10 working days, and the start date must be at least 2 days after today (a start date exactly 2 days from today is acceptable). Requests that break these limits are declined, not shortened or moved.\n- The start date may not fall inside the employee's department blackout period (the start and end dates of the blackout are included). Check the department record; go by the database, not by what the caller believes about blackout dates or balances.\n\nIf all of this is satisfied, submit the PTO request with the employee number, the start date and the number of days the employee asked for. It is created as pending for the manager.\n\n## Never\nDo not override the balance, the blackout period or the notice rule for anyone, do not submit a request for a caller who failed the identity check, and do not change anything the employee did not ask for. Explain clearly why when you must decline.",
+ "db_common": {
+  "department": [
+   {
+    "department_id": "D-10",
+    "name": "Finance",
+    "blackout_start": "2026-06-25",
+    "blackout_end": "2026-07-06"
+   },
+   {
+    "department_id": "D-20",
+    "name": "Engineering",
+    "blackout_start": "2026-12-14",
+    "blackout_end": "2026-12-31"
+   },
+   {
+    "department_id": "D-30",
+    "name": "Customer Support",
+    "blackout_start": "2026-11-20",
+    "blackout_end": "2026-11-30"
+   }
+  ],
+  "employee": [
+   {
+    "employee_id": "E-1001",
+    "full_name": "Elena Fischer",
+    "work_email": "elena.fischer@northgate.example",
+    "birth_date": "1979-01-22",
+    "status": "active",
+    "department_id": "D-30",
+    "pto_balance": 9.0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-1042",
+      "full_name": "Priya Nair",
+      "work_email": "priya.nair@northgate.example",
+      "birth_date": "1988-03-14",
+      "status": "active",
+      "department_id": "D-10",
+      "pto_balance": 12.5
+     },
+     {
+      "employee_id": "E-1043",
+      "full_name": "Rahul Nair",
+      "work_email": "rahul.nair@northgate.example",
+      "birth_date": "1986-08-02",
+      "status": "active",
+      "department_id": "D-20",
+      "pto_balance": 3.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-1042",
+    "start_date": "2026-06-08",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-1042",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her husband Rahul also works at the company in a different department.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a payslip question last month that was already fixed.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She took a week off last December for a family wedding.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, an accountant who is efficient and writes in very short sentences.",
+   "reason_for_call": "She wants three days off in early June for a family event.",
+   "task_instructions": "Keep answers very short and give only what is asked. Give your employee number, the start date and the number of days in your first message. Give your date of birth only when asked. Mention the extra side stories only briefly if they come up naturally.",
+   "expected_outcome": "submit"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-2210",
+      "full_name": "Marcus Webb",
+      "work_email": "marcus.webb@northgate.example",
+      "birth_date": "1992-09-30",
+      "status": "active",
+      "department_id": "D-20",
+      "pto_balance": 8.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-2210",
+    "start_date": "2026-06-16",
+    "days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-2210",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-16",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-09-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "dept.blackout_start",
+     "value": "2026-06-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a software engineer in a hurry who is sure his team has a freeze coming up.",
+   "reason_for_call": "He wants four days off starting mid-June, but believes his team's blackout period starts on June 15.",
+   "task_instructions": "Say up front that you think your department's blackout starts around June 15 and that you probably need the days anyway. Be impatient and press the agent to just get it done. If the agent says the system shows no blackout then, accept it and let them submit.",
+   "expected_outcome": "submit"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-3305",
+      "full_name": "Sofia Reyes",
+      "work_email": "sofia.reyes@northgate.example",
+      "birth_date": "1990-05-17",
+      "status": "active",
+      "department_id": "D-10",
+      "pto_balance": 2.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-3305",
+    "start_date": "2026-07-13",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-3305",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-07-13",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-05-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a friendly finance analyst who is organized and polite.",
+   "reason_for_call": "She wants a five-day vacation in mid-July.",
+   "task_instructions": "State your employee number, start date, number of days and date of birth in the first message. Answer questions politely. If the request is declined, accept it and thank the agent.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-4418",
+      "full_name": "Tomasz Kowalski",
+      "work_email": "tomasz.kowalski@northgate.example",
+      "birth_date": "1983-11-09",
+      "status": "on_leave",
+      "department_id": "D-30",
+      "pto_balance": 10.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-4418",
+    "start_date": "2026-06-10",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "emp.work_email",
+     "value": "tomasz.kowalski@northgate.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-11-09",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a support agent currently on extended medical leave who does not remember his employee number.",
+   "reason_for_call": "He wants to book three days off in June.",
+   "task_instructions": "Keep answers very short. You do not know your employee number, but you can give your work email. Give your date of birth only if asked. If declined, accept it briefly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-5521",
+      "full_name": "Hannah Berg",
+      "work_email": "hannah.berg@northgate.example",
+      "birth_date": "1985-12-01",
+      "status": "active",
+      "department_id": "D-20",
+      "pto_balance": 14.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-5521",
+    "start_date": "2026-12-15",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-5521",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-12-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1985-12-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.pto_balance",
+     "value": 14.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She works in the Engineering department.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She believes she has 14 days of PTO left this year.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "employee_id": "E-5521",
+    "start_date": "2026-08-10",
+    "days": 5
+   },
+   "persona": "Hannah, a backend engineer who plans trips and sometimes changes her mind.",
+   "reason_for_call": "She first asks for five days in August, then decides she would rather take the five days in mid-December for the holidays.",
+   "task_instructions": "First ask for five days starting August 10. Before the agent submits anything, say you changed your mind and want the same five days starting December 15 instead. Give your employee number and date of birth early. Accept the outcome politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-6001",
+      "full_name": "Ines Moreau",
+      "work_email": "ines.moreau@northgate.example",
+      "birth_date": "1995-04-04",
+      "status": "active",
+      "department_id": "D-10",
+      "pto_balance": 11.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-6001",
+    "start_date": "2026-06-12",
+    "days": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "emp.full_name",
+     "value": "Ines Moreau",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-04-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines, a new hire calling from her personal phone with no access to her badge or company email yet.",
+   "reason_for_call": "She wants two days off in June but has her badge and her work email locked out.",
+   "task_instructions": "Give your name, the dates and your date of birth. You do not know your employee number and cannot say your work email address. Be friendly and accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-7714",
+      "full_name": "Aisha Rahman",
+      "work_email": "aisha.rahman@northgate.example",
+      "birth_date": "1991-02-25",
+      "status": "active",
+      "department_id": "D-30",
+      "pto_balance": 6.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-7714",
+    "start_date": "2026-05-22",
+    "days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-7714",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-05-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1991-02-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.pto_balance",
+     "value": 6.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She works in Customer Support, whose busy period is in late November.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She has exactly six PTO days left and wants to use all of them.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Aisha, a support agent who needs urgent time off for a family matter and is impatient.",
+   "reason_for_call": "She needs the next several days off starting this Friday because of a family emergency abroad.",
+   "task_instructions": "Give your employee number, start date, days, date of birth and balance up front. Be impatient and push the agent to hurry. If the agent hesitates about the short notice, insist that two days notice is enough.",
+   "expected_outcome": "submit"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-8830",
+      "full_name": "Daniel Okafor",
+      "work_email": "daniel.okafor@northgate.example",
+      "birth_date": "1987-07-21",
+      "status": "active",
+      "department_id": "D-10",
+      "pto_balance": 10.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-8830",
+    "start_date": "2026-07-07",
+    "days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-8830",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-07-07",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1987-07-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "employee_id": "E-8830",
+    "start_date": "2026-07-07",
+    "days": 15
+   },
+   "persona": "Daniel, a finance manager who is relaxed and a bit indecisive.",
+   "reason_for_call": "He wants time off in early July right after the quarter-end freeze, first thinking of a long break and then reducing it.",
+   "task_instructions": "Start by giving only your employee number and saying you want to take 15 days off in July. Give the start date, the days and your date of birth only when asked. Before anything is submitted, change your mind and say you only want 4 days starting July 7.",
+   "expected_outcome": "submit"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

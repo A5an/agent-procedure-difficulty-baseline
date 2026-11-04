@@ -1,0 +1,741 @@
+{
+ "procedure_id": "h03_business",
+ "domain": "business mobile accounts",
+ "organization": "Northgate Mobile for Business",
+ "title": "Business line plan changes",
+ "summary": "Move one mobile line on a business account to a cheaper plan, with a prorated credit, when the account, line and plans qualify.",
+ "entities": {
+  "business_account": {
+   "key": "account_id",
+   "description": "Business customer accounts that own mobile lines",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "billing_email": "str",
+    "status": "enum:active|past_due|closed"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Catalog of mobile plans sold to businesses",
+   "fields": {
+    "plan_code": "str",
+    "plan_name": "str",
+    "monthly_fee": "number",
+    "status": "enum:available|retired"
+   }
+  },
+  "line": {
+   "key": "line_id",
+   "description": "Mobile lines on business accounts",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:business_account",
+    "phone_number": "str",
+    "plan_code": "ref:plan",
+    "status": "enum:active|suspended|closed",
+    "cycle_end": "date"
+   }
+  },
+  "plan_change": {
+   "key": "change_id",
+   "description": "Record of each earlier plan change made on a line",
+   "fields": {
+    "change_id": "str",
+    "line_id": "ref:line",
+    "changed_on": "date",
+    "to_plan_code": "ref:plan"
+   }
+  },
+  "billing_credit": {
+   "key": "credit_id",
+   "description": "Credits added to a line's bill",
+   "fields": {
+    "credit_id": "str",
+    "line_id": "ref:line",
+    "amount": "number",
+    "reason": "enum:plan_downgrade|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_line",
+   "kind": "get",
+   "entity": "line",
+   "description": "Look up a business mobile line by its line ID."
+  },
+  {
+   "name": "find_line_by_phone",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find mobile lines by the phone number on the line."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "business_account",
+   "description": "Look up a business account by its account ID."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a mobile plan by its plan code."
+  },
+  {
+   "name": "find_plan_changes_by_line",
+   "kind": "search",
+   "entity": "plan_change",
+   "by": [
+    "line_id"
+   ],
+   "description": "List the earlier plan changes recorded on a line."
+  },
+  {
+   "name": "add_billing_credit",
+   "kind": "create",
+   "entity": "billing_credit",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the credit is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The credit in dollars."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "amount": "args.amount",
+    "reason": "'plan_downgrade'",
+    "created": "today"
+   },
+   "description": "Add a plan-downgrade credit to the bill of a line."
+  },
+  {
+   "name": "set_line_plan",
+   "kind": "update",
+   "entity": "line",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line whose plan is changed."
+    },
+    "new_plan": {
+     "type": "ref:plan",
+     "description": "The plan code the line moves to."
+    }
+   },
+   "set": {
+    "plan_code": "args.new_plan"
+   },
+   "description": "Move a line to a different plan code."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:line",
+   "description": "the line you want moved to another plan"
+  },
+  "new_plan": {
+   "type": "ref:plan",
+   "description": "the plan code you want the line moved to"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "business_account",
+   "key": "line.account_id"
+  },
+  {
+   "name": "cur",
+   "entity": "plan",
+   "key": "line.plan_code"
+  },
+  {
+   "name": "target",
+   "entity": "plan",
+   "key": "req.new_plan"
+  }
+ ],
+ "outcomes": {
+  "change": {
+   "kind": "perform",
+   "description": "Add the prorated downgrade credit to the line's bill, then move the line to the cheaper plan.",
+   "calls": [
+    {
+     "tool": "add_billing_credit",
+     "args": {
+      "line_id": "line.line_id",
+      "amount": "round((cur.monthly_fee - target.monthly_fee) * days_between(today, line.cycle_end) / 30, 2)"
+     }
+    },
+    {
+     "tool": "set_line_plan",
+     "args": {
+      "line_id": "line.line_id",
+      "new_plan": "req.new_plan"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change and no credit; explain the reason to the caller.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "line.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active lines can change plans."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "The business account must be active to change a line's plan."
+  },
+  {
+   "id": "R3",
+   "when": "target.status != 'available'",
+   "outcome": "refuse",
+   "explain": "A retired plan cannot be chosen."
+  },
+  {
+   "id": "R4",
+   "when": "req.new_plan == line.plan_code",
+   "outcome": "refuse",
+   "explain": "The line is already on the requested plan."
+  },
+  {
+   "id": "R5",
+   "when": "target.monthly_fee > cur.monthly_fee",
+   "outcome": "refuse",
+   "explain": "Plan changes here only move a line to a plan with a monthly fee not higher than its current plan; higher-priced plans are upgrades and are refused."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('plan_change', 'line_id', req.line_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A line may have at most two plan changes on record."
+  }
+ ],
+ "default_outcome": "change",
+ "policy_text": "## Scope\nBusiness account contacts ask to move one mobile line on their account to a different plan. Each request concerns one line and one target plan. Before making any change, find the line, look at its business account, check the plan it is on now and the plan the caller wants. If the caller has not said which plan they want, ask for it.\n\n## Finding the line\nIf the caller gives a line ID, use it. If they do not, ask for the phone number on the line and find it with find_line_by_phone. Use the line only if the search returns exactly one line. If no line matches, tell the caller you cannot find it and make no change.\n\n## Checks before any change\nThe database is the record. If the caller describes the current plan differently from the account, tell them what the account shows and go by the database.\n\nDo not make any change if any of these apply:\n1. The line is not active (it is suspended or closed).\n2. The business account is not active (it is past due or closed).\n3. The requested plan is retired. Only available plans can be chosen.\n4. The requested plan is the plan the line is already on.\n5. The requested plan has a higher monthly fee than the line's current plan. Plan changes here only move a line to a cheaper or equally priced plan. A higher-priced plan is an upgrade; it goes to the sales team, so decline it here.\n6. The line already has two or more plan changes on record. Use find_plan_changes_by_line to list them; two or more means the change is refused.\n\n## Making the change\nIf none of the checks above apply, make the change in this order:\n\n1. Add a plan-downgrade credit with add_billing_credit. The credit amount is the current plan's monthly fee minus the new plan's monthly fee, multiplied by the number of days from today to the line's cycle end date, divided by 30, and rounded to two decimal places. For example, a fee difference of 30.00 with 9 days left gives a credit of 9.00.\n2. Move the line with set_line_plan to the new plan.\n\nThen tell the caller the new plan, the credit amount, and the cycle end date.\n\n## When a check fails\nMake no change and no credit. Tell the caller which requirement is not met, in plain words. If the caller then asks for a different plan, check that plan from the start.\n\n## Never\nDo not add a credit or change a plan for an upgrade, a retired plan, or a line with two or more plan changes on record. Do not change the cycle end date or any other field. Do not change the credit amount to suit the caller.",
+ "db_common": {
+  "business_account": [
+   {
+    "account_id": "BA-1002",
+    "company_name": "Osei Electrical Contractors",
+    "billing_email": "billing@oseielectric.example",
+    "status": "active"
+   }
+  ],
+  "line": [
+   {
+    "line_id": "LN-10020",
+    "account_id": "BA-1002",
+    "phone_number": "+1 713 555 0199",
+    "plan_code": "BIZ-CORE-20",
+    "status": "active",
+    "cycle_end": "2026-06-20"
+   }
+  ],
+  "plan": [
+   {
+    "plan_code": "BIZ-CORE-20",
+    "plan_name": "Business Core",
+    "monthly_fee": 35.0,
+    "status": "available"
+   },
+   {
+    "plan_code": "BIZ-PRO-40",
+    "plan_name": "Business Pro",
+    "monthly_fee": 55.0,
+    "status": "available"
+   },
+   {
+    "plan_code": "BIZ-UNL-60",
+    "plan_name": "Business Unlimited",
+    "monthly_fee": 80.0,
+    "status": "available"
+   },
+   {
+    "plan_code": "BIZ-LEG-30",
+    "plan_name": "Business Legacy",
+    "monthly_fee": 45.0,
+    "status": "retired"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-3381",
+      "company_name": "Halden Freight Services",
+      "billing_email": "accounts@haldenfreight.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-40217",
+      "account_id": "BA-3381",
+      "phone_number": "+1 415 555 0142",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-04"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-40217",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-40217",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-CORE-20",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-PRO-40",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The company is Halden Freight Services and our office manager is the billing contact.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The phone number on that line ends in 0142.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Our invoice says the line's billing cycle ends on June 4.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, office manager at a small freight company. Efficient and brief.",
+   "reason_for_call": "The dispatch phone is on a plan that costs more than the company needs, and she wants it moved to the cheaper core plan.",
+   "task_instructions": "Be terse. Give your request in one short line, with the line ID and the plan you want. Share the phone number, the company name or the billing date only if the agent asks for them. Do not volunteer anything else.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-3390",
+      "company_name": "Vance Plumbing Supply",
+      "billing_email": "ap@vanceplumbing.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-44071",
+      "account_id": "BA-3390",
+      "phone_number": "+1 303 555 0119",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-05"
+     },
+     {
+      "line_id": "LN-44072",
+      "account_id": "BA-3390",
+      "phone_number": "+1 303 555 0120",
+      "plan_code": "BIZ-UNL-60",
+      "status": "active",
+      "cycle_end": "2026-06-05"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-44071",
+    "new_plan": "BIZ-UNL-60"
+   },
+   "initial_request_values": {
+    "line_id": "LN-44071",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-44071",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-UNL-60",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-PRO-40",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Our van line on the same account is on the Unlimited plan and should stay exactly as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We are moving our warehouse scanners to a new vendor next quarter, so ignore those devices.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The bill last month was high because a crew member used a lot of data in Denver.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomas, operations lead at a plumbing supply company. Watches costs closely but cares about what the crews need.",
+   "reason_for_call": "He first wants the cheaper core plan for the crew phone to save money, then decides the crew needs more data and wants the unlimited plan instead.",
+   "task_instructions": "First ask for the core plan on the crew phone line, giving the line ID and the plan name. As soon as the agent starts to confirm that change, say you have changed your mind and want the unlimited plan on the same line instead. Do not confirm the core change. If the agent says the unlimited plan costs more, accept that and end the call politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-4417",
+      "company_name": "Kestrel Dental Labs",
+      "billing_email": "billing@kestreldental.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-62004",
+      "account_id": "BA-4417",
+      "phone_number": "+1 512 555 0177",
+      "plan_code": "BIZ-UNL-60",
+      "status": "active",
+      "cycle_end": "2026-05-30"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-62004",
+    "new_plan": "BIZ-PRO-40"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-62004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-PRO-40",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-UNL-60",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dr. Ngozi Eze, who runs a dental lab and is in between appointments.",
+   "reason_for_call": "The courier phone is on the top plan and she wants it moved to a cheaper plan before the billing cycle renews.",
+   "task_instructions": "Be impatient. Open with the line ID and say you need the courier phone moved to a cheaper plan, and push the agent to hurry. Do not name the plan you want until the agent asks which plan it should be. Say which plan the line is on only when the agent asks for it. Answer any other question briefly.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-5520",
+      "company_name": "Morrow Landscaping",
+      "billing_email": "office@morrowlandscape.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-51006",
+      "account_id": "BA-5520",
+      "phone_number": "+1 616 555 0134",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-51006",
+    "new_plan": "BIZ-LEG-30"
+   },
+   "initial_request_values": {
+    "line_id": "LN-51006",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-51006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-LEG-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-PRO-40",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hector Morrow, owner of a landscaping company. Friendly and direct.",
+   "reason_for_call": "He first wants the crew phone on the cheapest plan, then switches to the legacy plan after a friend says it keeps the old data allowance.",
+   "task_instructions": "Start by asking for the core plan on your crew phone line and give the line ID. Once the agent starts to confirm, switch to the legacy plan on that same line and say a friend recommended it. Accept a refusal politely and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-6634",
+      "company_name": "Bellweather Accounting",
+      "billing_email": "ops@bellweatheracct.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-55102",
+      "account_id": "BA-6634",
+      "phone_number": "+1 602 555 0190",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-09"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-55102",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "initial_request_values": {
+    "line_id": "LN-55102",
+    "new_plan": "BIZ-LEG-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-55102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-CORE-20",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-UNL-60",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Renee Castillo, controller at an accounting firm. Careful and polite.",
+   "reason_for_call": "She believes the firm's line is on the unlimited plan and wants to drop it to the core plan to save money.",
+   "task_instructions": "Start by asking for the legacy plan on the line, giving the line ID and saying you believe the line is on the unlimited plan. When the agent refuses, ask for the core plan on the same line instead. Keep your belief about the current plan unless the agent shows you what the account says; then accept it.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-7712",
+      "company_name": "Sable Pet Clinics",
+      "billing_email": "admin@sablepet.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-63320",
+      "account_id": "BA-7712",
+      "phone_number": "+1 720 555 0108",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-07"
+     }
+    ],
+    "plan_change": [
+     {
+      "change_id": "PC-9001",
+      "line_id": "LN-63320",
+      "changed_on": "2026-01-14",
+      "to_plan_code": "BIZ-CORE-20"
+     },
+     {
+      "change_id": "PC-9002",
+      "line_id": "LN-63320",
+      "changed_on": "2026-03-02",
+      "to_plan_code": "BIZ-PRO-40"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-63320",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-63320",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-CORE-20",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "line.plan_code",
+     "value": "BIZ-PRO-40",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, practice manager at a pet clinic. Under pressure and used to getting her way.",
+   "reason_for_call": "She wants the front-desk phone moved to the core plan because the clinic is cutting costs this quarter.",
+   "task_instructions": "Start by saying the front-desk phone needs a cheaper plan this quarter, and give the line ID. Do not name the plan you want until the agent asks which plan it should be. Be pushy: if the agent refuses, argue that the clinic needs the change and ask for an exception at least twice before you accept. Say which plan the line is on only when the agent asks. Accept the refusal and end the call after the second argument.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-8081",
+      "company_name": "Juniper Home Health",
+      "billing_email": "contact@juniperhh.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-81290",
+      "account_id": "BA-8081",
+      "phone_number": "+1 206 555 0163",
+      "plan_code": "BIZ-UNL-60",
+      "status": "active",
+      "cycle_end": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-81290",
+    "new_plan": "BIZ-CORE-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "+1 206 555 0163",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-CORE-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Adaeze Brown, scheduling coordinator for a home health agency. Friendly and organized.",
+   "reason_for_call": "A visiting nurse's phone is on the most expensive plan, and she wants it moved to the cheapest plan the agency can still use.",
+   "task_instructions": "You do not know the line ID and do not have it. Start by saying you want the nurse's phone moved to the core plan, and give the phone number on that line. Answer the agent's questions from the facts you know; do not make up a line ID.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-9145",
+      "company_name": "Quill & Pine Bakery",
+      "billing_email": "hello@quillandpine.example",
+      "status": "active"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-70455",
+      "account_id": "BA-9145",
+      "phone_number": "+1 718 555 0126",
+      "plan_code": "BIZ-PRO-40",
+      "status": "active",
+      "cycle_end": "2026-06-15"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-70455",
+    "new_plan": "BIZ-LEG-30"
+   },
+   "initial_request_values": {
+    "line_id": "LN-70455",
+    "new_plan": "BIZ-UNL-60"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "+1 718 555 0126",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan",
+     "value": "BIZ-LEG-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dani Okafor, co-owner of a bakery who handles the phones herself.",
+   "reason_for_call": "She wants more data on the delivery phone, is told that is an upgrade that cannot be done here, then asks for the legacy plan she heard is cheap.",
+   "task_instructions": "You do not know the line ID. Give the phone number of the delivery line. First ask for the unlimited plan on that line. When refused, ask for the legacy plan instead. Do not accept any other plan.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

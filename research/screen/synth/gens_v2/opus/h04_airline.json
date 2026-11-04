@@ -1,0 +1,1001 @@
+{
+ "procedure_id": "h04_airline",
+ "domain": "airline loyalty program",
+ "organization": "Northaire Airways \u2013 Skyward Club",
+ "title": "Retroactive mileage credit for missing flights",
+ "summary": "Credit Skyward Club miles for a flown Northaire flight that was not credited to the member's account, or send it for review when the policy requires it.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Skyward Club loyalty accounts",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tier": "enum:blue|silver|gold",
+    "status": "enum:active|frozen|closed",
+    "miles_balance": "int"
+   }
+  },
+  "flight_segment": {
+   "key": "segment_id",
+   "description": "Individual flight segments on issued tickets, with their credit status",
+   "fields": {
+    "segment_id": "str",
+    "ticket_number": "str",
+    "passenger_name": "str",
+    "flight_number": "str",
+    "origin": "str",
+    "destination": "str",
+    "flight_date": "date",
+    "fare_code": "ref:fare_class",
+    "distance_miles": "int",
+    "operated_by": "enum:northaire|partner",
+    "flight_status": "enum:flown|no_show|cancelled",
+    "credited": "bool",
+    "credited_member_id": "ref:member",
+    "credited_miles": "int"
+   }
+  },
+  "fare_class": {
+   "key": "fare_code",
+   "description": "Catalog of fare classes and how many miles they earn",
+   "fields": {
+    "fare_code": "str",
+    "fare_name": "str",
+    "cabin": "enum:economy|premium|business",
+    "earn_percent": "int",
+    "earns_miles": "bool"
+   }
+  },
+  "credit_review": {
+   "key": "review_id",
+   "description": "Missing-credit requests sent to the Skyward Club accruals team for manual review",
+   "fields": {
+    "review_id": "str",
+    "segment_id": "ref:flight_segment",
+    "member_id": "ref:member",
+    "reason": "enum:partner_flight|high_value",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a Skyward Club account by membership number. Shows name, email, tier, status and miles balance."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find Skyward Club accounts by the email address on file."
+  },
+  {
+   "name": "get_flight_segment",
+   "kind": "get",
+   "entity": "flight_segment",
+   "description": "Look up a flight segment by its segment reference. Shows ticket, passenger name, flight, date, fare code, distance, operating carrier, flight status and whether miles were already credited."
+  },
+  {
+   "name": "find_segments_by_ticket",
+   "kind": "search",
+   "entity": "flight_segment",
+   "by": [
+    "ticket_number"
+   ],
+   "description": "List all flight segments on a ticket, by the 13-digit ticket number."
+  },
+  {
+   "name": "get_fare_class",
+   "kind": "get",
+   "entity": "fare_class",
+   "description": "Look up a fare class by fare code. Shows the earn percentage and whether the fare earns miles at all."
+  },
+  {
+   "name": "add_miles_to_account",
+   "kind": "update",
+   "entity": "member",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The Skyward Club account to credit."
+    },
+    "miles": {
+     "type": "int",
+     "description": "Number of miles to add, computed as the policy describes."
+    }
+   },
+   "set": {
+    "miles_balance": "rec.miles_balance + args.miles"
+   },
+   "description": "Add miles to a member's balance."
+  },
+  {
+   "name": "mark_segment_credited",
+   "kind": "update",
+   "entity": "flight_segment",
+   "args": {
+    "segment_id": {
+     "type": "ref:flight_segment",
+     "description": "The flight segment that was credited."
+    },
+    "member_id": {
+     "type": "ref:member",
+     "description": "The account the miles went to."
+    },
+    "miles": {
+     "type": "int",
+     "description": "Number of miles credited for this segment."
+    }
+   },
+   "set": {
+    "credited": "True",
+    "credited_member_id": "args.member_id",
+    "credited_miles": "args.miles"
+   },
+   "description": "Record on the flight segment that miles have been credited, to which account and how many."
+  },
+  {
+   "name": "create_credit_review",
+   "kind": "create",
+   "entity": "credit_review",
+   "args": {
+    "segment_id": {
+     "type": "ref:flight_segment",
+     "description": "The flight segment the request is about."
+    },
+    "member_id": {
+     "type": "ref:member",
+     "description": "The account the member wants credited."
+    },
+    "reason": {
+     "type": "enum:partner_flight|high_value",
+     "description": "Why the request needs manual review."
+    }
+   },
+   "fields": {
+    "segment_id": "args.segment_id",
+    "member_id": "args.member_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a missing-credit request to the accruals team for manual review instead of crediting it directly."
+  }
+ ],
+ "request": {
+  "segment_id": {
+   "type": "ref:flight_segment",
+   "description": "the flight (segment) you want miles credited for"
+  },
+  "member_id": {
+   "type": "ref:member",
+   "description": "your Skyward Club membership account the miles should go to"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "seg",
+   "entity": "flight_segment",
+   "key": "req.segment_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "req.member_id"
+  },
+  {
+   "name": "fare",
+   "entity": "fare_class",
+   "key": "seg.fare_code"
+  }
+ ],
+ "outcomes": {
+  "credit": {
+   "kind": "perform",
+   "description": "Add the computed miles to the member's balance, then mark the segment as credited to that account with the same number of miles.",
+   "calls": [
+    {
+     "tool": "add_miles_to_account",
+     "args": {
+      "member_id": "mem.member_id",
+      "miles": "round(seg.distance_miles * fare.earn_percent / 100 * (1.5 if mem.tier == 'gold' else (1.25 if mem.tier == 'silver' else 1)))"
+     }
+    },
+    {
+     "tool": "mark_segment_credited",
+     "args": {
+      "segment_id": "seg.segment_id",
+      "member_id": "mem.member_id",
+      "miles": "round(seg.distance_miles * fare.earn_percent / 100 * (1.5 if mem.tier == 'gold' else (1.25 if mem.tier == 'silver' else 1)))"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Do not credit directly; open a review with the accruals team (partner_flight for partner-operated flights, otherwise high_value).",
+   "calls": [
+    {
+     "tool": "create_credit_review",
+     "args": {
+      "segment_id": "seg.segment_id",
+      "member_id": "mem.member_id",
+      "reason": "'partner_flight' if seg.operated_by == 'partner' else 'high_value'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not credit or open a review; explain why the flight cannot be credited.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "seg.credited",
+   "outcome": "refuse",
+   "explain": "A segment that has already been credited cannot be credited again."
+  },
+  {
+   "id": "R2",
+   "when": "seg.flight_status != 'flown'",
+   "outcome": "refuse",
+   "explain": "Only segments that were actually flown earn miles; cancelled or no-show segments do not."
+  },
+  {
+   "id": "R3",
+   "when": "lower(seg.passenger_name) != lower(mem.full_name)",
+   "outcome": "refuse",
+   "explain": "The passenger name on the ticket must match the name on the Skyward Club account."
+  },
+  {
+   "id": "R4",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Miles can only be credited to an active account."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(seg.flight_date, today) > 180",
+   "outcome": "refuse",
+   "explain": "Missing-credit requests must be made within 180 days of the flight date."
+  },
+  {
+   "id": "R6",
+   "when": "not fare.earns_miles",
+   "outcome": "refuse",
+   "explain": "Fare classes that do not earn miles (such as award tickets) cannot be credited."
+  },
+  {
+   "id": "R7",
+   "when": "seg.operated_by == 'partner'",
+   "outcome": "review",
+   "explain": "Flights operated by a partner carrier are sent to the accruals team for review with reason partner_flight."
+  },
+  {
+   "id": "R8",
+   "when": "round(seg.distance_miles * fare.earn_percent / 100 * (1.5 if mem.tier == 'gold' else (1.25 if mem.tier == 'silver' else 1))) > 5000",
+   "outcome": "review",
+   "explain": "Credits of more than 5,000 miles are sent to the accruals team for review with reason high_value."
+  }
+ ],
+ "default_outcome": "credit",
+ "policy_text": "## Purpose\nMembers sometimes fly with us without their Skyward Club number on the booking, or the miles simply do not post. This procedure covers crediting those missing miles after the flight.\n\n## Identifying the flight and the account\nYou need two things: the flight segment and the member's Skyward Club account.\n- Flight: use the segment reference if the member has it. Otherwise ask for the 13-digit ticket number and list the segments on that ticket; if there is more than one, ask which flight they mean (flight number or date) and pick that one.\n- Account: use the membership number if the member has it, or find the account by the email address on file.\nIf you cannot identify both the flight and the account, you cannot process the request.\n\nAlways look up the fare class of the segment (by its fare code) yourself; the member usually does not know it. Always use the tier, status, name and dates in our records, not what the member believes.\n\n## Checks, in this order\nApply these checks in order; the first one that applies decides the result.\n1. Already credited: if the segment is already marked as credited, it cannot be credited again. Decline.\n2. Not flown: only segments with status flown earn miles. Cancelled segments and no-shows are declined.\n3. Name match: the passenger name on the ticket must match the full name on the Skyward Club account. If it does not match (for example, a ticket in a former name), decline. We cannot change ticket names or account names in this procedure.\n4. Account status: the account must be active. Frozen or closed accounts cannot receive miles. Decline.\n5. Time limit: the request must be made within 180 days of the flight date. If more than 180 days have passed since the flight, decline.\n6. Fare eligibility: if the segment's fare class does not earn miles (for example award redemption tickets), decline.\n7. Partner flights: if the segment was operated by a partner carrier, do not credit it yourself. Open a credit review with reason partner_flight and tell the member the accruals team will verify it with the partner.\n8. Large credits: if the miles computed below come to more than 5,000, do not credit them yourself. Open a credit review with reason high_value and tell the member the accruals team will approve it.\n\nIf none of these apply, credit the miles.\n\n## How to compute the miles\nMiles = flight distance in miles \u00d7 the fare class earn percentage \u00f7 100 \u00d7 the tier multiplier, rounded to the nearest whole mile.\nTier multiplier: Gold 1.5 (50% bonus), Silver 1.25 (25% bonus), Blue 1 (no bonus). Use the tier currently on the account.\nExample: a 2,000-mile flight in a 50% fare for a Silver member earns 2,000 \u00d7 50 \u00f7 100 \u00d7 1.25 = 1,250 miles.\n\n## Crediting\nWhen the request qualifies, do both of these, in this order:\n1. Add the computed miles to the member's account.\n2. Mark the segment as credited to that account with the same number of miles.\nTell the member how many miles were added.\n\n## Never\nDo not credit a segment that fails any check, do not credit miles other than the computed amount, do not credit and open a review for the same request, do not change tier, status or names, and do not make any change the member did not ask for. If the member asks for an exception, explain the policy politely; you cannot override it.",
+ "db_common": {
+  "fare_class": [
+   {
+    "fare_code": "J",
+    "fare_name": "Business Flex",
+    "cabin": "business",
+    "earn_percent": 150,
+    "earns_miles": true
+   },
+   {
+    "fare_code": "Y",
+    "fare_name": "Economy Flex",
+    "cabin": "economy",
+    "earn_percent": 100,
+    "earns_miles": true
+   },
+   {
+    "fare_code": "M",
+    "fare_name": "Economy Classic",
+    "cabin": "economy",
+    "earn_percent": 50,
+    "earns_miles": true
+   },
+   {
+    "fare_code": "G",
+    "fare_name": "Economy Light",
+    "cabin": "economy",
+    "earn_percent": 25,
+    "earns_miles": true
+   },
+   {
+    "fare_code": "X",
+    "fare_name": "Award Redemption",
+    "cabin": "economy",
+    "earn_percent": 0,
+    "earns_miles": false
+   }
+  ],
+  "member": [
+   {
+    "member_id": "SK-1000001",
+    "full_name": "Priya Raman",
+    "email": "priya.raman@example.com",
+    "tier": "gold",
+    "status": "active",
+    "miles_balance": 88120
+   }
+  ],
+  "flight_segment": [
+   {
+    "segment_id": "SEG-500001",
+    "ticket_number": "4471230011205",
+    "passenger_name": "Priya Raman",
+    "flight_number": "NA 15",
+    "origin": "BOS",
+    "destination": "LHR",
+    "flight_date": "2026-04-22",
+    "fare_code": "Y",
+    "distance_miles": 3260,
+    "operated_by": "northaire",
+    "flight_status": "flown",
+    "credited": true,
+    "credited_member_id": "SK-1000001",
+    "credited_miles": 4890
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-2304418",
+      "full_name": "Helena Brandt",
+      "email": "h.brandt@example.de",
+      "tier": "blue",
+      "status": "active",
+      "miles_balance": 6400
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-610231",
+      "ticket_number": "4471230558812",
+      "passenger_name": "Helena Brandt",
+      "flight_number": "NA 118",
+      "origin": "FRA",
+      "destination": "BOS",
+      "flight_date": "2026-04-02",
+      "fare_code": "X",
+      "distance_miles": 3660,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-610231",
+    "member_id": "SK-2304418"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-610231",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-2304418",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Helena, a museum conservator from Frankfurt, polite and patient, not very familiar with how loyalty programs work.",
+   "reason_for_call": "She flew from Frankfurt to Boston in early April and noticed no miles appeared on her account.",
+   "task_instructions": "Start by saying you are missing miles for your April Frankfurt\u2013Boston flight and give the segment reference. Give your membership number only when the agent asks for it. If the agent explains the flight cannot be credited, accept it kindly and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-2719056",
+      "full_name": "Tom\u00e1s Rivera",
+      "email": "tomas.rivera@example.com",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 42310
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-620410",
+      "ticket_number": "4471229901174",
+      "passenger_name": "Tom\u00e1s Rivera",
+      "flight_number": "NA 702",
+      "origin": "MIA",
+      "destination": "MEX",
+      "flight_date": "2025-10-02",
+      "fare_code": "M",
+      "distance_miles": 1280,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-620977",
+      "ticket_number": "4471231467720",
+      "passenger_name": "Tom\u00e1s Rivera",
+      "flight_number": "NA 336",
+      "origin": "MIA",
+      "destination": "LIM",
+      "flight_date": "2026-03-14",
+      "fare_code": "M",
+      "distance_miles": 2600,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-620977",
+    "member_id": "SK-2719056"
+   },
+   "initial_request_values": {
+    "segment_id": "SEG-620410",
+    "member_id": "SK-2719056"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-620977",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-2719056",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a sales manager based in Miami who flies to Latin America regularly; friendly and willing to bargain.",
+   "reason_for_call": "He found two of his flights never earned miles: a Mexico City trip last October and a Lima trip in March.",
+   "task_instructions": "First ask for miles for your October Miami\u2013Mexico City flight, giving its segment reference. Give your membership number only when asked. If the agent declines that one, accept it and ask instead for your March Miami\u2013Lima flight, giving that segment reference. Accept the result.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-3150772",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.co.uk",
+      "tier": "gold",
+      "status": "active",
+      "miles_balance": 120540
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-631001",
+      "ticket_number": "4471230087615",
+      "passenger_name": "Grace Okafor",
+      "flight_number": "NA 220",
+      "origin": "LHR",
+      "destination": "LAX",
+      "flight_date": "2026-02-09",
+      "fare_code": "Y",
+      "distance_miles": 5440,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": true,
+      "credited_member_id": "SK-3150772",
+      "credited_miles": 8160
+     },
+     {
+      "segment_id": "SEG-631002",
+      "ticket_number": "4471230087615",
+      "passenger_name": "Grace Okafor",
+      "flight_number": "NA 6081",
+      "origin": "LAX",
+      "destination": "HNL",
+      "flight_date": "2026-02-10",
+      "fare_code": "Y",
+      "distance_miles": 2560,
+      "operated_by": "partner",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-631003",
+      "ticket_number": "4471230087615",
+      "passenger_name": "Grace Okafor",
+      "flight_number": "NA 6082",
+      "origin": "HNL",
+      "destination": "LAX",
+      "flight_date": "2026-02-20",
+      "fare_code": "Y",
+      "distance_miles": 2560,
+      "operated_by": "partner",
+      "flight_status": "flown",
+      "credited": true,
+      "credited_member_id": "SK-3150772",
+      "credited_miles": 3840
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-631002",
+    "member_id": "SK-3150772"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-631002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-3150772",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The lounge at Los Angeles was closed for renovation when she connected there, which annoyed her.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She has a cabin upgrade voucher expiring next month and wonders aloud whether to use it, but decides to deal with it another time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her daughter also has a Skyward Club account, but the daughter was not on this trip.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year she received delay compensation for a different flight to New York.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a London-based architect and long-time Gold member; impatient and used to things being fixed on the spot.",
+   "reason_for_call": "She flew London\u2013Los Angeles\u2013Honolulu in February and the Los Angeles\u2013Honolulu leg never earned miles.",
+   "task_instructions": "Give your segment reference and membership number at the start and chat about the other things on your mind. Insist you want the miles added right now. If the agent says it must go to a review instead, argue that as a Gold member it should be done immediately and ask for an exception at least twice, then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-4087731",
+      "full_name": "Daniel Kowalski",
+      "email": "d.kowalski@example.pl",
+      "tier": "blue",
+      "status": "active",
+      "miles_balance": 3150
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-640118",
+      "ticket_number": "4471231870043",
+      "passenger_name": "Daniel Kowalski",
+      "flight_number": "NA 47",
+      "origin": "WAW",
+      "destination": "ORD",
+      "flight_date": "2026-03-05",
+      "fare_code": "G",
+      "distance_miles": 4680,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-640119",
+      "ticket_number": "4471231870043",
+      "passenger_name": "Daniel Kowalski",
+      "flight_number": "NA 48",
+      "origin": "ORD",
+      "destination": "WAW",
+      "flight_date": "2026-03-19",
+      "fare_code": "G",
+      "distance_miles": 4680,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": true,
+      "credited_member_id": "SK-4087731",
+      "credited_miles": 1170
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-640119",
+    "member_id": "SK-4087731"
+   },
+   "initial_request_values": {
+    "segment_id": "SEG-640118",
+    "member_id": "SK-4087731"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-640119",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-4087731",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, a software tester from Warsaw who visited relatives in Chicago; methodical but a little scatterbrained.",
+   "reason_for_call": "He thinks one leg of his Warsaw\u2013Chicago round trip did not earn miles.",
+   "task_instructions": "In your first message give your membership number and ask for miles for the outbound Warsaw\u2013Chicago flight with its segment reference. Before the agent makes any change, correct yourself: you now think the outbound did post and it is the return Chicago\u2013Warsaw flight that is missing; give that segment reference instead. Accept whatever the agent tells you about the return flight.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-5521904",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@example.jp",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 27800
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-650332",
+      "ticket_number": "4471230992218",
+      "passenger_name": "Aiko Tanaka",
+      "flight_number": "NA 1290",
+      "origin": "JFK",
+      "destination": "PHX",
+      "flight_date": "2026-04-28",
+      "fare_code": "Y",
+      "distance_miles": 2160,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-650332",
+    "member_id": "SK-5521904"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-650332",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-5521904",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.tier",
+     "value": "gold",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiko, a data analyst who is sure she reached Gold status this year; says very little.",
+   "reason_for_call": "Her New York\u2013Phoenix flight in late April earned no miles.",
+   "task_instructions": "Give your segment reference, membership number and say you are Gold so you expect the Gold bonus, all in very short sentences. Answer questions in a few words. Accept the result even if the agent says your tier is different.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-6640217",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "tier": "gold",
+      "status": "active",
+      "miles_balance": 210450
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-660541",
+      "ticket_number": "4471231100926",
+      "passenger_name": "Marcus Bell",
+      "flight_number": "NA 91",
+      "origin": "YYZ",
+      "destination": "LIS",
+      "flight_date": "2026-04-16",
+      "fare_code": "J",
+      "distance_miles": 3580,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-660540",
+      "ticket_number": "4471231100926",
+      "passenger_name": "Marcus Bell",
+      "flight_number": "NA 1402",
+      "origin": "LIS",
+      "destination": "OPO",
+      "flight_date": "2026-04-17",
+      "fare_code": "J",
+      "distance_miles": 170,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-660541",
+    "member_id": "SK-6640217"
+   },
+   "initial_request_values": {
+    "segment_id": "SEG-660540",
+    "member_id": "SK-6640217"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.segment_id",
+     "value": "SEG-660541",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-6640217",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.passenger_name",
+     "value": "Marcus Bell",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.flight_date",
+     "value": "2026-04-16",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His company's travel desk booked the trip and left his Skyward Club number off the booking, which is why nothing posted.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His boarding pass shows seat 2A in the business cabin on the Toronto\u2013Lisbon flight.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The ticket is in exactly the same name as his account, Marcus Bell.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a consulting partner from Toronto, organized and courteous, who keeps all his travel documents.",
+   "reason_for_call": "His mid-April business trip Toronto\u2013Lisbon\u2013Porto earned no miles because the travel desk forgot his number.",
+   "task_instructions": "Open with your membership number and ask first about the short Lisbon\u2013Porto connection, giving its segment reference. Before anything is done, change your mind: say the short hop is not worth the trouble and you only want the Toronto\u2013Lisbon flight on 16 April handled, giving that segment reference, and mention the name on the ticket. Share the travel desk and boarding pass details. Accept a review if the agent says one is needed.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-7703365",
+      "full_name": "Sofia Marchetti-Lund",
+      "email": "sofia.ml@example.it",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 15200
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-670801",
+      "ticket_number": "4471230774459",
+      "passenger_name": "Sofia Marchetti",
+      "flight_number": "NA 260",
+      "origin": "FCO",
+      "destination": "JFK",
+      "flight_date": "2026-03-28",
+      "fare_code": "Y",
+      "distance_miles": 4280,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-670802",
+      "ticket_number": "4471230774459",
+      "passenger_name": "Sofia Marchetti",
+      "flight_number": "NA 261",
+      "origin": "JFK",
+      "destination": "FCO",
+      "flight_date": "2026-04-06",
+      "fare_code": "Y",
+      "distance_miles": 4280,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-670801",
+    "member_id": "SK-7703365"
+   },
+   "customer_facts": [
+    {
+     "fact": "seg.ticket_number",
+     "value": "4471230774459",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.flight_number",
+     "value": "NA 260",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-7703365",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.passenger_name",
+     "value": "Sofia Marchetti",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a fashion buyer from Rome who recently married and added her husband's surname; brisk and insistent.",
+   "reason_for_call": "Her Rome\u2013New York flight in late March did not earn miles and she wants them now.",
+   "task_instructions": "Give your ticket number, the flight number of the Rome\u2013New York flight and your membership number. You do not have a segment reference. If asked, say the ticket is in your maiden name. If the agent refuses, argue that it is obviously you and ask for an exception at least twice, then accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "SK-8215590",
+      "full_name": "Kwame Mensah",
+      "email": "kwame.mensah@example.com",
+      "tier": "blue",
+      "status": "active",
+      "miles_balance": 9870
+     },
+     {
+      "member_id": "SK-5098812",
+      "full_name": "Kwame Mensah",
+      "email": "kmensah.eng@example.net",
+      "tier": "blue",
+      "status": "closed",
+      "miles_balance": 0
+     }
+    ],
+    "flight_segment": [
+     {
+      "segment_id": "SEG-680113",
+      "ticket_number": "4471229645508",
+      "passenger_name": "Kwame Mensah",
+      "flight_number": "NA 584",
+      "origin": "ATL",
+      "destination": "ACC",
+      "flight_date": "2025-11-15",
+      "fare_code": "M",
+      "distance_miles": 5110,
+      "operated_by": "northaire",
+      "flight_status": "cancelled",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     },
+     {
+      "segment_id": "SEG-680114",
+      "ticket_number": "4471229645508",
+      "passenger_name": "Kwame Mensah",
+      "flight_number": "NA 586",
+      "origin": "ATL",
+      "destination": "ACC",
+      "flight_date": "2025-11-16",
+      "fare_code": "M",
+      "distance_miles": 5110,
+      "operated_by": "northaire",
+      "flight_status": "flown",
+      "credited": false,
+      "credited_member_id": null,
+      "credited_miles": 0
+     }
+    ]
+   },
+   "request_values": {
+    "segment_id": "SEG-680114",
+    "member_id": "SK-8215590"
+   },
+   "initial_request_values": {
+    "segment_id": "SEG-680114",
+    "member_id": "SK-5098812"
+   },
+   "customer_facts": [
+    {
+     "fact": "seg.ticket_number",
+     "value": "4471229645508",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.flight_number",
+     "value": "NA 586",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "seg.flight_date",
+     "value": "2025-11-16",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.member_id",
+     "value": "SK-8215590",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a civil engineer from Atlanta who flew home to Accra for a family wedding last November; good-humoured and keen to strike a deal.",
+   "reason_for_call": "He went through old emails and realised his November flight to Accra never earned any miles.",
+   "task_instructions": "Give your ticket number and the flight number of your Atlanta\u2013Accra flight; you have no segment reference. First ask for the miles to go to the membership number printed on an old Skyward card you found in your wallet. If the agent says that account cannot receive miles, ask instead for the miles to go to your current membership number. Accept the answer on that one.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

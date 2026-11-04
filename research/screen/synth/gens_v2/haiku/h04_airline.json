@@ -1,0 +1,953 @@
+{
+ "procedure_id": "h04_airline",
+ "domain": "airline loyalty program",
+ "organization": "Cascadia Air Rewards",
+ "title": "Award ticket flight changes",
+ "summary": "Move a member's award ticket to a different flight on the same route when the ticket, member, flights and miles qualify, and charge the change fee in miles.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Loyalty program members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tier": "enum:silver|gold|platinum",
+    "status": "enum:active|suspended|closed",
+    "miles_balance": "int"
+   }
+  },
+  "flight": {
+   "key": "flight_id",
+   "description": "Scheduled flights, with seats still open for sale",
+   "fields": {
+    "flight_id": "str",
+    "route": "str",
+    "departure_date": "date",
+    "seats_open": "int"
+   }
+  },
+  "booking": {
+   "key": "booking_id",
+   "description": "Award tickets held by members",
+   "fields": {
+    "booking_id": "str",
+    "member_id": "ref:member",
+    "flight_id": "ref:flight",
+    "cabin": "enum:economy|business",
+    "status": "enum:ticketed|flown|cancelled",
+    "change_count": "int",
+    "miles_paid": "int"
+   }
+  },
+  "change_review": {
+   "key": "request_id",
+   "description": "Requests for staff to review a ticket change",
+   "fields": {
+    "request_id": "str",
+    "booking_id": "ref:booking",
+    "reason": "enum:premium_review|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up an award ticket by its booking reference."
+  },
+  {
+   "name": "find_bookings_by_member",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all award tickets held by a member."
+  },
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a loyalty member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_flight",
+   "kind": "get",
+   "entity": "flight",
+   "description": "Look up a flight by its flight number and date."
+  },
+  {
+   "name": "find_flights_by_route",
+   "kind": "search",
+   "entity": "flight",
+   "by": [
+    "route",
+    "departure_date"
+   ],
+   "description": "List flights on a route on a given date."
+  },
+  {
+   "name": "rebook_award",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The award ticket to move."
+    },
+    "new_flight_id": {
+     "type": "ref:flight",
+     "description": "The flight the ticket moves to."
+    },
+    "miles_charge": {
+     "type": "int",
+     "description": "Change fee in miles charged for this move."
+    }
+   },
+   "set": {
+    "flight_id": "args.new_flight_id",
+    "change_count": "rec.change_count + 1",
+    "miles_paid": "rec.miles_paid + args.miles_charge"
+   },
+   "description": "Move the ticket to the new flight, count one change, and add the change fee to the miles paid on the ticket."
+  },
+  {
+   "name": "debit_miles",
+   "kind": "update",
+   "entity": "member",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The member whose miles are charged."
+    },
+    "amount": {
+     "type": "int",
+     "description": "Miles to deduct."
+    }
+   },
+   "set": {
+    "miles_balance": "rec.miles_balance - args.amount"
+   },
+   "description": "Deduct miles from a member's balance."
+  },
+  {
+   "name": "create_change_review",
+   "kind": "create",
+   "entity": "change_review",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The ticket the review is about."
+    },
+    "reason": {
+     "type": "enum:premium_review|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "booking_id": "args.booking_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff to review a ticket change."
+  }
+ ],
+ "request": {
+  "booking_id": {
+   "type": "ref:booking",
+   "description": "the booking reference on your ticket"
+  },
+  "new_flight_id": {
+   "type": "ref:flight",
+   "description": "the flight you want to move to, by flight number and date"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "booking.member_id"
+  },
+  {
+   "name": "orig",
+   "entity": "flight",
+   "key": "booking.flight_id"
+  },
+  {
+   "name": "newf",
+   "entity": "flight",
+   "key": "req.new_flight_id"
+  }
+ ],
+ "outcomes": {
+  "rebook": {
+   "kind": "perform",
+   "description": "Move the ticket to the new flight and charge the change fee in miles.",
+   "calls": [
+    {
+     "tool": "rebook_award",
+     "args": {
+      "booking_id": "booking.booking_id",
+      "new_flight_id": "req.new_flight_id",
+      "miles_charge": "min(15000, (0 if mem.tier == 'platinum' else (2500 if mem.tier == 'gold' else 5000)) * (2 if days_between(today, orig.departure_date) < 14 else 1))"
+     }
+    },
+    {
+     "tool": "debit_miles",
+     "args": {
+      "member_id": "mem.member_id",
+      "amount": "min(15000, (0 if mem.tier == 'platinum' else (2500 if mem.tier == 'gold' else 5000)) * (2 if days_between(today, orig.departure_date) < 14 else 1))"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Business cabin tickets are not moved directly; open a staff review instead.",
+   "calls": [
+    {
+     "tool": "create_change_review",
+     "args": {
+      "booking_id": "booking.booking_id",
+      "reason": "'premium_review'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the ticket; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "booking.status != 'ticketed'",
+   "outcome": "refuse",
+   "explain": "Only tickets with status ticketed can be changed; flown or cancelled tickets cannot."
+  },
+  {
+   "id": "R2",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Members whose account is suspended or closed cannot change tickets."
+  },
+  {
+   "id": "R3",
+   "when": "booking.change_count >= 2",
+   "outcome": "refuse",
+   "explain": "A ticket can be changed at most twice."
+  },
+  {
+   "id": "R4",
+   "when": "newf.route != orig.route",
+   "outcome": "refuse",
+   "explain": "The new flight must be on the same route as the flight the ticket is on now."
+  },
+  {
+   "id": "R5",
+   "when": "newf.seats_open < 1",
+   "outcome": "refuse",
+   "explain": "The new flight must have at least one seat open."
+  },
+  {
+   "id": "R6",
+   "when": "booking.cabin == 'business'",
+   "outcome": "review",
+   "explain": "Business cabin tickets are sent to staff for review instead of being changed directly."
+  },
+  {
+   "id": "R7",
+   "when": "mem.miles_balance < min(15000, (0 if mem.tier == 'platinum' else (2500 if mem.tier == 'gold' else 5000)) * (2 if days_between(today, orig.departure_date) < 14 else 1))",
+   "outcome": "refuse",
+   "explain": "The member's miles balance must cover the change fee."
+  },
+  {
+   "id": "R8",
+   "when": "req.new_flight_id == booking.flight_id",
+   "outcome": "refuse",
+   "explain": "The new flight must differ from the flight the ticket is already on."
+  }
+ ],
+ "default_outcome": "rebook",
+ "policy_text": "## Who can ask\nLoyalty members can ask to move an award ticket to a different flight by phone or chat. No date of birth or other identity check is needed. Identify the ticket and the member's account, then check the rules below before changing anything.\n\n## Finding the ticket\nIf the member gives a booking reference, look up that booking. If they do not have it, find the member by the email address on file and list the bookings held by that member. If more than one booking is listed, ask the member which flight they are on now, by flight number, and use it to pick the right booking. If you still cannot tell which booking is meant, ask the member. Do not guess.\n\n## Finding the new flight\nUse the flight number the member gives. If they give only a route and a date, search flights on that route and date and ask the member which one they want. If the flight cannot be found, ask the member for the correct flight number and date. Do not change anything until the new flight is confirmed.\n\n## When a change is allowed\nCheck these conditions in the order listed. The first one that applies decides the outcome, and you stop there.\n\n1. The booking must have status ticketed. Flown or cancelled tickets cannot be changed. Decline.\n2. The member's account must be active. Suspended or closed accounts cannot change tickets. Decline.\n3. A ticket can be changed at most twice. If the booking's change count is 2 or more, decline.\n4. The new flight must be on the same route as the flight the ticket is on now. Decline otherwise.\n5. The new flight must have at least one seat open. Decline if it has none.\n6. Business cabin tickets are not moved directly. Open a staff review request with reason premium_review, make no change to the ticket, and tell the member that staff will confirm the new flight within two business days.\n7. The member's miles balance must be at least the change fee described below. Decline if it is not.\n8. The new flight must be different from the flight the ticket is on now. Decline if it is the same.\n\nIf none of these apply, make the change.\n\n## Change fee\nThe change fee is paid in miles. Calculate it as follows:\n- Base fee by tier, from the member's record: platinum 0 miles, gold 2,500 miles, silver 5,000 miles.\n- If the flight the ticket is on now departs fewer than 14 days from today, double the base fee.\n- The fee never exceeds 15,000 miles.\n\nUse the tier on the member's record and the departure date of the flight the ticket is on now. Do not use the tier or dates the member states if they differ from the records.\n\n## Making the change\nWhen the change is allowed, do both steps in this order:\n1. Move the ticket to the new flight, count one change on the ticket, and record the change fee as miles paid on the ticket. The miles charge is the fee.\n2. Deduct the change fee from the member's miles balance.\n\nThen tell the member the new flight, the fee charged, and their remaining miles balance.\n\n## Never\nDo not waive, reduce or defer the change fee. Do not change the member's tier, miles balance, cabin or account status. Do not change anything the member did not ask for. Do not make a change if any condition above applies.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-7001",
+    "full_name": "Grace Okafor",
+    "email": "grace.okafor@example.org",
+    "tier": "silver",
+    "status": "active",
+    "miles_balance": 3100
+   }
+  ],
+  "flight": [
+   {
+    "flight_id": "AK800-2026-07-01",
+    "route": "SEA-ANC",
+    "departure_date": "2026-07-01",
+    "seats_open": 12
+   },
+   {
+    "flight_id": "AK802-2026-07-03",
+    "route": "SEA-PDX",
+    "departure_date": "2026-07-03",
+    "seats_open": 9
+   }
+  ],
+  "booking": [
+   {
+    "booking_id": "BK-70010",
+    "member_id": "M-7001",
+    "flight_id": "AK800-2026-07-01",
+    "cabin": "economy",
+    "status": "ticketed",
+    "change_count": 0,
+    "miles_paid": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8101",
+      "full_name": "Hiroshi Tanaka",
+      "email": "hiroshi.tanaka@example.org",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 9000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK472-2026-06-12",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-12",
+      "seats_open": 4
+     },
+     {
+      "flight_id": "AK470-2026-06-10",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-10",
+      "seats_open": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-81001",
+      "member_id": "M-8101",
+      "flight_id": "AK472-2026-06-12",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-81001",
+    "new_flight_id": "AK470-2026-06-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-81001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK470-2026-06-10",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hiroshi, a fisheries inspector who travels between Seattle and Anchorage for work. Calm and polite.",
+   "reason_for_call": "His work trip has moved up two days and he wants to fly out earlier.",
+   "task_instructions": "In your first message, give your booking reference and say you need to fly out earlier. Do not give the flight number until the agent asks which flight you want; then give the flight number and date from your notes. Be cooperative and accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8202",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "tier": "gold",
+      "status": "active",
+      "miles_balance": 40000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK520-2026-06-20",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-20",
+      "seats_open": 3
+     },
+     {
+      "flight_id": "AK615-2026-06-18",
+      "route": "SEA-PDX",
+      "departure_date": "2026-06-18",
+      "seats_open": 10
+     },
+     {
+      "flight_id": "AK522-2026-06-22",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-22",
+      "seats_open": 5
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-82002",
+      "member_id": "M-8202",
+      "flight_id": "AK520-2026-06-20",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-82002",
+    "new_flight_id": "AK522-2026-06-22"
+   },
+   "initial_request_values": {
+    "booking_id": "BK-82002",
+    "new_flight_id": "AK615-2026-06-18"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-82002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK522-2026-06-22",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a software tester who is flexible on dates and loves her Alaska trips.",
+   "reason_for_call": "She first wants to switch to an earlier flight to Portland, and if that is not possible, to a later flight to Anchorage.",
+   "task_instructions": "In your first message, give your booking reference and ask to move to the Portland flight on June 18th. When the agent refuses, ask for the Anchorage flight on June 22nd instead. When the agent asks for the flight number of that Anchorage flight, give it from your notes. Accept the agent's decision after one question.",
+   "expected_outcome": "rebook"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8303",
+      "full_name": "Owen Brandt",
+      "email": "owen.brandt@example.org",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 12500
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK330-2026-05-30",
+      "route": "SEA-ANC",
+      "departure_date": "2026-05-30",
+      "seats_open": 2
+     },
+     {
+      "flight_id": "AK332-2026-06-06",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-06",
+      "seats_open": 3
+     },
+     {
+      "flight_id": "AK900-2026-08-15",
+      "route": "SEA-NRT",
+      "departure_date": "2026-08-15",
+      "seats_open": 4
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-83003",
+      "member_id": "M-8303",
+      "flight_id": "AK330-2026-05-30",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     },
+     {
+      "booking_id": "BK-83004",
+      "member_id": "M-8303",
+      "flight_id": "AK900-2026-08-15",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-83003",
+    "new_flight_id": "AK332-2026-06-06"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-83003",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK332-2026-06-06",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You have another trip to Tokyo in August on a separate ticket, and you do not want that one touched.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You flew a lot last year and think you should have more elite perks.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Your daughter is flying separately on her own ticket and you do not need to change hers.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Owen, an impatient contractor juggling several projects at once.",
+   "reason_for_call": "A project kickoff has moved, so he wants to fly to Anchorage one week later than planned.",
+   "task_instructions": "State your booking reference and the new flight number and date in your first message. Be impatient and push for speed, but accept the answer the agent gives you.",
+   "expected_outcome": "rebook"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8404",
+      "full_name": "Miriam Solberg",
+      "email": "miriam.solberg@example.org",
+      "tier": "gold",
+      "status": "active",
+      "miles_balance": 2000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK410-2026-06-10",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-10",
+      "seats_open": 4
+     },
+     {
+      "flight_id": "AK412-2026-06-12",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-12",
+      "seats_open": 8
+     },
+     {
+      "flight_id": "AK414-2026-06-16",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-16",
+      "seats_open": 6
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-84004",
+      "member_id": "M-8404",
+      "flight_id": "AK410-2026-06-10",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-84004",
+    "new_flight_id": "AK414-2026-06-16"
+   },
+   "initial_request_values": {
+    "booking_id": "BK-84004",
+    "new_flight_id": "AK412-2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-84004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK414-2026-06-16",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Miriam, a nurse with a rotating schedule who is brisk and direct.",
+   "reason_for_call": "She wants to be home for her sister's wedding weekend and needs to move her flight.",
+   "task_instructions": "In your first message, give your booking reference and ask to move to the June 12th flight. After the agent answers, change your mind and ask for the June 16th flight instead, with the same booking reference. Give the flight number of the June 16th flight from your notes if asked. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8505",
+      "full_name": "Kofi Mensah",
+      "email": "kofi.mensah@example.org",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 9000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK526-2026-06-25",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-25",
+      "seats_open": 2
+     },
+     {
+      "flight_id": "AK524-2026-06-27",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-27",
+      "seats_open": 4
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-85005",
+      "member_id": "M-8505",
+      "flight_id": "AK526-2026-06-25",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-85005",
+    "new_flight_id": "AK524-2026-06-27"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-85005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK524-2026-06-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.tier",
+     "value": "gold",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kofi, a terse and busy electrician.",
+   "reason_for_call": "A job has been rescheduled, so he wants to fly two days later.",
+   "task_instructions": "Answer only what is asked and never elaborate. In your first message, give the booking reference, the new flight number and date, and say you are a gold member. Accept the answer.",
+   "expected_outcome": "rebook"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8606",
+      "full_name": "Helena Vasquez",
+      "email": "helena.vasquez@example.org",
+      "tier": "platinum",
+      "status": "active",
+      "miles_balance": 18000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK130-2026-07-08",
+      "route": "SEA-HNL",
+      "departure_date": "2026-07-08",
+      "seats_open": 2
+     },
+     {
+      "flight_id": "AK132-2026-07-09",
+      "route": "SEA-HNL",
+      "departure_date": "2026-07-09",
+      "seats_open": 4
+     },
+     {
+      "flight_id": "AK134-2026-07-10",
+      "route": "SEA-HNL",
+      "departure_date": "2026-07-10",
+      "seats_open": 2
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-86006",
+      "member_id": "M-8606",
+      "flight_id": "AK130-2026-07-08",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-86006",
+    "new_flight_id": "AK134-2026-07-10"
+   },
+   "initial_request_values": {
+    "booking_id": "BK-86006",
+    "new_flight_id": "AK132-2026-07-09"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-86006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK134-2026-07-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.cabin",
+     "value": "economy",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The ticket is for the Honolulu trip with your husband, leaving in early July.",
+     "kind": "helpful"
+    },
+    {
+     "text": "You are flying in the main cabin on that ticket, not the front cabin.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Helena, a cheerful travel planner who knows the airline's system well.",
+   "reason_for_call": "Her anniversary plans have moved, so she wants to shift the Honolulu flight a couple of days later.",
+   "task_instructions": "In your first message, give your booking reference and ask to move to the July 9th flight. After the agent answers, switch to the July 10th flight instead, giving its flight number from your notes. Mention that you are in the main cabin if it comes up. Accept the agent's answer.",
+   "expected_outcome": "rebook"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8707",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.org",
+      "tier": "gold",
+      "status": "suspended",
+      "miles_balance": 20000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK740-2026-06-14",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-14",
+      "seats_open": 3
+     },
+     {
+      "flight_id": "AK760-2026-09-02",
+      "route": "SEA-ANC",
+      "departure_date": "2026-09-02",
+      "seats_open": 3
+     },
+     {
+      "flight_id": "AK742-2026-06-16",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-16",
+      "seats_open": 4
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-87007",
+      "member_id": "M-8707",
+      "flight_id": "AK740-2026-06-14",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     },
+     {
+      "booking_id": "BK-87008",
+      "member_id": "M-8707",
+      "flight_id": "AK760-2026-09-02",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-87007",
+    "new_flight_id": "AK742-2026-06-16"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "tomas.reyes@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.flight_id",
+     "value": "AK740-2026-06-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK742-2026-06-16",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a pushy sales manager who is always on a phone call.",
+   "reason_for_call": "He wants to move a June trip two days later.",
+   "task_instructions": "You do not have the booking reference. In your first message, give your email address, say you want to move your June trip, and give the flight number of that June trip and the new flight number and date. If the agent refuses, argue and ask for an exception at least twice before you accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8808",
+      "full_name": "Chloe Dubois",
+      "email": "chloe.dubois@example.org",
+      "tier": "silver",
+      "status": "active",
+      "miles_balance": 15000
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "AK250-2026-06-05",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-05",
+      "seats_open": 5
+     },
+     {
+      "flight_id": "AK252-2026-06-07",
+      "route": "SEA-LAX",
+      "departure_date": "2026-06-07",
+      "seats_open": 6
+     },
+     {
+      "flight_id": "AK254-2026-06-07",
+      "route": "SEA-ANC",
+      "departure_date": "2026-06-07",
+      "seats_open": 0
+     },
+     {
+      "flight_id": "AK300-2026-07-20",
+      "route": "SEA-LAX",
+      "departure_date": "2026-07-20",
+      "seats_open": 5
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-88009",
+      "member_id": "M-8808",
+      "flight_id": "AK250-2026-06-05",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     },
+     {
+      "booking_id": "BK-88010",
+      "member_id": "M-8808",
+      "flight_id": "AK300-2026-07-20",
+      "cabin": "economy",
+      "status": "ticketed",
+      "change_count": 0,
+      "miles_paid": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-88009",
+    "new_flight_id": "AK254-2026-06-07"
+   },
+   "initial_request_values": {
+    "booking_id": "BK-88009",
+    "new_flight_id": "AK252-2026-06-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "chloe.dubois@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.flight_id",
+     "value": "AK250-2026-06-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "AK254-2026-06-07",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Chloe, a graphic designer who is easygoing but sticks to her plans.",
+   "reason_for_call": "Her plans have changed, so she wants to switch her June trip to a flight two days later.",
+   "task_instructions": "You do not have the booking reference. First ask to move your June trip to the Los Angeles flight on June 7th. When the agent refuses, ask for the Anchorage flight on June 7th instead, and give its flight number when asked. Give your email address and the flight number of your current June trip when asked. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

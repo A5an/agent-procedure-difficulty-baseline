@@ -1,0 +1,779 @@
+{
+ "procedure_id": "p21_concert",
+ "domain": "concert and event ticketing",
+ "organization": "Harborlight Events Ticketing",
+ "title": "Ticket delivery method changes",
+ "summary": "Change how an order's tickets are delivered (mobile, will call or mail) when the account holder passes the identity check and the order qualifies.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Ticket buyers with an account",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone_last4": "str"
+   }
+  },
+  "event": {
+   "key": "event_id",
+   "description": "Concerts and festivals on sale",
+   "fields": {
+    "event_id": "str",
+    "name": "str",
+    "venue": "str",
+    "event_date": "date"
+   }
+  },
+  "ticket_order": {
+   "key": "order_id",
+   "description": "Ticket orders placed by customers",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "event_id": "ref:event",
+    "seat_section": "str",
+    "quantity": "int",
+    "delivery": "enum:mobile|will_call|mail",
+    "status": "enum:active|cancelled|used"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer account by its customer number."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find customer accounts by the email address on file."
+  },
+  {
+   "name": "get_event",
+   "kind": "get",
+   "entity": "event",
+   "description": "Look up an event by its event number."
+  },
+  {
+   "name": "get_ticket_order",
+   "kind": "get",
+   "entity": "ticket_order",
+   "description": "Look up a ticket order by its order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "ticket_order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all ticket orders on a customer account."
+  },
+  {
+   "name": "change_delivery",
+   "kind": "update",
+   "entity": "ticket_order",
+   "args": {
+    "order_id": {
+     "type": "ref:ticket_order",
+     "description": "The order whose delivery method is changed."
+    },
+    "delivery": {
+     "type": "enum:mobile|will_call|mail",
+     "description": "The new delivery method."
+    }
+   },
+   "set": {
+    "delivery": "args.delivery"
+   },
+   "description": "Set the delivery method of a ticket order."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:ticket_order",
+   "description": "the ticket order whose delivery you want changed"
+  },
+  "delivery": {
+   "type": "enum:mobile|will_call|mail",
+   "description": "how you want the tickets delivered"
+  }
+ },
+ "claims": {
+  "phone_last4": {
+   "type": "str",
+   "description": "the last four digits of the phone number on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "ord",
+   "entity": "ticket_order",
+   "key": "req.order_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "ord.customer_id"
+  },
+  {
+   "name": "ev",
+   "entity": "event",
+   "key": "ord.event_id"
+  }
+ ],
+ "outcomes": {
+  "change_delivery": {
+   "kind": "perform",
+   "description": "Set the order's delivery method to the one the caller asked for.",
+   "calls": [
+    {
+     "tool": "change_delivery",
+     "args": {
+      "order_id": "req.order_id",
+      "delivery": "req.delivery"
+     }
+    }
+   ]
+  },
+  "decline": {
+   "kind": "refuse",
+   "description": "Make no change and explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.phone_last4 != cust.phone_last4",
+   "outcome": "decline",
+   "explain": "The last four digits of the phone number given must match the phone number on the account."
+  },
+  {
+   "id": "R2",
+   "when": "ord.status != 'active'",
+   "outcome": "decline",
+   "explain": "Only active orders can have their delivery changed."
+  },
+  {
+   "id": "R3",
+   "when": "req.delivery == 'mail' and days_between(today, ev.event_date) < 7",
+   "outcome": "decline",
+   "explain": "Mail delivery is not allowed for an event fewer than 7 days away or already held."
+  }
+ ],
+ "default_outcome": "change_delivery",
+ "policy_text": "## Who can ask\nAccount holders can ask to change how their tickets are delivered. Delivery is mobile (tickets in the phone app), will call (collected at the box office) or mail. Before changing anything, find the order and the account it belongs to, then confirm the caller's identity: the last four digits of the phone number they give must match the phone number on the account. If they do not match, or the caller cannot give them, make no change.\n\n## Finding the order\nIf the caller has the order number, use it. Otherwise find the account by the email address on file and list the orders on that account. If there is more than one order, ask which event or which seat the caller means before going further. If no order can be found, you cannot complete the request.\n\n## When a change is allowed\n- The order must be active. Cancelled or used orders cannot have their delivery changed.\n- Mail delivery is not available for an event that is fewer than 7 days away from today, or for an event that has already taken place. If the caller asks for mail for such an event, do not change the order. Tell them they can choose mobile or will call instead.\n- Otherwise, set the order's delivery to the method the caller asked for.\n\n## Never\nDo not change the seat, quantity or event on an order. Do not read out the full phone number on the account. Do not change anything for a caller who did not pass the identity check. Do not change anything the caller did not ask for.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1200",
+    "full_name": "Ruth Adeyemi",
+    "email": "ruth.a@example.com",
+    "phone_last4": "6604"
+   }
+  ],
+  "event": [
+   {
+    "event_id": "E-1300",
+    "name": "Velvet Standards Live",
+    "venue": "Maple Theatre",
+    "event_date": "2026-06-06"
+   }
+  ],
+  "ticket_order": [
+   {
+    "order_id": "O-1400",
+    "customer_id": "C-1200",
+    "event_id": "E-1300",
+    "seat_section": "Stalls 12",
+    "quantity": 1,
+    "delivery": "mail",
+    "status": "active"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-3001",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "phone_last4": "7715"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-3010",
+      "name": "Summer Strings Gala",
+      "venue": "Conservatory Hall",
+      "event_date": "2026-07-02"
+     },
+     {
+      "event_id": "E-3011",
+      "name": "Riverside Blues Night",
+      "venue": "Pier Lounge",
+      "event_date": "2026-09-19"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-3101",
+      "customer_id": "C-3001",
+      "event_id": "E-3010",
+      "seat_section": "Floor 4",
+      "quantity": 2,
+      "delivery": "will_call",
+      "status": "active"
+     },
+     {
+      "order_id": "O-3102",
+      "customer_id": "C-3001",
+      "event_id": "E-3011",
+      "seat_section": "Balcony C",
+      "quantity": 2,
+      "delivery": "will_call",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-3102",
+    "delivery": "mobile"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "marcus.bell@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "7715",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.seat_section",
+     "value": "Balcony C",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mobile",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a sales rep who is always travelling and has little patience for phone menus.",
+   "reason_for_call": "He wants his concert tickets on his phone for a concert in September.",
+   "task_instructions": "Push the agent to hurry and ask for the change right away. Give your email when asked. Mention the seat section only when the agent asks which order you mean.",
+   "expected_outcome": "change_delivery"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4471",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "phone_last4": "0384"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-4480",
+      "name": "Lantern Festival Night",
+      "venue": "Old Mill Park",
+      "event_date": "2026-06-20"
+     },
+     {
+      "event_id": "E-4481",
+      "name": "Winter Choir Christmas",
+      "venue": "St. Anne's",
+      "event_date": "2026-12-05"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-4410",
+      "customer_id": "C-4471",
+      "event_id": "E-4480",
+      "seat_section": "Lawn A 14",
+      "quantity": 3,
+      "delivery": "mail",
+      "status": "active"
+     },
+     {
+      "order_id": "O-4402",
+      "customer_id": "C-4471",
+      "event_id": "E-4481",
+      "seat_section": "Nave 7",
+      "quantity": 2,
+      "delivery": "mail",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-4410",
+    "delivery": "will_call"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-4410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "0384",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "will_call",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I also have tickets for the Christmas choir concert, but I am not asking about those.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister bought the festival tickets as a birthday gift for me.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was on hold for a long time last week, so sorry if I sound short.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a nurse on a day off who types quickly.",
+   "reason_for_call": "She wants the festival tickets collected at the box office instead of posted to her.",
+   "task_instructions": "Answer with as few words as possible. Give only what is asked and never elaborate.",
+   "expected_outcome": "change_delivery"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2210",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.com",
+      "phone_last4": "1186"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-2220",
+      "name": "Coastal Folk Weekend",
+      "venue": "Dune Pavilion",
+      "event_date": "2026-07-25"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-2230",
+      "customer_id": "C-2210",
+      "event_id": "E-2220",
+      "seat_section": "Gate 2",
+      "quantity": 2,
+      "delivery": "mail",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-2230",
+    "delivery": "mobile"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.delivery",
+     "value": "mobile",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "1186",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, calling from a new work phone after losing his old one.",
+   "reason_for_call": "He wants the folk weekend tickets on his phone instead of in the post.",
+   "task_instructions": "You do not have the order number and you do not remember which email address you used for the account. Answer the agent's questions clearly and politely, and accept it if the agent cannot find the order.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5530",
+      "full_name": "Owen Mercer",
+      "email": "owen.mercer@example.com",
+      "phone_last4": "4402"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-5540",
+      "name": "Neon Garden Live",
+      "venue": "Warehouse 9",
+      "event_date": "2026-05-25"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-5550",
+      "customer_id": "C-5530",
+      "event_id": "E-5540",
+      "seat_section": "Floor 2",
+      "quantity": 2,
+      "delivery": "mobile",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-5550",
+    "delivery": "mail"
+   },
+   "initial_request_values": {
+    "order_id": "O-5550",
+    "delivery": "will_call"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-5550",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "4402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ev.event_date",
+     "value": "2026-06-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Mail is cheaper and I would rather not queue at the box office.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Owen, a freelance designer who is organised but a bit forgetful about dates.",
+   "reason_for_call": "He first wants the tickets collected at the box office, then decides mail is fine because he believes the concert is in June.",
+   "task_instructions": "First ask for will call. After the agent answers, change your mind and ask for mail, saying the concert is on June 15th. If the agent says mail is not possible, accept it and end the call.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6610",
+      "full_name": "Ines Calderon",
+      "email": "ines.c@example.com",
+      "phone_last4": "9053"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-6620",
+      "name": "Sunset Strings Festival",
+      "venue": "Ferry Road Amphitheater",
+      "event_date": "2026-07-18"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-6630",
+      "customer_id": "C-6610",
+      "event_id": "E-6620",
+      "seat_section": "Lawn Row 9",
+      "quantity": 2,
+      "delivery": "will_call",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-6630",
+    "delivery": "mobile"
+   },
+   "initial_request_values": {
+    "order_id": "O-6630",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-6630",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "9053",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mobile",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ev.event_date",
+     "value": "2026-07-18",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The tickets are for the festival at the amphitheater on Ferry Road.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The phone number on my account has been the same for about six years.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I bought the tickets online back in March.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ines, a teacher who is calm and methodical.",
+   "reason_for_call": "She first asks for the tickets by mail, then changes her mind and wants them on her phone.",
+   "task_instructions": "First ask for the tickets to be posted by mail. Before the agent acts, switch to mobile tickets, saying it is easier. Answer questions politely.",
+   "expected_outcome": "change_delivery"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7701",
+      "full_name": "Felix Dorn",
+      "email": "felix.dorn@example.com",
+      "phone_last4": "5126"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-7710",
+      "name": "Harvest Brass Night",
+      "venue": "Mill Yard",
+      "event_date": "2026-06-27"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-7720",
+      "customer_id": "C-7701",
+      "event_id": "E-7710",
+      "seat_section": "Section D",
+      "quantity": 4,
+      "delivery": "mail",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-7720",
+    "delivery": "mobile"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-7720",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mobile",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "5126",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Felix, a warehouse supervisor on a short break.",
+   "reason_for_call": "He wants the brass night tickets on his phone instead of by post.",
+   "task_instructions": "Answer with as few words as possible. Give the order number at the start. Give the last four digits of your phone number only when the agent asks for them.",
+   "expected_outcome": "change_delivery"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8801",
+      "full_name": "Sofia Marin",
+      "email": "sofia.marin@example.com",
+      "phone_last4": "3368"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-8810",
+      "name": "Lakeside Piano Evening",
+      "venue": "Boathouse",
+      "event_date": "2026-09-12"
+     },
+     {
+      "event_id": "E-8811",
+      "name": "Autumn Jazz Brunch",
+      "venue": "Garden Room",
+      "event_date": "2026-10-03"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-8820",
+      "customer_id": "C-8801",
+      "event_id": "E-8810",
+      "seat_section": "Row 3 Balcony",
+      "quantity": 2,
+      "delivery": "will_call",
+      "status": "cancelled"
+     },
+     {
+      "order_id": "O-8821",
+      "customer_id": "C-8801",
+      "event_id": "E-8811",
+      "seat_section": "Floor 1",
+      "quantity": 2,
+      "delivery": "mobile",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-8820",
+    "delivery": "mobile"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "sofia.marin@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "3368",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.seat_section",
+     "value": "Row 3 Balcony",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mobile",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a cooperative music lover who answers every question fully.",
+   "reason_for_call": "She wants the piano evening tickets on her phone and cannot find the order number.",
+   "task_instructions": "Answer the agent's questions fully and politely. You do not know the order number. Give your email when asked and mention the balcony seats when the agent asks which order you mean.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9902",
+      "full_name": "Walter Greaves",
+      "email": "walter.g@example.com",
+      "phone_last4": "7460"
+     }
+    ],
+    "event": [
+     {
+      "event_id": "E-9910",
+      "name": "Harbor Lights Concert",
+      "venue": "Pier 6 Stage",
+      "event_date": "2026-05-23"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "O-9920",
+      "customer_id": "C-9902",
+      "event_id": "E-9910",
+      "seat_section": "Gate Row 1",
+      "quantity": 3,
+      "delivery": "will_call",
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-9920",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-9920",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.phone_last4",
+     "value": "7460",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ev.event_date",
+     "value": "2026-05-23",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Walter, a retired machinist who is used to getting his way with suppliers.",
+   "reason_for_call": "He wants the harbor concert tickets posted to him this week.",
+   "task_instructions": "Give your order number, mail request, phone digits and the concert date at the start. If the agent refuses, argue that you need the post, and ask for an exception at least twice. Accept it only after the second refusal and then end the call.",
+   "expected_outcome": "decline"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

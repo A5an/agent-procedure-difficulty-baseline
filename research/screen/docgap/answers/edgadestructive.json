@@ -1,0 +1,15 @@
+{
+ "gap_score": 6,
+ "gaps": [
+  "Exact tool names, parameters, and how to identify the target deposit (list/lookup vs. customer-supplied ID) are not specified; the 'details' step could mean several different lookup calls.",
+  "Order and mandatory nature of steps: whether quote is always required before close (policy says only 'prefer'), and whether the quote must be re-fetched if the customer delays or changes details.",
+  "What counts as valid confirmation (explicit yes, ambiguous reply, conditional agreement) and how to handle a customer who hesitates, changes mind after quote, or declines (no mutation, but what follow-up).",
+  "Closure specifics not in the policy: premature-closure penalties, interest rate applied, TDS, notice periods, lock-in, maturity-date edge cases relative to the simulation date 2026-07-16; whether to consult the knowledge base for these rules.",
+  "Payout destination for closure proceeds (linked savings account, which one, customer choice) and whether the customer must be asked or it is defaulted.",
+  "Final step meaning: 'balance' likely means checking the post-closure account balance, but which account (the payout account vs. the closed deposit) and whether to report it unprompted is unspecified.",
+  "Edge cases: deposit already closed, deposit with a lien/loan against it, joint holders, unlinked or invalid IDs (refuse), multiple deposits matching, tool errors or failed closure and how to report them.",
+  "Whether to attempt retention/alternatives or escalate when closure is not possible via tools, and when to transfer vs. raise a service request.",
+  "Bank conventions on tone, how much of the quote to read out (amounts, penalty, net payout), rounding/currency formatting, and avoiding backend field names when presenting the quote.",
+  "Customer behavior variations: provides ID upfront vs. needs help finding it, asks policy questions mid-flow, requests closure of multiple deposits, or asks for balance before closing."
+ ]
+}

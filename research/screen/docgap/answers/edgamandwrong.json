@@ -1,0 +1,14 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which listing tool and what it returns (mandates vs. standing instructions vs. cheques/auto-debits) is unspecified; the description says 'cancel' but the policy only names cancel_mandate and stop_cheque_payment, so the exact object type is ambiguous",
+  "What 'wrong-id correction' means: whether the assistant or customer initially picked the wrong ID, whether a cancellation already happened, and how to remediate (cancellation may be irreversible, so whether re-creating is possible or the assistant must only avoid the wrong cancel)",
+  "How payee matching works: exact vs. fuzzy name match, case/spelling variants, and what to do with multiple mandates for the same payee, no matches, or similar payee names",
+  "Whether and how to confirm with the customer before cancelling (policy requires confirmation but not the format, or whether to present the matched ID/amount/frequency for verification)",
+  "Whether to re-list after cancellation is mandatory and how to report the result (verify the target is gone/status cancelled and the other mandates untouched)",
+  "Customer behavior: may give ambiguous payee, change their mind, supply an ID not linked to them (refuse), or dispute which one to cancel",
+  "Handling of tool errors, already-cancelled or inactive mandates, and filtering of statuses in the list",
+  "Conventions on what details to show customers (hiding internal IDs/field names vs. needing to reference the ID) given the plain-language communication rule",
+  "Whether escalation or a service request applies if cancellation fails or an incorrect cancel cannot be undone"
+ ]
+}

@@ -1,0 +1,46 @@
+
+=== TauIndianBank g38 [past-conversation probes], 50 procedures
+  RAW    Brier 0.170 skill +0.26 logloss 0.511 ECE 0.066 | p>=0.9:  36%  91%  p>=0.8:  36%  91%
+  EB     Brier 0.173 skill +0.25 logloss 0.528 ECE 0.089 | p>=0.9:  36%  91%  p>=0.8:  66%  81%
+  RECAL  Brier 0.198 skill +0.14 logloss 0.676 ECE 0.152 | p>=0.9:  40%  82%  p>=0.8:  66%  81%
+  POOL   Brier 0.173 skill +0.25 logloss 0.526 ECE 0.060 | p>=0.9:  34%  90%  p>=0.8:  54%  85%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:  36%  91%  t=0.8:  36%  91%
+
+=== TauIndianBank g38 [documentation probes], 50 procedures
+  RAW    Brier 0.227 skill +0.02 logloss 0.679 ECE 0.132 | p>=0.9:  34%  73%  p>=0.8:  34%  73%
+  EB     Brier 0.225 skill +0.02 logloss 0.687 ECE 0.126 | p>=0.9:  34%  73%  p>=0.8:  56%  74%
+  RECAL  Brier 0.245 skill -0.06 logloss 0.784 ECE 0.132 | p>=0.9:  34%  73%  p>=0.8:  58%  74%
+  POOL   Brier 0.214 skill +0.07 logloss 0.635 ECE 0.100 | p>=0.9:  22%  80%  p>=0.8:  40%  82%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:   0% nan%  t=0.8:  34%  73%
+
+=== TauIndianBank flash [past-conversation probes], 50 procedures
+  RAW    Brier 0.144 skill +0.36 logloss 0.443 ECE 0.028 | p>=0.9:  48%  93%  p>=0.8:  48%  93%
+  EB     Brier 0.147 skill +0.34 logloss 0.454 ECE 0.060 | p>=0.9:  48%  93%  p>=0.8:  58%  90%
+  RECAL  Brier 0.162 skill +0.28 logloss 0.566 ECE 0.123 | p>=0.9:  56%  90%  p>=0.8:  58%  90%
+  POOL   Brier 0.148 skill +0.34 logloss 0.443 ECE 0.078 | p>=0.9:  42%  96%  p>=0.8:  54%  93%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:  48%  93%  t=0.8:  48%  93%
+
+=== TauIndianBank flash [documentation probes], 50 procedures
+  RAW    Brier 0.196 skill +0.12 logloss 0.579 ECE 0.098 | p>=0.9:  32%  86%  p>=0.8:  32%  86%
+  EB     Brier 0.191 skill +0.14 logloss 0.568 ECE 0.078 | p>=0.9:  32%  86%  p>=0.8:  32%  86%
+  RECAL  Brier 0.201 skill +0.10 logloss 0.695 ECE 0.130 | p>=0.9:  40%  87%  p>=0.8:  50%  81%
+  POOL   Brier 0.184 skill +0.17 logloss 0.558 ECE 0.060 | p>=0.9:  22%  86%  p>=0.8:  40%  87%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:   0% nan%  t=0.8:  32%  86%
+
+=== SOPBench lite [code-generated probes], 68 procedures
+  RAW    Brier 0.175 skill -0.04 logloss 0.545 ECE 0.080 | p>=0.9:   0% nan%  p>=0.8:   0% nan%
+  EB     Brier 0.169 skill -0.01 logloss 0.526 ECE 0.062 | p>=0.9:   0% nan%  p>=0.8:   0% nan%
+  RECAL  Brier 0.169 skill -0.01 logloss 0.529 ECE 0.079 | p>=0.9:   0% nan%  p>=0.8:   0% nan%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:   0% nan%  t=0.8:   0% nan%
+
+=== SOPBench flash [code-generated probes], 68 procedures
+  RAW    Brier 0.177 skill +0.11 logloss 0.528 ECE 0.083 | p>=0.9:  18%  94%  p>=0.8:  40%  84%
+  EB     Brier 0.177 skill +0.12 logloss 0.528 ECE 0.078 | p>=0.9:  14%  94%  p>=0.8:  41%  84%
+  RECAL  Brier 0.202 skill -0.01 logloss 0.631 ECE 0.156 | p>=0.9:  44%  85%  p>=0.8:  61%  80%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:   7% 100%  t=0.8:  25%  88%
+
+=== SOPBench g38 [code-generated probes], 68 procedures
+  RAW    Brier 0.096 skill +0.25 logloss 0.319 ECE 0.028 | p>=0.9:  58%  96%  p>=0.8:  84%  92%
+  EB     Brier 0.096 skill +0.25 logloss 0.321 ECE 0.028 | p>=0.9:  60%  95%  p>=0.8:  85%  92%
+  RECAL  Brier 0.101 skill +0.21 logloss 0.360 ECE 0.049 | p>=0.9:  76%  92%  p>=0.8:  86%  91%
+  lower-bound rule (P(rate>=t) >= 0.8 under EB): t=0.9:  50%  98%  t=0.8:  80%  92%

@@ -1,0 +1,15 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which tools exist for card lookup and what they return (card list vs. single card detail), and in what order to call them (e.g., list linked cards first, then fetch details) are not specified.",
+  "Which card fields may be disclosed is undefined: full vs. masked card number, CVV, expiry, limits, status, billing cycle, outstanding balance, reward points, PIN status. Policy says nothing about sensitive data masking.",
+  "Ambiguity resolution: what to do when the customer has multiple cards or gives only partial identifiers (last 4 digits, card type, nickname), and how to match them to linked cards.",
+  "Handling of unlinked or other people's card IDs: policy says refuse, but exact wording, and whether to still offer to look up their own cards, is unspecified.",
+  "Whether this request type is purely read-only or may flow into mutations (freeze, block, limit change, replacement) when the customer reveals loss or fraud, and how to transition.",
+  "Edge cases: card already blocked/frozen/expired, card not found, tool errors or empty results, closed accounts, debit vs. credit differences.",
+  "Whether knowledge base lookup is needed for questions like fees, limits policy, or reward rules mixed in with the details request, and how to handle weak search hits.",
+  "Customer behavior: vague requests, pushing for full card number or CVV, asking for details of a family member's card, changing their mind, or asking multiple things in one turn.",
+  "Expected final outcome and the closing convention: whether a summary of details is the final action, whether any service request or transfer is needed, and the format and level of detail of the answer.",
+  "Bank-specific conventions: how to present dates (simulation date 2026-07-16), currency formatting, card naming, and plain-language terms for statuses without exposing internal codes."
+ ]
+}

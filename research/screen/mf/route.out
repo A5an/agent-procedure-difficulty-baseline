@@ -1,0 +1,156 @@
+
+F=20 h=5 q=0.99
+   always flash 5.82
+   always g38 4.434
+   always sonnet 5.187
+   always human 5.2
+   oracle 2.235
+   raw n=2 3.128
+   calib n=2 3.459
+   mf n=2 2.923
+   raw n=4 2.885
+   calib n=4 3.066
+   mf n=4 2.553
+   raw n=8 2.885
+   calib n=8 2.887
+   mf n=8 2.52
+   raw n=all 2.691
+   calib n=all 2.637
+   mf n=all 2.542
+   best_constant always g38
+   mf n=2 - best constant (-1.511, -2.57, -0.595)
+   mf n=2 - raw n=2 (-0.205, -0.507, 0.033)
+   mf n=2 - calib n=2 (-0.535, -0.834, -0.283)
+   mf n=2 - raw n=all (0.232, -0.297, 0.662)
+   mf n=2 share of oracle gain 0.687
+   mf n=4 - best constant (-1.881, -2.952, -0.929)
+   mf n=4 - raw n=4 (-0.332, -0.73, -0.024)
+   mf n=4 - calib n=4 (-0.513, -1.006, -0.13)
+   mf n=4 - raw n=all (-0.138, -0.624, 0.223)
+   mf n=4 share of oracle gain 0.855
+   mf n=8 - best constant (-1.914, -2.994, -0.981)
+   mf n=8 - raw n=8 (-0.365, -0.872, -0.03)
+   mf n=8 - calib n=8 (-0.367, -0.81, -0.079)
+   mf n=8 - raw n=all (-0.171, -0.625, 0.196)
+   mf n=8 share of oracle gain 0.87
+   mf n=all - best constant (-1.892, -3.042, -0.97)
+   mf n=all - raw n=all (-0.149, -0.655, 0.262)
+   mf n=all - calib n=all (-0.094, -0.579, 0.301)
+   mf n=all share of oracle gain 0.86
+
+F=20 h=2 q=0.95
+   always flash 5.82
+   always g38 4.434
+   always sonnet 5.187
+   always human 3.0
+   oracle 1.406
+   raw n=2 2.649
+   calib n=2 2.74
+   mf n=2 2.067
+   raw n=4 2.968
+   calib n=4 3.025
+   mf n=4 1.75
+   raw n=8 2.086
+   calib n=8 2.135
+   mf n=8 1.682
+   raw n=all 1.974
+   calib n=all 1.984
+   mf n=all 1.731
+   best_constant always human
+   mf n=2 - best constant (-0.933, -1.366, -0.478)
+   mf n=2 - raw n=2 (-0.583, -0.923, -0.222)
+   mf n=2 - calib n=2 (-0.673, -1.046, -0.28)
+   mf n=2 - raw n=all (0.093, -0.447, 0.501)
+   mf n=2 share of oracle gain 0.586
+   mf n=4 - best constant (-1.25, -1.667, -0.829)
+   mf n=4 - raw n=4 (-1.218, -1.617, -0.805)
+   mf n=4 - calib n=4 (-1.275, -1.753, -0.82)
+   mf n=4 - raw n=all (-0.224, -0.747, 0.15)
+   mf n=4 share of oracle gain 0.784
+   mf n=8 - best constant (-1.318, -1.694, -0.932)
+   mf n=8 - raw n=8 (-0.404, -0.876, -0.062)
+   mf n=8 - calib n=8 (-0.453, -0.89, -0.144)
+   mf n=8 - raw n=all (-0.292, -0.764, 0.033)
+   mf n=8 share of oracle gain 0.827
+   mf n=all - best constant (-1.269, -1.685, -0.859)
+   mf n=all - raw n=all (-0.243, -0.723, 0.076)
+   mf n=all - calib n=all (-0.253, -0.671, -0.006)
+   mf n=all share of oracle gain 0.796
+
+F=50 h=5 q=0.99
+   always flash 14.539
+   always g38 11.054
+   always sonnet 12.893
+   always human 5.5
+   oracle 2.66
+   raw n=2 5.028
+   calib n=2 5.478
+   mf n=2 3.944
+   raw n=4 5.458
+   calib n=4 5.461
+   mf n=4 3.49
+   raw n=8 4.469
+   calib n=8 5.032
+   mf n=8 3.42
+   raw n=all 4.005
+   calib n=all 4.379
+   mf n=all 3.338
+   best_constant always human
+   mf n=2 - best constant (-1.556, -2.228, -0.827)
+   mf n=2 - raw n=2 (-1.084, -1.605, -0.518)
+   mf n=2 - calib n=2 (-1.534, -2.205, -0.884)
+   mf n=2 - raw n=all (-0.061, -0.655, 0.574)
+   mf n=2 share of oracle gain 0.548
+   mf n=4 - best constant (-2.01, -2.825, -1.111)
+   mf n=4 - raw n=4 (-1.967, -2.788, -1.022)
+   mf n=4 - calib n=4 (-1.971, -2.851, -1.079)
+   mf n=4 - raw n=all (-0.515, -1.211, 0.209)
+   mf n=4 share of oracle gain 0.708
+   mf n=8 - best constant (-2.08, -2.829, -1.225)
+   mf n=8 - raw n=8 (-1.05, -1.685, -0.364)
+   mf n=8 - calib n=8 (-1.612, -2.9, -0.604)
+   mf n=8 - raw n=all (-0.585, -1.209, 0.09)
+   mf n=8 share of oracle gain 0.733
+   mf n=all - best constant (-2.162, -3.0, -1.282)
+   mf n=all - raw n=all (-0.667, -1.298, -0.028)
+   mf n=all - calib n=all (-1.041, -2.187, -0.134)
+   mf n=all share of oracle gain 0.761
+
+F=10 h=5 q=0.99
+   always flash 2.914
+   always g38 2.228
+   always sonnet 2.619
+   always human 5.1
+   oracle 1.612
+   raw n=2 2.087
+   calib n=2 2.157
+   mf n=2 1.958
+   raw n=4 2.035
+   calib n=4 2.174
+   mf n=4 1.858
+   raw n=8 2.032
+   calib n=8 2.093
+   mf n=8 1.825
+   raw n=all 1.974
+   calib n=all 2.034
+   mf n=all 1.826
+   best_constant always g38
+   mf n=2 - best constant (-0.269, -0.59, 0.012)
+   mf n=2 - raw n=2 (-0.128, -0.281, 0.005)
+   mf n=2 - calib n=2 (-0.198, -0.349, -0.072)
+   mf n=2 - raw n=all (-0.016, -0.309, 0.251)
+   mf n=2 share of oracle gain 0.437
+   mf n=4 - best constant (-0.37, -0.679, -0.101)
+   mf n=4 - raw n=4 (-0.177, -0.379, -0.012)
+   mf n=4 - calib n=4 (-0.316, -0.575, -0.108)
+   mf n=4 - raw n=all (-0.116, -0.409, 0.146)
+   mf n=4 share of oracle gain 0.601
+   mf n=8 - best constant (-0.402, -0.718, -0.108)
+   mf n=8 - raw n=8 (-0.206, -0.498, 0.068)
+   mf n=8 - calib n=8 (-0.268, -0.518, -0.087)
+   mf n=8 - raw n=all (-0.149, -0.464, 0.122)
+   mf n=8 share of oracle gain 0.653
+   mf n=all - best constant (-0.402, -0.761, -0.083)
+   mf n=all - raw n=all (-0.149, -0.45, 0.119)
+   mf n=all - calib n=all (-0.208, -0.459, -0.005)
+   mf n=all share of oracle gain 0.653

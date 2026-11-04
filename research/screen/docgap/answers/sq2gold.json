@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Exact tool sequence is unspecified: which tools fetch the gold rate, compute LTV eligibility, and submit the application, and whether the customer's linked gold/collateral account must be looked up first.",
+  "Which LTV ratio applies is unspecified. It may depend on loan amount tier, scheme (bullet repayment, EMI, agri), or purity. The knowledge base may be the only source, and the policy doesn't say which query terms to use.",
+  "How the loan amount is computed is unspecified: gold weight \u00d7 purity \u00d7 rate \u00d7 LTV, whether to use gross or net weight, whether rate is per gram or per 10 g, and how to round.",
+  "Which rate to use is unspecified: the bank's internal rate or the market rate, and for which purity (22K or 24K). It is also unclear how to handle a stale rate or a rate that differs from what the customer expects.",
+  "The final action is unspecified: submit a loan application, only give an eligibility quote, or raise a service request. It is also unclear whether 'apply' needs customer confirmation, since the policy lists no confirmation for it.",
+  "Application inputs are undefined: tenure, scheme and product ID, repayment type, interest rate, and branch for appraisal. Gold is physically appraised, so the bot may only be able to give an indicative figure and pre-register the application.",
+  "Customer behavior and edge cases: asks for more than the maximum eligible amount, changes their mind, supplies the weight or purity themselves, asks for a different scheme, gives an unlinked account, or asks for a rate lock.",
+  "Policy limits are unspecified: minimum and maximum loan amount, minimum gold purity or weight, KYC or existing-loan restrictions, and age or eligibility rules.",
+  "Bank conventions are unspecified: whether to quote indicative versus final amounts, what disclaimers to give, the processing fee and interest rate disclosure, and the rounding and currency format.",
+  "Escalation boundaries are unclear: whether the bot should transfer or raise a service request when a tool or knowledge-base hit is weak, or when physical appraisal is required."
+ ]
+}

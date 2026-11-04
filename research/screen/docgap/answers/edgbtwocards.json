@@ -1,0 +1,15 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which product type 'both' refers to is unspecified (two cards? card and account? credit vs debit?) and how to list them (tool, fields shown, masking of numbers) is not defined",
+  "Which of the two gets frozen vs permanently blocked is not specified; it depends on the customer's stated reasons (lost/misplaced vs stolen/compromised), and the policy gives no rule for ambiguous or mixed cases",
+  "Policy allows permanent block only when stolen/compromised and explicitly confirmed; unspecified what to do if the customer asks to permanently block a merely lost card (refuse and offer freeze? ask clarifying question?)",
+  "Order of confirmation vs action is unclear: whether to confirm the freeze, whether one combined confirmation or separate ones are needed, and what to do if the customer confirms one action but declines the other",
+  "Replacement step is unspecified: which tool or service request issues the replacement card, for which card (the blocked one only or also the frozen one), delivery address, fees, timelines, and whether it requires a knowledge base lookup",
+  "'Verify' is ambiguous: re-fetching card statuses via tools, confirming the replacement request was created, or something else; what the final summary should contain is not defined",
+  "Edge cases not covered: card already frozen or blocked, customer provides an unlinked card ID, only one card exists, blocked card has pending transactions or linked mandates/subscriptions, frozen card later unfrozen",
+  "Customer behavior is unknown: may change their mind, swap which card gets which action, request unfreezing, or provide partial details, and the policy only says not to mutate in those cases",
+  "Bank-specific conventions (replacement fees, charges for reissue, eligibility, card network limits, timeline) must come from the knowledge base, and the handling of weak search hits depends on the query used",
+  "Whether escalation or a service request is warranted if the replacement cannot be done via tools is not specified"
+ ]
+}

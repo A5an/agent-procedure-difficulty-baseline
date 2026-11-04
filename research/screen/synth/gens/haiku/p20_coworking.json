@@ -1,0 +1,771 @@
+{
+ "procedure_id": "p20_coworking",
+ "domain": "coworking space",
+ "organization": "Harbor Works Coworking",
+ "title": "Booking extensions",
+ "summary": "Extend a coworking desk, pod, room or suite booking by one to four weeks when the member and booking qualify, or send the request to staff when the space has a waiting list.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Coworking members and their membership accounts",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:active|paused|closed",
+    "plan": "enum:flex|dedicated",
+    "balance_due": "number"
+   }
+  },
+  "space": {
+   "key": "space_id",
+   "description": "Desks, pods, rooms and suites that members can book",
+   "fields": {
+    "space_id": "str",
+    "name": "str",
+    "has_waitlist": "bool"
+   }
+  },
+  "booking": {
+   "key": "booking_id",
+   "description": "Reservations of a space by a member for a period",
+   "fields": {
+    "booking_id": "str",
+    "member_id": "ref:member",
+    "space_id": "ref:space",
+    "start_date": "date",
+    "end_date": "date",
+    "status": "enum:confirmed|cancelled",
+    "extensions": "int"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for staff to review a booking change",
+   "fields": {
+    "request_id": "str",
+    "booking_id": "ref:booking",
+    "reason": "enum:waitlist|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a membership by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find memberships by the email address on file."
+  },
+  {
+   "name": "get_space",
+   "kind": "get",
+   "entity": "space",
+   "description": "Look up a space by its space number."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a booking by its booking number."
+  },
+  {
+   "name": "find_bookings_by_member",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all bookings on a membership."
+  },
+  {
+   "name": "extend_booking",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking to extend."
+    },
+    "weeks": {
+     "type": "int",
+     "description": "Number of weeks to add to the end date."
+    }
+   },
+   "set": {
+    "end_date": "add_days(rec.end_date, args.weeks * 7)",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Move the booking end date later by the given number of weeks and count one extension."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking the request is about."
+    },
+    "reason": {
+     "type": "enum:waitlist|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "booking_id": "args.booking_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff to review a booking change."
+  }
+ ],
+ "request": {
+  "booking_id": {
+   "type": "ref:booking",
+   "description": "the booking you want extended"
+  },
+  "weeks": {
+   "type": "int",
+   "description": "how many weeks you want to add"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "booking.member_id"
+  },
+  {
+   "name": "space",
+   "entity": "space",
+   "key": "booking.space_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the booking by the requested number of weeks.",
+   "calls": [
+    {
+     "tool": "extend_booking",
+     "args": {
+      "booking_id": "req.booking_id",
+      "weeks": "req.weeks"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The space has a waiting list: open a staff approval request instead of extending.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "booking_id": "booking.booking_id",
+      "reason": "'waitlist'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the booking; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only members with an active membership can extend a booking."
+  },
+  {
+   "id": "R2",
+   "when": "booking.status != 'confirmed'",
+   "outcome": "refuse",
+   "explain": "A cancelled booking cannot be extended."
+  },
+  {
+   "id": "R3",
+   "when": "mem.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "Members with any unpaid balance cannot extend until it is paid."
+  },
+  {
+   "id": "R4",
+   "when": "req.weeks < 1 or req.weeks > 4",
+   "outcome": "refuse",
+   "explain": "An extension must be between one and four weeks."
+  },
+  {
+   "id": "R5",
+   "when": "booking.extensions >= 2",
+   "outcome": "refuse",
+   "explain": "A booking can be extended at most twice in total."
+  },
+  {
+   "id": "R6",
+   "when": "space.has_waitlist",
+   "outcome": "approval",
+   "explain": "If the space has a waiting list, open a staff approval request instead of extending."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Scope\nThis procedure covers requests to extend a coworking booking (a desk, pod, room or suite) by a number of weeks. Ask the member which booking they mean and how many weeks they want to add.\n\n## Finding the booking\nIf the member gives the booking number, look up that booking. If they do not have it, find their membership by the email address on file and list the bookings on that membership. If there is more than one booking, ask which one by its start date. Do not guess between bookings. No additional identity check is required for this procedure.\n\n## Checks, in order\nRead the booking, its member and its space. Go through the checks below in order. The first one that applies decides the outcome.\n\n1. The membership must be active. If it is paused or closed, refuse.\n2. The booking must be confirmed. A cancelled booking cannot be extended; refuse.\n3. The membership must have no unpaid balance. If the balance due is above zero, refuse until it is paid.\n4. The extension must be between one and four weeks. Requests for less than one week or more than four weeks are refused, not shortened.\n5. A booking can be extended at most twice in total. If it has already been extended twice, refuse.\n6. If the space has a waiting list, do not extend. Open an approval request for the booking with reason waitlist, and tell the member that staff will review it.\n\nIf none of the checks applies, extend the booking by the number of weeks the member asked for.\n\n## Outcomes\n- Extend: make one change, extending the booking by the requested weeks. Tell the member the new end date.\n- Approval request: make only the approval request. Do not extend the booking. Tell the member that staff will review the request.\n- Refuse: change nothing. Explain the reason in one plain sentence.\n\n## Never\nDo not waive or reduce a balance, do not extend a booking by more than four weeks, do not change anything on the booking other than its extension, and do not open an approval request for a request that is refused. Go by the records. If the member believes a balance or status is different from what the record shows, tell them what the record shows and do not change it.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-0900",
+    "full_name": "Priya Nair",
+    "email": "priya.nair@example.com",
+    "status": "active",
+    "plan": "flex",
+    "balance_due": 0.0
+   }
+  ],
+  "space": [
+   {
+    "space_id": "S-0900",
+    "name": "Quiet Room 3",
+    "has_waitlist": false
+   }
+  ],
+  "booking": [
+   {
+    "booking_id": "B-0900",
+    "member_id": "M-0900",
+    "space_id": "S-0900",
+    "start_date": "2026-05-04",
+    "end_date": "2026-06-05",
+    "status": "confirmed",
+    "extensions": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1142",
+      "full_name": "Marcus Oyelaran",
+      "email": "marcus.o@example.com",
+      "status": "active",
+      "plan": "dedicated",
+      "balance_due": 20.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-1142",
+      "name": "Mezzanine B Pod",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-1142",
+      "member_id": "M-1142",
+      "space_id": "S-1142",
+      "start_date": "2026-04-27",
+      "end_date": "2026-06-08",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-1142",
+    "weeks": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-1142",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 20.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The Mezzanine B pod is the one by the window, and I have used it since April.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I think the open amount is the printer add-on from April, about twenty dollars.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a freelance illustrator who works from the same pod most weeks. Friendly and organized.",
+   "reason_for_call": "He has a client deadline and wants two more weeks in the pod.",
+   "task_instructions": "In your first message, say the booking number, the two weeks, and that you think you owe about twenty dollars. Accept a refusal politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2208",
+      "full_name": "Tamsin Greaves",
+      "email": "tamsin.g@example.com",
+      "status": "active",
+      "plan": "flex",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-2208",
+      "name": "Hot Desk Floor 2",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2208",
+      "member_id": "M-2208",
+      "space_id": "S-2208",
+      "start_date": "2026-05-04",
+      "end_date": "2026-06-12",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2208",
+    "weeks": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.weeks",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.start_date",
+     "value": "2026-05-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tamsin, a copywriter who has used the hot desk area since spring, calling from a new phone.",
+   "reason_for_call": "She wants one more week at the hot desk.",
+   "task_instructions": "Say you want one more week and that your booking started in early May. You do not have the booking number, and you cannot remember the email you signed up with. Be brief. Accept if the agent cannot find it.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3315",
+      "full_name": "Hana Lindqvist",
+      "email": "hana.lindqvist@example.com",
+      "status": "active",
+      "plan": "flex",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-3315",
+      "name": "Garden Room",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3315",
+      "member_id": "M-3315",
+      "space_id": "S-3315",
+      "start_date": "2026-03-02",
+      "end_date": "2026-06-05",
+      "status": "confirmed",
+      "extensions": 0
+     },
+     {
+      "booking_id": "B-3316",
+      "member_id": "M-3315",
+      "space_id": "S-3315",
+      "start_date": "2026-05-11",
+      "end_date": "2026-05-30",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3315",
+    "weeks": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.weeks",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.email",
+     "value": "hana.lindqvist@example.com",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "booking.start_date",
+     "value": "2026-03-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a translator who rents the Garden Room for her working days. Brief and businesslike.",
+   "reason_for_call": "She wants one more week in the room.",
+   "task_instructions": "Keep answers to a few words. Ask for one week. You do not know the booking number. Give your email and the start date of the booking that you want extended when the agent asks for them.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-4420",
+      "full_name": "Oskar Velde",
+      "email": "oskar.v@example.com",
+      "status": "active",
+      "plan": "dedicated",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-4420",
+      "name": "Studio Suite 4",
+      "has_waitlist": false
+     },
+     {
+      "space_id": "S-4421",
+      "name": "Hot Desk Floor 1",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-4420",
+      "member_id": "M-4420",
+      "space_id": "S-4420",
+      "start_date": "2026-02-16",
+      "end_date": "2026-07-03",
+      "status": "confirmed",
+      "extensions": 0
+     },
+     {
+      "booking_id": "B-4421",
+      "member_id": "M-4420",
+      "space_id": "S-4421",
+      "start_date": "2026-05-18",
+      "end_date": "2026-06-19",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-4420",
+    "weeks": 2
+   },
+   "initial_request_values": {
+    "booking_id": "B-4420",
+    "weeks": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-4420",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I am also on a hot desk on the first floor for next month, and I am not changing that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The coffee machine on the first floor has been broken all week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was wondering whether long-term members get a discount on printing, but that is a separate question I will ask another day.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Oskar, an architect who builds scale models in the suite. Patient and a little rambling.",
+   "reason_for_call": "He wants more time in the suite to finish a model before a client review.",
+   "task_instructions": "Give the booking number in your first message. Start by asking for six weeks. Before the agent makes any change, switch to two weeks. Mention the other things only if they come up.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-5503",
+      "full_name": "Felix Brandt",
+      "email": "felix.brandt@example.com",
+      "status": "active",
+      "plan": "flex",
+      "balance_due": 35.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-5503",
+      "name": "Podcast Booth 2",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-5503",
+      "member_id": "M-5503",
+      "space_id": "S-5503",
+      "start_date": "2026-05-01",
+      "end_date": "2026-06-15",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-5503",
+    "weeks": 1
+   },
+   "initial_request_values": {
+    "booking_id": "B-5503",
+    "weeks": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-5503",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Felix, a podcaster who records weekly in the booth. Cheerful and quick.",
+   "reason_for_call": "He wants one more week to finish a season of episodes.",
+   "task_instructions": "Give the booking number in your first message and say you paid everything last month and owe nothing. Start by asking for three weeks. Before any change is made, switch to one week. Accept what the agent decides.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-6612",
+      "full_name": "Sana Mirza",
+      "email": "sana.mirza@example.com",
+      "status": "active",
+      "plan": "dedicated",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-6612",
+      "name": "Phone Booth Row",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-6612",
+      "member_id": "M-6612",
+      "space_id": "S-6612",
+      "start_date": "2026-04-06",
+      "end_date": "2026-06-01",
+      "status": "confirmed",
+      "extensions": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-6612",
+    "weeks": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-6612",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 2,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sana, a lawyer who takes calls in a booth between meetings. Brisk and direct.",
+   "reason_for_call": "She wants two more weeks in the phone booth row for a long matter.",
+   "task_instructions": "Give the booking number at the start. Sound impatient and hurry the agent along. Do not say how many weeks you want until the agent asks; then say two.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-7721",
+      "full_name": "Dmitri Kowalczyk",
+      "email": "dmitri.k@example.com",
+      "status": "active",
+      "plan": "flex",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-7721",
+      "name": "Focus Pod 7",
+      "has_waitlist": true
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-7721",
+      "member_id": "M-7721",
+      "space_id": "S-7721",
+      "start_date": "2026-05-06",
+      "end_date": "2026-06-10",
+      "status": "confirmed",
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-7721",
+    "weeks": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-7721",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dmitri, a consultant preparing a product launch from the pod. Impatient and direct.",
+   "reason_for_call": "He wants three more weeks in the pod for the launch.",
+   "task_instructions": "State the booking number and three weeks in your first message. Sound impatient. If the agent says someone is waiting for the pod, argue once for an exception; when the agent explains that staff will review it, accept.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8830",
+      "full_name": "Lucia Ferrante",
+      "email": "lucia.f@example.com",
+      "status": "active",
+      "plan": "dedicated",
+      "balance_due": 0.0
+     }
+    ],
+    "space": [
+     {
+      "space_id": "S-8830",
+      "name": "Workshop Table 2",
+      "has_waitlist": false
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-8830",
+      "member_id": "M-8830",
+      "space_id": "S-8830",
+      "start_date": "2026-03-30",
+      "end_date": "2026-06-26",
+      "status": "confirmed",
+      "extensions": 2
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-8830",
+    "weeks": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-8830",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 1,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Lucia, a furniture designer working on a prototype at the workshop table. Polite and cooperative.",
+   "reason_for_call": "She wants one more week to finish the prototype.",
+   "task_instructions": "Give the booking number in your first message. When the agent asks how many weeks you want, say one week. Accept the answer and thank the agent.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

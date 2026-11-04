@@ -1,0 +1,704 @@
+{
+ "procedure_id": "p20_coworking",
+ "domain": "coworking space",
+ "organization": "Foundry Commons Coworking",
+ "title": "Membership pauses",
+ "summary": "Temporarily pause a member's coworking membership, or route the pause to space operations for approval when a reserved desk or office is involved.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "People who hold one or more coworking memberships",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "company": "str"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Individual membership plans held by members at a given location",
+   "fields": {
+    "membership_id": "str",
+    "member_id": "ref:member",
+    "plan": "enum:hot_desk|dedicated_desk|private_office|virtual_office",
+    "location": "str",
+    "status": "enum:active|paused|suspended|cancelled",
+    "start_date": "date",
+    "balance_due": "number",
+    "pauses_used": "int",
+    "pause_end": "date"
+   }
+  },
+  "pause_approval": {
+   "key": "request_id",
+   "description": "Pause requests waiting for approval by space operations",
+   "fields": {
+    "request_id": "str",
+    "membership_id": "ref:membership",
+    "weeks": "int",
+    "status": "enum:pending|approved|declined",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member profile by member ID."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find member profiles by the email address on file."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership by its membership number. Shows plan, location, status, start date, balance due, pauses used this calendar year and any pause end date."
+  },
+  {
+   "name": "find_memberships_by_member",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all memberships held by a member."
+  },
+  {
+   "name": "pause_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to pause."
+    },
+    "weeks": {
+     "type": "int",
+     "description": "Length of the pause in whole weeks, starting today."
+    }
+   },
+   "set": {
+    "status": "'paused'",
+    "pause_end": "add_days(today, args.weeks * 7)",
+    "pauses_used": "rec.pauses_used + 1"
+   },
+   "description": "Pause a membership starting today for the given number of weeks, set the date the pause ends, and count one pause used this year."
+  },
+  {
+   "name": "create_pause_approval",
+   "kind": "create",
+   "entity": "pause_approval",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership the pause request is about."
+    },
+    "weeks": {
+     "type": "int",
+     "description": "Requested pause length in whole weeks."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "weeks": "args.weeks",
+    "status": "'pending'",
+    "created": "today"
+   },
+   "description": "Send a pause request to space operations for approval instead of pausing directly."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to pause"
+  },
+  "weeks": {
+   "type": "int",
+   "description": "how many weeks you want the pause to last"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "membership",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "membership.member_id"
+  }
+ ],
+ "outcomes": {
+  "pause": {
+   "kind": "perform",
+   "description": "Pause the membership from today for the requested number of weeks.",
+   "calls": [
+    {
+     "tool": "pause_membership",
+     "args": {
+      "membership_id": "req.membership_id",
+      "weeks": "req.weeks"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The plan holds a reserved desk or office: send the pause to space operations for approval instead of pausing.",
+   "calls": [
+    {
+     "tool": "create_pause_approval",
+     "args": {
+      "membership_id": "membership.membership_id",
+      "weeks": "req.weeks"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not pause; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "membership.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active memberships can be paused."
+  },
+  {
+   "id": "R2",
+   "when": "membership.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "A membership with any unpaid balance cannot be paused."
+  },
+  {
+   "id": "R3",
+   "when": "req.weeks < 2 or req.weeks > 8",
+   "outcome": "refuse",
+   "explain": "A pause must last between 2 and 8 whole weeks."
+  },
+  {
+   "id": "R4",
+   "when": "membership.pauses_used >= 2",
+   "outcome": "refuse",
+   "explain": "A membership can be paused at most twice per calendar year."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(membership.start_date, today) < 90",
+   "outcome": "refuse",
+   "explain": "A membership must have started at least 90 days ago before it can be paused."
+  },
+  {
+   "id": "R6",
+   "when": "membership.plan in ['dedicated_desk', 'private_office']",
+   "outcome": "approval",
+   "explain": "Dedicated desk and private office plans need space operations approval, so a pause approval request is created instead of pausing."
+  }
+ ],
+ "default_outcome": "pause",
+ "policy_text": "## Purpose\nMembers sometimes need to step away for a while, for travel, parental leave or a quiet season. A pause stops their membership from today for a set number of weeks. This document explains when you can pause a membership, when it must go to space operations, and when you must decline.\n\n## Finding the membership\nAsk for the membership number. If the member does not have it, ask for the email address on their member profile, find the profile, and list their memberships. If they hold more than one, ask which plan or location they mean. If you cannot find the member or cannot tell which membership they mean, do not pause anything. Also ask how many weeks they want the pause to last if they have not said.\n\n## Conditions, checked in this order\n1. **Status.** Only active memberships can be paused. Memberships that are already paused, suspended or cancelled cannot be paused.\n2. **Unpaid balance.** If the membership shows any balance due above 0.00, it cannot be paused until the balance is paid. Go by the balance in our system, not what the member believes.\n3. **Length.** A pause must last at least 2 and at most 8 whole weeks. Decline requests outside this range; do not change the length on the member's behalf.\n4. **Pauses per year.** Each membership can be paused at most twice per calendar year. If the membership already shows 2 pauses used this year, decline.\n5. **Minimum tenure.** The membership must have started at least 90 days before today. Newer memberships cannot be paused.\n6. **Reserved spaces.** Dedicated desk and private office plans hold a physical space for the member, so space operations must approve the pause. For these plans, do not pause the membership yourself. Create a pause approval request with the membership and the requested number of weeks, and tell the member that space operations will review it and contact them.\n\nIf none of the above applies, pause the membership starting today for the number of weeks the member asked for.\n\n## Never\nDo not waive or ignore an unpaid balance, do not make exceptions to the limits above, do not pause a reserved desk or private office directly, and do not change any membership the member did not ask about.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1000",
+    "full_name": "Grace Mbeki",
+    "email": "grace.mbeki@lanternstudio.co",
+    "phone": "+44 20 7946 0011",
+    "company": "Lantern Studio"
+   }
+  ],
+  "membership": [
+   {
+    "membership_id": "MS-10001",
+    "member_id": "M-1000",
+    "plan": "dedicated_desk",
+    "location": "Harbourside",
+    "status": "active",
+    "start_date": "2023-04-03",
+    "balance_due": 0,
+    "pauses_used": 0,
+    "pause_end": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1401",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@fieldnotes.dev",
+      "phone": "+44 20 7946 0142",
+      "company": "Fieldnotes"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-24017",
+      "member_id": "M-1401",
+      "plan": "hot_desk",
+      "location": "Harbourside",
+      "status": "active",
+      "start_date": "2024-09-02",
+      "balance_due": 0,
+      "pauses_used": 2,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-24017",
+    "weeks": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-24017",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.pauses_used",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I already paused once back in January for a ski trip and again in March when I had surgery.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It's my hot desk membership at the Harbourside building.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, a freelance UX researcher who travels often for client work. Warm, organized and straightforward.",
+   "reason_for_call": "She has a month-long research project abroad and wants to pause her membership while she is away.",
+   "task_instructions": "In your first message, give your membership number, say you want a 4-week pause, and mention that you have already paused twice this year (January and March) on your Harbourside hot desk. Answer questions politely. If the agent explains you cannot pause again, accept it graciously and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1522",
+      "full_name": "Tom\u00e1s Ferreira",
+      "email": "tferreira@quaylogistics.pt",
+      "phone": "+351 21 555 0193",
+      "company": "Quay Logistics"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-31102",
+      "member_id": "M-1522",
+      "plan": "hot_desk",
+      "location": "Canal Street",
+      "status": "active",
+      "start_date": "2024-01-15",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-31102",
+    "weeks": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.weeks",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Tom\u00e1s Ferreira",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a logistics consultant writing from a borrowed laptop at an airport. Says as little as possible.",
+   "reason_for_call": "He wants to pause his membership for three weeks while on a work trip.",
+   "task_instructions": "Give very short answers. You only know your name and that you want 3 weeks. You don't have your membership number, and your company changed email domains so you don't know which email address is on file. Say so if asked. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1630",
+      "full_name": "Hannah Okafor",
+      "email": "hannah.okafor@brightlane.io",
+      "phone": "+44 161 496 0730",
+      "company": "Brightlane"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-40210",
+      "member_id": "M-1630",
+      "plan": "hot_desk",
+      "location": "Riverside",
+      "status": "active",
+      "start_date": "2025-06-01",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     },
+     {
+      "membership_id": "MS-40211",
+      "member_id": "M-1630",
+      "plan": "virtual_office",
+      "location": "Riverside",
+      "status": "active",
+      "start_date": "2025-06-01",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-40210",
+    "weeks": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "hannah.okafor@brightlane.io",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.plan",
+     "value": "hot_desk",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a startup founder answering between meetings. Brief and to the point.",
+   "reason_for_call": "She is going on six weeks of leave and wants to stop her desk membership in the meantime.",
+   "task_instructions": "Use very short replies. Say you want to pause for 6 weeks and give your email. You don't know the membership number. If asked which membership, say it's the hot desk one, not the virtual office. Confirm when done.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1745",
+      "full_name": "Daniel Kowalski",
+      "email": "daniel@kowalskiarch.pl",
+      "phone": "+48 22 555 0174",
+      "company": "Kowalski Architecture"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-52031",
+      "member_id": "M-1745",
+      "plan": "dedicated_desk",
+      "location": "Harbourside",
+      "status": "active",
+      "start_date": "2025-02-10",
+      "balance_due": 0,
+      "pauses_used": 1,
+      "pause_end": null
+     },
+     {
+      "membership_id": "MS-52032",
+      "member_id": "M-1745",
+      "plan": "virtual_office",
+      "location": "Northgate",
+      "status": "active",
+      "start_date": "2024-08-19",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-52031",
+    "weeks": 5
+   },
+   "initial_request_values": {
+    "membership_id": "MS-52031",
+    "weeks": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-52031",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The coffee machine on the second floor has been leaking all week, by the way.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was going to book the big meeting room for next Thursday, but never mind, the client cancelled.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My virtual office address at Northgate is working fine, the mail forwarding is great.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We might be moving the whole studio to a bigger office next year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Daniel, a chatty architect who likes to mention everything going on at the space.",
+   "reason_for_call": "He is going to supervise a building project out of town and wants to pause his dedicated desk.",
+   "task_instructions": "Give your membership number and first ask for a 3-week pause. Before the agent does anything, say the project was extended and you actually need 5 weeks. Along the way mention the leaking coffee machine, the meeting room you no longer need, your happy Northgate virtual office and the possible studio move. Accept if the agent says operations must approve it.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1858",
+      "full_name": "Sofia Lindqvist",
+      "email": "sofia.lindqvist@nordwrite.se",
+      "phone": "+46 8 555 0185",
+      "company": "Nordwrite"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-60455",
+      "member_id": "M-1858",
+      "plan": "hot_desk",
+      "location": "Canal Street",
+      "status": "active",
+      "start_date": "2023-11-15",
+      "balance_due": 145.0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-60455",
+    "weeks": 4
+   },
+   "initial_request_values": {
+    "membership_id": "MS-60455",
+    "weeks": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-60455",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a technical writer who is certain her account is fully paid because she set up automatic payments.",
+   "reason_for_call": "She is spending time with family and wants to pause her hot desk membership.",
+   "task_instructions": "Give your membership number and say early that you have nothing outstanding on your account. First ask for 8 weeks, then before anything is done say 4 weeks will be enough. If the agent says there is an unpaid balance, say you're surprised, then accept and say you'll check your payments.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1963",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@bellventures.com",
+      "phone": "+44 117 496 0196",
+      "company": "Bell Ventures"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-71820",
+      "member_id": "M-1963",
+      "plan": "private_office",
+      "location": "Riverside",
+      "status": "active",
+      "start_date": "2024-03-01",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-71820",
+    "weeks": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-71820",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 8,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, an impatient investor who expects things done immediately.",
+   "reason_for_call": "His team is working remotely for two months and he doesn't want to pay for the office meanwhile.",
+   "task_instructions": "Give your membership number and demand a pause right away. Say the length (8 weeks) only when asked. If the agent says it has to go to operations for approval, complain and ask at least twice for it to be paused right now instead, then accept the approval request.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2074",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@pixelfold.jp",
+      "phone": "+81 3 5555 0207",
+      "company": "Pixelfold"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-83006",
+      "member_id": "M-2074",
+      "plan": "hot_desk",
+      "location": "Northgate",
+      "status": "active",
+      "start_date": "2025-10-01",
+      "balance_due": 0,
+      "pauses_used": 1,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-83006",
+    "weeks": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-83006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiko, a motion designer in a rush before a flight, short on patience.",
+   "reason_for_call": "She is leaving for a two-week trip and wants her membership paused before she goes.",
+   "task_instructions": "In your first message give your membership number and ask for a 2-week pause, and insist it's done quickly. Push the agent to hurry. If anything is refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "pause"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2189",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@verdeconsulting.it",
+      "phone": "+39 02 5555 0218",
+      "company": "Verde Consulting"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-90114",
+      "member_id": "M-2189",
+      "plan": "hot_desk",
+      "location": "Canal Street",
+      "status": "active",
+      "start_date": "2026-03-09",
+      "balance_due": 0,
+      "pauses_used": 0,
+      "pause_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-90114",
+    "weeks": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-90114",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weeks",
+     "value": 3,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a sustainability consultant who joined the space this spring. Friendly and patient.",
+   "reason_for_call": "She has a three-week assignment at a client's office and wants to pause her membership.",
+   "task_instructions": "Give your membership number and say you'd like to pause. Say you want 3 weeks only when asked. If the agent explains your membership is too new, accept it politely and thank them.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

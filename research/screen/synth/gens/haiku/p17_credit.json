@@ -1,0 +1,667 @@
+{
+ "procedure_id": "p17_credit",
+ "domain": "credit union",
+ "organization": "Lakeshore Community Credit Union",
+ "title": "Loan payment deferral",
+ "summary": "Move the due date of a member's loan payment later by a requested number of days when the member and loan qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Credit union members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:good_standing|under_review|closed"
+   }
+  },
+  "loan": {
+   "key": "loan_id",
+   "description": "Member loans, current and past",
+   "fields": {
+    "loan_id": "str",
+    "member_id": "ref:member",
+    "product": "str",
+    "due_date": "date",
+    "status": "enum:current|late|paid_off",
+    "deferrals_used": "int",
+    "monthly_payment": "number"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_loan",
+   "kind": "get",
+   "entity": "loan",
+   "description": "Look up a loan by its loan number."
+  },
+  {
+   "name": "find_loans_by_member",
+   "kind": "search",
+   "entity": "loan",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all loans belonging to a member."
+  },
+  {
+   "name": "defer_payment",
+   "kind": "update",
+   "entity": "loan",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan whose payment is being deferred."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to move the payment due date later."
+    }
+   },
+   "set": {
+    "due_date": "add_days(rec.due_date, args.days)",
+    "deferrals_used": "rec.deferrals_used + 1"
+   },
+   "description": "Move the loan's payment due date later by the given number of days and count one deferral."
+  }
+ ],
+ "request": {
+  "loan_id": {
+   "type": "ref:loan",
+   "description": "the loan whose payment you want pushed back"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many days you want the payment due date moved"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "loan",
+   "entity": "loan",
+   "key": "req.loan_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "loan.member_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Move the loan's payment due date later by the requested days and count one deferral.",
+   "calls": [
+    {
+     "tool": "defer_payment",
+     "args": {
+      "loan_id": "req.loan_id",
+      "days": "req.days"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the loan; explain why the deferral cannot be made.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "mem.status != 'good_standing'",
+   "outcome": "refuse",
+   "explain": "Members whose membership is under review or closed cannot defer loan payments."
+  },
+  {
+   "id": "R2",
+   "when": "loan.status != 'current'",
+   "outcome": "refuse",
+   "explain": "Only loans that are current, not late or paid off, can be deferred."
+  },
+  {
+   "id": "R3",
+   "when": "loan.deferrals_used >= 2 or req.days > 60",
+   "outcome": "refuse",
+   "explain": "A loan can be deferred at most twice in its life, and a single request cannot ask for more than 60 days."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Who can ask\nMembers can ask to push back the payment due date on one of their loans by phone or in branch. Before changing anything, find the loan and the member it belongs to.\n\n## Finding the loan\nUse the loan number if the member has it. Otherwise find the member by the email address on file, then list the loans for that member. If there is more than one loan, ask the member which one they mean, for example by the product or the current due date. If you cannot identify the loan from what the member gives you, do not make any change. Explain that you cannot find the loan without more information and ask them to call back with the loan number or the email address on file.\n\n## Checks before a deferral\nAll of the following must be true before the payment due date is moved:\n- The member's membership status must be good standing. Members whose membership is under review or closed cannot defer payments.\n- The loan's status must be current. Loans that are late or paid off cannot be deferred.\n- The loan must have used fewer than two deferrals in its life.\n- The number of days requested must not be more than 60.\n\nCheck these against the records, not against what the member says about their account. If the member believes a loan is late or current and the record says otherwise, go by the record.\n\n## When all checks pass\nMove the payment due date later by the number of days the member asked for, which counts as one deferral. Tell the member the new due date.\n\n## When a check fails\nDo not change the loan. Tell the member that the deferral cannot be made and explain the reason in plain words. Do not offer to try again with a different number of days in the same request.\n\n## Never\nDo not make any change the member did not ask for. Do not make more than one deferral per request. Do not waive or reduce any payment, and do not defer a loan for someone whose identity has not been established through the loan number or the email address on file.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-0100",
+    "full_name": "Elaine Forsythe",
+    "email": "elaine.f@example.org",
+    "status": "good_standing"
+   }
+  ],
+  "loan": [
+   {
+    "loan_id": "L-10100",
+    "member_id": "M-0100",
+    "product": "auto loan",
+    "due_date": "2026-06-30",
+    "status": "current",
+    "deferrals_used": 0,
+    "monthly_payment": 275.0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-6204",
+      "full_name": "Grace Oyelaran",
+      "email": "grace.oyelaran@example.net",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-45817",
+      "member_id": "M-6204",
+      "product": "used car loan",
+      "due_date": "2026-06-02",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 312.4
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-45817",
+    "days": 20
+   },
+   "customer_facts": [
+    {
+     "fact": "req.days",
+     "value": 20,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.product",
+     "value": "used car loan",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a warehouse supervisor who is calling from a new phone number after his old one was disconnected. He is busy and speaks in short sentences.",
+   "reason_for_call": "His car payment is due soon and he wants twenty more days before it has to be paid.",
+   "task_instructions": "Give only what is asked, in as few words as possible. You lost the letter that came with the loan and do not know the loan number. You do not remember which email address the credit union has for you. If asked for either, say you do not know. Do not elaborate.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-7731",
+      "full_name": "Priya Nandakumar",
+      "email": "priya.n@example.com",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-30418",
+      "member_id": "M-7731",
+      "product": "personal loan",
+      "due_date": "2026-04-28",
+      "status": "late",
+      "deferrals_used": 0,
+      "monthly_payment": 185.0
+     },
+     {
+      "loan_id": "L-30419",
+      "member_id": "M-7731",
+      "product": "motorcycle loan",
+      "due_date": "2026-06-15",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 240.75
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-30418",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "priya.n@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.due_date",
+     "value": "2026-04-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a freelance photographer who is annoyed by fees and feels the credit union is slow to respond.",
+   "reason_for_call": "She wants fourteen more days on her personal loan payment and does not have the loan number.",
+   "task_instructions": "Ask for fourteen days in your first message. Give your email address when asked to identify yourself. If the agent lists more than one loan, say the one due in April is the one you mean. If the agent refuses, argue that you always pay on time and ask for an exception twice, then accept it and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8815",
+      "full_name": "Daniel Osei",
+      "email": "d.osei@example.net",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-61130",
+      "member_id": "M-8815",
+      "product": "home improvement loan",
+      "due_date": "2026-06-10",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 420.0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-61130",
+    "days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-61130",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.status",
+     "value": "current",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Daniel Osei",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I have not missed a payment on this loan this year.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The payment comes out of my checking account automatically, so it is always on time.",
+     "kind": "helpful"
+    },
+    {
+     "text": "My sister also banks with you and has a small savings account.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "loan_id": "L-61130",
+    "days": 14
+   },
+   "persona": "Daniel, a contractor who is halfway through a kitchen renovation and short of cash this month.",
+   "reason_for_call": "He wants his home improvement loan payment pushed back to give him time to pay a supplier.",
+   "task_instructions": "First ask for fourteen days. Once the agent starts to process it or asks you to confirm, change your mind and ask for thirty days instead. Before the change, do not confirm anything. Answer questions politely.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-9046",
+      "full_name": "Yusuf Demir",
+      "email": "yusuf.demir@example.org",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-52280",
+      "member_id": "M-9046",
+      "product": "auto loan",
+      "due_date": "2026-05-29",
+      "status": "current",
+      "deferrals_used": 1,
+      "monthly_payment": 296.1
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-52280",
+    "days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-52280",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.status",
+     "value": "late",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Yusuf Demir",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yusuf, a delivery driver who is sure his card was declined on the first of the month and that his car loan went behind as a result.",
+   "reason_for_call": "He wants three more weeks on his car payment because he thinks he is behind and needs time to catch up.",
+   "task_instructions": "Say early that you believe the loan went late after your card was declined. If the agent says the loan is current, argue twice that it cannot be right and ask them to check again. After that, accept whatever the agent finds and end the call. Answer other questions politely.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1277",
+      "full_name": "Chloe Lindqvist",
+      "email": "chloe.l@example.net",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-70945",
+      "member_id": "M-1277",
+      "product": "student loan",
+      "due_date": "2026-06-05",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 188.33
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-70945",
+    "days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-70945",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Chloe Lindqvist",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Chloe, a pharmacy technician who is organized and reads every letter from the credit union.",
+   "reason_for_call": "She is starting a new job next month with a later first paycheck and wants her student loan payment moved back by thirty days.",
+   "task_instructions": "Give your loan number, the number of days you want, and your full name in your first message. Answer any question politely and clearly.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3390",
+      "full_name": "Arturo Vance",
+      "email": "a.vance@example.com",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-84602",
+      "member_id": "M-3390",
+      "product": "boat loan",
+      "due_date": "2026-06-18",
+      "status": "current",
+      "deferrals_used": 1,
+      "monthly_payment": 511.9
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-84602",
+    "days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-84602",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "loan.product",
+     "value": "boat loan",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "loan_id": "L-84602",
+    "days": 45
+   },
+   "persona": "Arturo, a retired machinist who is polite but likes to think things through before he commits.",
+   "reason_for_call": "He wants to delay his boat loan payment because the boat is in the shop and he has a repair bill to cover.",
+   "task_instructions": "Give your loan number in your first message. When the agent asks how many days you want, first say forty-five. Then, before the agent makes any change, say you would rather do twenty-one days instead. Confirm twenty-one days if asked again. Answer other questions politely.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-4418",
+      "full_name": "Hannah Brooks",
+      "email": "hannah.brooks@example.org",
+      "status": "good_standing"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-29007",
+      "member_id": "M-4418",
+      "product": "auto loan",
+      "due_date": "2026-06-08",
+      "status": "current",
+      "deferrals_used": 2,
+      "monthly_payment": 402.15
+     },
+     {
+      "loan_id": "L-29011",
+      "member_id": "M-4418",
+      "product": "personal loan",
+      "due_date": "2026-07-01",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 96.5
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-29007",
+    "days": 15
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-29007",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 15,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.email",
+     "value": "hannah.brooks@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.product",
+     "value": "auto loan",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My personal loan with you is also paid up to date.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am moving house next month and the new address is not on the account yet.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I have been thinking about refinancing my mortgage with another bank.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannah, a dental hygienist who is always rushing between appointments.",
+   "reason_for_call": "She wants fifteen more days on her auto loan payment because her paycheck is late this month.",
+   "task_instructions": "Give only what is asked. Answer in one short sentence at most. Do not volunteer the extra details unless the agent asks about other loans or your address. If refused, accept it without argument.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-5583",
+      "full_name": "Marcus Tully",
+      "email": "m.tully@example.net",
+      "status": "under_review"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "L-14390",
+      "member_id": "M-5583",
+      "product": "auto loan",
+      "due_date": "2026-06-12",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 355.2
+     },
+     {
+      "loan_id": "L-14391",
+      "member_id": "M-5583",
+      "product": "solar panel loan",
+      "due_date": "2026-06-20",
+      "status": "current",
+      "deferrals_used": 0,
+      "monthly_payment": 140.0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "L-14390",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "L-14390",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Marcus Tully",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.product",
+     "value": "auto loan",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I am still waiting on a letter about the solar panel installation, which is a separate loan.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My partner usually handles the household budget, so I am not sure of every detail.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I changed my phone number last month.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a schoolteacher who is friendly and patient and always makes sure to thank the agent.",
+   "reason_for_call": "He wants two more weeks on his auto loan payment because the summer school schedule means a smaller paycheck this month.",
+   "task_instructions": "Be cooperative and answer every question clearly. Give your full name and the loan number in your first message along with the fourteen days you want. If the agent cannot make the change, accept it politely and thank them.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

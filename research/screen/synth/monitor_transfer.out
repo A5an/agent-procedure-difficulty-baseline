@@ -1,0 +1,5 @@
+synthetic episodes 1701, TauIndianBank real episodes 240 (fail 0.42)
+train haiku      n  549: inside synthetic (5-fold by procedure) AUC 0.629, within-agent 0.576 | on TauIndianBank AUC 0.328, within-agent 0.332
+train sonnet     n  576: inside synthetic (5-fold by procedure) AUC 0.705, within-agent 0.687 | on TauIndianBank AUC 0.398, within-agent 0.394
+train opus       n  576: inside synthetic (5-fold by procedure) AUC 0.615, within-agent 0.464 | on TauIndianBank AUC 0.455, within-agent 0.485
+train all three  n 1701: inside synthetic (5-fold by procedure) AUC 0.715, within-agent 0.640 | on TauIndianBank AUC 0.444, within-agent 0.515

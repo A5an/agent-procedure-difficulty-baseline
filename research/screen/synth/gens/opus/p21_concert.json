@@ -1,0 +1,806 @@
+{
+ "procedure_id": "p21_concert",
+ "domain": "concert and event ticketing",
+ "organization": "BrightStage Ticketing",
+ "title": "Ticket order refunds",
+ "summary": "Refund a customer's ticket order to their original card or as account credit when the buyer is verified, the order is still active, and the event or the order qualifies for a refund.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "BrightStage account holders who buy tickets",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str"
+   }
+  },
+  "event": {
+   "key": "event_id",
+   "description": "Concerts and shows sold through BrightStage",
+   "fields": {
+    "event_id": "str",
+    "name": "str",
+    "venue": "str",
+    "event_date": "date",
+    "status": "enum:on_sale|postponed|cancelled|completed"
+   }
+  },
+  "ticket_order": {
+   "key": "order_id",
+   "description": "Ticket purchases, one per checkout, for a single event",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "event_id": "ref:event",
+    "event_title": "str",
+    "quantity": "int",
+    "total_paid": "number",
+    "card_last4": "str",
+    "status": "enum:confirmed|refunded|transferred",
+    "refund_protection": "bool",
+    "refund_method": "enum:none|original_card|account_credit",
+    "refunded_on": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a BrightStage account by its customer ID."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find BrightStage accounts by the email address on file."
+  },
+  {
+   "name": "get_event",
+   "kind": "get",
+   "entity": "event",
+   "description": "Look up an event by its event ID, including its date and current status (on_sale, postponed, cancelled, completed)."
+  },
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "ticket_order",
+   "description": "Look up a ticket order by its order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "ticket_order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all ticket orders placed by a customer account."
+  },
+  {
+   "name": "refund_order",
+   "kind": "update",
+   "entity": "ticket_order",
+   "args": {
+    "order_id": {
+     "type": "ref:ticket_order",
+     "description": "The ticket order to refund."
+    },
+    "refund_to": {
+     "type": "enum:original_card|account_credit",
+     "description": "Where the money goes: back to the original payment card, or as BrightStage account credit."
+    }
+   },
+   "set": {
+    "status": "'refunded'",
+    "refund_method": "args.refund_to",
+    "refunded_on": "today"
+   },
+   "description": "Refund a whole ticket order: cancels its tickets, marks it refunded today and records where the money is sent."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:ticket_order",
+   "description": "the ticket order you want refunded"
+  },
+  "refund_to": {
+   "type": "enum:original_card|account_credit",
+   "description": "whether you want the money back on your original card or as BrightStage account credit"
+  }
+ },
+ "claims": {
+  "card_last4": {
+   "type": "str",
+   "description": "the last four digits of the card you paid for the order with"
+  }
+ },
+ "bindings": [
+  {
+   "name": "order",
+   "entity": "ticket_order",
+   "key": "req.order_id"
+  },
+  {
+   "name": "event",
+   "entity": "event",
+   "key": "order.event_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "order.customer_id"
+  }
+ ],
+ "outcomes": {
+  "refund": {
+   "kind": "perform",
+   "description": "Refund the whole order to the method the customer chose.",
+   "calls": [
+    {
+     "tool": "refund_order",
+     "args": {
+      "order_id": "req.order_id",
+      "refund_to": "req.refund_to"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refund; explain the reason to the customer.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.card_last4 != order.card_last4",
+   "outcome": "refuse",
+   "explain": "The caller must give the last four digits of the card used for the order, and they must match the order, before any refund."
+  },
+  {
+   "id": "R2",
+   "when": "order.status != 'confirmed'",
+   "outcome": "refuse",
+   "explain": "Only orders that are still confirmed can be refunded; orders already refunded or transferred to someone else cannot."
+  },
+  {
+   "id": "R3",
+   "when": "not (event.status in ['cancelled', 'postponed'] or (order.refund_protection and event.status == 'on_sale'))",
+   "outcome": "refuse",
+   "explain": "A refund is given only if the event is cancelled or postponed, or if the order has refund protection and the event has not yet taken place (still on sale)."
+  }
+ ],
+ "default_outcome": "refund",
+ "policy_text": "## Purpose\nCustomers contact us to get their money back for a ticket order. A refund always covers the whole order: we never refund part of an order or individual tickets.\n\n## Finding the order\nIf the customer has the order number (it starts with TO-), look it up directly. If not, ask for the email address on their BrightStage account, find the account, and list its orders. If the account has more than one order, ask which event the refund is for and pick the matching order. We cannot search by name or phone number. If you cannot find the account or the order from what the customer gives you, explain that you cannot locate it and do not refund anything.\n\nAlways check the event linked to the order to see its current status.\n\n## Verifying the buyer\nBefore any refund, ask the customer for the last four digits of the card they paid with. They must match the card recorded on the order. If they do not match, or the customer cannot give them, do not refund.\n\n## When a refund is allowed\n1. The order must still be confirmed. Orders that have already been refunded, or whose tickets were transferred to another person, cannot be refunded.\n2. The order qualifies only if one of these is true:\n   - the event has been cancelled or postponed by the organizer; or\n   - the customer bought refund protection with the order and the event has not happened yet (its status is still on sale).\n   Refund protection does not apply to events that have already taken place (completed). If the event is going ahead as planned and the order has no refund protection, the tickets are non-refundable.\n\n## Making the refund\nIf everything above is in order, ask whether the customer wants the money back on the original card or as BrightStage account credit, and refund the whole order that way. If they change their mind before you process it, use their final choice.\n\n## Never\nDo not make exceptions to these rules, even if the customer insists or says they will dispute the charge. Do not refund a different order than the one the customer asked about, do not refund without a successful card check, and do not change anything else on the account.",
+ "db_common": {
+  "event": [
+   {
+    "event_id": "EV-3101",
+    "name": "Marisol Vega - Luminous Tour",
+    "venue": "Halvorsen Arena",
+    "event_date": "2026-06-12",
+    "status": "cancelled"
+   },
+   {
+    "event_id": "EV-3102",
+    "name": "The Copper Lanterns",
+    "venue": "Riverside Amphitheater",
+    "event_date": "2026-07-03",
+    "status": "postponed"
+   },
+   {
+    "event_id": "EV-3103",
+    "name": "Northbound Strings: Summer Gala",
+    "venue": "Grand Hall",
+    "event_date": "2026-08-15",
+    "status": "on_sale"
+   },
+   {
+    "event_id": "EV-3104",
+    "name": "DJ Kaito Nights",
+    "venue": "Pier 9 Warehouse",
+    "event_date": "2026-06-27",
+    "status": "on_sale"
+   },
+   {
+    "event_id": "EV-3105",
+    "name": "Ashgrove Jazz Weekend",
+    "venue": "Ashgrove Park Pavilion",
+    "event_date": "2026-04-18",
+    "status": "completed"
+   },
+   {
+    "event_id": "EV-3106",
+    "name": "Rhea Okafor Live",
+    "venue": "The Foundry Theatre",
+    "event_date": "2026-06-05",
+    "status": "cancelled"
+   }
+  ],
+  "customer": [
+   {
+    "customer_id": "CU-1001",
+    "full_name": "Elena Brandt",
+    "email": "elena.brandt@example.org",
+    "phone": "+1-555-0110"
+   }
+  ],
+  "ticket_order": [
+   {
+    "order_id": "TO-690001",
+    "customer_id": "CU-1001",
+    "event_id": "EV-3103",
+    "event_title": "Northbound Strings: Summer Gala",
+    "quantity": 2,
+    "total_paid": 310.0,
+    "card_last4": "1182",
+    "status": "confirmed",
+    "refund_protection": false,
+    "refund_method": "none",
+    "refunded_on": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4410",
+      "full_name": "Bianca Ferreira",
+      "email": "bianca.ferreira@mailbox.net",
+      "phone": "+1-555-0141"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-700512",
+      "customer_id": "CU-4410",
+      "event_id": "EV-3101",
+      "event_title": "Marisol Vega - Luminous Tour",
+      "quantity": 2,
+      "total_paid": 238.0,
+      "card_last4": "4417",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     },
+     {
+      "order_id": "TO-700538",
+      "customer_id": "CU-4410",
+      "event_id": "EV-3104",
+      "event_title": "DJ Kaito Nights",
+      "quantity": 1,
+      "total_paid": 54.5,
+      "card_last4": "4417",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-700512",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "bianca.ferreira@mailbox.net",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.event_title",
+     "value": "Marisol Vega - Luminous Tour",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "4417",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bianca, a dental hygienist who has been waiting on hold elsewhere all morning and is short on patience.",
+   "reason_for_call": "She heard the Marisol Vega concert she bought two tickets for was cancelled and wants her money back on her card right away.",
+   "task_instructions": "Be impatient: say you have already wasted enough time and want this done fast. Give your account email and the concert name at the start and say you want the money back on your card. You do not have the order number. Give the last four digits of your card only when asked, grumbling about yet another question. If the agent refuses, argue and demand an exception at least twice before accepting. If the refund goes through, thank them curtly.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4522",
+      "full_name": "Tomasz Wierzbicki",
+      "email": "t.wierzbicki@quickpost.com",
+      "phone": "+1-555-0152"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-701190",
+      "customer_id": "CU-4522",
+      "event_id": "EV-3103",
+      "event_title": "Northbound Strings: Summer Gala",
+      "quantity": 2,
+      "total_paid": 310.0,
+      "card_last4": "8820",
+      "status": "confirmed",
+      "refund_protection": true,
+      "refund_method": "none",
+      "refunded_on": null
+     },
+     {
+      "order_id": "TO-701204",
+      "customer_id": "CU-4522",
+      "event_id": "EV-3104",
+      "event_title": "DJ Kaito Nights",
+      "quantity": 2,
+      "total_paid": 109.0,
+      "card_last4": "8820",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     },
+     {
+      "order_id": "TO-698870",
+      "customer_id": "CU-4522",
+      "event_id": "EV-3105",
+      "event_title": "Ashgrove Jazz Weekend",
+      "quantity": 2,
+      "total_paid": 140.0,
+      "card_last4": "8820",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-701190",
+    "refund_to": "account_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "TO-701190",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "account_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "8820",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He still plans to go to the DJ Kaito night in June with his brother.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He went to the Ashgrove Jazz Weekend in April and enjoyed it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He briefly wonders whether parking passes for the Grand Hall are sold separately, then says never mind.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His sister moved her wedding to the same weekend as the gala.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomasz, a warehouse supervisor who types short, clipped messages.",
+   "reason_for_call": "He can no longer attend the summer gala he bought tickets for and wants the money as account credit.",
+   "task_instructions": "Answer in as few words as possible. Start by giving the order number and saying you want a refund as account credit. Mention the other details only in passing, one short line each, without elaborating. Give the last four card digits only when asked.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4633",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@alumni.westbrook.edu",
+      "phone": "+1-555-0163"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-702001",
+      "customer_id": "CU-4633",
+      "event_id": "EV-3106",
+      "event_title": "Rhea Okafor Live",
+      "quantity": 2,
+      "total_paid": 178.0,
+      "card_last4": "3065",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-702001",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.full_name",
+     "value": "Priya Raman",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.event_title",
+     "value": "Rhea Okafor Live",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "3065",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a friendly graduate student who is polite and patient.",
+   "reason_for_call": "The Rhea Okafor show she bought tickets for was cancelled and she wants a refund to her card, but she bought them with an old university email she can no longer access.",
+   "task_instructions": "Give your name and the show name and ask for a refund to your card. You do not have the order number; the confirmation went to an old university email you lost access to, and you cannot remember that address exactly. Give your card digits if asked. If the agent cannot find the order, accept it politely and end.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4748",
+      "full_name": "Darnell Okoye",
+      "email": "darnell.okoye@fastmail.net",
+      "phone": "+1-555-0174"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-702315",
+      "customer_id": "CU-4748",
+      "event_id": "EV-3104",
+      "event_title": "DJ Kaito Nights",
+      "quantity": 3,
+      "total_paid": 163.5,
+      "card_last4": "2096",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-702315",
+    "refund_to": "original_card"
+   },
+   "initial_request_values": {
+    "order_id": "TO-702315",
+    "refund_to": "account_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "TO-702315",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "2096",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.refund_protection",
+     "value": true,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Darnell, a sales rep who is sure he ticked the refund protection box at checkout.",
+   "reason_for_call": "Two of his friends dropped out of the DJ night, so he wants to refund the whole order.",
+   "task_instructions": "Give the order number and card digits and say you bought refund protection. First ask for the refund as account credit; then, before the agent does anything, change your mind and say you would rather have it back on your card. If the agent says the order has no refund protection, say you are sure you bought it, but accept the answer and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4859",
+      "full_name": "Hannah Lindqvist",
+      "email": "hannah.lindqvist@northmail.org",
+      "phone": "+1-555-0185"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-703050",
+      "customer_id": "CU-4859",
+      "event_id": "EV-3102",
+      "event_title": "The Copper Lanterns",
+      "quantity": 4,
+      "total_paid": 196.0,
+      "card_last4": "5531",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-703050",
+    "refund_to": "account_credit"
+   },
+   "initial_request_values": {
+    "order_id": "TO-703050",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "TO-703050",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "5531",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "event.status",
+     "value": "postponed",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.email",
+     "value": "hannah.lindqvist@northmail.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "account_credit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She got an email from the organizer saying the Copper Lanterns show on July 3 is postponed with no new date yet.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She bought all four tickets in one checkout on her own account, paying with her Visa.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hannah, an organized office manager who keeps all her confirmation emails.",
+   "reason_for_call": "The Copper Lanterns concert she bought four tickets for was postponed and she wants a refund.",
+   "task_instructions": "In your first message give the order number, the last four card digits, your account email, and say the show was postponed, mentioning the organizer email and that you bought all four tickets in one go. Ask for the money back on your card first; then, before the agent processes anything, change your mind and ask for account credit instead because you plan to buy other shows.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-4961",
+      "full_name": "Kwame Asante",
+      "email": "kwame.asante@inboxly.com",
+      "phone": "+1-555-0196"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-703388",
+      "customer_id": "CU-4961",
+      "event_id": "EV-3106",
+      "event_title": "Rhea Okafor Live",
+      "quantity": 1,
+      "total_paid": 89.0,
+      "card_last4": "7704",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-703388",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "TO-703388",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "7704",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a taxi driver messaging between fares; replies with one or two words.",
+   "reason_for_call": "He wants his money back for a cancelled show.",
+   "task_instructions": "Say only that you want a refund and give the order number. Give the card digits and say 'back to my card' only when asked. Keep every reply very short.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-5072",
+      "full_name": "Sofia Marchetti",
+      "email": "sofia.marchetti@postlane.com",
+      "phone": "+1-555-0207"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-703702",
+      "customer_id": "CU-5072",
+      "event_id": "EV-3101",
+      "event_title": "Marisol Vega - Luminous Tour",
+      "quantity": 2,
+      "total_paid": 238.0,
+      "card_last4": "6612",
+      "status": "transferred",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     },
+     {
+      "order_id": "TO-703715",
+      "customer_id": "CU-5072",
+      "event_id": "EV-3103",
+      "event_title": "Northbound Strings: Summer Gala",
+      "quantity": 1,
+      "total_paid": 155.0,
+      "card_last4": "6612",
+      "status": "confirmed",
+      "refund_protection": false,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-703702",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "sofia.marchetti@postlane.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.event_title",
+     "value": "Marisol Vega - Luminous Tour",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "6612",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a cheerful florist who is friendly and easy to talk to.",
+   "reason_for_call": "She read that the Marisol Vega concert was cancelled and wants a refund to her card for the two tickets she bought.",
+   "task_instructions": "Give your account email and the concert name and ask for a refund to your card. You do not have the order number. Give the card digits when asked. If the agent explains why the refund is not possible, accept it kindly and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-5183",
+      "full_name": "Gareth Pryce",
+      "email": "gareth.pryce@cymrumail.co",
+      "phone": "+1-555-0218"
+     }
+    ],
+    "ticket_order": [
+     {
+      "order_id": "TO-704010",
+      "customer_id": "CU-5183",
+      "event_id": "EV-3105",
+      "event_title": "Ashgrove Jazz Weekend",
+      "quantity": 2,
+      "total_paid": 140.0,
+      "card_last4": "3349",
+      "status": "confirmed",
+      "refund_protection": true,
+      "refund_method": "none",
+      "refunded_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "TO-704010",
+    "refund_to": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "TO-704010",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.card_last4",
+     "value": "3349",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_to",
+     "value": "original_card",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a contractor who feels he paid for refund protection and should get his money back no matter what.",
+   "reason_for_call": "He missed the jazz weekend in April because of a work emergency and wants a refund to his card.",
+   "task_instructions": "In your first message give the order number, the last four card digits, and say you want the money back on your card. If refused, argue that you paid for refund protection and demand an exception at least twice, getting more irritated, then accept and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

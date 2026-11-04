@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Policy names no tools for balance lookup, rate lookup, FD creation, or funding; the exact tool sequence and parameters are unspecified.",
+  "Funding source is unspecified: which account is debited, whether the customer must choose it, and what happens with multiple linked accounts.",
+  "FD parameters are unspecified: amount, tenure, interest payout option (cumulative/monthly/quarterly), maturity instruction, nominee, and how to map the customer's wording to product IDs.",
+  "No rules on which rate applies: senior citizen or special tenure rates, minimum/maximum deposit, and tenure limits. The KB must be searched, but the policy does not say when or what for.",
+  "Confirmation requirement is unclear: policy lists confirmation only for closures, blocks, and cancellations, not for creating an FD. Whether explicit confirmation is needed before booking is a convention left open.",
+  "Insufficient balance handling is unspecified: reduce the amount, pick another account, or decline. Minimum balance maintenance rules are also unspecified.",
+  "Final balance check: whether to re-fetch and report the post-booking balance, and how to present the FD details (ID, maturity amount, date), is undefined.",
+  "Customer behavior is unspecified: changes of mind mid-flow, vague amounts ('put most of my money'), asking for a rate that doesn't exist, or requests for unlinked accounts.",
+  "Order ambiguity: whether the rate quote must precede the customer's choice, and whether booking can proceed on a single instruction without further confirmation.",
+  "Edge cases such as tool errors, partial failures (debit succeeds but FD creation fails), duplicate booking, and the simulation date versus actual maturity date computation are not covered.",
+  "Escalation conditions are vague: when a failure justifies a service request versus a transfer."
+ ]
+}

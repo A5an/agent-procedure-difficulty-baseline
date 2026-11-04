@@ -1,0 +1,31 @@
+HV1: failure rate, first round vs hard round
+  g38   haiku  round 1 0.093 (n 183)  hard 0.073 (n 96, 12 procs)  diff -0.020 [-0.081, +0.044]
+  g38   sonnet round 1 0.026 (n 192)  hard 0.042 (n 96, 12 procs)  diff +0.016 [-0.021, +0.057]
+  g38   opus   round 1 0.026 (n 192)  hard 0.073 (n 96, 12 procs)  diff +0.047 [-0.005, +0.109]
+  flash haiku  round 1 0.115 (n 183)  hard 0.188 (n 96, 12 procs)  diff +0.073 [-0.033, +0.183]
+  flash sonnet round 1 0.057 (n 192)  hard 0.083 (n 96, 12 procs)  diff +0.026 [-0.036, +0.089]
+  flash opus   round 1 0.021 (n 192)  hard 0.104 (n 96, 12 procs)  diff +0.083 [+0.010, +0.172]
+HV2: hard round, failure by behaviour
+  g38: changes_mind 0.10 (n 72), cooperative 0.06 (n 36), negotiates 0.08 (n 72), pushy 0.04 (n 72), terse 0.00 (n 36)
+     negotiates+changes_mind minus cooperative+terse: +0.062 [+0.000, +0.125]
+     by level: conflicting 0.08, distracting 0.04, helpful_extra 0.03, lookup 0.06, on_request 0.10, upfront 0.06
+  flash: changes_mind 0.15 (n 72), cooperative 0.06 (n 36), negotiates 0.11 (n 72), pushy 0.14 (n 72), terse 0.14 (n 36)
+     negotiates+changes_mind minus cooperative+terse: +0.035 [-0.056, +0.125]
+     by level: conflicting 0.19, distracting 0.07, helpful_extra 0.08, lookup 0.08, on_request 0.16, upfront 0.17
+HV4: split-half reliability of procedure difficulty (odd vs even cases, Spearman-Brown), per agent
+  g38 round 1 haiku : -0.00 (23 procedures)
+  g38 round 1 sonnet: -0.21 (24 procedures)
+  g38 round 1 opus  : -0.21 (24 procedures)
+  g38 round 1 pooled: +0.02 (71 procedures)
+  g38 hard    haiku : -0.90 (12 procedures)
+  g38 hard    sonnet: -0.42 (12 procedures)
+  g38 hard    opus  : +0.14 (12 procedures)
+  g38 hard    pooled: -0.27 (36 procedures)
+  flash round 1 haiku : -0.12 (23 procedures)
+  flash round 1 sonnet: -0.02 (24 procedures)
+  flash round 1 opus: no variance
+  flash round 1 pooled: +0.11 (71 procedures)
+  flash hard    haiku : +0.29 (12 procedures)
+  flash hard    sonnet: -0.90 (12 procedures)
+  flash hard    opus  : +0.47 (12 procedures)
+  flash hard    pooled: +0.23 (36 procedures)

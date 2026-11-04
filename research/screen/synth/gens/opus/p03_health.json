@@ -1,0 +1,852 @@
+{
+ "procedure_id": "p03_health",
+ "domain": "health insurance claims",
+ "organization": "Meridian Crest Health Plans",
+ "title": "Filing a first-level appeal on a denied claim",
+ "summary": "Open a formal appeal for a member's denied medical claim when the caller is verified and the claim is eligible, and mark the claim as under appeal.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Plan members (subscribers and covered dependents)",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "birth_date": "date",
+    "email": "str",
+    "phone": "str",
+    "plan_name": "str"
+   }
+  },
+  "medical_claim": {
+   "key": "claim_id",
+   "description": "Medical claims submitted by providers on behalf of members, with the plan's decision",
+   "fields": {
+    "claim_id": "str",
+    "member_id": "ref:member",
+    "provider_name": "str",
+    "service_date": "date",
+    "place_of_service": "enum:office|urgent_care|emergency_room|inpatient|outpatient_facility|pharmacy",
+    "billed_amount": "number",
+    "status": "enum:approved|paid|denied|under_appeal",
+    "denial_reason": "enum:not_medically_necessary|out_of_network|no_prior_authorization|coding_issue|not_covered|none",
+    "decision_date": "date",
+    "appeal_count": "int"
+   }
+  },
+  "appeal": {
+   "key": "appeal_id",
+   "description": "Formal appeals filed against claim decisions",
+   "fields": {
+    "appeal_id": "str",
+    "claim_id": "ref:medical_claim",
+    "basis": "enum:medical_necessity|coding_error|emergency_care|prior_authorization_obtained|coverage_error",
+    "filed_date": "date",
+    "status": "enum:received|in_review|upheld|overturned"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member ID. Returns name, date of birth, contact details and plan."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "find_member_by_phone",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "phone"
+   ],
+   "description": "Find members by the phone number on file (format +1-XXX-XXX-XXXX)."
+  },
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "medical_claim",
+   "description": "Look up a medical claim by claim number. Returns provider, service date, place of service, status, denial reason, decision date and number of prior appeals."
+  },
+  {
+   "name": "find_claims_by_member",
+   "kind": "search",
+   "entity": "medical_claim",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all medical claims belonging to a member."
+  },
+  {
+   "name": "get_appeal",
+   "kind": "get",
+   "entity": "appeal",
+   "description": "Look up an appeal by appeal number."
+  },
+  {
+   "name": "find_appeals_by_claim",
+   "kind": "search",
+   "entity": "appeal",
+   "by": [
+    "claim_id"
+   ],
+   "description": "List all appeals filed on a claim."
+  },
+  {
+   "name": "create_appeal",
+   "kind": "create",
+   "entity": "appeal",
+   "args": {
+    "claim_id": {
+     "type": "ref:medical_claim",
+     "description": "The denied claim being appealed."
+    },
+    "basis": {
+     "type": "enum:medical_necessity|coding_error|emergency_care|prior_authorization_obtained|coverage_error",
+     "description": "The grounds on which the member is appealing."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "basis": "args.basis",
+    "filed_date": "today",
+    "status": "'received'"
+   },
+   "description": "File a new appeal on a claim with the given basis. The appeal is recorded as received today."
+  },
+  {
+   "name": "mark_claim_under_appeal",
+   "kind": "update",
+   "entity": "medical_claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:medical_claim",
+     "description": "The claim that has just been appealed."
+    }
+   },
+   "set": {
+    "status": "'under_appeal'",
+    "appeal_count": "rec.appeal_count + 1"
+   },
+   "description": "Set a claim's status to under_appeal and add one to its appeal count. Use only right after filing an appeal on that claim."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:medical_claim",
+   "description": "the denied claim you want to appeal"
+  },
+  "appeal_basis": {
+   "type": "enum:medical_necessity|coding_error|emergency_care|prior_authorization_obtained|coverage_error",
+   "description": "the reason you are appealing: the care was medically necessary, the provider's billing code was wrong, it was emergency care, you did have prior authorization, or the plan applied your coverage wrongly"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "medical_claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "mbr",
+   "entity": "member",
+   "key": "clm.member_id"
+  }
+ ],
+ "outcomes": {
+  "file_appeal": {
+   "kind": "perform",
+   "description": "File the appeal with the requested basis, then mark the claim as under appeal.",
+   "calls": [
+    {
+     "tool": "create_appeal",
+     "args": {
+      "claim_id": "req.claim_id",
+      "basis": "req.appeal_basis"
+     }
+    },
+    {
+     "tool": "mark_claim_under_appeal",
+     "args": {
+      "claim_id": "req.claim_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not file an appeal; explain to the member why it cannot be filed.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != mbr.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must state the date of birth on file for the member the claim belongs to before an appeal can be filed."
+  },
+  {
+   "id": "R2",
+   "when": "clm.status != 'denied'",
+   "outcome": "refuse",
+   "explain": "Only a claim whose current status is denied can be appealed."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(clm.decision_date, today) > 180",
+   "outcome": "refuse",
+   "explain": "An appeal must be filed within 180 days of the claim's decision date."
+  },
+  {
+   "id": "R4",
+   "when": "clm.appeal_count >= 2",
+   "outcome": "refuse",
+   "explain": "A claim can be appealed at most twice; a claim with two prior appeals cannot be appealed again."
+  },
+  {
+   "id": "R5",
+   "when": "req.appeal_basis == 'emergency_care' and clm.place_of_service != 'emergency_room'",
+   "outcome": "refuse",
+   "explain": "The emergency care basis may only be used for claims whose place of service is an emergency room."
+  }
+ ],
+ "default_outcome": "file_appeal",
+ "policy_text": "## Purpose\nMembers may contact us to appeal a medical claim that we denied. This procedure covers opening the appeal. Clinical and billing staff decide the appeal later; you do not decide whether the denial was right.\n\n## Finding the claim\nIf the member has the claim number (printed on the Explanation of Benefits or denial letter), look it up directly. If not, find the member by the email address or phone number on file, list their claims, and use the provider name and/or date of service the member gives to pick the right claim. If you cannot locate the member or cannot tell which claim they mean, do not guess; explain that you cannot proceed without that information.\n\n## Verifying the caller\nBefore filing anything, ask for the member's date of birth. It must match the date of birth on file for the member the claim belongs to. If it does not match, or the caller cannot give it, do not file an appeal.\n\n## Appeal basis\nThe member must tell you the grounds for the appeal. Record exactly one of:\n- medical_necessity: the member believes the care was medically necessary.\n- coding_error: the provider used a wrong billing or procedure code.\n- emergency_care: the care was emergency care.\n- prior_authorization_obtained: authorization was in fact obtained before the service.\n- coverage_error: the plan applied the member's benefits or network status incorrectly.\nFile the appeal with the basis the member finally settles on.\n\n## Eligibility\nAll of the following must hold, using the claim record in our system (not the member's recollection or paperwork):\n1. The claim's current status must be denied. Claims that are approved, paid, or already under appeal cannot be appealed.\n2. The appeal must be filed within 180 days of the claim's decision date. Exactly 180 days is still allowed; 181 days or more is too late.\n3. A claim can be appealed at most twice. If the claim already has two prior appeals, it cannot be appealed again through this process.\n4. The emergency_care basis can only be used when the claim's place of service is an emergency room. Urgent care clinics, offices and outpatient facilities do not qualify for this basis. Do not substitute a different basis on the member's behalf; if the member chooses another basis themselves, evaluate that one.\n\nIf any of these fails, do not file the appeal and explain which requirement is not met.\n\n## Filing the appeal\nWhen the caller is verified and the claim is eligible:\n1. Create the appeal on the claim with the member's chosen basis.\n2. Then mark the claim as under appeal.\nTell the member the appeal has been received and that they will get a written decision.\n\n## Never\n- Do not file an appeal for a caller who failed date-of-birth verification.\n- Do not make exceptions to the 180-day window or the two-appeal limit, even if the member insists or says their paperwork shows something different.\n- Do not change claim amounts, denial reasons or any record the member did not ask about.\n- Do not file more than one appeal per request.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "HM-100001",
+    "full_name": "Gloria Pemberton",
+    "birth_date": "1970-02-11",
+    "email": "gpemberton@example.net",
+    "phone": "+1-312-555-0100",
+    "plan_name": "Crest Silver PPO"
+   }
+  ],
+  "medical_claim": [
+   {
+    "claim_id": "CL-7500001",
+    "member_id": "HM-100001",
+    "provider_name": "Lakeshore Orthopedics",
+    "service_date": "2026-02-02",
+    "place_of_service": "office",
+    "billed_amount": 640.0,
+    "status": "denied",
+    "denial_reason": "not_medically_necessary",
+    "decision_date": "2026-02-20",
+    "appeal_count": 0
+   }
+  ],
+  "appeal": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-482019",
+      "full_name": "Tomasz Kowalczyk",
+      "birth_date": "1977-03-14",
+      "email": "t.kowalczyk@fastmail.com",
+      "phone": "+1-312-555-0147",
+      "plan_name": "Crest Gold PPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7731045",
+      "member_id": "HM-482019",
+      "provider_name": "Lakeshore Orthopedics",
+      "service_date": "2026-03-10",
+      "place_of_service": "office",
+      "billed_amount": 1840.0,
+      "status": "denied",
+      "denial_reason": "not_medically_necessary",
+      "decision_date": "2026-04-02",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "CL-7731046",
+      "member_id": "HM-482019",
+      "provider_name": "Northgate Pharmacy",
+      "service_date": "2026-03-12",
+      "place_of_service": "pharmacy",
+      "billed_amount": 42.15,
+      "status": "paid",
+      "denial_reason": "none",
+      "decision_date": "2026-03-15",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7731045",
+    "appeal_basis": "medical_necessity"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.email",
+     "value": "t.kowalczyk@fastmail.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.provider_name",
+     "value": "Lakeshore Orthopedics",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "medical_necessity",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a warehouse supervisor in his late forties who dislikes phone menus and long chats.",
+   "reason_for_call": "His knee brace and fitting at the orthopedic clinic were denied as not medically necessary, and his surgeon says they were; he wants to appeal but threw away the letter with the claim number.",
+   "task_instructions": "Very short answers. State that you want to appeal the Lakeshore Orthopedics claim because the care was medically necessary, and give your email. Give your date of birth only when asked. Do not elaborate beyond what is asked.",
+   "expected_outcome": "file_appeal"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-519377",
+      "full_name": "Priya Raman",
+      "birth_date": "1989-08-22",
+      "email": "priya.raman@outlook.com",
+      "phone": "+1-408-555-0162",
+      "plan_name": "Crest Silver HMO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7702218",
+      "member_id": "HM-519377",
+      "provider_name": "St. Agnes Imaging Center",
+      "service_date": "2025-10-15",
+      "place_of_service": "outpatient_facility",
+      "billed_amount": 2310.0,
+      "status": "denied",
+      "denial_reason": "not_medically_necessary",
+      "decision_date": "2025-11-04",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7702218",
+    "appeal_basis": "medical_necessity"
+   },
+   "initial_request_values": {
+    "appeal_basis": "coding_error"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-7702218",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "medical_necessity",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1989-08-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.decision_date",
+     "value": "2025-12-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a software tester who is organized but mixed up the dates on her paperwork.",
+   "reason_for_call": "Her MRI was denied as not medically necessary and she wants to appeal; she is sure the denial was decided in early December, so she believes she is still well inside the window.",
+   "task_instructions": "Give the claim number and your date of birth in your first message and say the denial was decided on December 4. First ask to appeal because you think the imaging center used the wrong billing code. Before the agent files anything, change your mind: say your doctor told you the real issue is medical necessity and you want to appeal on that basis instead. If the agent says it is too late, mention your date once, then accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-603158",
+      "full_name": "Marcus Bell",
+      "birth_date": "1994-12-05",
+      "email": "marcus.bell@gmail.com",
+      "phone": "+1-614-555-0133",
+      "plan_name": "Crest Bronze EPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7745590",
+      "member_id": "HM-603158",
+      "provider_name": "Riverbend Urgent Care",
+      "service_date": "2026-03-03",
+      "place_of_service": "urgent_care",
+      "billed_amount": 485.0,
+      "status": "denied",
+      "denial_reason": "out_of_network",
+      "decision_date": "2026-03-20",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7745590",
+    "appeal_basis": "emergency_care"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-7745590",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "emergency_care",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-12-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.place_of_service",
+     "value": "urgent_care",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The visit was at Riverbend Urgent Care on March 3 to get stitches for a deep cut on his hand.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The denial letter said the clinic was out of network.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a line cook in his early thirties who types in short fragments.",
+   "reason_for_call": "He cut his hand badly at work, went to the nearest urgent care clinic, and the claim was denied as out of network; he wants it appealed as emergency care.",
+   "task_instructions": "In your first message give the claim number, your date of birth, say it was an urgent care clinic and that you want to appeal it as emergency care. Mention the stitches and the out-of-network letter. Answer only what is asked, in a few words. Do not pick a different appeal reason yourself. Accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-338840",
+      "full_name": "Elena Vasquez",
+      "birth_date": "1962-06-30",
+      "email": "elena.v62@yahoo.com",
+      "phone": "+1-602-555-0119",
+      "plan_name": "Crest Gold PPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7690034",
+      "member_id": "HM-338840",
+      "provider_name": "Desert Sky Cardiology",
+      "service_date": "2026-03-28",
+      "place_of_service": "office",
+      "billed_amount": 1275.0,
+      "status": "denied",
+      "denial_reason": "no_prior_authorization",
+      "decision_date": "2026-04-15",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7690034",
+    "appeal_basis": "prior_authorization_obtained"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.full_name",
+     "value": "Elena Vasquez",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.provider_name",
+     "value": "Desert Sky Cardiology",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "prior_authorization_obtained",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1962-06-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a retired school administrator, polite and patient. She recently switched phone carriers and got a new number, and she has several email accounts and cannot say which one the plan has. Her insurance card is in a drawer at her daughter's house.",
+   "reason_for_call": "Her stress test at the cardiology office was denied for missing prior authorization, but the office told her they got it; she wants to appeal.",
+   "task_instructions": "Give your name, the cardiology practice and why you want to appeal. You do not have the claim number or member ID, and you cannot say which email or phone number is on file. Give your date of birth if asked. If the agent cannot find your claim, accept it kindly and say you will call back with your card.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-711205",
+      "full_name": "Kwame Asante",
+      "birth_date": "1981-01-09",
+      "email": "kasante@protonmail.com",
+      "phone": "+1-404-555-0183",
+      "plan_name": "Crest Silver PPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7650871",
+      "member_id": "HM-711205",
+      "provider_name": "Peachtree Gastroenterology",
+      "service_date": "2026-01-12",
+      "place_of_service": "outpatient_facility",
+      "billed_amount": 3120.0,
+      "status": "denied",
+      "denial_reason": "no_prior_authorization",
+      "decision_date": "2026-02-10",
+      "appeal_count": 1
+     },
+     {
+      "claim_id": "CL-7650872",
+      "member_id": "HM-711205",
+      "provider_name": "Peachtree Gastroenterology",
+      "service_date": "2025-12-02",
+      "place_of_service": "office",
+      "billed_amount": 260.0,
+      "status": "paid",
+      "denial_reason": "none",
+      "decision_date": "2025-12-20",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "CL-7650873",
+      "member_id": "HM-711205",
+      "provider_name": "Grady Lab Services",
+      "service_date": "2026-01-12",
+      "place_of_service": "office",
+      "billed_amount": 145.0,
+      "status": "paid",
+      "denial_reason": "none",
+      "decision_date": "2026-01-25",
+      "appeal_count": 0
+     }
+    ],
+    "appeal": [
+     {
+      "appeal_id": "AP-310442",
+      "claim_id": "CL-7650871",
+      "basis": "coding_error",
+      "filed_date": "2026-02-18",
+      "status": "upheld"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7650871",
+    "appeal_basis": "prior_authorization_obtained"
+   },
+   "customer_facts": [
+    {
+     "fact": "mbr.phone",
+     "value": "+1-404-555-0183",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.provider_name",
+     "value": "Peachtree Gastroenterology",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.service_date",
+     "value": "2026-01-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "prior_authorization_obtained",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-01-09",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a high school chemistry teacher, friendly and methodical.",
+   "reason_for_call": "His colonoscopy in January was denied for missing prior authorization; he appealed once on a billing-code theory and lost, but has now found the authorization approval letter his gastroenterologist received beforehand.",
+   "task_instructions": "Give your phone number, the gastroenterology practice and the January 12 procedure date, and say you want to appeal because prior authorization was obtained. You do not have the claim number. Give your date of birth when asked. Answer questions clearly and thank the agent.",
+   "expected_outcome": "file_appeal"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-845530",
+      "full_name": "Hannah Lindqvist",
+      "birth_date": "1999-04-27",
+      "email": "h.lindqvist@example.com",
+      "phone": "+1-206-555-0171",
+      "plan_name": "Crest Bronze HMO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7759012",
+      "member_id": "HM-845530",
+      "provider_name": "Bayview Surgical Center",
+      "service_date": "2026-04-08",
+      "place_of_service": "outpatient_facility",
+      "billed_amount": 5480.0,
+      "status": "denied",
+      "denial_reason": "coding_issue",
+      "decision_date": "2026-05-01",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7759012",
+    "appeal_basis": "coding_error"
+   },
+   "initial_request_values": {
+    "appeal_basis": "emergency_care"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-7759012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "coding_error",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1999-04-27",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a graduate student who is anxious about a large bill and talks things through as she goes.",
+   "reason_for_call": "Her same-day knee arthroscopy was denied over a coding issue; she first thinks of calling it emergency care because the injury happened suddenly.",
+   "task_instructions": "Give the claim number and say you want to appeal it as emergency care because you tore your knee suddenly. Before anything is filed, change your mind: say you just reread the letter, it mentions a coding problem, and the surgical center admitted they used the wrong code, so you want to appeal on the coding error basis instead. Give your date of birth only when asked.",
+   "expected_outcome": "file_appeal"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-290614",
+      "full_name": "Dolores Fitzgerald",
+      "birth_date": "1955-10-18",
+      "email": "dolores.fitz@comcast.net",
+      "phone": "+1-617-555-0125",
+      "plan_name": "Crest Gold PPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7611930",
+      "member_id": "HM-290614",
+      "provider_name": "Harbor Physical Therapy",
+      "service_date": "2025-12-08",
+      "place_of_service": "office",
+      "billed_amount": 960.0,
+      "status": "denied",
+      "denial_reason": "not_medically_necessary",
+      "decision_date": "2026-01-05",
+      "appeal_count": 2
+     },
+     {
+      "claim_id": "CL-7611931",
+      "member_id": "HM-290614",
+      "provider_name": "Harbor Physical Therapy",
+      "service_date": "2025-11-10",
+      "place_of_service": "office",
+      "billed_amount": 480.0,
+      "status": "paid",
+      "denial_reason": "none",
+      "decision_date": "2025-11-28",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "CL-7611932",
+      "member_id": "HM-290614",
+      "provider_name": "Mercy Family Medicine",
+      "service_date": "2026-02-14",
+      "place_of_service": "office",
+      "billed_amount": 210.0,
+      "status": "approved",
+      "denial_reason": "none",
+      "decision_date": "2026-03-01",
+      "appeal_count": 0
+     }
+    ],
+    "appeal": [
+     {
+      "appeal_id": "AP-298811",
+      "claim_id": "CL-7611930",
+      "basis": "medical_necessity",
+      "filed_date": "2026-01-20",
+      "status": "upheld"
+     },
+     {
+      "appeal_id": "AP-301207",
+      "claim_id": "CL-7611930",
+      "basis": "coverage_error",
+      "filed_date": "2026-03-02",
+      "status": "upheld"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7611930",
+    "appeal_basis": "medical_necessity"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-7611930",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "medical_necessity",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1955-10-18",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her physical therapy session in November was paid without any trouble.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was thinking of asking about adding dental coverage next year but decides it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her grandson got his school vaccines last month and she drove him there.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She wonders whether the plan reimburses gym memberships, but says she will look it up herself.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Dolores, a retired nurse with strong opinions, chatty and quick to get irritated.",
+   "reason_for_call": "Her December physical therapy after a shoulder injury was denied as not medically necessary; she has appealed before and lost, but her orthopedist wrote a new letter and she wants to try again.",
+   "task_instructions": "Give the claim number, your date of birth and that you want to appeal on medical necessity in your first message, and wander into the side topics along the way. If the agent refuses, argue that the new doctor's letter changes everything and demand an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "HM-562781",
+      "full_name": "Javier Ortega",
+      "birth_date": "1986-07-03",
+      "email": "jortega86@gmail.com",
+      "phone": "+1-713-555-0158",
+      "plan_name": "Crest Silver EPO"
+     }
+    ],
+    "medical_claim": [
+     {
+      "claim_id": "CL-7598604",
+      "member_id": "HM-562781",
+      "provider_name": "St. Luke's Medical Center Emergency Department",
+      "service_date": "2025-11-02",
+      "place_of_service": "emergency_room",
+      "billed_amount": 7215.5,
+      "status": "denied",
+      "denial_reason": "out_of_network",
+      "decision_date": "2025-11-21",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-7598604",
+    "appeal_basis": "emergency_care"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-7598604",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.appeal_basis",
+     "value": "emergency_care",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-07-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Javier, a contractor who has been getting collection notices and is out of patience.",
+   "reason_for_call": "He was rushed to an emergency room with appendicitis while visiting family out of state, and the claim was denied as out of network; he has just realized the appeal deadline is about to pass.",
+   "task_instructions": "Put the claim number, your date of birth and that you want to appeal it as emergency care in your first message. Be impatient: tell the agent to hurry because the deadline is today, and push back on any delay. If the agent files the appeal, ask for confirmation and end.",
+   "expected_outcome": "file_appeal"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

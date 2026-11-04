@@ -1,0 +1,815 @@
+{
+ "procedure_id": "h09_bike",
+ "domain": "bike share membership",
+ "organization": "CityPedal Bike Share",
+ "title": "Membership cancellation with prorated refund",
+ "summary": "Cancel an active annual bike share membership and issue a prorated refund when the rider and the membership qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Registered riders",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "account_status": "enum:active|suspended",
+    "balance_due": "number",
+    "has_open_rental": "bool"
+   }
+  },
+  "plan": {
+   "key": "plan_id",
+   "description": "Membership plan catalog",
+   "fields": {
+    "plan_id": "str",
+    "name": "str",
+    "refundable": "bool"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Annual memberships bought by riders",
+   "fields": {
+    "membership_id": "str",
+    "member_id": "ref:member",
+    "plan_id": "ref:plan",
+    "status": "enum:active|cancelled|expired",
+    "start_date": "date",
+    "end_date": "date",
+    "amount_paid": "number",
+    "cancelled_on": "date"
+   }
+  },
+  "refund": {
+   "key": "refund_id",
+   "description": "Refunds issued to riders",
+   "fields": {
+    "refund_id": "str",
+    "member_id": "ref:member",
+    "amount": "number",
+    "method": "enum:original_card|ride_credit",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a rider by rider number."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a membership plan by plan id."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership by membership number."
+  },
+  {
+   "name": "find_memberships_by_member",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all memberships of a rider."
+  },
+  {
+   "name": "find_refunds_by_member",
+   "kind": "search",
+   "entity": "refund",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all refunds previously issued to a rider."
+  },
+  {
+   "name": "create_refund",
+   "kind": "create",
+   "entity": "refund",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The rider receiving the refund."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Refund amount, rounded to 2 decimals."
+    },
+    "method": {
+     "type": "enum:original_card|ride_credit",
+     "description": "How the refund is paid out."
+    }
+   },
+   "fields": {
+    "member_id": "args.member_id",
+    "amount": "args.amount",
+    "method": "args.method",
+    "created": "today"
+   },
+   "description": "Record a refund for a rider."
+  },
+  {
+   "name": "cancel_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to cancel."
+    }
+   },
+   "set": {
+    "status": "'cancelled'",
+    "cancelled_on": "today"
+   },
+   "description": "Mark a membership as cancelled today."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to cancel"
+  },
+  "refund_method": {
+   "type": "enum:original_card|ride_credit",
+   "description": "how you want your refund: back to the original card (original_card) or as ride credit (ride_credit)"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "membership",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "membership.member_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "membership.plan_id"
+  }
+ ],
+ "outcomes": {
+  "cancel_refund": {
+   "kind": "perform",
+   "description": "Issue the prorated refund, then cancel the membership.",
+   "calls": [
+    {
+     "tool": "create_refund",
+     "args": {
+      "member_id": "mem.member_id",
+      "amount": "round(max(0, membership.amount_paid * days_between(today, membership.end_date) / days_between(membership.start_date, membership.end_date) - 5), 2)",
+      "method": "req.refund_method"
+     }
+    },
+    {
+     "tool": "cancel_membership",
+     "args": {
+      "membership_id": "req.membership_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not cancel or refund; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != mem.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "membership.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active memberships can be cancelled for a refund."
+  },
+  {
+   "id": "R3",
+   "when": "mem.account_status != 'active'",
+   "outcome": "refuse",
+   "explain": "Suspended rider accounts cannot receive refunds."
+  },
+  {
+   "id": "R4",
+   "when": "not plan.refundable",
+   "outcome": "refuse",
+   "explain": "Memberships on non-refundable plans cannot be refunded."
+  },
+  {
+   "id": "R5",
+   "when": "mem.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "Riders with an unpaid balance cannot cancel for a refund."
+  },
+  {
+   "id": "R6",
+   "when": "mem.has_open_rental",
+   "outcome": "refuse",
+   "explain": "A rider with a bike still out on rental cannot cancel."
+  },
+  {
+   "id": "R7",
+   "when": "db_count('refund', 'member_id', mem.member_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A rider who already received two refunds cannot get another."
+  },
+  {
+   "id": "R8",
+   "when": "days_between(today, membership.end_date) < 30",
+   "outcome": "refuse",
+   "explain": "Memberships with fewer than 30 days left are not refundable."
+  },
+  {
+   "id": "R9",
+   "when": "req.refund_method == 'original_card' and days_between(membership.start_date, today) > 30",
+   "outcome": "refuse",
+   "explain": "Refunds to the original card are only possible within 30 days of the start date."
+  }
+ ],
+ "default_outcome": "cancel_refund",
+ "policy_text": "## Who can ask\nRiders can ask to cancel an annual membership and receive a prorated refund. Before changing anything, find the membership and the rider it belongs to, and confirm identity: the date of birth the caller gives must match the one on the rider's account. If it does not match or the caller cannot give it, do not make any change.\n\n## Finding the membership\nUse the membership number if the rider has it. Otherwise, if the rider can give their rider number, list that rider's memberships and ask which one they mean if there is more than one. If the membership cannot be identified, you cannot proceed.\n\nYou also need to know how the rider wants the refund: back to the original card, or as ride credit.\n\n## When a cancellation with refund is allowed\nLook up the rider account and the plan behind the membership yourself; the caller will not tell you these things. All of the following must hold:\n- The membership must be active (not already cancelled or expired).\n- The rider account must be active, not suspended.\n- The plan must be refundable. Promotional passes are not.\n- The rider must have no unpaid balance (balance due must be 0).\n- The rider must not have a bike currently out on rental.\n- The rider must not have already received two or more refunds. Use the refund list for the rider to count them.\n- The membership must have at least 30 days left until its end date.\n- A refund to the original card is only possible if the membership started no more than 30 days before today. After that, only ride credit can be chosen. Requests for a card refund after that are declined, though the rider may then ask for ride credit instead.\nGo by what the records say, even if the rider believes otherwise. Do not waive any of these conditions.\n\n## What to do when allowed\nDo two things, in this order:\n1. Create the refund for the rider with the payout method the rider chose. Amount = amount paid x (days from today to the end date) / (days from the start date to the end date) - 5.00 cancellation fee. If the result is below 0 use 0. Round to 2 decimals.\n2. Cancel the membership.\n\n## When not allowed\nExplain briefly why and make no changes.\n\n## Never\nDo not cancel without the refund step, do not promise exceptions, and do not change anything the rider did not ask for.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_id": "P-ANN",
+    "name": "Annual Rider",
+    "refundable": true
+   },
+   {
+    "plan_id": "P-STU",
+    "name": "Student Annual",
+    "refundable": true
+   },
+   {
+    "plan_id": "P-PROMO",
+    "name": "Summer Promo Pass",
+    "refundable": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.org",
+      "birth_date": "1992-03-14",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7001",
+      "member_id": "M-3101",
+      "plan_id": "P-ANN",
+      "status": "active",
+      "start_date": "2025-08-01",
+      "end_date": "2026-08-01",
+      "amount_paid": 120,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7001",
+    "refund_method": "ride_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graduate student who is moving abroad. Friendly and clear.",
+   "reason_for_call": "She is leaving the country next month and wants to cancel her annual pass and get ride credit for the rest.",
+   "task_instructions": "Say you want to cancel your membership and take the refund as ride credit, giving your membership number. Give your date of birth only when asked. Answer politely.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3102",
+      "full_name": "Tomas Berg",
+      "email": "tomas.berg@example.org",
+      "birth_date": "1988-09-30",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7002",
+      "member_id": "M-3102",
+      "plan_id": "P-STU",
+      "status": "active",
+      "start_date": "2025-10-13",
+      "end_date": "2026-10-13",
+      "amount_paid": 90,
+      "cancelled_on": null
+     }
+    ],
+    "refund": [
+     {
+      "refund_id": "R-9001",
+      "member_id": "M-3102",
+      "amount": 12.0,
+      "method": "ride_credit",
+      "created": "2025-02-01"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7002",
+    "refund_method": "ride_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "membership.member_id",
+     "value": "M-3102",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-09-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a terse commuter typing quickly between meetings.",
+   "reason_for_call": "He no longer commutes by bike and wants to cancel his student pass, but he lost the confirmation email with the membership number.",
+   "task_instructions": "Keep every answer to a few words. You do not know the membership number; give your rider number only if asked, and your date of birth only if asked. You want ride credit.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3103",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.org",
+      "birth_date": "1995-12-02",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7004",
+      "member_id": "M-3103",
+      "plan_id": "P-ANN",
+      "status": "active",
+      "start_date": "2025-10-13",
+      "end_date": "2026-10-13",
+      "amount_paid": 120,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7004",
+    "refund_method": "ride_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-12-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.end_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, an impatient freelance designer who thinks her pass is about to run out anyway.",
+   "reason_for_call": "She wants to cancel her annual pass and get ride credit; she believes it expires in a few weeks and expects little back.",
+   "task_instructions": "State your membership number, date of birth and that you want ride credit. Say you think the pass ends on June 10. Be impatient and push the agent to hurry, but follow what the agent finds.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3104",
+      "full_name": "Hugo Lindqvist",
+      "email": "hugo.l@example.org",
+      "birth_date": "1990-06-21",
+      "account_status": "active",
+      "balance_due": 12.5,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7005",
+      "member_id": "M-3104",
+      "plan_id": "P-ANN",
+      "status": "active",
+      "start_date": "2025-12-25",
+      "end_date": "2026-12-25",
+      "amount_paid": 120,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7005",
+    "refund_method": "ride_credit"
+   },
+   "initial_request_values": {
+    "refund_method": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-06-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hugo, a polite but persistent teacher who is sure his account is settled.",
+   "reason_for_call": "He wants to cancel his annual pass and get his money back.",
+   "task_instructions": "First ask for the refund back to your original card. After the agent refuses, ask for ride credit instead. Say early that you have no unpaid balance. If refused again, ask once whether anything can be done, then accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3105",
+      "full_name": "Sofia Reyes",
+      "email": "sofia.reyes@example.org",
+      "birth_date": "1999-04-08",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7006",
+      "member_id": "M-3105",
+      "plan_id": "P-PROMO",
+      "status": "active",
+      "start_date": "2026-04-25",
+      "end_date": "2027-04-25",
+      "amount_paid": 73,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7006",
+    "refund_method": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1999-04-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.start_date",
+     "value": "2026-04-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.email",
+     "value": "sofia.reyes@example.org",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She bought the pass on April 25, less than a month ago.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her account has no unpaid charges and she has no bike out right now.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Sofia, a pushy marketing assistant who feels she was sold the wrong pass.",
+   "reason_for_call": "She bought a pass recently and wants it cancelled with the money back on her card.",
+   "task_instructions": "Give your membership number, date of birth, the purchase date and that you want the refund on your original card. If refused, argue that it was only bought weeks ago and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3106",
+      "full_name": "Marcus Webb",
+      "email": "marcus.webb@example.org",
+      "birth_date": "1983-01-17",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7007",
+      "member_id": "M-3106",
+      "plan_id": "P-ANN",
+      "status": "active",
+      "start_date": "2025-08-01",
+      "end_date": "2026-08-01",
+      "amount_paid": 120,
+      "cancelled_on": null
+     },
+     {
+      "membership_id": "MS-7008",
+      "member_id": "M-3106",
+      "plan_id": "P-ANN",
+      "status": "expired",
+      "start_date": "2024-06-01",
+      "end_date": "2025-06-01",
+      "amount_paid": 110,
+      "cancelled_on": null
+     }
+    ],
+    "refund": [
+     {
+      "refund_id": "R-9101",
+      "member_id": "M-3106",
+      "amount": 20.0,
+      "method": "ride_credit",
+      "created": "2024-03-10"
+     },
+     {
+      "refund_id": "R-9102",
+      "member_id": "M-3106",
+      "amount": 15.5,
+      "method": "original_card",
+      "created": "2025-01-22"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7007",
+    "refund_method": "ride_credit"
+   },
+   "initial_request_values": {
+    "refund_method": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7007",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-01-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also had an older pass that expired last year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The bike app crashed on him twice last week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A coworker of his joined the service after he recommended it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He rides mostly along the river route to the office.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a chatty office worker who likes telling stories about his commute.",
+   "reason_for_call": "He is switching to a company shuttle and wants to cancel his current annual pass for a refund.",
+   "task_instructions": "Start by asking to cancel and get the refund on your original card. Before anything is done, change your mind and ask for ride credit instead. Mention the side stories naturally. Accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3107",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@example.org",
+      "birth_date": "1986-07-25",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7009",
+      "member_id": "M-3107",
+      "plan_id": "P-STU",
+      "status": "active",
+      "start_date": "2025-12-25",
+      "end_date": "2026-12-25",
+      "amount_paid": 100,
+      "cancelled_on": null
+     }
+    ],
+    "refund": [
+     {
+      "refund_id": "R-9201",
+      "member_id": "M-3107",
+      "amount": 8.0,
+      "method": "ride_credit",
+      "created": "2025-06-14"
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7009",
+    "refund_method": "ride_credit"
+   },
+   "initial_request_values": {
+    "refund_method": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7009",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-07-25",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiko, a pragmatic researcher who bargains politely.",
+   "reason_for_call": "She is finishing her studies and wants to cancel her student pass and get a refund.",
+   "task_instructions": "Give your membership number and ask for the refund on your original card. If the agent refuses, ask for ride credit instead (say so when the agent asks how you want the refund, or offer it after the refusal). Give your date of birth only when asked.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3108",
+      "full_name": "Karim Aziz",
+      "email": "karim.aziz@example.org",
+      "birth_date": "1994-11-11",
+      "account_status": "active",
+      "balance_due": 0,
+      "has_open_rental": false
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7010",
+      "member_id": "M-3108",
+      "plan_id": "P-ANN",
+      "status": "active",
+      "start_date": "2025-06-10",
+      "end_date": "2026-06-10",
+      "amount_paid": 120,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7010",
+    "refund_method": "ride_credit"
+   },
+   "initial_request_values": {
+    "refund_method": "original_card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7010",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "ride_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-11-11",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Karim, a courier who is quick and practical.",
+   "reason_for_call": "He wants to cancel his annual pass early and get some money back.",
+   "task_instructions": "Give your membership number and date of birth and first ask for the refund on your original card. Before anything is done, change your mind and ask for ride credit instead. Accept the outcome.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools exist and their exact names/parameters (balance lookup, rate lookup, FD creation, etc.) and the order to call them are not specified",
+  "Which account to check balance on when the customer has multiple linked accounts (savings, current, etc.) is unspecified",
+  "How to determine the applicable FD rate: by tenure, amount, customer type (senior citizen), or compounding/payout option, and which KB category/query to use",
+  "What 'affordable' means: the maximum amount fundable from the balance, whether a minimum balance must be retained, minimum FD deposit amount, and rounding/multiples rules",
+  "Whether the FD should actually be opened (a mutation) or only quoted, and whether confirmation is required before opening, since FD creation is not in the listed confirm-before actions",
+  "What to do on insufficient funds: offer a smaller amount, a different tenure/scheme, a different source account, or just decline; whether to proceed automatically with an alternative",
+  "Final 'balance' step: whether to re-check the balance after opening the FD to report the updated amount, or after declining",
+  "Customer-specific inputs: tenure, amount, FD type, payout frequency, nominee, and whether the customer provides them or the assistant must ask",
+  "Customer behavior: changes of mind, ambiguous amounts, asking about unlinked accounts, or pushing for a transfer from another account",
+  "Bank conventions such as minimum/maximum tenure, premature withdrawal terms, TDS, interest compounding, and whether to disclose them before booking",
+  "Weak knowledge base hits and how many refined searches are needed before giving up or escalating",
+  "Escalation criteria if FD creation fails or no tool supports the requested scheme"
+ ]
+}

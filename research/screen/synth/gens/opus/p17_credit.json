@@ -1,0 +1,670 @@
+{
+ "procedure_id": "p17_credit",
+ "domain": "credit union",
+ "organization": "Cascade Ridge Federal Credit Union",
+ "title": "Credit card limit increase requests",
+ "summary": "Raise the credit limit on a member's credit card to the amount the member asks for, when the card and the requested amount qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Credit union members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "join_date": "date"
+   }
+  },
+  "card": {
+   "key": "card_id",
+   "description": "Credit card accounts held by members",
+   "fields": {
+    "card_id": "str",
+    "member_id": "ref:member",
+    "product_name": "str",
+    "last_four": "str",
+    "credit_limit": "number",
+    "balance": "number",
+    "status": "enum:open|frozen|closed",
+    "days_past_due": "int",
+    "last_limit_change": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_card",
+   "kind": "get",
+   "entity": "card",
+   "description": "Look up a credit card account by its card account number. Shows product, last four digits, current limit, balance, status, days past due and the date of the last limit change."
+  },
+  {
+   "name": "find_cards_by_member",
+   "kind": "search",
+   "entity": "card",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all credit card accounts held by a member."
+  },
+  {
+   "name": "update_credit_limit",
+   "kind": "update",
+   "entity": "card",
+   "args": {
+    "card_id": {
+     "type": "ref:card",
+     "description": "The card account whose limit is changed."
+    },
+    "new_limit": {
+     "type": "number",
+     "description": "The new credit limit, exactly as requested by the member."
+    }
+   },
+   "set": {
+    "credit_limit": "args.new_limit",
+    "last_limit_change": "today"
+   },
+   "description": "Set the credit limit of a card account to a new amount and record today as the date of the last limit change."
+  }
+ ],
+ "request": {
+  "card_id": {
+   "type": "ref:card",
+   "description": "the credit card account whose limit you want raised"
+  },
+  "new_limit": {
+   "type": "number",
+   "description": "the new total credit limit you want on that card"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "card",
+   "entity": "card",
+   "key": "req.card_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "card.member_id"
+  }
+ ],
+ "outcomes": {
+  "raise_limit": {
+   "kind": "perform",
+   "description": "Set the card's credit limit to the amount the member asked for.",
+   "calls": [
+    {
+     "tool": "update_credit_limit",
+     "args": {
+      "card_id": "req.card_id",
+      "new_limit": "req.new_limit"
+     }
+    }
+   ]
+  },
+  "decline": {
+   "kind": "refuse",
+   "description": "Do not change the limit; explain the reason to the member.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "card.status != 'open'",
+   "outcome": "decline",
+   "explain": "Only cards with status open can have their limit raised; frozen or closed cards cannot."
+  },
+  {
+   "id": "R2",
+   "when": "card.days_past_due > 0",
+   "outcome": "decline",
+   "explain": "A card that is past due by any number of days cannot have its limit raised."
+  },
+  {
+   "id": "R3",
+   "when": "req.new_limit <= card.credit_limit or req.new_limit > card.credit_limit * 1.5 or days_between(card.last_limit_change, today) < 180",
+   "outcome": "decline",
+   "explain": "The requested limit must be above the current limit and at most 50% above it, and the last limit change must be at least 180 days ago."
+  }
+ ],
+ "default_outcome": "raise_limit",
+ "policy_text": "## Purpose\nMembers may ask by phone or chat for a higher credit limit on one of their Cascade Ridge credit cards. Member service representatives can approve these requests directly when the card and the requested amount meet the conditions below. No extra identity questions are needed for this request.\n\n## Finding the card\nIf the member has their card account number, look it up directly. If not, find the member by the email address on file, list their credit cards, and ask which card they mean (for example by the last four digits or the card product name) if they hold more than one. If you cannot find the member or cannot tell which card they mean, do not make any change. Also make sure you know the exact new total limit the member wants.\n\n## Conditions\nCheck the card record, not what the member believes about it. Apply these in order:\n1. Card status: the card must be open. A frozen or closed card cannot have its limit raised.\n2. Payment standing: the card must be current. If the card is past due by even one day, decline.\n3. Amount and timing: the new limit must be higher than the current limit on file and no more than 50% above it (for example, a card with a 4,000.00 limit can go up to at most 6,000.00). The last limit change on the card must have been at least 180 days ago.\n\nIf any condition fails, decline the request and explain which condition was not met. Do not offer or apply a smaller amount on your own; if the member wants a different amount, they must ask for it, and you check that amount against the same conditions.\n\n## Approving\nIf every condition is met, use update_credit_limit to set the card's limit to exactly the amount the member asked for, then confirm the new limit to the member.\n\n## Never\nDo not make exceptions to these conditions, do not change the limit of a card the member did not ask about, and do not change any other account settings.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-10044",
+    "full_name": "Harold Brenner",
+    "email": "h.brenner@example.com",
+    "phone": "503-555-0144",
+    "join_date": "2009-03-17"
+   }
+  ],
+  "card": [
+   {
+    "card_id": "CC-700101",
+    "member_id": "M-10044",
+    "product_name": "Visa Classic",
+    "last_four": "1188",
+    "credit_limit": 3000,
+    "balance": 420.0,
+    "status": "open",
+    "days_past_due": 0,
+    "last_limit_change": "2023-07-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-20511",
+      "full_name": "Keisha Monroe",
+      "email": "keisha.monroe@example.com",
+      "phone": "503-555-0311",
+      "join_date": "2018-05-22"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-731205",
+      "member_id": "M-20511",
+      "product_name": "Mastercard Cash Back",
+      "last_four": "6604",
+      "credit_limit": 2500,
+      "balance": 980.4,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2024-09-03"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-731205",
+    "new_limit": 3500
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_limit",
+     "value": 3500,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Keisha Monroe",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Keisha, a hairstylist who lost her wallet with the card in it last week and set up a new email account since then; she cannot remember which email the credit union has.",
+   "reason_for_call": "She wants a higher limit on her credit card so she can buy new salon equipment.",
+   "task_instructions": "Give very short answers. Say your name and that you want the limit raised to 3,500. You do not have the card number or the last four digits, and you do not know which email address is on file. If the agent cannot find the card, accept it and end the chat.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-20877",
+      "full_name": "Viktor Salas",
+      "email": "v.salas@example.net",
+      "phone": "360-555-0872",
+      "join_date": "2015-10-04"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-742310",
+      "member_id": "M-20877",
+      "product_name": "Visa Platinum Rewards",
+      "last_four": "4417",
+      "credit_limit": 8000,
+      "balance": 6120.75,
+      "status": "open",
+      "days_past_due": 12,
+      "last_limit_change": "2025-03-01"
+     },
+     {
+      "card_id": "CC-742311",
+      "member_id": "M-20877",
+      "product_name": "Visa Classic",
+      "last_four": "9032",
+      "credit_limit": 1500,
+      "balance": 0.0,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2022-11-15"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-742310",
+    "new_limit": 10000
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "v.salas@example.net",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "card.last_four",
+     "value": "4417",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 10000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Viktor, a contractor in a hurry between job sites, used to getting things done quickly and annoyed by delays.",
+   "reason_for_call": "He wants the limit on his rewards card raised to 10,000 to cover materials for a big remodeling job.",
+   "task_instructions": "Give your email and the last four digits of the card right away; you do not know the card account number. Be impatient. If the agent declines, argue that the payment is only a little late and you will pay it this week, and ask for an exception at least twice before accepting the answer.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-21430",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "phone": "425-555-0219",
+      "join_date": "2016-01-12"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-755018",
+      "member_id": "M-21430",
+      "product_name": "Mastercard Cash Back",
+      "last_four": "2290",
+      "credit_limit": 4000,
+      "balance": 1210.55,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2025-06-10"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-755018",
+    "new_limit": 6000
+   },
+   "initial_request_values": {
+    "new_limit": 7000
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-755018",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 6000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "card.credit_limit",
+     "value": 4000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "card.last_limit_change",
+     "value": "2025-06-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her current limit on the card is 4,000.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The limit was last raised in June of last year.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She has never missed a payment; autopay clears the full statement every month.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, a pharmacist who keeps careful track of her finances and likes to have the details ready.",
+   "reason_for_call": "She is planning a family trip abroad and wants more room on her credit card.",
+   "task_instructions": "In your first message give the card account number, mention your current limit and when it was last raised, and ask for a new limit of 7,000. Before the agent makes any change, say you have reconsidered and want 6,000 instead. Answer politely.",
+   "expected_outcome": "raise_limit"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-22019",
+      "full_name": "Dwayne Okafor",
+      "email": "dwayne.okafor@example.com",
+      "phone": "971-555-0490",
+      "join_date": "2012-08-30"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-760442",
+      "member_id": "M-22019",
+      "product_name": "Visa Platinum Rewards",
+      "last_four": "7351",
+      "credit_limit": 5000,
+      "balance": 2240.1,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2025-04-15"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-760442",
+    "new_limit": 7000
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-760442",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 7000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "card.credit_limit",
+     "value": 3000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dwayne, a restaurant manager who is impatient on the phone and convinced his card still has the 3,000 limit it started with.",
+   "reason_for_call": "He wants his card limit raised to 7,000 before a large catering supply order.",
+   "task_instructions": "Give the card account number and say right away that your limit is currently 3,000 and you want 7,000. Be impatient and push the agent to hurry. If the agent says the limit on file is different, insist briefly but go along with what the agent says. If the agent declines, demand an exception at least twice before accepting.",
+   "expected_outcome": "raise_limit"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-22560",
+      "full_name": "Marisol Vega",
+      "email": "marisol.vega@example.org",
+      "phone": "503-555-0763",
+      "join_date": "2020-02-03"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-771903",
+      "member_id": "M-22560",
+      "product_name": "Visa Classic",
+      "last_four": "0846",
+      "credit_limit": 2000,
+      "balance": 350.0,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2024-12-01"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-771903",
+    "new_limit": 3000
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-771903",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 3000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a graduate student who is friendly and to the point.",
+   "reason_for_call": "She wants a higher limit on her credit card so a new laptop purchase does not max it out.",
+   "task_instructions": "In your first message give the card account number and ask for the limit to be raised to 3,000. Answer any question clearly and thank the agent.",
+   "expected_outcome": "raise_limit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-23104",
+      "full_name": "Tomasz Wisniewski",
+      "email": "t.wisniewski@example.net",
+      "phone": "360-555-0128",
+      "join_date": "2014-06-19"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-780256",
+      "member_id": "M-23104",
+      "product_name": "Mastercard Cash Back",
+      "last_four": "3972",
+      "credit_limit": 3000,
+      "balance": 1875.3,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2025-10-02"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-780256",
+    "new_limit": 4200
+   },
+   "initial_request_values": {
+    "new_limit": 4500
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-780256",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 4200,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a high school music teacher, polite but a little indecisive about money.",
+   "reason_for_call": "He wants a bit more room on his credit card for a new piano for his home studio.",
+   "task_instructions": "Give the card account number and say you would like a higher limit, without naming an amount. When the agent asks how much, say 4,500. Then, before the agent makes any change, say that 4,200 is enough and you would rather have that. Be polite.",
+   "expected_outcome": "raise_limit"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-23877",
+      "full_name": "Grace Liu",
+      "email": "grace.liu@example.com",
+      "phone": "425-555-0655",
+      "join_date": "2011-09-08"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-791120",
+      "member_id": "M-23877",
+      "product_name": "Visa Platinum Rewards",
+      "last_four": "5581",
+      "credit_limit": 6000,
+      "balance": 2930.0,
+      "status": "frozen",
+      "days_past_due": 0,
+      "last_limit_change": "2024-05-11"
+     },
+     {
+      "card_id": "CC-791121",
+      "member_id": "M-23877",
+      "product_name": "Visa Classic",
+      "last_four": "2014",
+      "credit_limit": 2000,
+      "balance": 145.6,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2023-02-27"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-791120",
+    "new_limit": 8000
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-791120",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 8000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a Visa Classic card with the credit union that she rarely uses.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She looked at auto loan rates last month but decided not to buy a car this year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her share certificate matures in August.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a software tester who answers in as few words as possible.",
+   "reason_for_call": "She wants the limit on her rewards card raised to 8,000.",
+   "task_instructions": "Give the card account number and the amount you want in one short message. Keep every answer to a few words. Mention the other details only briefly in passing. If the agent declines, accept it and end.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-24402",
+      "full_name": "Samuel Adeyemi",
+      "email": "samuel.adeyemi@example.org",
+      "phone": "971-555-0937",
+      "join_date": "2010-04-25"
+     }
+    ],
+    "card": [
+     {
+      "card_id": "CC-802317",
+      "member_id": "M-24402",
+      "product_name": "Visa Platinum Rewards",
+      "last_four": "8823",
+      "credit_limit": 7000,
+      "balance": 3410.2,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2026-02-14"
+     },
+     {
+      "card_id": "CC-802318",
+      "member_id": "M-24402",
+      "product_name": "Mastercard Cash Back",
+      "last_four": "4150",
+      "credit_limit": 3000,
+      "balance": 0.0,
+      "status": "open",
+      "days_past_due": 0,
+      "last_limit_change": "2024-01-10"
+     }
+    ]
+   },
+   "request_values": {
+    "card_id": "CC-802317",
+    "new_limit": 9000
+   },
+   "customer_facts": [
+    {
+     "fact": "req.card_id",
+     "value": "CC-802317",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_limit",
+     "value": 9000,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He has a second credit card with the credit union, a cash back card he keeps for groceries.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His daughter just opened her first savings account at the same branch.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He refinanced his mortgage with another lender two years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is thinking about setting up a travel notice later but does not want to do it today.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Samuel, a retired civil engineer who is chatty, friendly and patient.",
+   "reason_for_call": "He wants the limit on his rewards card raised to 9,000 for home renovation purchases.",
+   "task_instructions": "Give the card account number and the amount you want early on. Chat about the other details along the way. Answer questions helpfully. If the agent declines, accept the explanation politely and end.",
+   "expected_outcome": "decline"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,744 @@
+{
+ "procedure_id": "p11_home",
+ "domain": "home internet provider",
+ "organization": "BrightLine Home Internet",
+ "title": "Speed plan upgrades",
+ "summary": "Move a home internet account to a faster plan when the account and the requested plan qualify, or open a line check when the line cannot carry the speed.",
+ "entities": {
+  "plan": {
+   "key": "plan_id",
+   "description": "Internet plans in the catalog",
+   "fields": {
+    "plan_id": "str",
+    "name": "str",
+    "speed_mbps": "int",
+    "monthly_price": "number",
+    "is_offered": "bool"
+   }
+  },
+  "account": {
+   "key": "account_id",
+   "description": "Home internet service accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "service_email": "str",
+    "service_address": "str",
+    "plan_id": "ref:plan",
+    "monthly_price": "number",
+    "status": "enum:active|suspended|closed",
+    "balance_due": "number",
+    "upgrades_12m": "int",
+    "line_max_mbps": "int"
+   }
+  },
+  "service_order": {
+   "key": "order_id",
+   "description": "Orders that apply a plan change to an account",
+   "fields": {
+    "order_id": "str",
+    "account_id": "ref:account",
+    "plan_id": "ref:plan",
+    "created": "date"
+   }
+  },
+  "line_check_request": {
+   "key": "request_id",
+   "description": "Requests for a technician to check whether a line can carry a faster plan",
+   "fields": {
+    "request_id": "str",
+    "account_id": "ref:account",
+    "plan_id": "ref:plan",
+    "reason": "enum:line_capacity|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an internet account by its account number."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "service_email"
+   ],
+   "description": "Find accounts by the service email address on file. May return several accounts."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a plan by its plan code."
+  },
+  {
+   "name": "set_account_plan",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account to move to the new plan."
+    },
+    "plan_id": {
+     "type": "ref:plan",
+     "description": "The new plan code."
+    },
+    "monthly_price": {
+     "type": "number",
+     "description": "The monthly price of the new plan."
+    }
+   },
+   "set": {
+    "plan_id": "args.plan_id",
+    "monthly_price": "args.monthly_price",
+    "upgrades_12m": "rec.upgrades_12m + 1"
+   },
+   "description": "Change the account's plan and monthly price and count one upgrade in the last 12 months."
+  },
+  {
+   "name": "create_service_order",
+   "kind": "create",
+   "entity": "service_order",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the order is for."
+    },
+    "plan_id": {
+     "type": "ref:plan",
+     "description": "The plan being applied."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "plan_id": "args.plan_id",
+    "created": "today"
+   },
+   "description": "Record a service order so the network applies the new speed."
+  },
+  {
+   "name": "create_line_check_request",
+   "kind": "create",
+   "entity": "line_check_request",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account whose line needs checking."
+    },
+    "plan_id": {
+     "type": "ref:plan",
+     "description": "The plan the customer wants."
+    },
+    "reason": {
+     "type": "enum:line_capacity|other",
+     "description": "Why the line check is requested."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "plan_id": "args.plan_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a technician to check whether the customer's line can carry the requested plan."
+  }
+ ],
+ "request": {
+  "account_id": {
+   "type": "ref:account",
+   "description": "your internet account number"
+  },
+  "new_plan_id": {
+   "type": "ref:plan",
+   "description": "the plan code of the faster plan you want to move to"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "req.account_id"
+  },
+  {
+   "name": "cur",
+   "entity": "plan",
+   "key": "acct.plan_id"
+  },
+  {
+   "name": "new",
+   "entity": "plan",
+   "key": "req.new_plan_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Move the account to the new plan and record a service order.",
+   "calls": [
+    {
+     "tool": "set_account_plan",
+     "args": {
+      "account_id": "req.account_id",
+      "plan_id": "req.new_plan_id",
+      "monthly_price": "new.monthly_price"
+     }
+    },
+    {
+     "tool": "create_service_order",
+     "args": {
+      "account_id": "req.account_id",
+      "plan_id": "req.new_plan_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The line cannot carry the requested speed: open a line check request instead of upgrading.",
+   "calls": [
+    {
+     "tool": "create_line_check_request",
+     "args": {
+      "account_id": "req.account_id",
+      "plan_id": "req.new_plan_id",
+      "reason": "'line_capacity'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active accounts can change plan."
+  },
+  {
+   "id": "R2",
+   "when": "acct.balance_due > 25",
+   "outcome": "refuse",
+   "explain": "Accounts owing more than 25.00 cannot upgrade until the balance is paid."
+  },
+  {
+   "id": "R3",
+   "when": "not new.is_offered",
+   "outcome": "refuse",
+   "explain": "The requested plan must currently be offered for sale."
+  },
+  {
+   "id": "R4",
+   "when": "new.speed_mbps <= cur.speed_mbps",
+   "outcome": "refuse",
+   "explain": "The requested plan must be faster than the current plan."
+  },
+  {
+   "id": "R5",
+   "when": "acct.upgrades_12m >= 2",
+   "outcome": "refuse",
+   "explain": "An account can be upgraded at most twice in 12 months."
+  },
+  {
+   "id": "R6",
+   "when": "new.speed_mbps > acct.line_max_mbps",
+   "outcome": "review",
+   "explain": "If the line's maximum speed is below the requested plan's speed, open a line check request instead of upgrading."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Who this is for\nCustomers who contact BrightLine to move their home internet service to a faster plan. This procedure covers speed upgrades only.\n\n## Finding the account and the plan\nUse the account number if the customer has it. If not, find the account by the service email address on file; if several accounts share that email, ask for the service address or other detail to pick the right one. If the account cannot be found, do not make any change. The customer must tell you the plan code of the plan they want. Look up both the current plan and the requested plan before deciding.\n\n## When an upgrade is allowed\nCheck these in order and stop at the first that applies:\n1. The account must be active. Suspended or closed accounts cannot change plan.\n2. If the account owes more than 25.00, decline; the balance must be paid first.\n3. The requested plan must currently be offered for sale. Retired plans cannot be sold.\n4. The requested plan must be faster than the current plan. Same-speed or slower plans are declined (this procedure does not handle downgrades).\n5. An account can be upgraded at most twice in any 12 months. If it already has two upgrades in that period, decline.\n6. If the requested plan's speed is higher than the maximum speed of the customer's line, do not upgrade. Open a line check request with reason line_capacity and tell the customer a technician will follow up.\n\n## What to do\nIf none of the above applies, upgrade: first change the account to the new plan with the new plan's monthly price, then create a service order for the account and plan. Tell the customer the new price.\nIf declining, explain the reason plainly and make no changes.\n\n## Never\nDo not waive balances, do not offer discounts or exceptions, do not upgrade on a customer's word about their balance or plan when the records say otherwise (go by the records), and do not change anything the customer did not ask for.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_id": "CABLE-50",
+    "name": "Cable Basic 50",
+    "speed_mbps": 50,
+    "monthly_price": 29.99,
+    "is_offered": false
+   },
+   {
+    "plan_id": "FIBER-100",
+    "name": "Fiber 100",
+    "speed_mbps": 100,
+    "monthly_price": 39.99,
+    "is_offered": true
+   },
+   {
+    "plan_id": "FIBER-300",
+    "name": "Fiber 300",
+    "speed_mbps": 300,
+    "monthly_price": 49.99,
+    "is_offered": true
+   },
+   {
+    "plan_id": "FIBER-500",
+    "name": "Fiber 500",
+    "speed_mbps": 500,
+    "monthly_price": 59.99,
+    "is_offered": true
+   },
+   {
+    "plan_id": "FIBER-1000",
+    "name": "Fiber Gig 1000",
+    "speed_mbps": 1000,
+    "monthly_price": 79.99,
+    "is_offered": true
+   },
+   {
+    "plan_id": "GIG-2000",
+    "name": "Fiber 2 Gig",
+    "speed_mbps": 2000,
+    "monthly_price": 109.99,
+    "is_offered": true
+   }
+  ],
+  "account": [
+   {
+    "account_id": "A-10001",
+    "holder_name": "Helen Brandt",
+    "service_email": "helen.brandt@example.net",
+    "service_address": "7 Orchard Court",
+    "plan_id": "FIBER-100",
+    "monthly_price": 39.99,
+    "status": "active",
+    "balance_due": 0,
+    "upgrades_12m": 0,
+    "line_max_mbps": 1000
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30417",
+      "holder_name": "Marta Kowalski",
+      "service_email": "marta.k@example.net",
+      "service_address": "14 Alder Lane",
+      "plan_id": "FIBER-100",
+      "monthly_price": 39.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-30417",
+    "new_plan_id": "FIBER-500"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.service_email",
+     "value": "marta.k@example.net",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-500",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.service_address",
+     "value": "14 Alder Lane",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_plan_id": "FIBER-300"
+   },
+   "persona": "Marta, a freelance translator who works from home and uploads large files. Friendly but a bit indecisive.",
+   "reason_for_call": "Her connection feels slow during video calls and she wants a faster plan, but she does not have her account number at hand.",
+   "task_instructions": "Start by asking for the 300 Mbps plan. Before the agent changes anything, say that you have thought about it and actually want the 500 Mbps plan instead. You do not know your account number; offer your email when asked how to find the account.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-41822",
+      "holder_name": "Devon Okafor",
+      "service_email": "devon.okafor@example.net",
+      "service_address": "220 Birch Street",
+      "plan_id": "FIBER-300",
+      "monthly_price": 49.99,
+      "status": "active",
+      "balance_due": 12.5,
+      "upgrades_12m": 1,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-41822",
+    "new_plan_id": "FIBER-1000"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-41822",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-1000",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 12.5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.plan_id",
+     "value": "FIBER-300",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.upgrades_12m",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You are currently on the 300 Mbps plan.",
+     "kind": "helpful"
+    },
+    {
+     "text": "You upgraded once earlier in the past year.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Devon, a streamer who is impatient and wants things done quickly.",
+   "reason_for_call": "His stream keeps buffering and he wants the gigabit plan right away.",
+   "task_instructions": "Be impatient and push the agent to hurry. Mention your account number, the plan you want, your small outstanding balance, your current plan and your earlier upgrade in your first messages.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-52090",
+      "holder_name": "Priya Natarajan",
+      "service_email": "priya.n@example.net",
+      "service_address": "58 Cedar Road",
+      "plan_id": "FIBER-100",
+      "monthly_price": 39.99,
+      "status": "active",
+      "balance_due": 60.4,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-52090",
+    "new_plan_id": "FIBER-300"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-52090",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-300",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a short-spoken accountant.",
+   "reason_for_call": "She wants a faster internet plan.",
+   "task_instructions": "Keep every answer to a few words. Give the account number first. Name the plan code only when asked which plan you want. If refused, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-63355",
+      "holder_name": "Gordon Fisk",
+      "service_email": "gfisk@example.net",
+      "service_address": "3 Willow Way",
+      "plan_id": "FIBER-100",
+      "monthly_price": 39.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-63355",
+    "new_plan_id": "FIBER-500"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-500",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.holder_name",
+     "value": "Gordon Fisk",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gordon, a retiree calling from a neighbor's phone, impatient and used to getting his way.",
+   "reason_for_call": "He wants the 500 plan but has lost his bill and does not remember which email he signed up with.",
+   "task_instructions": "Say you want the 500 plan. You do not know your account number and cannot say which email address the account uses. Give your name if asked. If the agent cannot proceed, argue and ask for an exception at least twice, then accept.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-74210",
+      "holder_name": "Sofia Alvarez",
+      "service_email": "sofia.alvarez@example.net",
+      "service_address": "91 Maple Drive",
+      "plan_id": "FIBER-300",
+      "monthly_price": 49.99,
+      "status": "active",
+      "balance_due": 5,
+      "upgrades_12m": 0,
+      "line_max_mbps": 500
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-74210",
+    "new_plan_id": "FIBER-500"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-74210",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-500",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 40,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a terse graphic designer.",
+   "reason_for_call": "She wants the 500 plan and thinks she owes about 40 on her account.",
+   "task_instructions": "Keep answers very short. State your account number, the plan you want, and that you think you owe 40. If told your balance is different, just say okay and continue.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-60718",
+      "holder_name": "Ibrahim Yusuf",
+      "service_email": "i.yusuf@example.net",
+      "service_address": "402 Pine Avenue",
+      "plan_id": "FIBER-300",
+      "monthly_price": 49.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 1,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-60718",
+    "new_plan_id": "GIG-2000"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-60718",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "GIG-2000",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ibrahim, a software developer who is polite and clear.",
+   "reason_for_call": "He works with huge datasets from home and wants the top speed plan.",
+   "task_instructions": "State your account number and the plan you want in your first message. Answer questions clearly. If the agent says a technician will check the line, accept that.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-71105",
+      "holder_name": "Claire Dubois",
+      "service_email": "claire.dubois@example.net",
+      "service_address": "18 Harbor Street",
+      "plan_id": "FIBER-100",
+      "monthly_price": 39.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 2,
+      "line_max_mbps": 1000
+     },
+     {
+      "account_id": "A-71106",
+      "holder_name": "Claire Dubois",
+      "service_email": "claire.dubois@example.net",
+      "service_address": "5 Quarry Lane",
+      "plan_id": "FIBER-300",
+      "monthly_price": 49.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-71105",
+    "new_plan_id": "FIBER-500"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-71105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-500",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You also have a second account at a rental cottage on Quarry Lane that you are happy with.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Your router was replaced two winters ago after a storm.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You recently switched your mobile phone provider.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You once got a bill credit after an outage last year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Claire, a cheerful bookkeeper who likes to chat.",
+   "reason_for_call": "She wants a faster plan for her main home on Harbor Street.",
+   "task_instructions": "Ask for the 500 plan on your main home account. Mention your other details naturally in conversation. Accept the agent's decision politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-82011",
+      "holder_name": "Tomas Lindgren",
+      "service_email": "tomas.l@example.net",
+      "service_address": "77 Summit Road",
+      "plan_id": "FIBER-100",
+      "monthly_price": 39.99,
+      "status": "suspended",
+      "balance_due": 0,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     },
+     {
+      "account_id": "A-82012",
+      "holder_name": "Tomas Lindgren",
+      "service_email": "tomas.l@example.net",
+      "service_address": "12 Mill Street",
+      "plan_id": "FIBER-300",
+      "monthly_price": 49.99,
+      "status": "active",
+      "balance_due": 0,
+      "upgrades_12m": 0,
+      "line_max_mbps": 1000
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "A-82011",
+    "new_plan_id": "FIBER-1000"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "A-82011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "FIBER-1000",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You also have an account for your parents' flat on Mill Street that works fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You were away traveling for a month this spring.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You are thinking about buying a new television.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "new_plan_id": "FIBER-300"
+   },
+   "persona": "Tomas, a friendly project manager who talks a lot and often changes his plans.",
+   "reason_for_call": "He wants to speed up the internet at his own place on Summit Road.",
+   "task_instructions": "First ask for the 300 Mbps plan on your Summit Road account. Before anything is done, say you would rather have the gigabit 1000 plan. Mention the side details naturally. If refused, accept after hearing the reason.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

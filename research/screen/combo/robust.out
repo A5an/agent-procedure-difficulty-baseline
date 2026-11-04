@@ -1,0 +1,13 @@
+all 6+6 probes, monitor gradient boosting   : 2.88  vs always human -2.32 [-3.59, -0.83]
+all 6+6 probes, monitor logistic regression : 3.85  vs always human -1.35 [-2.71, +0.17]
+subset 0: 3+3 probes per family and agent: 4.54
+subset 1: 3+3 probes per family and agent: 3.42
+subset 2: 3+3 probes per family and agent: 4.43
+subset 3: 3+3 probes per family and agent: 5.12
+subset 4: 3+3 probes per family and agent: 3.87
+subset 5: 3+3 probes per family and agent: 4.84
+subset 6: 3+3 probes per family and agent: 4.21
+subset 7: 3+3 probes per family and agent: 5.22
+subset 8: 3+3 probes per family and agent: 4.30
+subset 9: 3+3 probes per family and agent: 4.29
+3+3 probes, mean over 10 subsets: 4.42  vs always human -0.78 [-2.11, +0.67]

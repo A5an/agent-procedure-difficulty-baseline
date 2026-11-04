@@ -1,0 +1,702 @@
+{
+ "procedure_id": "p14_parcel",
+ "domain": "parcel courier",
+ "organization": "Northway Parcel Express",
+ "title": "Rescheduling a home delivery",
+ "summary": "Move a parcel's planned home delivery to a later date when the recipient passes the postcode check and the parcel and the new date qualify.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Recipients registered with Northway, usually through the tracking app or a delivery notification.",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str"
+   }
+  },
+  "shipment": {
+   "key": "shipment_id",
+   "description": "Parcels handled by Northway, identified by their tracking number.",
+   "fields": {
+    "shipment_id": "str",
+    "recipient_id": "ref:customer",
+    "sender_name": "str",
+    "delivery_postcode": "str",
+    "status": "enum:label_created|in_transit|at_depot|out_for_delivery|delivered|returned",
+    "scheduled_date": "date",
+    "reschedule_count": "int"
+   }
+  },
+  "delivery_change": {
+   "key": "change_id",
+   "description": "Confirmations of delivery date changes, which trigger the notice sent to the recipient and the depot.",
+   "fields": {
+    "change_id": "str",
+    "shipment_id": "ref:shipment",
+    "new_date": "date",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a recipient by customer ID."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find recipients by the email address on file."
+  },
+  {
+   "name": "get_shipment",
+   "kind": "get",
+   "entity": "shipment",
+   "description": "Look up a parcel by its tracking number. Shows the sender, delivery postcode, status and scheduled delivery date."
+  },
+  {
+   "name": "find_shipments_by_recipient",
+   "kind": "search",
+   "entity": "shipment",
+   "by": [
+    "recipient_id"
+   ],
+   "description": "List all parcels addressed to a recipient, by customer ID."
+  },
+  {
+   "name": "reschedule_delivery",
+   "kind": "update",
+   "entity": "shipment",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "Tracking number of the parcel to reschedule."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date."
+    }
+   },
+   "set": {
+    "scheduled_date": "args.new_date",
+    "reschedule_count": "rec.reschedule_count + 1"
+   },
+   "description": "Set a parcel's scheduled delivery date to the new date and count one reschedule."
+  },
+  {
+   "name": "create_delivery_change",
+   "kind": "create",
+   "entity": "delivery_change",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "Tracking number of the rescheduled parcel."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date that was set."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "new_date": "args.new_date",
+    "created": "today"
+   },
+   "description": "Record a delivery date change. This sends the confirmation notice to the recipient and the depot."
+  }
+ ],
+ "request": {
+  "shipment_id": {
+   "type": "ref:shipment",
+   "description": "the tracking number of the parcel whose delivery you want to move"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the date you want the parcel delivered instead"
+  }
+ },
+ "claims": {
+  "delivery_postcode": {
+   "type": "str",
+   "description": "the postcode of the address the parcel is being delivered to"
+  }
+ },
+ "bindings": [
+  {
+   "name": "shp",
+   "entity": "shipment",
+   "key": "req.shipment_id"
+  },
+  {
+   "name": "rcp",
+   "entity": "customer",
+   "key": "shp.recipient_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the delivery to the requested date, then record the change so the confirmation notice goes out.",
+   "calls": [
+    {
+     "tool": "reschedule_delivery",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "new_date": "req.new_date"
+     }
+    },
+    {
+     "tool": "create_delivery_change",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "new_date": "req.new_date"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the delivery; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.delivery_postcode != shp.delivery_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the parcel's delivery postcode exactly as it is on file before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "shp.status not in ['in_transit', 'at_depot']",
+   "outcome": "refuse",
+   "explain": "Only parcels that are in transit or waiting at the depot can be rescheduled."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(shp.scheduled_date, req.new_date) < 1 or days_between(shp.scheduled_date, req.new_date) > 7",
+   "outcome": "refuse",
+   "explain": "The new date must be later than the current scheduled delivery date and at most 7 days after it."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Purpose\nRecipients can ask us to move a home delivery to a later date. This procedure covers rescheduling only. It does not cover redirecting a parcel to another address or to a pickup point.\n\n## Finding the parcel\nAsk for the tracking number. If the recipient does not have it, ask for the email address they have registered with us. Find their customer record with that email and list the parcels addressed to them. If there is more than one parcel, ask who the sender is so you pick the right one. Do not guess. If you cannot find the parcel this way, you cannot make a change. Explain this and suggest they find the tracking number in their delivery notification or in the sender's dispatch email.\n\n## Security check\nBefore changing anything, ask the caller for the postcode of the delivery address. It must match the delivery postcode on the parcel record. If it does not match, or the caller cannot give it, do not reschedule. Never read out the postcode or the address on file.\n\n## When a parcel can be rescheduled\n- Status: the parcel must be in transit or at the depot. We cannot reschedule a parcel that is out for delivery, already delivered or returned to the sender. We also cannot reschedule a parcel whose label has been created but which has not yet been handed to us.\n- New date: the new date must be later than the currently scheduled delivery date on our record, and no more than 7 days after it. A date exactly 7 days after the scheduled date is allowed. Bringing a delivery forward is not possible. Always use the scheduled date on our record, even if the recipient believes it is a different date.\n\nIf a requested date is outside this window, decline it. Do not pick a different date yourself. If the recipient then asks for another date, check that date against the same rules.\n\n## Making the change\nIf every check passes, do these two steps in this order:\n1. Reschedule the delivery to the requested date.\n2. Create the delivery change record for that parcel and that date. This record sends the confirmation notice.\n\nThen tell the recipient the new delivery date.\n\n## Never\n- Do not change anything for a caller who failed the postcode check.\n- Do not change the delivery address, postcode or any other parcel.\n- Do not make exceptions to the status or date rules, however urgent the request is.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-20001",
+    "full_name": "Fiona MacRae",
+    "email": "fiona.macrae@example.org",
+    "phone": "+44 7700 900112"
+   }
+  ],
+  "shipment": [
+   {
+    "shipment_id": "NX4400000112",
+    "recipient_id": "C-20001",
+    "sender_name": "Harrowgate Garden Centre",
+    "delivery_postcode": "AB10 1XG",
+    "status": "in_transit",
+    "scheduled_date": "2026-05-21",
+    "reschedule_count": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21044",
+      "full_name": "Gareth Pryce",
+      "email": "g.pryce@example.org",
+      "phone": "+44 7700 900231"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4419027365",
+      "recipient_id": "C-21044",
+      "sender_name": "Halden Outdoor Supply",
+      "delivery_postcode": "CF10 3AT",
+      "status": "at_depot",
+      "scheduled_date": "2026-05-22",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4419027365",
+    "new_date": "2026-05-26"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4419027365",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-26",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "CF10 3AT",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a site foreman in Cardiff who calls on his lunch break. He is short on time and expects things to be done fast.",
+   "reason_for_call": "He will be working away until the weekend and wants his camping gear delivered on Tuesday the 26th, when he is back.",
+   "task_instructions": "In your first message, give the tracking number, the postcode and the date you want. Be impatient: ask the agent to hurry up and complain if they ask for anything you have already given. If they refuse, argue and ask for an exception at least twice before you accept. Once it is confirmed, end the conversation.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21388",
+      "full_name": "Ingrid Solberg",
+      "email": "ingrid.solberg@example.org",
+      "phone": "+44 7700 900318"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4420551908",
+      "recipient_id": "C-21388",
+      "sender_name": "Lindqvist Optics",
+      "delivery_postcode": "EH7 5QY",
+      "status": "out_for_delivery",
+      "scheduled_date": "2026-05-20",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4420551908",
+    "new_date": "2026-05-23"
+   },
+   "initial_request_values": {
+    "shipment_id": "NX4420551908",
+    "new_date": "2026-05-21"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4420551908",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-23",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "EH7 5QY",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.status",
+     "value": "out_for_delivery",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.sender_name",
+     "value": "Lindqvist Optics",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The text message I got this morning said the driver is on the way and the parcel should arrive today.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It's my new pair of glasses from Lindqvist Optics.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The tracking page says 'out for delivery' right now.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ingrid, a translator in Edinburgh. She is friendly, chatty and a little scattered.",
+   "reason_for_call": "She has been called into the office unexpectedly today and won't be home when her glasses arrive.",
+   "task_instructions": "Open with the tracking number and postcode, and mention that the tracking says it's out for delivery today. First ask for delivery tomorrow, Thursday the 21st. Before the agent does anything, remember you are busy tomorrow too, and switch to Saturday the 23rd. If the agent says it can't be changed, accept politely and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21502",
+      "full_name": "Tomasz Wielgosz",
+      "email": "t.wielgosz@example.org",
+      "phone": "+44 7700 900427"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4421186043",
+      "recipient_id": "C-21502",
+      "sender_name": "Brightmoor Books",
+      "delivery_postcode": "M14 6LP",
+      "status": "in_transit",
+      "scheduled_date": "2026-05-21",
+      "reschedule_count": 0
+     },
+     {
+      "shipment_id": "NX4421190377",
+      "recipient_id": "C-21502",
+      "sender_name": "Kettle & Crane Homeware",
+      "delivery_postcode": "M14 6LP",
+      "status": "label_created",
+      "scheduled_date": "2026-05-27",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4421186043",
+    "new_date": "2026-05-25"
+   },
+   "customer_facts": [
+    {
+     "fact": "rcp.email",
+     "value": "t.wielgosz@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.sender_name",
+     "value": "Brightmoor Books",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "M14 6LP",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a PhD student in Manchester who is irritated that he can't find the tracking email.",
+   "reason_for_call": "His books from Brightmoor are due tomorrow, but he is away at a conference. He wants them on Monday the 25th.",
+   "task_instructions": "Say right away that you don't have the tracking number, and give your email, the sender (Brightmoor Books), your postcode and the date you want. Be pushy and impatient. If you are refused, argue and ask for an exception at least twice before accepting. If the agent confirms the change, thank them briefly and end.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21677",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "phone": "+44 7700 900539"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4422013589",
+      "recipient_id": "C-21677",
+      "sender_name": "Fable & Fern Plants",
+      "delivery_postcode": "BS3 4RN",
+      "status": "in_transit",
+      "scheduled_date": "2026-05-21",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4422013589",
+    "new_date": "2026-05-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4422013589",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "BS3 4RN",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.scheduled_date",
+     "value": "2026-05-25",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a busy architect in Bristol who writes in clipped, minimal sentences.",
+   "reason_for_call": "She believes her plant order is due on the 25th and wants it moved to Saturday the 30th.",
+   "task_instructions": "In your first message, give the tracking number and postcode, say the parcel is due on the 25th, and say you want the 30th. Keep every answer to a few words. If the agent refuses, say 'ok' and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21730",
+      "full_name": "Hamid Rostami",
+      "email": "hamid.rostami@example.org",
+      "phone": "+44 7700 900644"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4422640012",
+      "recipient_id": "C-21730",
+      "sender_name": "Corvane Electronics",
+      "delivery_postcode": "LS6 2DT",
+      "status": "at_depot",
+      "scheduled_date": "2026-05-22",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4422640012",
+    "new_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4422640012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-02",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "LS6 2DT",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hamid, a polite retired engineer in Leeds who is about to leave on a family holiday.",
+   "reason_for_call": "He will be away until the 1st of June and wants his new laptop delivered after he is back, on Tuesday the 2nd of June.",
+   "task_instructions": "Give the tracking number and say you would like the delivery moved to a later date because you are going on holiday. Do not name the date until the agent asks which date you want; then say Tuesday the 2nd of June. Give your postcode when the agent asks for it. Be cooperative and understanding, and accept the agent's answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21815",
+      "full_name": "Beatriz Coelho",
+      "email": "beatriz.coelho@example.org",
+      "phone": "+44 7700 900752"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4423308871",
+      "recipient_id": "C-21815",
+      "sender_name": "Atelier Moreau",
+      "delivery_postcode": "BN2 1TW",
+      "status": "at_depot",
+      "scheduled_date": "2026-05-23",
+      "reschedule_count": 0
+     },
+     {
+      "shipment_id": "NX4423310045",
+      "recipient_id": "C-21815",
+      "sender_name": "Greenhollow Tea Co.",
+      "delivery_postcode": "BN2 1TW",
+      "status": "in_transit",
+      "scheduled_date": "2026-05-21",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4423308871",
+    "new_date": "2026-05-27"
+   },
+   "initial_request_values": {
+    "shipment_id": "NX4423308871",
+    "new_date": "2026-06-05"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4423308871",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "BN2 1TW",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "There's another parcel coming tomorrow with some tea from Greenhollow. That one is fine, I'll be in.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last Christmas a different courier lost a parcel of mine, so I'm a bit nervous about deliveries.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was also going to ask how to send a parcel to my sister in Porto, but I'll look it up on your website later.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My neighbour downstairs usually takes in parcels, but she is away this week.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Beatriz, a talkative textile designer in Brighton who tells little stories as she goes.",
+   "reason_for_call": "She is going to a trade fair and won't be home on Saturday when her fabric samples from Atelier Moreau are due.",
+   "task_instructions": "Give the tracking number and postcode early, and mention the other parcels and side stories along the way. First ask to move the delivery to Friday the 5th of June. Before the agent changes anything, change your mind and ask for Wednesday the 27th of May instead, saying you will be back sooner than you thought. Be cooperative otherwise.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-21960",
+      "full_name": "Wei Lin Tan",
+      "email": "weilin.tan@example.org",
+      "phone": "+44 7700 900863"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4424057720",
+      "recipient_id": "C-21960",
+      "sender_name": "Northfield Cycle Parts",
+      "delivery_postcode": "G12 8QQ",
+      "status": "in_transit",
+      "scheduled_date": "2026-05-21",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4424057720",
+    "new_date": "2026-05-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "NX4424057720",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "G12 8QQ",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Wei Lin, a hospital doctor in Glasgow between shifts, who replies with as few words as possible.",
+   "reason_for_call": "She is on night shifts this week and wants her bike parts delivered next Thursday, the 28th.",
+   "task_instructions": "Give only the tracking number and the date you want. Give your postcode only if asked. Answer in a few words and never elaborate.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-22013",
+      "full_name": "Oluwaseun Adeyemi",
+      "email": "seun.adeyemi@example.org",
+      "phone": "+44 7700 900974"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "NX4424711936",
+      "recipient_id": "C-22013",
+      "sender_name": "Marlow Kitchenware",
+      "delivery_postcode": "NG7 2RD",
+      "status": "at_depot",
+      "scheduled_date": "2026-05-22",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "NX4424711936",
+    "new_date": "2026-05-25"
+   },
+   "customer_facts": [
+    {
+     "fact": "rcp.full_name",
+     "value": "Oluwaseun Adeyemi",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.sender_name",
+     "value": "Marlow Kitchenware",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.delivery_postcode",
+     "value": "NG7 2RD",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Seun, a friendly secondary school teacher in Nottingham who uses several email addresses and accidentally deleted the dispatch email.",
+   "reason_for_call": "He wants his kitchenware order moved to Monday the 25th because he will be at a school trip on Friday.",
+   "task_instructions": "Give your name, the sender and the date you want. You have no tracking number, and you cannot say which of your email addresses is registered with the courier. Give your postcode if asked. If the agent cannot find the parcel, accept it kindly and say you will look for the tracking number.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

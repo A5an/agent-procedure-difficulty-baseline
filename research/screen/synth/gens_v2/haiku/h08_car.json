@@ -1,0 +1,907 @@
+{
+ "procedure_id": "h08_car",
+ "domain": "car dealership service center",
+ "organization": "Harbor Road Auto Group",
+ "title": "Service appointment rescheduling",
+ "summary": "Move a customer's service appointment to a new date when the account, the appointment and the vehicle qualify, charging the late-change fee where it applies.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Vehicle owners with a service account",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "birth_date": "date",
+    "phone": "str",
+    "status": "enum:good|on_hold|closed"
+   }
+  },
+  "vehicle": {
+   "key": "vin",
+   "description": "Vehicles registered to a customer account",
+   "fields": {
+    "vin": "str",
+    "customer_id": "ref:customer",
+    "model": "str",
+    "mileage": "int",
+    "recall_open": "bool"
+   }
+  },
+  "service_order": {
+   "key": "order_id",
+   "description": "Service appointments booked for a vehicle",
+   "fields": {
+    "order_id": "str",
+    "vin": "ref:vehicle",
+    "service_date": "date",
+    "service_type": "str",
+    "status": "enum:booked|checked_in|completed|cancelled",
+    "reschedules": "int",
+    "estimate": "number"
+   }
+  },
+  "fee_charge": {
+   "key": "charge_id",
+   "description": "Fees charged to an appointment",
+   "fields": {
+    "charge_id": "str",
+    "order_id": "ref:service_order",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "customer_notice": {
+   "key": "notice_id",
+   "description": "Messages sent to a customer account about an appointment",
+   "fields": {
+    "notice_id": "str",
+    "customer_id": "ref:customer",
+    "order_id": "ref:service_order",
+    "kind": "enum:reschedule_confirmed|other",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for the service team to review an appointment",
+   "fields": {
+    "request_id": "str",
+    "order_id": "ref:service_order",
+    "reason": "enum:open_recall|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a vehicle owner's account by customer number."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by its VIN."
+  },
+  {
+   "name": "get_service_order",
+   "kind": "get",
+   "entity": "service_order",
+   "description": "Look up a service appointment by its appointment number."
+  },
+  {
+   "name": "find_orders_by_date",
+   "kind": "search",
+   "entity": "service_order",
+   "by": [
+    "service_date"
+   ],
+   "description": "List the service appointments on a given service date."
+  },
+  {
+   "name": "find_orders_by_vin",
+   "kind": "search",
+   "entity": "service_order",
+   "by": [
+    "vin"
+   ],
+   "description": "List all service appointments for a vehicle."
+  },
+  {
+   "name": "find_vehicles_by_customer",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List the vehicles registered to a customer account."
+  },
+  {
+   "name": "reschedule_order",
+   "kind": "update",
+   "entity": "service_order",
+   "args": {
+    "order_id": {
+     "type": "ref:service_order",
+     "description": "The appointment to move."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new service date."
+    }
+   },
+   "set": {
+    "service_date": "args.new_date",
+    "reschedules": "rec.reschedules + 1"
+   },
+   "description": "Move an appointment to a new service date and count one reschedule."
+  },
+  {
+   "name": "create_fee_charge",
+   "kind": "create",
+   "entity": "fee_charge",
+   "args": {
+    "order_id": {
+     "type": "ref:service_order",
+     "description": "The appointment the fee is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The fee in dollars, 0.00 if none."
+    }
+   },
+   "fields": {
+    "order_id": "args.order_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a reschedule fee against an appointment."
+  },
+  {
+   "name": "create_customer_notice",
+   "kind": "create",
+   "entity": "customer_notice",
+   "args": {
+    "customer_id": {
+     "type": "ref:customer",
+     "description": "The account to notify."
+    },
+    "order_id": {
+     "type": "ref:service_order",
+     "description": "The appointment the notice is about."
+    }
+   },
+   "fields": {
+    "customer_id": "args.customer_id",
+    "order_id": "args.order_id",
+    "kind": "'reschedule_confirmed'",
+    "created": "today"
+   },
+   "description": "Send the customer a reschedule confirmation."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "order_id": {
+     "type": "ref:service_order",
+     "description": "The appointment the review is about."
+    },
+    "reason": {
+     "type": "enum:open_recall|other",
+     "description": "Why the service team should review it."
+    }
+   },
+   "fields": {
+    "order_id": "args.order_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for the service team to review an appointment."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:service_order",
+   "description": "the service appointment you want to move"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the new date you want for the appointment"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "order",
+   "entity": "service_order",
+   "key": "req.order_id"
+  },
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "order.vin"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "veh.customer_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the appointment to the new date, record the reschedule fee, and send the confirmation notice.",
+   "calls": [
+    {
+     "tool": "reschedule_order",
+     "args": {
+      "order_id": "req.order_id",
+      "new_date": "req.new_date"
+     }
+    },
+    {
+     "tool": "create_fee_charge",
+     "args": {
+      "order_id": "req.order_id",
+      "amount": "0.0 if days_between(today, order.service_date) >= 3 else min(150.0, round(order.estimate * 0.1, 2))"
+     }
+    },
+    {
+     "tool": "create_customer_notice",
+     "args": {
+      "customer_id": "cust.customer_id",
+      "order_id": "req.order_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The vehicle has an open safety recall: do not move the appointment, open a review request for the service team instead.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "order_id": "req.order_id",
+      "reason": "'open_recall'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not move the appointment; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != cust.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth of the vehicle's account owner before any change."
+  },
+  {
+   "id": "R2",
+   "when": "cust.status != 'good'",
+   "outcome": "refuse",
+   "explain": "Accounts that are on hold or closed cannot move appointments."
+  },
+  {
+   "id": "R3",
+   "when": "order.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only booked appointments can be moved."
+  },
+  {
+   "id": "R4",
+   "when": "order.reschedules >= 2",
+   "outcome": "refuse",
+   "explain": "An appointment can be moved at most twice."
+  },
+  {
+   "id": "R5",
+   "when": "req.new_date < today or req.new_date > add_days(today, 45)",
+   "outcome": "refuse",
+   "explain": "The new date must be today or later and no more than 45 days from today."
+  },
+  {
+   "id": "R6",
+   "when": "veh.recall_open",
+   "outcome": "review",
+   "explain": "If the vehicle has an open safety recall, open a review request instead of moving the appointment."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nVehicle owners can ask to move a service appointment by phone or chat. Before changing anything, find the appointment, the vehicle it is booked for, and the account that owns the vehicle. Confirm the caller's identity: the date of birth they give must match the owner's date of birth on file. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the appointment\nUse the appointment number if the caller has it. Otherwise search by the service date the caller gives. If more than one appointment is on that date, ask which vehicle or service they mean.\n\n## When a move is allowed\n- The account on file must be in good standing. Accounts that are on hold or closed cannot move appointments.\n- The appointment must still be booked. Appointments that are checked in, completed or cancelled cannot be moved.\n- An appointment can be moved at most twice. If it has already been moved twice, decline.\n- The new date must be today or later and no more than 45 days from today. Requests outside that window are declined, not shortened.\n- If all of the above pass and the vehicle has an open safety recall, do not move the appointment. Open a review request with reason open_recall and tell the caller that the service team will contact them to arrange the work.\n\n## How to move an appointment\nIf all of the above pass and no recall is open, do these three steps in order:\n1. Move the appointment to the new date. This also adds one to its reschedule count.\n2. Record the reschedule fee for the appointment. Count the days from today to the appointment's current service date, before the move. If that is 3 or more days, the fee is 0.00. Otherwise the fee is 10% of the appointment's estimate, rounded to cents, with a maximum of 150.00. Record the fee even when it is 0.00.\n3. Send the customer a reschedule confirmation notice.\nThen tell the caller the new date and the fee.\n\n## Never\nDo not waive or change a fee. Do not move an appointment for a caller who failed the identity check or whose account is on hold. Do not open a review request except for an open recall. Do not change anything the caller did not ask for.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7731",
+      "full_name": "Marisol Vega",
+      "birth_date": "1983-06-14",
+      "phone": "555-0142",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "1HGCV1F3XLA031187",
+      "customer_id": "C-7731",
+      "model": "2022 Honda Accord",
+      "mileage": 31250,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-41027",
+      "vin": "1HGCV1F3XLA031187",
+      "service_date": "2026-05-22",
+      "service_type": "Brake fluid and tire rotation",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 1640.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-41027",
+    "new_date": "2026-05-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-41027",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-06-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a hospital administrator who is short on time and expects things to move quickly.",
+   "reason_for_call": "She has a board meeting on the day of her service visit and needs to move the appointment to the following Thursday.",
+   "task_instructions": "Give the appointment number, your date of birth and the new date in your first message. When the agent tells you the fee, complain once that it is too high, then accept it and finish. Do not give any other details.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4418",
+      "full_name": "Tomas Reinholt",
+      "birth_date": "1976-09-30",
+      "phone": "555-0185",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "WBA3B5C5XDF594302",
+      "customer_id": "C-4418",
+      "model": "2019 BMW X3",
+      "mileage": 58800,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-52290",
+      "vin": "WBA3B5C5XDF594302",
+      "service_date": "2026-06-02",
+      "service_type": "Oil service and inspection",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 720.5
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-52290",
+    "new_date": "2026-06-09"
+   },
+   "initial_request_values": {
+    "order_id": "SO-52290",
+    "new_date": "2026-07-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-52290",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1976-09-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.reschedules",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "This is the first time I have moved this appointment.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The car is my 2019 BMW X3, the one I bring in for the oil service every spring.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I am booked under my own name, Tomas Reinholt, and my phone number ends in 0185.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tomas, a civil engineer who answers in complete sentences and is polite.",
+   "reason_for_call": "He wants his BMW's oil service moved from early June to a later week. He first asks for a date in late July and switches to June 9 when told the limit.",
+   "task_instructions": "In your first message, ask to move the appointment to July 20. If the agent says that is too far, change your request to June 9 for the same appointment. Give the appointment number and your date of birth when asked, and mention the points about the first move if asked. Do not argue.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2069",
+      "full_name": "Yusuf Adeyemi",
+      "birth_date": "1990-01-17",
+      "phone": "555-0163",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "5YJ3E1EA1KF330918",
+      "customer_id": "C-2069",
+      "model": "2019 Tesla Model 3",
+      "mileage": 44190,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-60338",
+      "vin": "5YJ3E1EA1KF330918",
+      "service_date": "2026-05-27",
+      "service_type": "Tire rotation and cabin filter",
+      "status": "booked",
+      "reschedules": 1,
+      "estimate": 390.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-60338",
+    "new_date": "2026-05-29"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-60338",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-01-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.recall_open",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yusuf, a software tester who reads every letter from the manufacturer closely.",
+   "reason_for_call": "He wants his Tesla's service moved to Friday and believes the car has an open safety recall from a letter he received last week.",
+   "task_instructions": "In your first message, give the appointment number, your date of birth and the Friday date you want, and say you believe there is an open recall. If the agent says the system shows no open recall, argue twice that the letter is clear, then accept the answer. Once the move is confirmed, thank the agent and end.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5582",
+      "full_name": "Brenda Scholz",
+      "birth_date": "1968-03-11",
+      "phone": "555-0120",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "JN1BJ1CP8KW502771",
+      "customer_id": "C-5582",
+      "model": "2021 Nissan Rogue",
+      "mileage": 38200,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-71465",
+      "vin": "JN1BJ1CP8KW502771",
+      "service_date": "2026-05-29",
+      "service_type": "Front pads and rotors",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 980.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-71465",
+    "new_date": "2026-07-10"
+   },
+   "initial_request_values": {
+    "order_id": "SO-71465",
+    "new_date": "2026-07-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-71465",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-07-10",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1968-03-11",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Brenda, a school librarian who is brisk and a little impatient with phone systems.",
+   "reason_for_call": "She wants the service on her Rogue moved to a later date in July, and when the first date is refused she is willing to take a slightly earlier one in July.",
+   "task_instructions": "In your first message, give the appointment number and your date of birth, and ask to move the service to July 15. When the agent refuses, say you can manage a day or two earlier in July. Give the exact date only when the agent asks which date you would like. After the second refusal, accept it and say goodbye.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8843",
+      "full_name": "Priya Raman",
+      "birth_date": "1987-10-05",
+      "phone": "555-0199",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "KMHLM4AG3MU208836",
+      "customer_id": "C-8843",
+      "model": "2023 Hyundai Sonata",
+      "mileage": 22140,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-88310",
+      "vin": "KMHLM4AG3MU208836",
+      "service_date": "2026-04-18",
+      "service_type": "Oil change",
+      "status": "completed",
+      "reschedules": 0,
+      "estimate": 95.0
+     },
+     {
+      "order_id": "SO-88314",
+      "vin": "KMHLM4AG3MU208836",
+      "service_date": "2026-05-29",
+      "service_type": "Brake pad replacement",
+      "status": "booked",
+      "reschedules": 2,
+      "estimate": 612.4
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-88314",
+    "new_date": "2026-06-05"
+   },
+   "initial_request_values": {
+    "order_id": "SO-88314",
+    "new_date": "2026-07-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-88314",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1987-10-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Last month's oil change was done at this shop and the work was fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I might trade the Sonata in for a bigger car later this year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The service desk sent me a survey last week that I never filled in.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a pharmacist who plans her week around shift rotations.",
+   "reason_for_call": "She wants her brake pad appointment moved to early June because her shifts change that week.",
+   "task_instructions": "In your first message, ask to move the brake pad appointment to July 20. Before the agent does anything, change your mind and ask for June 5 instead. Give the appointment number and your date of birth when asked. Mention the other items only in passing if the agent asks what else is going on. Accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6017",
+      "full_name": "Eleni Karras",
+      "birth_date": "1979-12-22",
+      "phone": "555-0176",
+      "status": "on_hold"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "YV1RS61T462093417",
+      "customer_id": "C-6017",
+      "model": "2016 Volvo XC60",
+      "mileage": 86412,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-60172",
+      "vin": "YV1RS61T462093417",
+      "service_date": "2026-05-28",
+      "service_type": "Timing belt service",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 1210.0
+     },
+     {
+      "order_id": "SO-60179",
+      "vin": "YV1RS61T462093417",
+      "service_date": "2025-11-04",
+      "service_type": "Winter inspection",
+      "status": "completed",
+      "reschedules": 0,
+      "estimate": 240.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-60172",
+    "new_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-60172",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-12-22",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The winter inspection on this Volvo was last November and it passed.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My husband usually handles the car, but he is travelling this week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am thinking about selling the car sometime this year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Eleni, an accountant who is organized and answers questions directly.",
+   "reason_for_call": "She wants the Volvo's timing belt service moved to the first of June because she is travelling the week before.",
+   "task_instructions": "Answer every question clearly and completely. In your first message give the appointment number, your date of birth and the new date. Mention the other points only if the agent asks about the car or your history. Accept the answer and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9276",
+      "full_name": "Hamid Rostami",
+      "birth_date": "1994-02-08",
+      "phone": "555-0158",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "3VWD17AJ5EM419055",
+      "customer_id": "C-9276",
+      "model": "2014 Volkswagen Jetta",
+      "mileage": 102660,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-92764",
+      "vin": "3VWD17AJ5EM419055",
+      "service_date": "2026-05-21",
+      "service_type": "Battery and coolant",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 485.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-92764",
+    "new_date": "2026-06-03"
+   },
+   "initial_request_values": {
+    "order_id": "SO-92764",
+    "new_date": "2026-07-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "SO-92764",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-02-08",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hamid, a delivery driver who calls between stops and keeps his answers practical.",
+   "reason_for_call": "He wants his Jetta's service moved, first a long way off and then to the first days of June.",
+   "task_instructions": "In your first message, give the appointment number and ask to move it to July 20. After the agent refuses, ask for June 3 instead. Give your date of birth only when asked. Once the move is done, accept it and end.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-1408",
+      "full_name": "Kofi Mensah",
+      "birth_date": "1982-05-16",
+      "phone": "555-0137",
+      "status": "good"
+     }
+    ],
+    "vehicle": [
+     {
+      "vin": "1FTFW1ET2DFC08823",
+      "customer_id": "C-1408",
+      "model": "2013 Ford F-150",
+      "mileage": 74210,
+      "recall_open": false
+     }
+    ],
+    "service_order": [
+     {
+      "order_id": "SO-14081",
+      "vin": "1FTFW1ET2DFC08823",
+      "service_date": "2026-05-27",
+      "service_type": "Brake inspection",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 760.0
+     },
+     {
+      "order_id": "SO-14086",
+      "vin": "1FTFW1ET2DFC08823",
+      "service_date": "2026-06-17",
+      "service_type": "Oil change",
+      "status": "booked",
+      "reschedules": 0,
+      "estimate": 110.0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "SO-14081",
+    "new_date": "2026-08-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "order.service_date",
+     "value": "2026-05-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-08-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1982-05-16",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kofi, a contractor who drives an old pickup and keeps calls very short.",
+   "reason_for_call": "He wants his truck's brake inspection moved to August 10.",
+   "task_instructions": "Give only what is asked. You do not know the appointment number; give the date of the appointment when asked. Give your date of birth only if asked. Accept a refusal and end the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

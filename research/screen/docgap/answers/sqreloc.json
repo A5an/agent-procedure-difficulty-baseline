@@ -1,0 +1,17 @@
+{
+ "gap_score": 9,
+ "gaps": [
+  "The policy names no tools for address change, cheque book request, or statement generation, so the exact tool calls, parameters, and whether each is a direct mutation or a service request are unspecified.",
+  "The one-line description says 'strictly ordered' but not why: whether the cheque book must go to the new address, and whether the statement must reflect or be sent to the new address, is not stated.",
+  "Which account the cheque book and statement apply to (savings, current, or several linked) and how to pick one when the customer has multiple is not defined.",
+  "Cheque book details are missing: number of leaves, eligibility rules, fees, delivery timelines, and whether a cheque book is allowed for the product type.",
+  "Statement parameters are missing: date range or period, format (PDF or paper), delivery channel (email, post, or in-app), and whether a fee applies.",
+  "Address change requirements are missing: required fields, validation rules, whether supporting documents or a cooling-off period apply, and whether a pending address change blocks later steps.",
+  "The policy gives no rule on whether to confirm before each step, since the confirm-first list covers only closure, card block, mandate cancel, and cheque stop, not address change or cheque book requests.",
+  "Failure handling is unspecified: if the address update fails or is rejected, should the later steps be skipped, deferred, or escalated?",
+  "Customer behavior is unspecified: they may change order, drop a step, give an incomplete address, or ask for a step out of sequence, and the policy doesn't say whether to refuse or reorder.",
+  "Knowledge-base lookups are needed for rules like fees, eligibility, and timelines, but which queries and categories to use and what counts as a weak hit are left to judgment.",
+  "Simulation date handling (for example the statement period relative to 2026-07-16 and relative terms like 'last 3 months') and any bank conventions on date formats are unspecified.",
+  "The expected final state is undefined: the policy doesn't say which database changes (address updated, cheque request created, statement request recorded) are the correct end result."
+ ]
+}

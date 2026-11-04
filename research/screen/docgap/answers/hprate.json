@@ -1,0 +1,14 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which tool(s) to call and in what order is unspecified: whether to search the knowledge base for scheme rates, look up the customer's existing RDs, or both. The policy names only search_knowledge_base and a few mutation tools, not rate-lookup tools.",
+  "Ambiguity over whether the enquiry concerns the rate on the customer's existing RD (needs a lookup of linked deposits) or the current offered rates for opening a new RD (needs the knowledge base).",
+  "Rate variables are not specified: tenure, deposit amount, senior citizen or other category, compounding frequency, and whether rates differ by tenure slab or by date of opening. It is unclear whether to ask the customer for these or to present the full rate table.",
+  "The final action is unclear: purely informational answer, or also offering to open an RD, raise a service request or transfer. The policy has no open-RD mutation and does not say what to do if the customer wants to open one.",
+  "What counts as a good answer is unspecified: how to present rates (per annum, effective yield, maturity amount estimates), whether to compute maturity values, and how to handle rounding.",
+  "Weak or conflicting knowledge-base hits: the policy says to refine and re-search, but not how many retries, or what to do if rates are still not found (escalate, raise a request, or state that the information is unavailable).",
+  "Edge cases: the customer asks about an RD ID not linked to them (refuse), the customer has no RDs, tenure outside the supported range, the rate is stale relative to the simulation date 2026-07-16, or a premature-closure penalty rate question that drifts into closure quotes.",
+  "Customer behavior: they may be vague, may push for a guaranteed future rate or comparisons with other banks or products, may ask for advice on which tenure is best, or may change topic mid-conversation.",
+  "Bank conventions not stated: disclaimers about rates being subject to change, the effective date of rates, whether to quote rates for special categories such as senior citizens or staff, and the tone and level of detail expected."
+ ]
+}

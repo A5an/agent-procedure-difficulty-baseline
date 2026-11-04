@@ -1,0 +1,1011 @@
+{
+ "procedure_id": "p12_online",
+ "domain": "online clothing store",
+ "organization": "Northloom Apparel Co.",
+ "title": "Size and colour exchanges",
+ "summary": "Exchange a delivered clothing item for another size or colour of the same style when the order, the item and the replacement stock qualify.",
+ "entities": {
+  "order": {
+   "key": "order_id",
+   "description": "Customer orders placed on the Northloom web store",
+   "fields": {
+    "order_id": "str",
+    "contact_email": "str",
+    "shipping_postcode": "str",
+    "placed_date": "date",
+    "status": "enum:processing|shipped|delivered|cancelled|returned",
+    "delivered_date": "date"
+   }
+  },
+  "order_item": {
+   "key": "item_id",
+   "description": "Individual items (lines) within an order",
+   "fields": {
+    "item_id": "str",
+    "order_id": "ref:order",
+    "sku": "ref:product_variant",
+    "product_name": "str",
+    "unit_price": "number",
+    "quantity": "int",
+    "final_sale": "bool",
+    "exchange_status": "enum:none|exchange_requested",
+    "exchange_sku": "ref:product_variant"
+   }
+  },
+  "product_variant": {
+   "key": "sku",
+   "description": "Catalog variants: one record per style, colour and size, with current warehouse stock",
+   "fields": {
+    "sku": "str",
+    "product_id": "str",
+    "product_name": "str",
+    "color": "str",
+    "size": "str",
+    "stock": "int",
+    "price": "number"
+   }
+  },
+  "return_label": {
+   "key": "label_id",
+   "description": "Prepaid return shipping labels issued to customers",
+   "fields": {
+    "label_id": "str",
+    "item_id": "ref:order_item",
+    "issued": "date",
+    "status": "enum:issued|used"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up an order by its order number. Shows status, delivery date, shipping postcode and contact email."
+  },
+  {
+   "name": "get_order_item",
+   "kind": "get",
+   "entity": "order_item",
+   "description": "Look up a single order item by its item number. Shows the SKU, final-sale flag and exchange status."
+  },
+  {
+   "name": "find_items_by_order",
+   "kind": "search",
+   "entity": "order_item",
+   "by": [
+    "order_id"
+   ],
+   "description": "List all items in an order, given the order number."
+  },
+  {
+   "name": "get_product_variant",
+   "kind": "get",
+   "entity": "product_variant",
+   "description": "Look up a catalog variant by SKU. Shows the style (product_id), colour, size and current stock."
+  },
+  {
+   "name": "find_variants_by_product",
+   "kind": "search",
+   "entity": "product_variant",
+   "by": [
+    "product_id"
+   ],
+   "description": "List every colour and size variant of a style, given its product_id, with current stock."
+  },
+  {
+   "name": "mark_item_exchanged",
+   "kind": "update",
+   "entity": "order_item",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The order item being exchanged."
+    },
+    "new_sku": {
+     "type": "ref:product_variant",
+     "description": "The SKU of the replacement variant."
+    }
+   },
+   "set": {
+    "exchange_status": "'exchange_requested'",
+    "exchange_sku": "args.new_sku"
+   },
+   "description": "Record an exchange on an order item and the replacement SKU the customer will receive."
+  },
+  {
+   "name": "create_return_label",
+   "kind": "create",
+   "entity": "return_label",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The order item the customer is sending back."
+    }
+   },
+   "fields": {
+    "item_id": "args.item_id",
+    "issued": "today",
+    "status": "'issued'"
+   },
+   "description": "Issue a prepaid return shipping label for an order item."
+  },
+  {
+   "name": "reserve_replacement_stock",
+   "kind": "update",
+   "entity": "product_variant",
+   "args": {
+    "sku": {
+     "type": "ref:product_variant",
+     "description": "The replacement variant to reserve."
+    }
+   },
+   "set": {
+    "stock": "rec.stock - 1"
+   },
+   "description": "Reserve one unit of a variant for an exchange shipment (reduces available stock by one)."
+  }
+ ],
+ "request": {
+  "item_id": {
+   "type": "ref:order_item",
+   "description": "the item number of the piece of clothing you want to exchange (shown in your order confirmation email)"
+  },
+  "new_sku": {
+   "type": "ref:product_variant",
+   "description": "the SKU code of the size/colour you want instead, as shown on the product page"
+  }
+ },
+ "claims": {
+  "shipping_postcode": {
+   "type": "str",
+   "description": "the postcode of the address your order was shipped to"
+  }
+ },
+ "bindings": [
+  {
+   "name": "item",
+   "entity": "order_item",
+   "key": "req.item_id"
+  },
+  {
+   "name": "ord",
+   "entity": "order",
+   "key": "item.order_id"
+  },
+  {
+   "name": "old_var",
+   "entity": "product_variant",
+   "key": "item.sku"
+  },
+  {
+   "name": "new_var",
+   "entity": "product_variant",
+   "key": "req.new_sku"
+  }
+ ],
+ "outcomes": {
+  "exchange": {
+   "kind": "perform",
+   "description": "Record the exchange on the item, issue a prepaid return label, and reserve one unit of the replacement variant.",
+   "calls": [
+    {
+     "tool": "mark_item_exchanged",
+     "args": {
+      "item_id": "req.item_id",
+      "new_sku": "req.new_sku"
+     }
+    },
+    {
+     "tool": "create_return_label",
+     "args": {
+      "item_id": "req.item_id"
+     }
+    },
+    {
+     "tool": "reserve_replacement_stock",
+     "args": {
+      "sku": "req.new_sku"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up the exchange; explain the reason to the customer.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.shipping_postcode != ord.shipping_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the shipping postcode on the order before any exchange is set up."
+  },
+  {
+   "id": "R2",
+   "when": "ord.status != 'delivered'",
+   "outcome": "refuse",
+   "explain": "Only items from orders with status delivered can be exchanged."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(ord.delivered_date, today) > 30",
+   "outcome": "refuse",
+   "explain": "Exchanges must be requested within 30 days of the delivery date on record."
+  },
+  {
+   "id": "R4",
+   "when": "item.final_sale or item.exchange_status != 'none'",
+   "outcome": "refuse",
+   "explain": "Final-sale items cannot be exchanged, and each item can be exchanged only once."
+  },
+  {
+   "id": "R5",
+   "when": "new_var.product_id != old_var.product_id or new_var.stock < 1",
+   "outcome": "refuse",
+   "explain": "The replacement must be another size or colour of the same style and must have at least one unit in stock."
+  }
+ ],
+ "default_outcome": "exchange",
+ "policy_text": "## Purpose\nCustomers can exchange a delivered item for a different size or colour of the same style. An exchange is free: we send a prepaid return label for the original piece and ship the replacement from stock.\n\n## Finding the item\nAsk for the item number from the order confirmation email. If the customer only has the order number, list the items in that order and confirm with them which piece they mean (by product name). Ask for the SKU of the size or colour they want instead; it is shown on the product page. You can look up any variant by SKU, or list all variants of a style, to check details and stock.\n\nIf the customer cannot give you either the item number or the order number, you cannot locate the order. Do not guess, and do not set anything up.\n\n## Verifying the caller\nBefore setting up an exchange, ask for the postcode of the address the order was shipped to. It must match the shipping postcode on the order. If it does not match, or the customer cannot give it, do not set up the exchange.\n\n## When an exchange is allowed\n- The order must have status delivered. Orders that are still processing or in transit, cancelled, or already returned cannot be exchanged.\n- The exchange must be requested within 30 days of the delivery date in our records (30 days or fewer since delivery is fine). Always go by the delivery date in the system, not by what the customer remembers.\n- Items marked final sale (for example clearance pieces) cannot be exchanged.\n- Each item can be exchanged only once. If the item already has an exchange recorded, decline.\n- The replacement must be the same style (the same product_id) in a different size or colour. We do not exchange for a different product.\n- The replacement variant must have at least one unit in stock. If it is out of stock, decline the exchange; we do not hold back-orders or waitlists for exchanges. The customer may choose another in-stock size or colour of the same style instead.\n\nIf any condition fails, explain the reason and do not make any changes. Do not make exceptions.\n\n## Setting up the exchange\nWhen everything checks out, do these three steps in this order:\n1. Record the exchange on the order item with the replacement SKU (mark_item_exchanged).\n2. Issue a prepaid return label for the original item (create_return_label).\n3. Reserve one unit of the replacement SKU (reserve_replacement_stock).\nThen tell the customer the return label is on its way to their email and that the replacement ships once it is reserved.\n\nIf the customer changes their mind about the size or colour before you start, use their final choice. Confirm the final SKU before acting.\n\n## Never\nDo not issue return labels or reserve stock without recording the exchange. Do not exchange for a different product or for an out-of-stock variant. Do not override the final-sale flag or the 30-day window. Do not change any other item or order the customer did not ask about.",
+ "db_common": {
+  "product_variant": [
+   {
+    "sku": "LIN01-SAG-S",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "Sage",
+    "size": "S",
+    "stock": 4,
+    "price": 58.0
+   },
+   {
+    "sku": "LIN01-SAG-M",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "Sage",
+    "size": "M",
+    "stock": 6,
+    "price": 58.0
+   },
+   {
+    "sku": "LIN01-SAG-L",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "Sage",
+    "size": "L",
+    "stock": 3,
+    "price": 58.0
+   },
+   {
+    "sku": "LIN01-WHT-S",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "White",
+    "size": "S",
+    "stock": 5,
+    "price": 58.0
+   },
+   {
+    "sku": "LIN01-WHT-M",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "White",
+    "size": "M",
+    "stock": 7,
+    "price": 58.0
+   },
+   {
+    "sku": "LIN01-WHT-L",
+    "product_id": "P-LIN01",
+    "product_name": "Harbor Linen Shirt",
+    "color": "White",
+    "size": "L",
+    "stock": 2,
+    "price": 58.0
+   },
+   {
+    "sku": "DEN07-IND-30",
+    "product_id": "P-DEN07",
+    "product_name": "Ridgeway Slim Jeans",
+    "color": "Indigo",
+    "size": "30",
+    "stock": 3,
+    "price": 79.0
+   },
+   {
+    "sku": "DEN07-IND-32",
+    "product_id": "P-DEN07",
+    "product_name": "Ridgeway Slim Jeans",
+    "color": "Indigo",
+    "size": "32",
+    "stock": 8,
+    "price": 79.0
+   },
+   {
+    "sku": "DEN07-IND-34",
+    "product_id": "P-DEN07",
+    "product_name": "Ridgeway Slim Jeans",
+    "color": "Indigo",
+    "size": "34",
+    "stock": 5,
+    "price": 79.0
+   },
+   {
+    "sku": "DEN07-BLK-30",
+    "product_id": "P-DEN07",
+    "product_name": "Ridgeway Slim Jeans",
+    "color": "Black",
+    "size": "30",
+    "stock": 2,
+    "price": 79.0
+   },
+   {
+    "sku": "DEN07-BLK-32",
+    "product_id": "P-DEN07",
+    "product_name": "Ridgeway Slim Jeans",
+    "color": "Black",
+    "size": "32",
+    "stock": 4,
+    "price": 79.0
+   },
+   {
+    "sku": "KNT03-NAV-S",
+    "product_id": "P-KNT03",
+    "product_name": "Fjord Merino Crew Sweater",
+    "color": "Navy",
+    "size": "S",
+    "stock": 3,
+    "price": 112.0
+   },
+   {
+    "sku": "KNT03-NAV-M",
+    "product_id": "P-KNT03",
+    "product_name": "Fjord Merino Crew Sweater",
+    "color": "Navy",
+    "size": "M",
+    "stock": 0,
+    "price": 112.0
+   },
+   {
+    "sku": "KNT03-NAV-L",
+    "product_id": "P-KNT03",
+    "product_name": "Fjord Merino Crew Sweater",
+    "color": "Navy",
+    "size": "L",
+    "stock": 1,
+    "price": 112.0
+   },
+   {
+    "sku": "KNT03-CHR-M",
+    "product_id": "P-KNT03",
+    "product_name": "Fjord Merino Crew Sweater",
+    "color": "Charcoal",
+    "size": "M",
+    "stock": 5,
+    "price": 112.0
+   },
+   {
+    "sku": "KNT03-CHR-L",
+    "product_id": "P-KNT03",
+    "product_name": "Fjord Merino Crew Sweater",
+    "color": "Charcoal",
+    "size": "L",
+    "stock": 2,
+    "price": 112.0
+   },
+   {
+    "sku": "DRS12-TER-XS",
+    "product_id": "P-DRS12",
+    "product_name": "Marisol Wrap Dress",
+    "color": "Terracotta",
+    "size": "XS",
+    "stock": 2,
+    "price": 95.0
+   },
+   {
+    "sku": "DRS12-TER-S",
+    "product_id": "P-DRS12",
+    "product_name": "Marisol Wrap Dress",
+    "color": "Terracotta",
+    "size": "S",
+    "stock": 3,
+    "price": 95.0
+   },
+   {
+    "sku": "DRS12-TER-M",
+    "product_id": "P-DRS12",
+    "product_name": "Marisol Wrap Dress",
+    "color": "Terracotta",
+    "size": "M",
+    "stock": 4,
+    "price": 95.0
+   },
+   {
+    "sku": "DRS12-TER-L",
+    "product_id": "P-DRS12",
+    "product_name": "Marisol Wrap Dress",
+    "color": "Terracotta",
+    "size": "L",
+    "stock": 2,
+    "price": 95.0
+   },
+   {
+    "sku": "JKT05-OLV-M",
+    "product_id": "P-JKT05",
+    "product_name": "Alder Rain Jacket",
+    "color": "Olive",
+    "size": "M",
+    "stock": 2,
+    "price": 140.0
+   },
+   {
+    "sku": "JKT05-OLV-L",
+    "product_id": "P-JKT05",
+    "product_name": "Alder Rain Jacket",
+    "color": "Olive",
+    "size": "L",
+    "stock": 3,
+    "price": 140.0
+   },
+   {
+    "sku": "JKT05-BLK-M",
+    "product_id": "P-JKT05",
+    "product_name": "Alder Rain Jacket",
+    "color": "Black",
+    "size": "M",
+    "stock": 4,
+    "price": 140.0
+   }
+  ],
+  "order": [
+   {
+    "order_id": "O-230001",
+    "contact_email": "k.lindqvist@example.net",
+    "shipping_postcode": "10025",
+    "placed_date": "2026-03-02",
+    "status": "delivered",
+    "delivered_date": "2026-03-07"
+   }
+  ],
+  "order_item": [
+   {
+    "item_id": "OI-1001",
+    "order_id": "O-230001",
+    "sku": "KNT03-CHR-L",
+    "product_name": "Fjord Merino Crew Sweater",
+    "unit_price": 112.0,
+    "quantity": 1,
+    "final_sale": false,
+    "exchange_status": "none",
+    "exchange_sku": null
+   }
+  ],
+  "return_label": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-240518",
+      "contact_email": "priya.raman@example.com",
+      "shipping_postcode": "94110",
+      "placed_date": "2026-05-03",
+      "status": "delivered",
+      "delivered_date": "2026-05-08"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-5571",
+      "order_id": "O-240518",
+      "sku": "LIN01-SAG-M",
+      "product_name": "Harbor Linen Shirt",
+      "unit_price": 58.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-5571",
+    "new_sku": "LIN01-WHT-L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-5571",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "LIN01-WHT-L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "94110",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_sku": "LIN01-SAG-L"
+   },
+   "persona": "Priya, a graphic designer in San Francisco who shops online a lot and keeps her order emails tidy. Friendly and quick.",
+   "reason_for_call": "Her new linen shirt in medium is too snug across the shoulders and she wants a large instead.",
+   "task_instructions": "In your first message give the item number, the shipping postcode, and ask to exchange for the large in the same sage colour, giving that SKU. Before the agent sets anything up, change your mind: say you would rather have the large in white instead, and give the white large SKU. Confirm the white large when the agent checks. Be polite throughout.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-239901",
+      "contact_email": "marcus.bell@example.org",
+      "shipping_postcode": "60614",
+      "placed_date": "2026-04-04",
+      "status": "delivered",
+      "delivered_date": "2026-04-10"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-4410",
+      "order_id": "O-239901",
+      "sku": "DEN07-IND-32",
+      "product_name": "Ridgeway Slim Jeans",
+      "unit_price": 79.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-4410",
+    "new_sku": "DEN07-IND-34"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-4410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "DEN07-IND-34",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.delivered_date",
+     "value": "2026-05-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "60614",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a bartender in Chicago who replies in as few words as possible.",
+   "reason_for_call": "His jeans are too tight at the waist and he wants the next size up. He thinks they arrived in early May.",
+   "task_instructions": "Open with the item number, the SKU you want, and that the jeans arrived on May 5. Keep every answer to a few words. Give the postcode only if asked. If the agent says the exchange window has passed, say 'ok' once and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-241207",
+      "contact_email": "hannah.okafor@example.com",
+      "shipping_postcode": "02139",
+      "placed_date": "2026-05-07",
+      "status": "delivered",
+      "delivered_date": "2026-05-12"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-6620",
+      "order_id": "O-241207",
+      "sku": "DRS12-TER-S",
+      "product_name": "Marisol Wrap Dress",
+      "unit_price": 95.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     },
+     {
+      "item_id": "OI-6621",
+      "order_id": "O-241207",
+      "sku": "KNT03-CHR-L",
+      "product_name": "Fjord Merino Crew Sweater",
+      "unit_price": 112.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-6620",
+    "new_sku": "DRS12-TER-M"
+   },
+   "customer_facts": [
+    {
+     "fact": "item.order_id",
+     "value": "O-241207",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.product_name",
+     "value": "Marisol Wrap Dress",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "DRS12-TER-M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "02139",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_sku": "DRS12-TER-L"
+   },
+   "persona": "Hannah, a PhD student in Cambridge who ordered a dress and a sweater for a conference trip. Chatty and a little indecisive.",
+   "reason_for_call": "The wrap dress in small is too small. She has the order number but not the item number.",
+   "task_instructions": "Say you have the order number but no item number, and that it is the wrap dress you want to exchange, not the sweater. First ask for the large and give that SKU. Before the agent does anything, change your mind: you checked the size chart again and want the medium; give the medium SKU. Give your postcode when asked.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-238845",
+      "contact_email": "diego.fernandez@example.com",
+      "shipping_postcode": "78704",
+      "placed_date": "2026-05-01",
+      "status": "delivered",
+      "delivered_date": "2026-05-06"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-3301",
+      "order_id": "O-238845",
+      "sku": "JKT05-OLV-M",
+      "product_name": "Alder Rain Jacket",
+      "unit_price": 84.0,
+      "quantity": 1,
+      "final_sale": true,
+      "exchange_status": "none",
+      "exchange_sku": null
+     },
+     {
+      "item_id": "OI-3302",
+      "order_id": "O-238845",
+      "sku": "DEN07-IND-30",
+      "product_name": "Ridgeway Slim Jeans",
+      "unit_price": 79.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-3301",
+    "new_sku": "JKT05-OLV-L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-3301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "JKT05-OLV-L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "78704",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The jeans from the same order fit perfectly and he is keeping them.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He has a 25 dollar gift card from his birthday that he hasn't used yet.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year he returned a pair of boots and got his refund in under a week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He wondered about the summer sale dates but decides he doesn't need to know right now.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Diego, a cycling courier in Austin who is always in a hurry and dislikes being told no.",
+   "reason_for_call": "His olive rain jacket in medium is too short in the sleeves and he wants a large before the rainy weekend.",
+   "task_instructions": "Give the item number, the SKU you want and your postcode in your first message, and mention the side details naturally. If the agent refuses, argue that a jacket that does not fit is useless and ask for an exception; when refused again, push once more saying it was only a size problem. After the second refusal, accept grudgingly and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-240330",
+      "contact_email": "ingrid.sorensen@example.com",
+      "shipping_postcode": "98103",
+      "placed_date": "2026-05-09",
+      "status": "delivered",
+      "delivered_date": "2026-05-14"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-5120",
+      "order_id": "O-240330",
+      "sku": "KNT03-NAV-S",
+      "product_name": "Fjord Merino Crew Sweater",
+      "unit_price": 112.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-5120",
+    "new_sku": "KNT03-NAV-M"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-5120",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "KNT03-NAV-M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "98103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.delivered_date",
+     "value": "2026-05-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.final_sale",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It was delivered on Thursday, May 14.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She bought it at full price; it was not a clearance or final-sale item.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She wants the same navy colour, just one size up.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ingrid, an accountant in Seattle who writes in short, clipped sentences.",
+   "reason_for_call": "Her navy merino sweater in small is too tight; she wants a medium in the same colour.",
+   "task_instructions": "Put everything in one brief first message: item number, the SKU you want, postcode, delivered May 14, full price, same navy one size up. Answer later questions with one or two words. Do not ask for a different colour. If told it is out of stock, say 'fine' and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-241550",
+      "contact_email": "thomas.nguyen@example.net",
+      "shipping_postcode": "30307",
+      "placed_date": "2026-04-20",
+      "status": "delivered",
+      "delivered_date": "2026-04-25"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-7003",
+      "order_id": "O-241550",
+      "sku": "DEN07-BLK-32",
+      "product_name": "Ridgeway Slim Jeans",
+      "unit_price": 79.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-7003",
+    "new_sku": "DEN07-BLK-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-7003",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "DEN07-BLK-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "30307",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Thomas, a high-school music teacher in Atlanta. Patient, polite and happy to answer questions.",
+   "reason_for_call": "His black jeans in waist 32 are too loose and he wants a 30 in the same colour.",
+   "task_instructions": "Start with the item number and the SKU you want. Give your shipping postcode when the agent asks for it. Thank the agent when the exchange is set up.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-240777",
+      "contact_email": "sofia.marchetti@example.it",
+      "shipping_postcode": "11215",
+      "placed_date": "2026-05-05",
+      "status": "delivered",
+      "delivered_date": "2026-05-10"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-5890",
+      "order_id": "O-240777",
+      "sku": "LIN01-WHT-S",
+      "product_name": "Harbor Linen Shirt",
+      "unit_price": 58.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-5890",
+    "new_sku": "LIN01-WHT-M"
+   },
+   "customer_facts": [
+    {
+     "fact": "item.product_name",
+     "value": "Harbor Linen Shirt",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "LIN01-WHT-M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "11215",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a translator in Brooklyn who checked out as a guest and then accidentally deleted the confirmation email while cleaning her inbox.",
+   "reason_for_call": "She wants to swap her white linen shirt in small for a medium.",
+   "task_instructions": "Explain which shirt it is and give the SKU you want. You have neither the order number nor the item number, and you cannot remember which email address you used at checkout. Give your postcode if asked. If the agent cannot find the order, accept it kindly and say you will look for the email.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-240012",
+      "contact_email": "aaliyah.brooks@example.com",
+      "shipping_postcode": "20009",
+      "placed_date": "2026-04-22",
+      "status": "delivered",
+      "delivered_date": "2026-04-28"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "OI-4888",
+      "order_id": "O-240012",
+      "sku": "LIN01-WHT-S",
+      "product_name": "Harbor Linen Shirt",
+      "unit_price": 58.0,
+      "quantity": 1,
+      "final_sale": false,
+      "exchange_status": "none",
+      "exchange_sku": null
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "OI-4888",
+    "new_sku": "LIN01-WHT-M"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "OI-4888",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_sku",
+     "value": "LIN01-WHT-M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.shipping_postcode",
+     "value": "20009",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.delivered_date",
+     "value": "2026-04-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aaliyah, a consultant in Washington DC who travels constantly and is impatient with customer service.",
+   "reason_for_call": "Her white linen shirt in small is too tight. She believes it arrived in mid-April and fears she has missed the 30-day window.",
+   "task_instructions": "In your first message give the item number, the SKU you want and your postcode, and say it arrived on April 15 so you know it is a bit past 30 days but you want it exchanged anyway. Be impatient and demand the agent just do it. If the agent refuses, argue and ask for an exception at least twice before accepting. If the agent says it is within the window, accept quickly and ask them to hurry.",
+   "expected_outcome": "exchange"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

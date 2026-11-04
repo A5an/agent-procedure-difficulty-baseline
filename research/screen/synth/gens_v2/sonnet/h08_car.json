@@ -1,0 +1,1052 @@
+{
+ "procedure_id": "h08_car",
+ "domain": "car dealership service center",
+ "organization": "Northgate Motors Service Center",
+ "title": "Service appointment rescheduling",
+ "summary": "Move a booked service appointment to another open service day when the customer, the appointment, the service type and the new slot all qualify.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Service customers",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "postal_code": "str",
+    "account_status": "enum:good_standing|overdue|blocked"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Customer vehicles",
+   "fields": {
+    "vehicle_id": "str",
+    "customer_id": "ref:customer",
+    "plate": "str",
+    "model": "str",
+    "warranty_expiry": "date"
+   }
+  },
+  "service": {
+   "key": "service_code",
+   "description": "Service catalog",
+   "fields": {
+    "service_code": "str",
+    "name": "str",
+    "price": "number",
+    "reschedulable": "bool"
+   }
+  },
+  "appointment": {
+   "key": "appointment_id",
+   "description": "Service appointments",
+   "fields": {
+    "appointment_id": "str",
+    "vehicle_id": "ref:vehicle",
+    "service_code": "ref:service",
+    "contact_phone": "str",
+    "scheduled_date": "date",
+    "status": "enum:booked|completed|cancelled",
+    "warranty_work": "bool",
+    "reschedule_count": "int"
+   }
+  },
+  "slot": {
+   "key": "slot_id",
+   "description": "Service days with bay capacity",
+   "fields": {
+    "slot_id": "str",
+    "slot_date": "date",
+    "open_bays": "int"
+   }
+  },
+  "fee_charge": {
+   "key": "fee_id",
+   "description": "Reschedule fees charged to appointments",
+   "fields": {
+    "fee_id": "str",
+    "appointment_id": "ref:appointment",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "manager_review": {
+   "key": "review_id",
+   "description": "Requests for service manager approval",
+   "fields": {
+    "review_id": "str",
+    "appointment_id": "ref:appointment",
+    "reason": "enum:warranty_expiry|parts_hold",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer by customer id."
+  },
+  {
+   "name": "find_customer_by_phone",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "phone"
+   ],
+   "description": "Find customers by the phone number on file."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by vehicle id."
+  },
+  {
+   "name": "find_vehicle_by_plate",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "plate"
+   ],
+   "description": "Find vehicles by license plate."
+  },
+  {
+   "name": "get_service",
+   "kind": "get",
+   "entity": "service",
+   "description": "Look up a service catalog entry by service code."
+  },
+  {
+   "name": "get_appointment",
+   "kind": "get",
+   "entity": "appointment",
+   "description": "Look up an appointment by appointment id."
+  },
+  {
+   "name": "find_appointments_by_phone",
+   "kind": "search",
+   "entity": "appointment",
+   "by": [
+    "contact_phone"
+   ],
+   "description": "List appointments booked with a given contact phone number."
+  },
+  {
+   "name": "get_slot",
+   "kind": "get",
+   "entity": "slot",
+   "description": "Look up a service slot by slot code, including its date and open bays."
+  },
+  {
+   "name": "move_appointment",
+   "kind": "update",
+   "entity": "appointment",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment to move."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new service date."
+    }
+   },
+   "set": {
+    "scheduled_date": "args.new_date",
+    "reschedule_count": "rec.reschedule_count + 1"
+   },
+   "description": "Set a new scheduled date on an appointment and count one reschedule."
+  },
+  {
+   "name": "reserve_slot",
+   "kind": "update",
+   "entity": "slot",
+   "args": {
+    "slot_id": {
+     "type": "ref:slot",
+     "description": "The slot to take a bay from."
+    }
+   },
+   "set": {
+    "open_bays": "rec.open_bays - 1"
+   },
+   "description": "Reserve one bay on a service slot."
+  },
+  {
+   "name": "create_fee",
+   "kind": "create",
+   "entity": "fee_charge",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment being charged."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The reschedule fee amount."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a reschedule fee against an appointment."
+  },
+  {
+   "name": "create_manager_review",
+   "kind": "create",
+   "entity": "manager_review",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment to be reviewed."
+    },
+    "reason": {
+     "type": "enum:warranty_expiry|parts_hold",
+     "description": "Why the service manager must approve."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for the service manager to approve a reschedule."
+  }
+ ],
+ "request": {
+  "appointment_id": {
+   "type": "ref:appointment",
+   "description": "the service appointment you want to move"
+  },
+  "slot_id": {
+   "type": "ref:slot",
+   "description": "the code of the new service day you want"
+  }
+ },
+ "claims": {
+  "postal_code": {
+   "type": "str",
+   "description": "the postal code on your customer account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "appt",
+   "entity": "appointment",
+   "key": "req.appointment_id"
+  },
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "appt.vehicle_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "veh.customer_id"
+  },
+  {
+   "name": "svc",
+   "entity": "service",
+   "key": "appt.service_code"
+  },
+  {
+   "name": "slot",
+   "entity": "slot",
+   "key": "req.slot_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the appointment, reserve the bay and record the reschedule fee.",
+   "calls": [
+    {
+     "tool": "move_appointment",
+     "args": {
+      "appointment_id": "req.appointment_id",
+      "new_date": "slot.slot_date"
+     }
+    },
+    {
+     "tool": "reserve_slot",
+     "args": {
+      "slot_id": "req.slot_id"
+     }
+    },
+    {
+     "tool": "create_fee",
+     "args": {
+      "appointment_id": "req.appointment_id",
+      "amount": "min(40, round(svc.price * 0.05, 2) + 10 * appt.reschedule_count)"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The new date is after the warranty ends: ask the service manager to approve instead of moving.",
+   "calls": [
+    {
+     "tool": "create_manager_review",
+     "args": {
+      "appointment_id": "req.appointment_id",
+      "reason": "'warranty_expiry'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the appointment; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postal_code != cust.postal_code",
+   "outcome": "refuse",
+   "explain": "The caller must give the postal code on the customer account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "appt.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only appointments that are still booked can be moved."
+  },
+  {
+   "id": "R3",
+   "when": "cust.account_status != 'good_standing'",
+   "outcome": "refuse",
+   "explain": "Customers whose account is overdue or blocked cannot reschedule."
+  },
+  {
+   "id": "R4",
+   "when": "not svc.reschedulable or appt.reschedule_count >= 2",
+   "outcome": "refuse",
+   "explain": "Services with special-order parts cannot be moved, and an appointment can be moved at most twice."
+  },
+  {
+   "id": "R5",
+   "when": "slot.open_bays < 1 or days_between(today, slot.slot_date) < 1 or days_between(today, slot.slot_date) > 30 or days_between(today, appt.scheduled_date) < 1",
+   "outcome": "refuse",
+   "explain": "The new day needs an open bay and must be 1 to 30 days from today, and the current appointment must be at least one day away."
+  },
+  {
+   "id": "R6",
+   "when": "appt.warranty_work and slot.slot_date > veh.warranty_expiry",
+   "outcome": "review",
+   "explain": "Warranty work moved to a day after the vehicle's warranty expires needs service manager approval."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nCustomers may ask to move a booked service appointment to another service day. Before changing anything, find the appointment, the vehicle on it and the customer who owns the vehicle, and confirm identity: the postal code the caller gives must match the postal code on the customer account. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the records\nUse the appointment number if the customer has it. Otherwise find the appointment by the contact phone number it was booked with (if several come back, ask which service they mean). The new service day is identified by its slot code; look it up to see its date and open bays. The vehicle, the customer account and the service type are found from the appointment; the customer will not mention them, so check them yourself.\n\n## When an appointment can be moved\n- The appointment must still be booked. Completed or cancelled appointments cannot be moved.\n- The customer account must be in good standing. Accounts that are overdue or blocked cannot reschedule.\n- The service type must be reschedulable (special-order parts jobs are not), and the appointment may have been moved at most twice before. A third move is declined.\n- The new slot must have at least one open bay and its date must be between 1 and 30 days from today. The current appointment date must also be at least one day away (not today or in the past).\n- If the appointment is warranty work and the new date is after the vehicle's warranty expiry date, do not move it. Open a manager review with reason warranty_expiry instead and tell the customer the service manager will contact them.\n\nIf all of this is fine, do these three things in order: move the appointment to the slot's date; reserve one bay on the slot; record the reschedule fee.\n\n## Reschedule fee\nThe fee is 5% of the service price from the service catalog, rounded to cents, plus 10.00 for each time the appointment has already been moved before (the reschedule count on the appointment before this move), and never more than 40.00 in total. For example a 640.00 service never moved before costs 32.00; a 160.00 service already moved once costs 8.00 + 10.00 = 18.00; a 1,200.00 service costs 40.00 because of the cap.\n\n## Never\nDo not waive or change the fee, do not make exceptions to the rules above, do not move an appointment for someone who failed the identity check, and do not change anything the customer did not ask for. Handle only one move at a time and tell the customer the result clearly.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1001",
+    "full_name": "Alan Whitaker",
+    "phone": "214-555-0101",
+    "postal_code": "75201",
+    "account_status": "good_standing"
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "V-1001",
+    "customer_id": "C-1001",
+    "plate": "DLX4410",
+    "model": "Chevrolet Silverado",
+    "warranty_expiry": "2027-08-01"
+   }
+  ],
+  "service": [
+   {
+    "service_code": "SVC-OIL",
+    "name": "Oil and filter service",
+    "price": 160,
+    "reschedulable": true
+   },
+   {
+    "service_code": "SVC-BRK",
+    "name": "Brake pad replacement",
+    "price": 640,
+    "reschedulable": true
+   },
+   {
+    "service_code": "SVC-TRN",
+    "name": "Transmission service",
+    "price": 1200,
+    "reschedulable": true
+   },
+   {
+    "service_code": "SVC-SPC",
+    "name": "Special-order body panel repair",
+    "price": 2400,
+    "reschedulable": false
+   },
+   {
+    "service_code": "SVC-INS",
+    "name": "Annual inspection",
+    "price": 360,
+    "reschedulable": true
+   }
+  ],
+  "appointment": [
+   {
+    "appointment_id": "A-30001",
+    "vehicle_id": "V-1001",
+    "service_code": "SVC-OIL",
+    "contact_phone": "214-555-0101",
+    "scheduled_date": "2026-06-12",
+    "status": "booked",
+    "warranty_work": false,
+    "reschedule_count": 0
+   }
+  ],
+  "slot": [
+   {
+    "slot_id": "SL-0526",
+    "slot_date": "2026-05-26",
+    "open_bays": 3
+   },
+   {
+    "slot_id": "SL-0528",
+    "slot_date": "2026-05-28",
+    "open_bays": 2
+   },
+   {
+    "slot_id": "SL-0603",
+    "slot_date": "2026-06-03",
+    "open_bays": 1
+   },
+   {
+    "slot_id": "SL-0606",
+    "slot_date": "2026-06-06",
+    "open_bays": 0
+   },
+   {
+    "slot_id": "SL-0610",
+    "slot_date": "2026-06-10",
+    "open_bays": 5
+   },
+   {
+    "slot_id": "SL-0615",
+    "slot_date": "2026-06-15",
+    "open_bays": 2
+   },
+   {
+    "slot_id": "SL-0620",
+    "slot_date": "2026-06-20",
+    "open_bays": 3
+   },
+   {
+    "slot_id": "SL-0722",
+    "slot_date": "2026-07-22",
+    "open_bays": 4
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5001",
+      "full_name": "Marcus Ellison",
+      "phone": "404-555-0142",
+      "postal_code": "30309",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6001",
+      "customer_id": "C-5001",
+      "plate": "7KLM204",
+      "model": "Honda Accord",
+      "warranty_expiry": "2027-03-15"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40011",
+      "vehicle_id": "V-6001",
+      "service_code": "SVC-BRK",
+      "contact_phone": "404-555-0142",
+      "scheduled_date": "2026-05-27",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40011",
+    "slot_id": "SL-0603"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0603",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "30309",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a sales rep who is always in a hurry and dislikes small talk.",
+   "reason_for_call": "A client trip came up and he needs his brake job pushed to the following week.",
+   "task_instructions": "Give the appointment number, the new slot code and your postal code in your first message. Be impatient and press the agent to hurry. If the agent mentions a fee, grumble and ask for it to be waived at least twice, then accept and confirm.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5002",
+      "full_name": "Priya Raman",
+      "phone": "206-555-0178",
+      "postal_code": "98103",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6002",
+      "customer_id": "C-5002",
+      "plate": "2BXR881",
+      "model": "Subaru Outback",
+      "warranty_expiry": "2026-12-31"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40012",
+      "vehicle_id": "V-6002",
+      "service_code": "SVC-OIL",
+      "contact_phone": "206-555-0178",
+      "scheduled_date": "2026-05-25",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 1
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40012",
+    "slot_id": "SL-0528"
+   },
+   "initial_request_values": {
+    "slot_id": "SL-0526"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0528",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "98103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.contact_phone",
+     "value": "206-555-0178",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.reschedule_count",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.status",
+     "value": "booked",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The car is a Subaru Outback and the booking is for an oil and filter service.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She already moved this appointment once before, a few weeks ago.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, a graduate student, polite and a little indecisive about her schedule.",
+   "reason_for_call": "She has a lab deadline and needs to move her oil change to a different day.",
+   "task_instructions": "First ask for the earlier slot (the initial one). Before the agent does anything, say that actually the later day works better and switch to it. Give the appointment number, postal code and the extra details early.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5003",
+      "full_name": "Tomasz Kowalski",
+      "phone": "773-555-0119",
+      "postal_code": "60614",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6003",
+      "customer_id": "C-5003",
+      "plate": "H492271",
+      "model": "Ford F-150",
+      "warranty_expiry": "2028-01-10"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40013",
+      "vehicle_id": "V-6003",
+      "service_code": "SVC-TRN",
+      "contact_phone": "773-555-0119",
+      "scheduled_date": "2026-06-02",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 1
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40013",
+    "slot_id": "SL-0610"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40013",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0610",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "60614",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.account_status",
+     "value": "overdue",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a contractor who is blunt and short on time.",
+   "reason_for_call": "His truck is needed on a job site next week and he wants the transmission service moved a bit later.",
+   "task_instructions": "Give the appointment number, slot code and postal code. Say you think you still have an unpaid invoice and your account is overdue. Be pushy and demand the agent just get it done quickly; if told your account is fine, accept that and continue.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5004",
+      "full_name": "Grace Okafor",
+      "phone": "713-555-0127",
+      "postal_code": "77002",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6004",
+      "customer_id": "C-5004",
+      "plate": "KTR3398",
+      "model": "Toyota Camry",
+      "warranty_expiry": "2027-05-20"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40014",
+      "vehicle_id": "V-6004",
+      "service_code": "SVC-BRK",
+      "contact_phone": "713-555-0127",
+      "scheduled_date": "2026-05-29",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40014",
+    "slot_id": "SL-0606"
+   },
+   "initial_request_values": {
+    "slot_id": "SL-0722"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40014",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0606",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "77002",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a hospital administrator who bargains politely but firmly.",
+   "reason_for_call": "She will be away for work and wants her brake appointment pushed much later.",
+   "task_instructions": "First ask for the far-off July slot (the initial one). Do not volunteer the appointment number or postal code; give each only if asked. If the agent refuses, ask for the early-June slot instead. If refused again, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5005",
+      "full_name": "Nadia Farouk",
+      "phone": "612-555-0133",
+      "postal_code": "55401",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6005",
+      "customer_id": "C-5005",
+      "plate": "MNA7712",
+      "model": "Mazda CX-5",
+      "warranty_expiry": "2027-09-30"
+     },
+     {
+      "vehicle_id": "V-6006",
+      "customer_id": "C-5005",
+      "plate": "MNB1043",
+      "model": "Kia Soul",
+      "warranty_expiry": "2026-11-15"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40015",
+      "vehicle_id": "V-6005",
+      "service_code": "SVC-SPC",
+      "contact_phone": "612-555-0133",
+      "scheduled_date": "2026-05-29",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     },
+     {
+      "appointment_id": "A-40016",
+      "vehicle_id": "V-6006",
+      "service_code": "SVC-OIL",
+      "contact_phone": "612-555-0133",
+      "scheduled_date": "2026-05-27",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40015",
+    "slot_id": "SL-0610"
+   },
+   "initial_request_values": {
+    "appointment_id": "A-40016"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40015",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0610",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "55401",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a Kia Soul that is booked for an oil change.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year she had her tires rotated here and the wait was long.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She saw a coupon for a free car wash in the dealership newsletter.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Nadia, a landscape designer who juggles two cars and talks about many things at once.",
+   "reason_for_call": "She wants to move a service appointment but first mixes up which of her two cars she means.",
+   "task_instructions": "Start by asking to move the Kia's oil change appointment, then say before anything is done that you meant the Mazda's body panel repair and ask to move that one to the June 10 slot. Mention the side stories casually. Give postal code and numbers when asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5006",
+      "full_name": "Helen Brandt",
+      "phone": "617-555-0190",
+      "postal_code": "02116",
+      "account_status": "overdue"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6007",
+      "customer_id": "C-5006",
+      "plate": "BRH5521",
+      "model": "Volvo XC60",
+      "warranty_expiry": "2027-02-28"
+     },
+     {
+      "vehicle_id": "V-6008",
+      "customer_id": "C-5006",
+      "plate": "BRH5522",
+      "model": "Volvo V90",
+      "warranty_expiry": "2026-08-10"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40017",
+      "vehicle_id": "V-6007",
+      "service_code": "SVC-INS",
+      "contact_phone": "617-555-0190",
+      "scheduled_date": "2026-05-28",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     },
+     {
+      "appointment_id": "A-40018",
+      "vehicle_id": "V-6008",
+      "service_code": "SVC-OIL",
+      "contact_phone": "617-555-0190",
+      "scheduled_date": "2026-06-09",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40017",
+    "slot_id": "SL-0603"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40017",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0603",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "02116",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her second car, a Volvo V90, has an oil change booked in June that she does not want to touch.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She thinks the waiting room coffee has improved lately.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her daughter will borrow the car for a road trip in the summer.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Helen, a retired librarian who is friendly, chatty and cooperative.",
+   "reason_for_call": "She would like her annual inspection moved to the following week because of a doctor's visit.",
+   "task_instructions": "Give the appointment number, slot code and postal code. Chat a little about the side details. Answer every question openly. Accept the result if the agent cannot help.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5007",
+      "full_name": "Daniel Reyes",
+      "phone": "602-555-0154",
+      "postal_code": "85004",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6009",
+      "customer_id": "C-5007",
+      "plate": "AZD9087",
+      "model": "Hyundai Tucson",
+      "warranty_expiry": "2026-06-05"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40019",
+      "vehicle_id": "V-6009",
+      "service_code": "SVC-BRK",
+      "contact_phone": "602-555-0154",
+      "scheduled_date": "2026-05-30",
+      "status": "booked",
+      "warranty_work": true,
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40019",
+    "slot_id": "SL-0610"
+   },
+   "initial_request_values": {
+    "slot_id": "SL-0606"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-40019",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0610",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "85004",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, a bus driver who works rotating shifts and negotiates calmly.",
+   "reason_for_call": "His shift changed and he needs his brake repair moved by about a week.",
+   "task_instructions": "First ask for the June 6 slot (the initial one). If the agent says it cannot be done, ask for the June 10 slot instead. Give your postal code only if asked. If the agent says the service manager will review it, accept that.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5008",
+      "full_name": "Wei Zhang",
+      "phone": "312-555-0166",
+      "postal_code": "60601",
+      "account_status": "good_standing"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-6010",
+      "customer_id": "C-5008",
+      "plate": "ILW2290",
+      "model": "Chevrolet Bolt",
+      "warranty_expiry": "2027-12-01"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-40020",
+      "vehicle_id": "V-6010",
+      "service_code": "SVC-OIL",
+      "contact_phone": "312-555-0166",
+      "scheduled_date": "2026-05-27",
+      "status": "booked",
+      "warranty_work": false,
+      "reschedule_count": 2
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-40020",
+    "slot_id": "SL-0528"
+   },
+   "customer_facts": [
+    {
+     "fact": "appt.contact_phone",
+     "value": "312-555-0166",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.slot_id",
+     "value": "SL-0528",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "60601",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Wei, an accountant who lost the confirmation email and answers in as few words as possible.",
+   "reason_for_call": "He wants to move his service appointment to a day later in the same week but does not have the appointment number.",
+   "task_instructions": "Keep every answer to a few words. Give the phone number you booked with and the new slot code. Give your postal code only if asked. Accept it if the agent says it cannot be done.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

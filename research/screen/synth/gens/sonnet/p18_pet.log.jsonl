@@ -1,0 +1,2 @@
+{"round": 0, "sec": 53.8, "is_error": false, "notional_usd": 0.120582, "model_id": "claude-sonnet-5-5", "in": 2, "out": 8475, "thinking": 3300, "cache_read": 0, "cache_write": 8957, "n_errors": 1, "errors": ["procedure: binding 'claim': invalid or duplicate name"], "proc_ok": false, "n_cases_ok": 0}
+{"round": 1, "sec": 27.1, "is_error": false, "notional_usd": 0.119178, "model_id": "claude-sonnet-5-5", "in": 2, "out": 5645, "thinking": 470, "cache_read": 0, "cache_write": 15681, "n_errors": 0, "errors": [], "proc_ok": true, "n_cases_ok": 8}

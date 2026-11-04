@@ -1,0 +1,214 @@
+{"task_id": "sonnet__p01_mobile__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.4, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p01_mobile__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 14.3, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p01_mobile__c5", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 15.6, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p01_mobile__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 17.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p02_electricity__c1", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 3.3}
+{"task_id": "sonnet__p01_mobile__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 20.4, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p01_mobile__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 12.0, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p02_electricity__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 7.1, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p02_electricity__c4", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 5.8}
+{"task_id": "sonnet__p01_mobile__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 13.1, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p02_electricity__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 13.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p02_electricity__c6", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 6.0}
+{"task_id": "sonnet__p03_health__c1", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 5.9}
+{"task_id": "sonnet__p02_electricity__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 13.0, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p03_health__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p02_electricity__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.1, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p02_electricity__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 13.3, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p03_health__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p03_health__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 10.9, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p03_health__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 10.6, "db_ok": false, "actions_ok": [true, true, false]}
+{"task_id": "sonnet__p03_health__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 10.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p03_health__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p03_health__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.9, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p04_airline__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 6.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p04_airline__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 20.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p04_airline__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 17.1, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p04_airline__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 12.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p04_airline__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 22.8, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p04_airline__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 14.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p05_hotel__c2", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 8.0}
+{"task_id": "sonnet__p04_airline__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 10.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p04_airline__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 35.2, "db_ok": true, "actions_ok": [true, false]}
+{"task_id": "sonnet__p05_hotel__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 14.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p05_hotel__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 7.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p05_hotel__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 9.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p05_hotel__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.6, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p06_car__c1", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 9.9}
+{"task_id": "sonnet__p05_hotel__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 13.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p05_hotel__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 14.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p05_hotel__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 20.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p01_mobile__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.MAX_STEPS", "n_msgs": 121, "sec": 106.8, "db_ok": null, "actions_ok": []}
+{"task_id": "sonnet__p06_car__c7", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 3.0}
+{"task_id": "sonnet__p06_car__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 9.8, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p06_car__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 9.2, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p06_car__c2", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 32, "sec": 17.9, "db_ok": false, "actions_ok": [true, false, false, false, false]}
+{"task_id": "sonnet__p06_car__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 10.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p06_car__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 17.9, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p07_university__c4", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 4.9}
+{"task_id": "sonnet__p07_university__c1", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.5, "db_ok": false, "actions_ok": [true, true, false, false]}
+{"task_id": "sonnet__p07_university__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 10.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p06_car__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 38, "sec": 16.9, "db_ok": false, "actions_ok": [true, true, false, false]}
+{"task_id": "sonnet__p07_university__c6", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 6.8}
+{"task_id": "sonnet__p07_university__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 16.1, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p07_university__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 13.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p07_university__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 8.9, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p07_university__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 12.1, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p08_city__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 6.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p08_city__c1", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 10.0, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p08_city__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 8.7, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p08_city__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 8.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p08_city__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p08_city__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 15.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p08_city__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 17.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p09_gym__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 13.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p09_gym__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 17.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p09_gym__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 13.5, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p09_gym__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p09_gym__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 12.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p09_gym__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 16.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p09_gym__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.4, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p09_gym__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 14.0, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p10_retail__c2", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 8.1, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p10_retail__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 10.7, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p10_retail__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p10_retail__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.2, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p10_retail__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 9.2, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p10_retail__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 9.4, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p10_retail__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 13.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p11_home__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p10_retail__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 13.3, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p11_home__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p11_home__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 6.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p11_home__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 8.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p11_home__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 10.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p11_home__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 17.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p11_home__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 21.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p12_online__c1", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.2, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p12_online__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.8, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p12_online__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 10.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p12_online__c5", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 11.5, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p12_online__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 15.6, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p11_home__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 29.9, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p12_online__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 25.4, "db_ok": false, "actions_ok": [false, true, true, false]}
+{"task_id": "sonnet__p08_city__c2", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.MAX_STEPS", "n_msgs": 122, "sec": 101.1, "db_ok": null, "actions_ok": []}
+{"task_id": "sonnet__p13_food__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 5.9, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p12_online__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 13.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p13_food__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 8, "sec": 7.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p12_online__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 17.6, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p13_food__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 8, "sec": 4.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p13_food__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.3, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p13_food__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 17.6, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p13_food__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 14.8, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p14_parcel__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 5.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p13_food__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 19.0, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p13_food__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 25.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p14_parcel__c6", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 5.8}
+{"task_id": "sonnet__p14_parcel__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 9.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p14_parcel__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 10.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p14_parcel__c2", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 12.5, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p14_parcel__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 11.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p14_parcel__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 7.9, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p15_residential__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.2, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p14_parcel__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 13.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p15_residential__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 10.8, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p15_residential__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 12.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p15_residential__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 15.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p15_residential__c8", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 4.3}
+{"task_id": "sonnet__p15_residential__c7", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 8.5}
+{"task_id": "sonnet__p16_employee__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 7.7, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p15_residential__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 13.4, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.7, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p16_employee__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 13.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 9.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 14.8, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 10.0, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p15_residential__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 25, "sec": 36.9, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p17_credit__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 10.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p16_employee__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 19.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p17_credit__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 15.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p17_credit__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 13.9, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p17_credit__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 8, "sec": 5.4, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p17_credit__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 12.1, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p17_credit__c8", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 4.0}
+{"task_id": "sonnet__p18_pet__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 12.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p17_credit__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 27.2, "db_ok": false, "actions_ok": [false]}
+{"task_id": "sonnet__p18_pet__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 16.2, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p18_pet__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p18_pet__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 17.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p17_credit__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 35, "sec": 26.8, "db_ok": false, "actions_ok": [false]}
+{"task_id": "sonnet__p18_pet__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 4.3, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p18_pet__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 7.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p18_pet__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p18_pet__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p19_vehicle__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 9.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p19_vehicle__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 13.8, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p19_vehicle__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 8.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p19_vehicle__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 12.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p19_vehicle__c5", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 9.3, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p20_coworking__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 8, "sec": 3.8, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p19_vehicle__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p20_coworking__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 7.7, "db_ok": false, "actions_ok": [false]}
+{"task_id": "sonnet__p19_vehicle__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 16.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p19_vehicle__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 14.7, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p20_coworking__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 13.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p20_coworking__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 10.2, "db_ok": false, "actions_ok": [false]}
+{"task_id": "sonnet__p20_coworking__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 15.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p20_coworking__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.1, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p20_coworking__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 10.5, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p20_coworking__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 20.6, "db_ok": false, "actions_ok": [true, false]}
+{"task_id": "sonnet__p21_concert__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 8.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p21_concert__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.9, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p21_concert__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.4, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p21_concert__c7", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 4.9}
+{"task_id": "sonnet__p21_concert__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.9, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p21_concert__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.1, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p21_concert__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 16.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p22_dental__c2", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 3.9}
+{"task_id": "sonnet__p21_concert__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 12.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c6", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 5.2}
+{"task_id": "sonnet__p22_dental__c5", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 9.8, "db_ok": false, "actions_ok": [false, false, false, false]}
+{"task_id": "sonnet__p22_dental__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 14.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 18.3, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 13.5, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 20.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p23_water__c2", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 7.7, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p23_water__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 16.1, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p23_water__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 10.5, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p23_water__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.7, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p23_water__c3", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 13.9, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p23_water__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 13.9, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "sonnet__p23_water__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 6.6, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p24_software__c1", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 8.0}
+{"task_id": "sonnet__p24_software__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 12.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p23_water__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 13.3, "db_ok": false, "actions_ok": [true, true, false]}
+{"task_id": "sonnet__p24_software__c3", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 11.9, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p24_software__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 12.3, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 46, "sec": 39.0, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p24_software__c5", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p24_software__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 14.3, "db_ok": false, "actions_ok": [true, false, false]}
+{"task_id": "sonnet__p24_software__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 15.4, "db_ok": false, "actions_ok": [true, false, false]}
+{"task_id": "sonnet__p24_software__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 23.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "sonnet__p02_electricity__c4", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 5.9}
+{"task_id": "sonnet__p06_car__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 8.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p06_car__c7", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 3.5}
+{"task_id": "sonnet__p02_electricity__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 13.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p05_hotel__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 14.1, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p03_health__c1", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 15.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p15_residential__c7", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 7.7}
+{"task_id": "sonnet__p02_electricity__c1", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 22.5, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p07_university__c4", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 14.1, "db_ok": false, "actions_ok": []}
+{"task_id": "sonnet__p07_university__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 25, "sec": 15.4, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p22_dental__c2", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 3.7}
+{"task_id": "sonnet__p14_parcel__c6", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 14.2, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "sonnet__p17_credit__c8", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 11.2, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p21_concert__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 11.0, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p24_software__c1", "gen": "sonnet", "agent": "lite", "reward": null, "error": "ValueError: AssistantMessage must have either content or tool_calls. Got AssistantMessage", "sec": 7.4}
+{"task_id": "sonnet__p15_residential__c8", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 21.8, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "sonnet__p22_dental__c6", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 17.1, "db_ok": false, "actions_ok": [true, true, true, false, false]}
+{"task_id": "sonnet__p06_car__c7", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 11.6, "db_ok": true, "actions_ok": []}
+{"task_id": "sonnet__p22_dental__c2", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 12.0, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p02_electricity__c4", "gen": "sonnet", "agent": "lite", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 14.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "sonnet__p15_residential__c7", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 17.7, "db_ok": false, "actions_ok": [true]}
+{"task_id": "sonnet__p24_software__c1", "gen": "sonnet", "agent": "lite", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 18.6, "db_ok": false, "actions_ok": [true, false, false]}
