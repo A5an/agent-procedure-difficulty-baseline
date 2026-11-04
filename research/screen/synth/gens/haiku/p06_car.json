@@ -1,0 +1,830 @@
+{
+ "procedure_id": "p06_car",
+ "domain": "car rental",
+ "organization": "Northgate Car Rental",
+ "title": "Rental extensions",
+ "summary": "Extend the return date of an open car rental when the customer and the vehicle qualify; otherwise decline, or send the request to fleet review.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Renters with an account",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "account_status": "enum:active|blacklisted",
+    "balance_due": "number"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Cars in the fleet and their next booking",
+   "fields": {
+    "vehicle_id": "str",
+    "plate": "str",
+    "make_model": "str",
+    "next_booking_start": "date"
+   }
+  },
+  "rental": {
+   "key": "rental_id",
+   "description": "Car rental agreements",
+   "fields": {
+    "rental_id": "str",
+    "customer_id": "ref:customer",
+    "vehicle_id": "ref:vehicle",
+    "pickup_date": "date",
+    "return_date": "date",
+    "daily_rate": "number",
+    "extensions_count": "int",
+    "status": "enum:open|closed|cancelled"
+   }
+  },
+  "rental_charge": {
+   "key": "charge_id",
+   "description": "Charges added to a rental",
+   "fields": {
+    "charge_id": "str",
+    "rental_id": "ref:rental",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for fleet staff review",
+   "fields": {
+    "request_id": "str",
+    "rental_id": "ref:rental",
+    "reason": "enum:fleet_conflict|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer by customer number."
+  },
+  {
+   "name": "find_customer_by_phone",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "phone"
+   ],
+   "description": "Find customers by the phone number on their account."
+  },
+  {
+   "name": "get_rental",
+   "kind": "get",
+   "entity": "rental",
+   "description": "Look up a rental agreement by its rental number."
+  },
+  {
+   "name": "find_rentals_by_customer",
+   "kind": "search",
+   "entity": "rental",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all rental agreements of a customer."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by its vehicle number."
+  },
+  {
+   "name": "extend_rental",
+   "kind": "update",
+   "entity": "rental",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental to extend."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to add to the return date."
+    }
+   },
+   "set": {
+    "return_date": "add_days(rec.return_date, args.days)",
+    "extensions_count": "rec.extensions_count + 1"
+   },
+   "description": "Move the return date of a rental forward by a number of days and count one extension."
+  },
+  {
+   "name": "create_extension_charge",
+   "kind": "create",
+   "entity": "rental_charge",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental the charge belongs to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to charge, in dollars."
+    }
+   },
+   "fields": {
+    "rental_id": "args.rental_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Add a charge to a rental for the extra days."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "rental_id": {
+     "type": "ref:rental",
+     "description": "The rental the request is about."
+    },
+    "reason": {
+     "type": "enum:fleet_conflict|other",
+     "description": "Why fleet staff should review it."
+    }
+   },
+   "fields": {
+    "rental_id": "args.rental_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for fleet staff to review a rental."
+  }
+ ],
+ "request": {
+  "rental_id": {
+   "type": "ref:rental",
+   "description": "the rental you want to extend"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many extra days you want"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "rental",
+   "entity": "rental",
+   "key": "req.rental_id"
+  },
+  {
+   "name": "customer",
+   "entity": "customer",
+   "key": "rental.customer_id"
+  },
+  {
+   "name": "vehicle",
+   "entity": "vehicle",
+   "key": "rental.vehicle_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Move the return date forward by the requested days and add the extension charge.",
+   "calls": [
+    {
+     "tool": "extend_rental",
+     "args": {
+      "rental_id": "req.rental_id",
+      "days": "req.days"
+     }
+    },
+    {
+     "tool": "create_extension_charge",
+     "args": {
+      "rental_id": "rental.rental_id",
+      "amount": "round(req.days * rental.daily_rate, 2)"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The vehicle is booked again before the new return date: open a fleet review instead of extending.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "rental_id": "rental.rental_id",
+      "reason": "'fleet_conflict'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the rental; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "customer.account_status == 'blacklisted'",
+   "outcome": "refuse",
+   "explain": "Blacklisted customer accounts cannot extend rentals."
+  },
+  {
+   "id": "R2",
+   "when": "rental.status != 'open'",
+   "outcome": "refuse",
+   "explain": "Only open rentals can be extended."
+  },
+  {
+   "id": "R3",
+   "when": "req.days < 1 or req.days > 14",
+   "outcome": "refuse",
+   "explain": "An extension must be between 1 and 14 days."
+  },
+  {
+   "id": "R4",
+   "when": "customer.balance_due > 200",
+   "outcome": "refuse",
+   "explain": "Customers with a balance due over 200.00 cannot extend until it is paid."
+  },
+  {
+   "id": "R5",
+   "when": "rental.extensions_count >= 2",
+   "outcome": "refuse",
+   "explain": "A rental can be extended at most twice."
+  },
+  {
+   "id": "R6",
+   "when": "vehicle.next_booking_start != None and add_days(rental.return_date, req.days) >= vehicle.next_booking_start",
+   "outcome": "review",
+   "explain": "If the vehicle is booked again on or before the new return date, open a fleet review instead of extending."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Finding the rental\nAsk the caller for the rental number and use it if they have it. If they do not, find the customer by the phone number on their account, list that customer's rentals, and ask which one they mean using the pickup date or the car. Do not change anything until you have identified exactly one rental.\n\n## Checks, in order\nWork through these checks in order. The first one that applies decides the outcome.\n1. The customer's account must not be blacklisted. If it is blacklisted, refuse.\n2. The rental must be open. If it is closed or cancelled, refuse.\n3. The extension must be between 1 and 14 days. Requests outside that range are declined, not shortened.\n4. The balance due on the customer's account must not be more than 200.00. If it is, refuse until the balance is paid.\n5. A rental can be extended at most twice. If the rental has already been extended two or more times, refuse.\n6. If the vehicle has another booking that starts on or before the new return date (the current return date plus the requested days), do not extend. Open a fleet review request with reason fleet_conflict and tell the customer the fleet team will contact them.\n\n## When all checks pass\nExtend the rental. Its return date moves forward by the requested days and its extension count goes up by one. Then add an extension charge to the rental for the requested days at the rental's daily rate. Do these two steps in that order.\n\n## Refusals\nWhen you refuse, tell the customer in plain words which rule applies. Do not change the rental, the balance or the vehicle.\n\n## Never\nDo not waive or reduce a balance, do not extend a closed or cancelled rental, do not change a daily rate, and do not shorten a requested extension to get it through. Use the values in the system even if the customer describes them differently.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1001",
+    "full_name": "Marco Bellini",
+    "phone": "+1-206-555-0102",
+    "account_status": "active",
+    "balance_due": 0
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "V-1001",
+    "plate": "KLM 2291",
+    "make_model": "Toyota RAV4 2024",
+    "next_booking_start": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2101",
+      "full_name": "Tessa Okafor",
+      "phone": "+1-720-555-0144",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2101",
+      "plate": "DRV 4410",
+      "make_model": "Ford Escape 2025",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-3101",
+      "customer_id": "C-2101",
+      "vehicle_id": "V-2101",
+      "pickup_date": "2026-05-14",
+      "return_date": "2026-05-21",
+      "daily_rate": 58.0,
+      "extensions_count": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-3101",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "customer.full_name",
+     "value": "Tessa Okafor",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tessa, a traveling nurse who is between assignments. Brief and polite.",
+   "reason_for_call": "She wants to keep the SUV she rented for three more days, but she cannot find her booking details.",
+   "task_instructions": "Say you want three more days and give your name, Tessa Okafor. You do not have the rental number. You are calling from a new phone, so you cannot give the number you booked with. If the agent cannot find the rental, accept that and end the call.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2202",
+      "full_name": "Hannah Lindqvist",
+      "phone": "+1-415-555-0187",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2202",
+      "plate": "BLU 7731",
+      "make_model": "Nissan Rogue 2025",
+      "next_booking_start": "2026-06-10"
+     },
+     {
+      "vehicle_id": "V-2203",
+      "plate": "GRN 1186",
+      "make_model": "Subaru Outback 2024",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-4410",
+      "customer_id": "C-2202",
+      "vehicle_id": "V-2202",
+      "pickup_date": "2026-05-16",
+      "return_date": "2026-05-22",
+      "daily_rate": 61.5,
+      "extensions_count": 0,
+      "status": "open"
+     },
+     {
+      "rental_id": "R-3977",
+      "customer_id": "C-2202",
+      "vehicle_id": "V-2203",
+      "pickup_date": "2026-03-02",
+      "return_date": "2026-03-09",
+      "daily_rate": 54.0,
+      "extensions_count": 0,
+      "status": "closed"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-4410",
+    "days": 3
+   },
+   "initial_request_values": {
+    "rental_id": "R-4410",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-4410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "customer.full_name",
+     "value": "Hannah Lindqvist",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The Rogue made a check-engine light come on near Boulder last week, and I want that noted in case it is on file.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am still waiting on a refund for a toll pass I did not use in March.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The Subaru I drove in March was fine, no complaints about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister wants to know if she can be added as a second driver for next month's trip.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannah, a sales representative who drives between client offices. Organized and a little rushed.",
+   "reason_for_call": "She needs the crossover for a few more days because her client visits run late.",
+   "task_instructions": "In your first message, give your name and the rental number, and ask for ten more days. If the agent asks a question or mentions a rule, change your request to three days and say that three days is all you need. Then answer any questions politely.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2303",
+      "full_name": "Grant Oyelaran",
+      "phone": "+1-312-555-0166",
+      "account_status": "active",
+      "balance_due": 240.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2303",
+      "plate": "RED 3052",
+      "make_model": "Chevy Equinox 2025",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-5502",
+      "customer_id": "C-2303",
+      "vehicle_id": "V-2303",
+      "pickup_date": "2026-05-12",
+      "return_date": "2026-05-22",
+      "daily_rate": 66.0,
+      "extensions_count": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-5502",
+    "days": 4
+   },
+   "initial_request_values": {
+    "rental_id": "R-5502",
+    "days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-5502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "customer.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grant, cheerful and sure he has settled everything, since he paid his card at the counter.",
+   "reason_for_call": "He wants to keep the Equinox a few more days for a family wedding trip.",
+   "task_instructions": "In your first message, give the rental number, ask for six more days, and say that you have no balance outstanding. If the agent raises a problem or asks a question, change your request to four days and insist you have paid everything. Ask once more, then accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2404",
+      "full_name": "Priya Raman",
+      "phone": "+1-858-555-0129",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2404",
+      "plate": "SLV 8820",
+      "make_model": "Hyundai Tucson 2025",
+      "next_booking_start": null
+     },
+     {
+      "vehicle_id": "V-2405",
+      "plate": "WHT 5514",
+      "make_model": "Kia Sorento 2024",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-6601",
+      "customer_id": "C-2404",
+      "vehicle_id": "V-2404",
+      "pickup_date": "2026-05-01",
+      "return_date": "2026-05-06",
+      "daily_rate": 59.0,
+      "extensions_count": 0,
+      "status": "closed"
+     },
+     {
+      "rental_id": "R-6602",
+      "customer_id": "C-2404",
+      "vehicle_id": "V-2405",
+      "pickup_date": "2026-05-09",
+      "return_date": "2026-05-23",
+      "daily_rate": 62.0,
+      "extensions_count": 2,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-6602",
+    "days": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "customer.phone",
+     "value": "+1-858-555-0129",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.pickup_date",
+     "value": "2026-05-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a sales trainer who is convinced every rule is meant for someone else. Impatient and talkative.",
+   "reason_for_call": "She wants two more days on the Sorento for a training week she has just added.",
+   "task_instructions": "Start by giving your phone number, saying the pickup was on May 9, and asking for two more days. You do not know the rental number and do not look for it. If the agent refuses, argue that you have never had a problem before and ask for an exception. Do this twice, then accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2505",
+      "full_name": "Owen Park-Lindgren",
+      "phone": "+1-503-555-0191",
+      "account_status": "active",
+      "balance_due": 15.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2505",
+      "plate": "BRK 6612",
+      "make_model": "Mazda CX-5 2025",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-7720",
+      "customer_id": "C-2505",
+      "vehicle_id": "V-2505",
+      "pickup_date": "2026-05-15",
+      "return_date": "2026-05-23",
+      "daily_rate": 57.25,
+      "extensions_count": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-7720",
+    "days": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-7720",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Owen, a graduate student doing field work who is polite and easygoing.",
+   "reason_for_call": "His field work runs two days longer than planned, so he needs the car two more days.",
+   "task_instructions": "In your first message, give the rental number and ask for two more days. Answer any questions the agent asks politely and briefly.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2606",
+      "full_name": "Sofia Brandt",
+      "phone": "+1-602-555-0173",
+      "account_status": "active",
+      "balance_due": 35.5
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2606",
+      "plate": "OFF 2740",
+      "make_model": "Jeep Wrangler 2024",
+      "next_booking_start": "2026-05-25"
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-8805",
+      "customer_id": "C-2606",
+      "vehicle_id": "V-2606",
+      "pickup_date": "2026-05-12",
+      "return_date": "2026-05-23",
+      "daily_rate": 88.0,
+      "extensions_count": 1,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-8805",
+    "days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-8805",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a photographer on location who is impatient with long calls and wants things settled fast.",
+   "reason_for_call": "She wants to keep the Wrangler longer for a shoot that is running late.",
+   "task_instructions": "In your first message, give the rental number and say you need the Jeep for longer. Do not say how many days until the agent asks. If the agent says the request needs a review, argue that you need the car now and ask for an exception once. Then accept the review and end the call.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2707",
+      "full_name": "Ibrahim Saleh",
+      "phone": "+1-214-555-0136",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2707",
+      "plate": "SLV 0419",
+      "make_model": "Toyota Camry 2025",
+      "next_booking_start": null
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-9913",
+      "customer_id": "C-2707",
+      "vehicle_id": "V-2707",
+      "pickup_date": "2026-05-06",
+      "return_date": "2026-05-21",
+      "daily_rate": 49.0,
+      "extensions_count": 2,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-9913",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-9913",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.extensions_count",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I picked the car up at Dallas Love Field on May 6, so you can match the booking to that date.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It is the silver Camry I booked for the Austin conference trip.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ibrahim, a consultant who is courteous and accepts what he is told.",
+   "reason_for_call": "He wants three more days on the Camry because the conference has been extended by a day, and he has already extended the rental twice.",
+   "task_instructions": "Give the rental number and say you want three more days. Say that you have already extended this rental twice. Share the pickup details if the agent asks. Accept the answer calmly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2808",
+      "full_name": "Mei-Lin Gao",
+      "phone": "+1-617-555-0158",
+      "account_status": "active",
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-2808",
+      "plate": "GRY 3376",
+      "make_model": "Honda CR-V 2025",
+      "next_booking_start": "2026-06-15"
+     }
+    ],
+    "rental": [
+     {
+      "rental_id": "R-1147",
+      "customer_id": "C-2808",
+      "vehicle_id": "V-2808",
+      "pickup_date": "2026-05-14",
+      "return_date": "2026-05-22",
+      "daily_rate": 63.0,
+      "extensions_count": 1,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "rental_id": "R-1147",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rental_id",
+     "value": "R-1147",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rental.extensions_count",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mei-Lin, an office manager who types very short messages.",
+   "reason_for_call": "She needs the CR-V for three more days for a client visit.",
+   "task_instructions": "In your first message, give the rental number, say you need three more days, and say you have already extended this twice. Answer with a few words only. Give nothing extra.",
+   "expected_outcome": "extend"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

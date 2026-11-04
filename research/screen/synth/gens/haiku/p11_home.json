@@ -1,0 +1,760 @@
+{
+ "procedure_id": "p11_home",
+ "domain": "home internet provider",
+ "organization": "Northfield Broadband",
+ "title": "Service pause extensions",
+ "summary": "Extend a vacation pause on a home internet line by the requested number of days when the account and the line qualify.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Account holders",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:good_standing|collections|closed",
+    "balance_due": "number"
+   }
+  },
+  "service_line": {
+   "key": "line_id",
+   "description": "Home internet service lines billed to a customer account",
+   "fields": {
+    "line_id": "str",
+    "customer_id": "ref:customer",
+    "address": "str",
+    "plan": "str",
+    "pause_end": "date",
+    "pause_count": "int",
+    "contract_locked": "bool"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a team member to confirm a change",
+   "fields": {
+    "request_id": "str",
+    "line_id": "ref:service_line",
+    "reason": "enum:contract_lock|other",
+    "created": "date"
+   }
+  },
+  "notice": {
+   "key": "notice_id",
+   "description": "Notices sent to the customer about a line",
+   "fields": {
+    "notice_id": "str",
+    "line_id": "ref:service_line",
+    "kind": "enum:pause_extended|pause_declined",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up an account by its customer number."
+  },
+  {
+   "name": "find_customers_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find accounts by the email address on file."
+  },
+  {
+   "name": "get_service_line",
+   "kind": "get",
+   "entity": "service_line",
+   "description": "Look up a service line by its line ID."
+  },
+  {
+   "name": "find_lines_by_address",
+   "kind": "search",
+   "entity": "service_line",
+   "by": [
+    "address"
+   ],
+   "description": "Find service lines by the service address."
+  },
+  {
+   "name": "find_lines_by_customer",
+   "kind": "search",
+   "entity": "service_line",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all service lines on an account."
+  },
+  {
+   "name": "extend_pause",
+   "kind": "update",
+   "entity": "service_line",
+   "args": {
+    "line_id": {
+     "type": "ref:service_line",
+     "description": "The service line whose pause is extended."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to add to the pause end date."
+    }
+   },
+   "set": {
+    "pause_end": "add_days(rec.pause_end, args.days)",
+    "pause_count": "rec.pause_count + 1"
+   },
+   "description": "Move the pause end date of a service line later by a number of days and count one pause extension."
+  },
+  {
+   "name": "create_notice",
+   "kind": "create",
+   "entity": "notice",
+   "args": {
+    "line_id": {
+     "type": "ref:service_line",
+     "description": "The service line the notice is about."
+    },
+    "kind": {
+     "type": "enum:pause_extended|pause_declined",
+     "description": "What the notice records."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Record a notice about a service line for the customer file."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "line_id": {
+     "type": "ref:service_line",
+     "description": "The service line the request is about."
+    },
+    "reason": {
+     "type": "enum:contract_lock|other",
+     "description": "Why a team member should confirm the change."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a team member to confirm a change on a service line."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:service_line",
+   "description": "the service line you want the pause extended on"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many more days you want the pause extended"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "service_line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "line.customer_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the pause on the line by the requested days and record a pause_extended notice.",
+   "calls": [
+    {
+     "tool": "extend_pause",
+     "args": {
+      "line_id": "req.line_id",
+      "days": "req.days"
+     }
+    },
+    {
+     "tool": "create_notice",
+     "args": {
+      "line_id": "line.line_id",
+      "kind": "'pause_extended'"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The line is under a contract lock: open an approval request for a team member instead of extending the pause.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "line_id": "line.line_id",
+      "reason": "'contract_lock'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the line or the account; explain which requirement was not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "cust.status != 'good_standing'",
+   "outcome": "refuse",
+   "explain": "Accounts in collections or closed cannot extend a pause."
+  },
+  {
+   "id": "R2",
+   "when": "cust.balance_due > 25",
+   "outcome": "refuse",
+   "explain": "An account with more than 25.00 due cannot extend a pause until the balance is paid."
+  },
+  {
+   "id": "R3",
+   "when": "line.pause_count >= 2 or req.days > 30",
+   "outcome": "refuse",
+   "explain": "A line can have at most two pause extensions, and one extension can add at most 30 days."
+  },
+  {
+   "id": "R4",
+   "when": "line.contract_locked",
+   "outcome": "review",
+   "explain": "A line under a contract lock is changed only after a team member confirms, so open an approval request instead of extending."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, add_days(line.pause_end, req.days)) > 120",
+   "outcome": "refuse",
+   "explain": "The pause may not run past 120 days from today."
+  },
+  {
+   "id": "R6",
+   "when": "req.days < 1",
+   "outcome": "refuse",
+   "explain": "A pause extension must be at least one day."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who can ask\nThe account holder, or a person named on the account, can ask to extend a vacation pause on a home internet service line. Before any change, identify the service line. If the customer gives a line ID, look it up. If they do not have it, ask for the service address of the line and search by address. If the search does not return exactly one line, ask the customer for more detail before going on. Then look up the account that owns the line.\n\n## How many days\nYou need the number of days the customer wants the pause extended. If they have not said how many days, ask before deciding anything.\n\n## Checks\nWork through the checks below in order. The first check that fails decides the outcome, and the checks after it are not needed.\n\n1. Account standing: the account must be in good standing. An account in collections or closed cannot extend a pause. Decline.\n2. Balance: if the balance due on the account is more than 25.00, decline until the balance is paid. Use the balance on the account record, even if the customer believes it is different.\n3. Pause limits: a line can have at most two pause extensions in total. If the line's pause count is 2 or more, decline. One extension can add at most 30 days. If the customer asks for more than 30 days, decline. Do not shorten the request to fit.\n4. Contract lock: if the line is under a contract lock, do not extend the pause yourself. Open an approval request for the line with reason contract_lock, and tell the customer that a team member will confirm the change and contact them.\n5. Total length: the pause may not run past 120 days from today. Add the requested days to the line's current pause end date. If the resulting date is more than 120 days after today, decline.\n6. Minimum: a request for fewer than 1 day is declined.\n\n## When the pause is extended\nIf every check passes, extend the pause on the line by the number of days the customer asked for, then record a notice of type pause_extended for that line. Tell the customer the new pause end date.\n\n## When the request is declined\nTell the customer which requirement was not met, in plain words. Do not change anything on the line or the account.\n\n## Never\nDo not reduce a request to make it fit a limit. Do not waive, reduce or change an account balance. Do not extend a pause on a line you have not identified in the database. Do not promise that a contract-locked change will be approved.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1001",
+    "full_name": "Joel Brandt",
+    "email": "joel.brandt@example.com",
+    "status": "good_standing",
+    "balance_due": 0.0
+   },
+   {
+    "customer_id": "C-1002",
+    "full_name": "Mina Sato",
+    "email": "mina.sato@example.com",
+    "status": "collections",
+    "balance_due": 88.0
+   }
+  ],
+  "service_line": [
+   {
+    "line_id": "SL-10100",
+    "customer_id": "C-1001",
+    "address": "17 Pine Hollow Road, Spokane WA 99203",
+    "plan": "Fiber 300",
+    "pause_end": "2026-07-01",
+    "pause_count": 0,
+    "contract_locked": false
+   },
+   {
+    "line_id": "SL-10101",
+    "customer_id": "C-1002",
+    "address": "4 Laurel Way, Boise ID 83702",
+    "plan": "Fiber 1000",
+    "pause_end": "2026-05-28",
+    "pause_count": 1,
+    "contract_locked": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7301",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.net",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-40121",
+      "customer_id": "C-7301",
+      "address": "62 Cedar Ridge Lane, Olympia WA 98502",
+      "plan": "Fiber 500",
+      "pause_end": "2026-06-10",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-40121",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "priya.raman@example.net",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.address",
+     "value": "62 Cedar Ridge Lane, Olympia WA 98502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days": 20
+   },
+   "persona": "Priya, a hospital pharmacist who is away on a family trip, sounds distracted and rushed.",
+   "reason_for_call": "She is travelling for longer than planned and wants more time on her current pause so the service does not restart while she is away.",
+   "task_instructions": "In your first message, give your email address and your service address, and say you want the pause extended by twenty days. When the agent asks, say you do not know the line ID. Before the agent makes any change, say you have changed your mind and need only ten days. Accept the agent's answer and end the call.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5502",
+      "full_name": "Tomasz Wierzbicki",
+      "email": "tomasz.w@example.com",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-50213",
+      "customer_id": "C-5502",
+      "address": "904 Harbor Street, Everett WA 98201",
+      "plan": "Fiber 300",
+      "pause_end": "2026-06-01",
+      "pause_count": 1,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-50213",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-50213",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.balance_due",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The line is the Fiber 300 at my place on Harbor Street in Everett.",
+     "kind": "helpful"
+    },
+    {
+     "text": "We already paused it once back in March when I moved my office home for a while.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tomasz, a remote software consultant who is impatient with phone systems.",
+   "reason_for_call": "He is on a three-week project abroad that ran longer than planned and wants two more weeks on the pause.",
+   "task_instructions": "In your first message, give the line ID, say you want fourteen more days, and say your balance is zero. Push for a quick result: if the agent asks a question you have already answered, say so impatiently. Once the change is made, thank the agent and end the call.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6102",
+      "full_name": "Gwen Abernathy",
+      "email": "gwen.abernathy@example.org",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-61877",
+      "customer_id": "C-6102",
+      "address": "233 Willow Bend Drive, Boise ID 83706",
+      "plan": "Fiber 300",
+      "pause_end": "2026-06-05",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-61877",
+    "days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-61877",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 45,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gwen, a retired bookkeeper who keeps her paperwork neat and answers in short sentences.",
+   "reason_for_call": "She is going to see her daughter for about six weeks and wants the service paused for that whole time.",
+   "task_instructions": "In your first message, give the line ID and say you want more time on the pause. Do not say how many days unless the agent asks. If asked how many days, say forty-five. Keep every answer to a few words. If the agent declines, say okay and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4417",
+      "full_name": "Hector Villalobos",
+      "email": "hector.v@example.com",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-44170",
+      "customer_id": "C-4417",
+      "address": "71 Quarry Road, Missoula MT 59801",
+      "plan": "Fiber 300",
+      "pause_end": "2026-05-29",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-44170",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.full_name",
+     "value": "Hector Villalobos",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hector, who moved apartments in April, threw out the old bills, and is calling from a new phone.",
+   "reason_for_call": "He wants more time on a pause but cannot remember the account details.",
+   "task_instructions": "In your first message, give your name and say you want ten more days on your pause. You do not have the line ID, the email on the account, or the old service address, and you cannot find the paperwork. Insist the change must be made today. Argue at least twice if the agent declines, then accept and end the call.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5830",
+      "full_name": "Ruth Okafor",
+      "email": "ruth.okafor@example.org",
+      "status": "good_standing",
+      "balance_due": 12.4
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-58301",
+      "customer_id": "C-5830",
+      "address": "1480 Juniper Avenue, Reno NV 89501",
+      "plan": "Fiber 500",
+      "pause_end": "2026-06-12",
+      "pause_count": 0,
+      "contract_locked": true
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-58301",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-58301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.balance_due",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ruth, a dental office manager who is brisk and to the point.",
+   "reason_for_call": "She wants two more weeks on a pause while her family is out of town.",
+   "task_instructions": "In your first message, give the line ID, say you want fourteen days, and say your balance is zero because you paid last month. Answer only what is asked. Accept whatever the agent says and end the call.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6640",
+      "full_name": "Ellen Marsh",
+      "email": "ellen.marsh@example.net",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-70455",
+      "customer_id": "C-6640",
+      "address": "38 Birchwood Court, Eugene OR 97401",
+      "plan": "Fiber 1000",
+      "pause_end": "2026-06-15",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-70455",
+    "days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-70455",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.balance_due",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ellen, a schoolteacher on summer break, polite and cooperative.",
+   "reason_for_call": "She is going to her sister's wedding in July and wants the service paused for three more weeks.",
+   "task_instructions": "In your first message, give the line ID, say you want twenty-one more days, and say your account is up to date. Answer any question the agent asks politely and accept the result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8100",
+      "full_name": "Denise Farrow",
+      "email": "denise.farrow@example.com",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-81004",
+      "customer_id": "C-8100",
+      "address": "550 Summit Terrace, Bend OR 97701",
+      "plan": "Fiber 300",
+      "pause_end": "2026-06-02",
+      "pause_count": 2,
+      "contract_locked": false
+     },
+     {
+      "line_id": "SL-81005",
+      "customer_id": "C-8100",
+      "address": "12 Alder Lane, Bend OR 97702",
+      "plan": "Fiber 300",
+      "pause_end": "2026-07-10",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-81004",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-81004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The router in the hallway has been blinking amber since Tuesday.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My brother has a place on Alder Lane and wants his own account set up there someday.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I got a credit for the outage in January, did you see it on the account?",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am thinking about upgrading to a faster plan when my promotion ends next year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Denise, a nurse who runs a home business and handles everything quickly.",
+   "reason_for_call": "She wants more time on the pause for her Summit Terrace line while she renovates the kitchen.",
+   "task_instructions": "In your first message, give the line ID and say you want ten more days. If the agent is chatty, bring up the router, the outage credit or the upgrade as side points, but do not pursue them. If the agent says it cannot extend the pause, accept it and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9240",
+      "full_name": "Samir Haddad",
+      "email": "samir.haddad@example.com",
+      "status": "good_standing",
+      "balance_due": 0.0
+     }
+    ],
+    "service_line": [
+     {
+      "line_id": "SL-92011",
+      "customer_id": "C-9240",
+      "address": "3 Kestrel Hill Road, Tacoma WA 98407",
+      "plan": "Fiber 500",
+      "pause_end": "2026-06-08",
+      "pause_count": 0,
+      "contract_locked": false
+     },
+     {
+      "line_id": "SL-92012",
+      "customer_id": "C-9240",
+      "address": "9 Mill Creek Loop, Tacoma WA 98407",
+      "plan": "Fiber 300",
+      "pause_end": "2026-09-01",
+      "pause_count": 0,
+      "contract_locked": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "SL-92011",
+    "days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "SL-92011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 45,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My father has a granny flat on Mill Creek Loop and his line there is fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The modem was swapped in March and the lights look normal now.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am looking at a fibre upgrade for next year, maybe.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My daughter's school sends a lot of email and I am tired of reading it.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "days": 20
+   },
+   "persona": "Samir, a contractor who is planning a long job overseas and talks in plain sentences.",
+   "reason_for_call": "He is going overseas for about six weeks and wants the line paused for that time.",
+   "task_instructions": "In your first message, give the line ID and say you want twenty more days. If the agent asks you to confirm, say you have changed your mind: the job runs longer, so you need forty-five days. Give the line ID and the days again if asked. Accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

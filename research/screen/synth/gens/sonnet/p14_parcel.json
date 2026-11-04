@@ -1,0 +1,566 @@
+{
+ "procedure_id": "p14_parcel",
+ "domain": "parcel courier",
+ "organization": "Northgate Parcel Express",
+ "title": "Delivery rescheduling",
+ "summary": "Move the delivery date of a parcel that has not yet gone out for delivery when the recipient and the new date qualify.",
+ "entities": {
+  "parcel": {
+   "key": "parcel_id",
+   "description": "Parcels handled by the courier",
+   "fields": {
+    "parcel_id": "str",
+    "recipient_name": "str",
+    "recipient_email": "str",
+    "recipient_postcode": "str",
+    "status": "enum:in_depot|scheduled|out_for_delivery|delivered|returned",
+    "delivery_date": "date",
+    "reschedules": "int"
+   }
+  },
+  "delivery_note": {
+   "key": "note_id",
+   "description": "Notes that tell the driver and depot about a changed delivery date",
+   "fields": {
+    "note_id": "str",
+    "parcel_id": "ref:parcel",
+    "new_date": "date",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_parcel",
+   "kind": "get",
+   "entity": "parcel",
+   "description": "Look up a parcel by its parcel number."
+  },
+  {
+   "name": "find_parcels_by_email",
+   "kind": "search",
+   "entity": "parcel",
+   "by": [
+    "recipient_email"
+   ],
+   "description": "Find parcels by the recipient email address on file."
+  },
+  {
+   "name": "reschedule_parcel",
+   "kind": "update",
+   "entity": "parcel",
+   "args": {
+    "parcel_id": {
+     "type": "ref:parcel",
+     "description": "The parcel to reschedule."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date."
+    }
+   },
+   "set": {
+    "delivery_date": "args.new_date",
+    "reschedules": "rec.reschedules + 1",
+    "status": "'scheduled'"
+   },
+   "description": "Set a new delivery date on a parcel, count one reschedule and mark the parcel as scheduled."
+  },
+  {
+   "name": "create_delivery_note",
+   "kind": "create",
+   "entity": "delivery_note",
+   "args": {
+    "parcel_id": {
+     "type": "ref:parcel",
+     "description": "The parcel the note is about."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date to record."
+    }
+   },
+   "fields": {
+    "parcel_id": "args.parcel_id",
+    "new_date": "args.new_date",
+    "created": "today"
+   },
+   "description": "Record a delivery note so the depot and driver know about the new delivery date."
+  }
+ ],
+ "request": {
+  "parcel_id": {
+   "type": "ref:parcel",
+   "description": "the parcel you want delivered on a different day"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the date on which you want the parcel delivered"
+  }
+ },
+ "claims": {
+  "postcode": {
+   "type": "str",
+   "description": "the postcode of the delivery address"
+  }
+ },
+ "bindings": [
+  {
+   "name": "parcel",
+   "entity": "parcel",
+   "key": "req.parcel_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Reschedule the parcel and record a delivery note.",
+   "calls": [
+    {
+     "tool": "reschedule_parcel",
+     "args": {
+      "parcel_id": "req.parcel_id",
+      "new_date": "req.new_date"
+     }
+    },
+    {
+     "tool": "create_delivery_note",
+     "args": {
+      "parcel_id": "req.parcel_id",
+      "new_date": "req.new_date"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not reschedule; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postcode != parcel.recipient_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the delivery postcode on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "parcel.status not in ['in_depot', 'scheduled']",
+   "outcome": "refuse",
+   "explain": "Only parcels that are in the depot or already scheduled can be rescheduled."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, req.new_date) < 1 or days_between(today, req.new_date) > 14 or parcel.reschedules >= 2",
+   "outcome": "refuse",
+   "explain": "The new date must be 1 to 14 days from today and the parcel may be rescheduled at most twice."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nRecipients can ask to change the delivery date of a parcel by phone or chat. Before changing anything, find the parcel and confirm the caller's identity: the delivery postcode they give must match the recipient postcode on file. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the parcel\nUse the parcel number if the caller has it. Otherwise search by the recipient email address on file and ask which parcel they mean if there is more than one. If the parcel cannot be identified, do not guess and do not change anything. You also need the date the caller wants; ask for it if they have not said.\n\n## When a reschedule is allowed\n- Only parcels with status in_depot or scheduled can be rescheduled. Parcels that are out for delivery, delivered or returned cannot.\n- The new delivery date must be at least 1 day and at most 14 days after today. Same-day, past and later dates are declined, not adjusted.\n- A parcel can be rescheduled at most twice. If it has already been rescheduled twice, decline.\n\n## What to do\nIf all of this is fine, do two things in this order: first reschedule the parcel to the date the caller asked for, then create a delivery note for the same parcel and date. Tell the caller the new date. If anything fails, make no changes and explain the reason in plain words.\n\n## Never\nDo not reschedule for someone who failed the identity check, do not offer a different date than the one allowed by these rules, do not promise a delivery time of day, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "parcel": [
+   {
+    "parcel_id": "PK-30001",
+    "recipient_name": "Helen Okafor",
+    "recipient_email": "helen.okafor@example.com",
+    "recipient_postcode": "N7 6PA",
+    "status": "in_depot",
+    "delivery_date": "2026-05-24",
+    "reschedules": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40117",
+      "recipient_name": "Marta Kowalski",
+      "recipient_email": "marta.k@example.com",
+      "recipient_postcode": "M14 5RT",
+      "status": "in_depot",
+      "delivery_date": "2026-05-22",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40117",
+    "new_date": "2026-05-26"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40117",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-26",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "M14 5RT",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marta, a hurried shop manager who dislikes wasting time on the phone.",
+   "reason_for_call": "She will be away at a trade fair on the planned delivery day and wants the parcel brought to the following week.",
+   "task_instructions": "State everything in your first message: the parcel number, the new date and the postcode. Be impatient and ask the agent to hurry. If the agent refuses anything, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40233",
+      "recipient_name": "Jonas Weber",
+      "recipient_email": "jonas.weber@example.com",
+      "recipient_postcode": "B3 2AA",
+      "status": "in_depot",
+      "delivery_date": "2026-05-23",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40233",
+    "new_date": "2026-07-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40233",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-07-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "B3 2AA",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "parcel.status",
+     "value": "in_depot",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The tracking page shows the parcel is waiting at the depot and has not been rescheduled before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He has not changed this delivery before.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "new_date": "2026-05-27"
+   },
+   "persona": "Jonas, a teacher who is polite and a bit indecisive.",
+   "reason_for_call": "He is not sure when he will be home and wants to move a delivery.",
+   "task_instructions": "First ask for delivery on 2026-05-27. Before the agent does anything, change your mind: you are going on a long summer trip and now want 2026-07-15. Share the postcode and the extra details naturally. If refused, accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40351",
+      "recipient_name": "Aisha Rahman",
+      "recipient_email": "aisha.r@example.com",
+      "recipient_postcode": "LS6 3HN",
+      "status": "scheduled",
+      "delivery_date": "2026-05-23",
+      "reschedules": 1
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40351",
+    "new_date": "2026-05-29"
+   },
+   "customer_facts": [
+    {
+     "fact": "parcel.recipient_email",
+     "value": "aisha.r@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "LS6 3HN",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aisha, a nurse on rotating shifts who is short on patience.",
+   "reason_for_call": "She lost the notification and cannot find the parcel number, but wants the delivery moved to a day she is off work.",
+   "task_instructions": "You do not know the parcel number. Give your email address and the date you want. Be pushy and ask the agent to hurry; give your postcode only when asked. If the agent raises any objection, push back at least twice before accepting.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40488",
+      "recipient_name": "Tomas Silva",
+      "recipient_email": "tomas.silva@example.com",
+      "recipient_postcode": "E1 6AW",
+      "status": "in_depot",
+      "delivery_date": "2026-05-22",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40488",
+    "new_date": "2026-05-25"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40488",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "E1 6AN",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "parcel.recipient_postcode",
+     "value": "E1 6AN",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a freelance designer who recently moved and mixes up his postcode.",
+   "reason_for_call": "He wants his parcel delivered on Monday instead.",
+   "task_instructions": "Keep answers very short. Give the parcel number, the date and the postcode E1 6AN, which you are sure is right. Do not elaborate. If the agent refuses, accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40562",
+      "recipient_name": "Chen Wei",
+      "recipient_email": "chen.wei@example.com",
+      "recipient_postcode": "SW9 8LD",
+      "status": "out_for_delivery",
+      "delivery_date": "2026-05-20",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40562",
+    "new_date": "2026-05-27"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40562",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-27",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "SW9 8LD",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Chen, a friendly software tester working from home.",
+   "reason_for_call": "He realised he will be out this afternoon and wants the delivery moved to next week.",
+   "task_instructions": "Start by giving only the parcel number and say you want the delivery moved. Give the exact date you want and your postcode only when the agent asks. Answer clearly and accept the result politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40671",
+      "recipient_name": "Priya Nair",
+      "recipient_email": "priya.nair@example.com",
+      "recipient_postcode": "L1 8JQ",
+      "status": "in_depot",
+      "delivery_date": "2026-05-22",
+      "reschedules": 0
+     },
+     {
+      "parcel_id": "PK-40672",
+      "recipient_name": "Priya Nair",
+      "recipient_email": "priya.nair@example.com",
+      "recipient_postcode": "L1 8JQ",
+      "status": "delivered",
+      "delivery_date": "2026-05-12",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40671",
+    "new_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40671",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "L1 8JQ",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She received another parcel last week and it arrived fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her sister is visiting from Dublin next month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking about changing her broadband provider.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The courier van once blocked her street last winter.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "new_date": "2026-05-30"
+   },
+   "persona": "Priya, a chatty university lecturer who likes to share side stories.",
+   "reason_for_call": "She needs a pending parcel delivered on a different day because of a conference.",
+   "task_instructions": "First ask for delivery on 2026-05-30. Before the agent acts, change your mind and ask for 2026-06-02 instead. Mention the side stories in passing while chatting. Give your postcode upfront.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40790",
+      "recipient_name": "Ewan Brooks",
+      "recipient_email": "ewan.brooks@example.com",
+      "recipient_postcode": "G12 9QL",
+      "status": "scheduled",
+      "delivery_date": "2026-05-22",
+      "reschedules": 1
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40790",
+    "new_date": "2026-06-03"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PK-40790",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "G12 9QL",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ewan, a laconic carpenter who texts in short messages.",
+   "reason_for_call": "He needs the parcel to arrive after he is back from a job abroad.",
+   "task_instructions": "Give the parcel number and the date in your first message. Answer only what is asked, in a few words. Give the postcode only when asked.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "parcel": [
+     {
+      "parcel_id": "PK-40815",
+      "recipient_name": "Olga Petrova",
+      "recipient_email": "olga.p@example.com",
+      "recipient_postcode": "CB2 1TN",
+      "status": "in_depot",
+      "delivery_date": "2026-05-22",
+      "reschedules": 0
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PK-40815",
+    "new_date": "2026-05-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "CB2 1TN",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Olga, a gentle retired librarian calling from a neighbour's phone.",
+   "reason_for_call": "She wants a delivery moved to a later day, but she threw away the delivery card and does not remember which email she used.",
+   "task_instructions": "Say you want delivery on 2026-05-28 and give your postcode. You do not have the parcel number and cannot remember the email address used for the order. Be cooperative, and accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

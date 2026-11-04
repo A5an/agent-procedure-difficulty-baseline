@@ -1,0 +1,991 @@
+{
+ "procedure_id": "h02_mortgage",
+ "domain": "mortgage servicing",
+ "organization": "Harborview Home Loan Servicing",
+ "title": "Monthly payment deferral requests",
+ "summary": "Defer one to three monthly mortgage payments to the end of the loan when the borrower, the loan and the escrow account qualify, or send the request to review.",
+ "entities": {
+  "borrower": {
+   "key": "borrower_id",
+   "description": "Mortgage borrowers",
+   "fields": {
+    "borrower_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "in_bankruptcy": "bool"
+   }
+  },
+  "escrow_account": {
+   "key": "escrow_id",
+   "description": "Escrow accounts holding taxes and insurance for a loan",
+   "fields": {
+    "escrow_id": "str",
+    "insurance_status": "enum:active|lapsed",
+    "escrow_shortage": "number"
+   }
+  },
+  "loan": {
+   "key": "loan_id",
+   "description": "Mortgage loans being serviced",
+   "fields": {
+    "loan_id": "str",
+    "borrower_id": "ref:borrower",
+    "escrow_id": "ref:escrow_account",
+    "property_address": "str",
+    "loan_status": "enum:current|delinquent|foreclosure",
+    "days_past_due": "int",
+    "monthly_payment": "number",
+    "next_due_date": "date",
+    "maturity_date": "date",
+    "deferred_balance": "number"
+   }
+  },
+  "deferral": {
+   "key": "deferral_id",
+   "description": "Payment deferrals already granted on loans",
+   "fields": {
+    "deferral_id": "str",
+    "loan_id": "ref:loan",
+    "months": "int",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for a servicing specialist to review a deferral",
+   "fields": {
+    "request_id": "str",
+    "loan_id": "ref:loan",
+    "reason": "enum:escrow_shortage|long_deferral",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_borrower",
+   "kind": "get",
+   "entity": "borrower",
+   "description": "Look up a borrower by borrower ID."
+  },
+  {
+   "name": "get_loan",
+   "kind": "get",
+   "entity": "loan",
+   "description": "Look up a loan by loan number."
+  },
+  {
+   "name": "find_loans_by_address",
+   "kind": "search",
+   "entity": "loan",
+   "by": [
+    "property_address"
+   ],
+   "description": "Find loans by the exact property address on the loan."
+  },
+  {
+   "name": "get_escrow_account",
+   "kind": "get",
+   "entity": "escrow_account",
+   "description": "Look up an escrow account by escrow ID."
+  },
+  {
+   "name": "find_deferrals_by_loan",
+   "kind": "search",
+   "entity": "deferral",
+   "by": [
+    "loan_id"
+   ],
+   "description": "List all payment deferrals previously granted on a loan."
+  },
+  {
+   "name": "create_deferral",
+   "kind": "create",
+   "entity": "deferral",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan being deferred."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of monthly payments deferred."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Total amount deferred."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "months": "args.months",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a payment deferral for a loan."
+  },
+  {
+   "name": "extend_maturity",
+   "kind": "update",
+   "entity": "loan",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan to change."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months deferred."
+    }
+   },
+   "set": {
+    "maturity_date": "add_days(rec.maturity_date, 30 * args.months)"
+   },
+   "description": "Push the loan maturity date back by 30 days for each deferred month."
+  },
+  {
+   "name": "apply_deferral_to_loan",
+   "kind": "update",
+   "entity": "loan",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan to change."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months deferred."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Total amount deferred."
+    }
+   },
+   "set": {
+    "next_due_date": "add_days(rec.next_due_date, 30 * args.months)",
+    "deferred_balance": "rec.deferred_balance + args.amount"
+   },
+   "description": "Move the next due date back by 30 days per deferred month and add the deferred amount to the deferred balance."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the request is about."
+    },
+    "reason": {
+     "type": "enum:escrow_shortage|long_deferral",
+     "description": "Why a specialist must review it."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a servicing specialist to review a deferral request."
+  }
+ ],
+ "request": {
+  "loan_id": {
+   "type": "ref:loan",
+   "description": "the mortgage loan whose payments you want to defer"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many monthly payments you want to defer"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "loan",
+   "entity": "loan",
+   "key": "req.loan_id"
+  },
+  {
+   "name": "borrower",
+   "entity": "borrower",
+   "key": "loan.borrower_id"
+  },
+  {
+   "name": "escrow",
+   "entity": "escrow_account",
+   "key": "loan.escrow_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Grant the deferral: record it, extend the maturity date and move the due date and deferred balance.",
+   "calls": [
+    {
+     "tool": "create_deferral",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "months": "req.months",
+      "amount": "loan.monthly_payment * req.months"
+     }
+    },
+    {
+     "tool": "extend_maturity",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "months": "req.months"
+     }
+    },
+    {
+     "tool": "apply_deferral_to_loan",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "months": "req.months",
+      "amount": "loan.monthly_payment * req.months"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Open a specialist review instead of granting the deferral.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "reason": "'escrow_shortage' if escrow.escrow_shortage > 1000 else 'long_deferral'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not defer; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != borrower.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "borrower.in_bankruptcy",
+   "outcome": "refuse",
+   "explain": "Borrowers in bankruptcy cannot get a deferral through this procedure."
+  },
+  {
+   "id": "R3",
+   "when": "loan.loan_status == 'foreclosure'",
+   "outcome": "refuse",
+   "explain": "Loans in foreclosure cannot be deferred."
+  },
+  {
+   "id": "R4",
+   "when": "escrow.insurance_status == 'lapsed'",
+   "outcome": "refuse",
+   "explain": "The property insurance on the escrow account must not be lapsed."
+  },
+  {
+   "id": "R5",
+   "when": "req.months < 1 or req.months > 3",
+   "outcome": "refuse",
+   "explain": "A deferral covers one to three monthly payments."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('deferral', 'loan_id', loan.loan_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A loan can have at most two deferrals in its life."
+  },
+  {
+   "id": "R7",
+   "when": "loan.days_past_due > 60",
+   "outcome": "refuse",
+   "explain": "Loans more than 60 days past due are not eligible."
+  },
+  {
+   "id": "R8",
+   "when": "escrow.escrow_shortage > 1000",
+   "outcome": "review",
+   "explain": "An escrow shortage above 1000.00 requires a specialist review instead of a deferral."
+  },
+  {
+   "id": "R9",
+   "when": "req.months == 3",
+   "outcome": "review",
+   "explain": "A three-month deferral requires a specialist review."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Who can ask\nBorrowers can ask to defer upcoming monthly mortgage payments by phone or chat. Before changing anything, identify the loan and confirm identity: the date of birth the caller gives must match the date of birth of the borrower on the loan. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the loan\nUse the loan number if the borrower has it. Otherwise search by the exact property address on the loan. If no single loan can be found, or the caller cannot say how many payments they want to defer, you cannot complete the request.\n\n## Checks you must make yourself\nLook up the borrower, the escrow account on the loan, and the loan's earlier deferrals (list them with the deferral search). The caller will not know these details; go by the records, not by what the caller believes.\n\n## When a deferral is not allowed\nDecline, and explain why, if any of these is true (check in this order):\n- The borrower is in bankruptcy.\n- The loan is in foreclosure.\n- The property insurance on the escrow account is lapsed.\n- The caller asks for fewer than 1 or more than 3 payments. Do not shorten the request; decline it.\n- The loan already has two or more deferrals on record.\n- The loan is more than 60 days past due.\n\n## When a specialist must review\nIf none of the above applies, do not grant the deferral but open a review request instead when either of these is true:\n- The escrow account has a shortage above 1000.00 (exactly 1000.00 is not above). Use reason escrow_shortage.\n- The caller wants 3 payments deferred. Use reason long_deferral.\nIf both are true, use escrow_shortage. Tell the borrower that a specialist will contact them.\n\n## Granting a deferral\nIf everything is fine, do these three things in order:\n1. Create a deferral record for the number of months, with amount = monthly payment x number of months.\n2. Extend the maturity date: add 30 days for each deferred month.\n3. Apply the deferral to the loan: move the next due date back by 30 days for each deferred month and add the same deferred amount to the deferred balance.\n\n## Never\nDo not waive amounts, do not make exceptions to the limits, do not make changes for someone who failed the identity check, and do not change anything the borrower did not ask for.",
+ "db_common": {
+  "borrower": [
+   {
+    "borrower_id": "B-1000",
+    "full_name": "Helen Frost",
+    "email": "helen.frost@example.org",
+    "birth_date": "1970-03-14",
+    "in_bankruptcy": false
+   }
+  ],
+  "escrow_account": [
+   {
+    "escrow_id": "ES-9000",
+    "insurance_status": "active",
+    "escrow_shortage": 0
+   }
+  ],
+  "loan": [
+   {
+    "loan_id": "LN-100001",
+    "borrower_id": "B-1000",
+    "escrow_id": "ES-9000",
+    "property_address": "14 Alder Court, Dayton OH",
+    "loan_status": "current",
+    "days_past_due": 0,
+    "monthly_payment": 1500.0,
+    "next_due_date": "2026-06-01",
+    "maturity_date": "2041-06-01",
+    "deferred_balance": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2101",
+      "full_name": "Marcus Doyle",
+      "email": "marcus.doyle@example.org",
+      "birth_date": "1983-09-21",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3101",
+      "insurance_status": "lapsed",
+      "escrow_shortage": 0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-210145",
+      "borrower_id": "B-2101",
+      "escrow_id": "ES-3101",
+      "property_address": "52 Kestrel Road, Reno NV",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 1620.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2045-06-01",
+      "deferred_balance": 0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-210145",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "loan.property_address",
+     "value": "52 Kestrel Road, Reno NV",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-09-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a delivery driver who types and speaks in very few words.",
+   "reason_for_call": "His work hours were cut and he wants to skip two mortgage payments, but he does not have his loan number at hand.",
+   "task_instructions": "Keep every answer very short. Give your property address and the number of payments in your first message. Give your date of birth only if asked. Accept the answer if the agent declines.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2201",
+      "full_name": "Priya Natarajan",
+      "email": "priya.n@example.org",
+      "birth_date": "1978-12-05",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3201",
+      "insurance_status": "active",
+      "escrow_shortage": 200.0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-220310",
+      "borrower_id": "B-2201",
+      "escrow_id": "ES-3201",
+      "property_address": "700 Mill Street, Albany NY",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 2050.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2043-01-01",
+      "deferred_balance": 4100.0
+     }
+    ],
+    "deferral": [
+     {
+      "deferral_id": "D-4001",
+      "loan_id": "LN-220310",
+      "months": 1,
+      "amount": 2050.0,
+      "created": "2024-03-04"
+     },
+     {
+      "deferral_id": "D-4002",
+      "loan_id": "LN-220310",
+      "months": 1,
+      "amount": 2050.0,
+      "created": "2025-08-12"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-220310",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-220310",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1978-12-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a self-employed designer who is impatient and used to getting what she asks for.",
+   "reason_for_call": "A client paid her late and she wants to skip next month's mortgage payment.",
+   "task_instructions": "Give your loan number, the number of payments and your date of birth in your first message. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2301",
+      "full_name": "Tom Whitaker",
+      "email": "tom.whitaker@example.org",
+      "birth_date": "1975-06-30",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3301",
+      "insurance_status": "active",
+      "escrow_shortage": 300.0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-230477",
+      "borrower_id": "B-2301",
+      "escrow_id": "ES-3301",
+      "property_address": "88 Larkspur Lane, Tulsa OK",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 1840.5,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2046-03-01",
+      "deferred_balance": 0
+     }
+    ],
+    "deferral": [
+     {
+      "deferral_id": "D-4003",
+      "loan_id": "LN-230477",
+      "months": 1,
+      "amount": 1840.5,
+      "created": "2023-11-20"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-230477",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "loan.property_address",
+     "value": "88 Larkspur Lane, Tulsa OK",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-06-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom, a contractor between jobs, polite but hopeful and willing to bargain.",
+   "reason_for_call": "A big project fell through and he wants to pause his mortgage payments for a while. He has lost his paperwork and does not know the loan number.",
+   "task_instructions": "First ask to defer six payments. When the agent declines, ask for two payments instead. Give your address and date of birth early; give the number of payments you finally want when asked.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2401",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.org",
+      "birth_date": "1989-02-17",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3401",
+      "insurance_status": "active",
+      "escrow_shortage": 150.0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-240588",
+      "borrower_id": "B-2401",
+      "escrow_id": "ES-3401",
+      "property_address": "3 Birchwood Drive, Madison WI",
+      "loan_status": "delinquent",
+      "days_past_due": 75,
+      "monthly_payment": 1710.0,
+      "next_due_date": "2026-03-01",
+      "maturity_date": "2048-09-01",
+      "deferred_balance": 0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-240588",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-240588",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1989-02-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.days_past_due",
+     "value": 15,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a teacher who is cooperative and believes she is only slightly behind on payments.",
+   "reason_for_call": "She wants to defer one payment to catch up after a medical bill, and she thinks she is only about two weeks behind.",
+   "task_instructions": "Give your loan number, date of birth and request in your first message. Say that you are only about 15 days past due. Answer questions politely and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2501",
+      "full_name": "Samuel Reyes",
+      "email": "sam.reyes@example.org",
+      "birth_date": "1981-10-08",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3501",
+      "insurance_status": "active",
+      "escrow_shortage": 450.0
+     },
+     {
+      "escrow_id": "ES-3502",
+      "insurance_status": "active",
+      "escrow_shortage": 0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-250611",
+      "borrower_id": "B-2501",
+      "escrow_id": "ES-3501",
+      "property_address": "21 Cedar Heights, Boise ID",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 2210.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2047-08-01",
+      "deferred_balance": 0
+     },
+     {
+      "loan_id": "LN-250612",
+      "borrower_id": "B-2501",
+      "escrow_id": "ES-3502",
+      "property_address": "9 Orchard Lane, Nampa ID",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 1180.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2039-02-01",
+      "deferred_balance": 0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-250611",
+    "months": 1
+   },
+   "initial_request_values": {
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-250611",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-10-08",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a second mortgage on a small rental house, but that loan is fine and he is not asking about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He recently bought a new car and is paying that off separately.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once paid a late fee back in 2023 and still remembers being annoyed about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He wondered about the property tax bill but decided to ask about that another day.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Samuel, a talkative small-business owner who tends to wander off topic.",
+   "reason_for_call": "A slow season is squeezing his cash and he wants to defer mortgage payments on his home.",
+   "task_instructions": "Start by asking to defer three payments on your home loan. Before the agent does anything, change your mind and ask for just one payment. Mention your side stories along the way, but stay on the home loan.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2601",
+      "full_name": "Linh Tran",
+      "email": "linh.tran@example.org",
+      "birth_date": "1992-04-25",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3601",
+      "insurance_status": "active",
+      "escrow_shortage": 1000.0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-260734",
+      "borrower_id": "B-2601",
+      "escrow_id": "ES-3601",
+      "property_address": "415 Willow Way, Eugene OR",
+      "loan_status": "delinquent",
+      "days_past_due": 20,
+      "monthly_payment": 1395.75,
+      "next_due_date": "2026-06-15",
+      "maturity_date": "2044-11-15",
+      "deferred_balance": 0
+     }
+    ],
+    "deferral": [
+     {
+      "deferral_id": "D-4004",
+      "loan_id": "LN-260734",
+      "months": 1,
+      "amount": 1395.75,
+      "created": "2022-07-18"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-260734",
+    "months": 1
+   },
+   "initial_request_values": {
+    "months": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-260734",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-04-25",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Linh, a freelance translator who is practical and willing to compromise.",
+   "reason_for_call": "A family emergency drained her savings and she wants relief on her mortgage payments.",
+   "task_instructions": "Give your loan number and ask to defer four payments. When the agent declines, ask for one payment instead. Give your date of birth only when asked.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2701",
+      "full_name": "Deborah Kim",
+      "email": "deborah.kim@example.org",
+      "birth_date": "1986-01-13",
+      "in_bankruptcy": false
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3701",
+      "insurance_status": "active",
+      "escrow_shortage": 0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-270859",
+      "borrower_id": "B-2701",
+      "escrow_id": "ES-3701",
+      "property_address": "1200 Summit Avenue, Asheville NC",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 2675.0,
+      "next_due_date": "2026-07-01",
+      "maturity_date": "2051-02-01",
+      "deferred_balance": 0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-270859",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-270859",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-01-13",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.loan_status",
+     "value": "current",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her loan is current and she has never asked for a deferral before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her home insurance was renewed in March and the premium was paid.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Deborah, a nurse whose hours were cut, calm and organized.",
+   "reason_for_call": "Her hospital reduced her shifts and she wants to defer some mortgage payments.",
+   "task_instructions": "In your first message give your loan number, date of birth and say your loan is current. First ask to defer three payments, then before anything is done switch to two payments. Mention that you have never deferred before and that your insurance was renewed in March.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2801",
+      "full_name": "Walter Brandt",
+      "email": "walter.brandt@example.org",
+      "birth_date": "1964-08-02",
+      "in_bankruptcy": true
+     }
+    ],
+    "escrow_account": [
+     {
+      "escrow_id": "ES-3801",
+      "insurance_status": "active",
+      "escrow_shortage": 100.0
+     },
+     {
+      "escrow_id": "ES-3802",
+      "insurance_status": "active",
+      "escrow_shortage": 0
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-280921",
+      "borrower_id": "B-2801",
+      "escrow_id": "ES-3801",
+      "property_address": "67 Harbor View, Duluth MN",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 1925.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2040-12-01",
+      "deferred_balance": 0
+     },
+     {
+      "loan_id": "LN-280922",
+      "borrower_id": "B-2801",
+      "escrow_id": "ES-3802",
+      "property_address": "5 Pine Ridge Road, Hermantown MN",
+      "loan_status": "current",
+      "days_past_due": 0,
+      "monthly_payment": 900.0,
+      "next_due_date": "2026-06-01",
+      "maturity_date": "2036-05-01",
+      "deferred_balance": 0
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-280921",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-280921",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1964-08-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a smaller loan on a lake cabin, which he is not asking about.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is a retired ferry captain and likes to tell sea stories.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His neighbor got a deferral last year without any trouble.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Walter, a retired ferry captain who is gruff, impatient and insistent.",
+   "reason_for_call": "His income has dropped and he wants to defer two payments on his main home loan.",
+   "task_instructions": "State your loan number, request and date of birth right away. If refused, argue, mention your neighbor, and ask for an exception at least twice before accepting. Do not volunteer anything about your finances beyond your drop in income.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,1083 @@
+{
+ "procedure_id": "h11_freight",
+ "domain": "freight shipping",
+ "organization": "Meridian Line Freight",
+ "title": "Delivery holds at destination terminal",
+ "summary": "Hold an LTL shipment at its destination terminal for a number of days, pushing back the delivery date and recording the storage fee, when the account, shipment and terminal qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Shipper and consignee customer accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "contact_email": "str",
+    "account_pin": "str",
+    "status": "enum:active|credit_hold|closed"
+   }
+  },
+  "shipment": {
+   "key": "shipment_id",
+   "description": "LTL shipments, identified by PRO number",
+   "fields": {
+    "shipment_id": "str",
+    "account_id": "ref:account",
+    "origin_city": "str",
+    "destination_city": "str",
+    "destination_terminal_id": "ref:terminal",
+    "status": "enum:booked|in_transit|at_terminal|out_for_delivery|delivered",
+    "delivery_date": "date",
+    "pieces": "int",
+    "hazmat": "bool",
+    "declared_value": "number"
+   }
+  },
+  "terminal": {
+   "key": "terminal_id",
+   "description": "Destination terminals and their storage terms",
+   "fields": {
+    "terminal_id": "str",
+    "name": "str",
+    "city": "str",
+    "daily_storage_rate": "number",
+    "max_hold_days": "int",
+    "hazmat_storage": "bool"
+   }
+  },
+  "delivery_hold": {
+   "key": "hold_id",
+   "description": "Delivery holds placed on shipments",
+   "fields": {
+    "hold_id": "str",
+    "shipment_id": "ref:shipment",
+    "account_id": "ref:account",
+    "hold_days": "int",
+    "new_delivery_date": "date",
+    "storage_fee": "number",
+    "created": "date"
+   }
+  },
+  "hold_review": {
+   "key": "review_id",
+   "description": "Hold requests sent to the terminal operations desk for review",
+   "fields": {
+    "review_id": "str",
+    "shipment_id": "ref:shipment",
+    "hold_days": "int",
+    "reason": "enum:hazmat_storage|high_value",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a customer account by account number."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "contact_email"
+   ],
+   "description": "Find accounts by the contact email address on file."
+  },
+  {
+   "name": "get_shipment",
+   "kind": "get",
+   "entity": "shipment",
+   "description": "Look up a shipment by its PRO number."
+  },
+  {
+   "name": "find_shipments_by_account",
+   "kind": "search",
+   "entity": "shipment",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all shipments of an account."
+  },
+  {
+   "name": "get_terminal",
+   "kind": "get",
+   "entity": "terminal",
+   "description": "Look up a terminal by terminal id, including its daily storage rate, maximum hold days and whether it can store hazardous materials."
+  },
+  {
+   "name": "find_holds_by_account",
+   "kind": "search",
+   "entity": "delivery_hold",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all delivery holds on file for an account."
+  },
+  {
+   "name": "reschedule_delivery",
+   "kind": "update",
+   "entity": "shipment",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment to reschedule."
+    },
+    "new_delivery_date": {
+     "type": "date",
+     "description": "The new delivery date: the current delivery date plus the hold days."
+    }
+   },
+   "set": {
+    "delivery_date": "args.new_delivery_date"
+   },
+   "description": "Change the delivery date of a shipment."
+  },
+  {
+   "name": "create_delivery_hold",
+   "kind": "create",
+   "entity": "delivery_hold",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment being held."
+    },
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account that owns the shipment."
+    },
+    "hold_days": {
+     "type": "int",
+     "description": "Number of days the shipment is held."
+    },
+    "new_delivery_date": {
+     "type": "date",
+     "description": "The new delivery date after the hold."
+    },
+    "storage_fee": {
+     "type": "number",
+     "description": "Storage fee for the hold, computed per policy."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "account_id": "args.account_id",
+    "hold_days": "args.hold_days",
+    "new_delivery_date": "args.new_delivery_date",
+    "storage_fee": "args.storage_fee",
+    "created": "today"
+   },
+   "description": "Record a delivery hold and its storage fee on the account."
+  },
+  {
+   "name": "create_hold_review",
+   "kind": "create",
+   "entity": "hold_review",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment the hold request is about."
+    },
+    "hold_days": {
+     "type": "int",
+     "description": "Number of hold days the customer asked for."
+    },
+    "reason": {
+     "type": "enum:hazmat_storage|high_value",
+     "description": "Why terminal operations must review the request."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "hold_days": "args.hold_days",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a hold request to the terminal operations desk for review instead of placing it directly."
+  }
+ ],
+ "request": {
+  "shipment_id": {
+   "type": "ref:shipment",
+   "description": "the PRO number of the shipment you want held at the destination terminal"
+  },
+  "hold_days": {
+   "type": "int",
+   "description": "how many days you want the shipment held before delivery"
+  }
+ },
+ "claims": {
+  "account_pin": {
+   "type": "str",
+   "description": "the 4-digit account PIN of your company's freight account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "ship",
+   "entity": "shipment",
+   "key": "req.shipment_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "ship.account_id"
+  },
+  {
+   "name": "term",
+   "entity": "terminal",
+   "key": "ship.destination_terminal_id"
+  }
+ ],
+ "outcomes": {
+  "hold": {
+   "kind": "perform",
+   "description": "Push the delivery date back by the hold days and record the hold with its storage fee.",
+   "calls": [
+    {
+     "tool": "reschedule_delivery",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "new_delivery_date": "add_days(ship.delivery_date, req.hold_days)"
+     }
+    },
+    {
+     "tool": "create_delivery_hold",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "account_id": "acct.account_id",
+      "hold_days": "req.hold_days",
+      "new_delivery_date": "add_days(ship.delivery_date, req.hold_days)",
+      "storage_fee": "max(req.hold_days - 2, 0) * term.daily_storage_rate"
+     }
+    }
+   ]
+  },
+  "review_hazmat": {
+   "kind": "perform",
+   "description": "Hazardous shipment at a terminal without hazmat storage: send the request to terminal operations.",
+   "calls": [
+    {
+     "tool": "create_hold_review",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "hold_days": "req.hold_days",
+      "reason": "'hazmat_storage'"
+     }
+    }
+   ]
+  },
+  "review_value": {
+   "kind": "perform",
+   "description": "High-value shipment: send the request to terminal operations.",
+   "calls": [
+    {
+     "tool": "create_hold_review",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "hold_days": "req.hold_days",
+      "reason": "'high_value'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not place the hold; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.account_pin != acct.account_pin",
+   "outcome": "refuse",
+   "explain": "The caller must give the account PIN on file for the account that owns the shipment."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active accounts can place delivery holds; accounts on credit hold or closed cannot."
+  },
+  {
+   "id": "R3",
+   "when": "ship.status not in ['in_transit', 'at_terminal']",
+   "outcome": "refuse",
+   "explain": "Only shipments that are in transit or at the terminal can be held."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(today, ship.delivery_date) < 1",
+   "outcome": "refuse",
+   "explain": "A hold must be requested at least one day before the scheduled delivery date."
+  },
+  {
+   "id": "R5",
+   "when": "req.hold_days < 1 or req.hold_days > term.max_hold_days",
+   "outcome": "refuse",
+   "explain": "The hold must be at least one day and no longer than the destination terminal's maximum hold days."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('delivery_hold', 'account_id', acct.account_id) >= 3",
+   "outcome": "refuse",
+   "explain": "Accounts that already have three or more delivery holds on file cannot place another."
+  },
+  {
+   "id": "R7",
+   "when": "ship.hazmat and not term.hazmat_storage",
+   "outcome": "review_hazmat",
+   "explain": "A hazardous shipment going to a terminal without hazmat storage is sent to terminal operations for review."
+  },
+  {
+   "id": "R8",
+   "when": "ship.declared_value > 50000",
+   "outcome": "review_value",
+   "explain": "A shipment with declared value over 50,000.00 is sent to terminal operations for review."
+  }
+ ],
+ "default_outcome": "hold",
+ "policy_text": "## Purpose\nCustomers may ask us to hold an LTL shipment at its destination terminal for a number of days instead of delivering it on the scheduled date (for example when the receiving dock is closed). This document explains when you may place the hold yourself, when it must go to terminal operations, and when it must be declined.\n\n## Finding the shipment\nUse the PRO number if the customer has it. If not, find the account by the contact email on file, list the account's shipments and ask the customer which one they mean (for example by destination city). Then look up the account that owns the shipment and the shipment's destination terminal yourself; the customer does not need to tell you about them. Make sure you know how many days the customer wants the shipment held; ask if they have not said.\n\n## Verifying the caller\nThe caller must give the 4-digit account PIN of the account that owns the shipment. If the PIN does not match the one on file, or the caller cannot give it, do not make any change.\n\n## Checks, in order\n1. Account: the account must be active. Accounts on credit hold or closed cannot place holds; refer them to Credit and do not place the hold.\n2. Shipment status: only shipments that are in transit or already at the terminal can be held. Shipments that are only booked, out for delivery or delivered cannot be held.\n3. Notice: the hold must be requested at least one day before the scheduled delivery date. If the delivery date is today or already past, decline.\n4. Length: the hold must be at least one day and no more than the destination terminal's maximum hold days (shown on the terminal record). Requests for more are declined, not shortened; the customer may ask again for a length within the limit.\n5. Hold history: list the account's delivery holds. If the account already has three or more delivery holds on file, decline the new hold.\n6. Hazardous materials: if the shipment is marked hazmat and the destination terminal has no hazmat storage, do not place the hold. Send it to terminal operations with a hold review, reason hazmat_storage.\n7. High value: if the shipment's declared value is over 50,000.00, do not place the hold. Send it to terminal operations with a hold review, reason high_value.\nAlways go by what our records show (delivery date, hazmat flag, status, etc.), not by what the caller believes.\n\n## Placing the hold\nIf every check passes, do both of these, in this order:\n1. Reschedule the delivery to the new delivery date = the current delivery date on the shipment record plus the number of hold days.\n2. Record the delivery hold with the account, the hold days, the same new delivery date and the storage fee.\n\nStorage fee: the first 2 hold days are free. Fee = (hold days minus 2, but not less than 0) multiplied by the destination terminal's daily storage rate. Example: 5 days at 60.00 per day = 3 x 60.00 = 180.00; 2 days = 0.00.\n\n## Reviews\nWhen a request goes to terminal operations, create one hold review with the hold days the customer asked for and the reason, and tell the customer the operations desk will contact them. Do not reschedule the delivery in that case.\n\n## Never\nDo not waive or discount storage fees, do not shorten or lengthen a hold the customer did not ask for, do not place holds for callers who failed verification, and do not change anything else on the shipment.",
+ "db_common": {
+  "terminal": [
+   {
+    "terminal_id": "T-DAL",
+    "name": "Dallas South Terminal",
+    "city": "Dallas",
+    "daily_storage_rate": 65.0,
+    "max_hold_days": 7,
+    "hazmat_storage": true
+   },
+   {
+    "terminal_id": "T-MEM",
+    "name": "Memphis Airways Terminal",
+    "city": "Memphis",
+    "daily_storage_rate": 48.5,
+    "max_hold_days": 5,
+    "hazmat_storage": false
+   },
+   {
+    "terminal_id": "T-DEN",
+    "name": "Denver Commerce City Terminal",
+    "city": "Denver",
+    "daily_storage_rate": 55.0,
+    "max_hold_days": 10,
+    "hazmat_storage": false
+   },
+   {
+    "terminal_id": "T-ATL",
+    "name": "Atlanta Forest Park Terminal",
+    "city": "Atlanta",
+    "daily_storage_rate": 60.0,
+    "max_hold_days": 7,
+    "hazmat_storage": true
+   },
+   {
+    "terminal_id": "T-CHI",
+    "name": "Chicago Bedford Park Terminal",
+    "city": "Chicago",
+    "daily_storage_rate": 72.0,
+    "max_hold_days": 5,
+    "hazmat_storage": false
+   }
+  ],
+  "account": [
+   {
+    "account_id": "A-10001",
+    "company_name": "Harbor Point Imports",
+    "contact_email": "logistics@harborpoint.example.com",
+    "account_pin": "9021",
+    "status": "active"
+   }
+  ],
+  "shipment": [
+   {
+    "shipment_id": "PRO-1000457",
+    "account_id": "A-10001",
+    "origin_city": "Savannah",
+    "destination_city": "Atlanta",
+    "destination_terminal_id": "T-ATL",
+    "status": "in_transit",
+    "delivery_date": "2026-05-22",
+    "pieces": 6,
+    "hazmat": false,
+    "declared_value": 9800.0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20417",
+      "company_name": "Brazos Valley Feed & Supply",
+      "contact_email": "orders@brazosfeed.example.com",
+      "account_pin": "4418",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-7741203",
+      "account_id": "A-20417",
+      "origin_city": "Waco",
+      "destination_city": "Memphis",
+      "destination_terminal_id": "T-MEM",
+      "status": "in_transit",
+      "delivery_date": "2026-05-23",
+      "pieces": 12,
+      "hazmat": false,
+      "declared_value": 14200.0
+     },
+     {
+      "shipment_id": "PRO-7739910",
+      "account_id": "A-20417",
+      "origin_city": "Waco",
+      "destination_city": "Atlanta",
+      "destination_terminal_id": "T-ATL",
+      "status": "delivered",
+      "delivery_date": "2026-04-14",
+      "pieces": 8,
+      "hazmat": false,
+      "declared_value": 9600.0
+     },
+     {
+      "shipment_id": "PRO-7740055",
+      "account_id": "A-20417",
+      "origin_city": "Waco",
+      "destination_city": "Dallas",
+      "destination_terminal_id": "T-DAL",
+      "status": "delivered",
+      "delivery_date": "2026-05-02",
+      "pieces": 10,
+      "hazmat": false,
+      "declared_value": 11850.0
+     }
+    ],
+    "delivery_hold": [
+     {
+      "hold_id": "H-5501",
+      "shipment_id": "PRO-7739910",
+      "account_id": "A-20417",
+      "hold_days": 3,
+      "new_delivery_date": "2026-04-14",
+      "storage_fee": 60.0,
+      "created": "2026-04-09"
+     },
+     {
+      "hold_id": "H-5502",
+      "shipment_id": "PRO-7740055",
+      "account_id": "A-20417",
+      "hold_days": 2,
+      "new_delivery_date": "2026-04-30",
+      "storage_fee": 0.0,
+      "created": "2026-04-27"
+     },
+     {
+      "hold_id": "H-5503",
+      "shipment_id": "PRO-7740055",
+      "account_id": "A-20417",
+      "hold_days": 2,
+      "new_delivery_date": "2026-05-02",
+      "storage_fee": 0.0,
+      "created": "2026-04-29"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-7741203",
+    "hold_days": 4
+   },
+   "initial_request_values": {
+    "hold_days": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-7741203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "4418",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Their Atlanta branch received a load from you last month that came in fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "They are thinking about getting a quote for a full truckload of hay bales next month, but not today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The Memphis store manager just went on vacation and the warehouse is being reorganized.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A driver once left a pallet at the wrong door years ago and they still joke about it.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Clint Ramsey, operations manager at a Texas farm-supply chain; chatty, folksy and fond of a good deal.",
+   "reason_for_call": "The company's Memphis store can't receive freight while its warehouse is being reorganized, so he wants the incoming feed shipment held at the terminal.",
+   "task_instructions": "Give the PRO number and the account PIN in your first message and ask for the shipment to be held for 9 days, mentioning some of the side stories along the way. If the agent refuses, ask whether 4 days would work instead. If that is refused too, grumble a little, accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-31158",
+      "company_name": "Peak Line Outdoor Gear",
+      "contact_email": "shipping@peakline.example.com",
+      "account_pin": "7302",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-8102257",
+      "account_id": "A-31158",
+      "origin_city": "Salt Lake City",
+      "destination_city": "Denver",
+      "destination_terminal_id": "T-DEN",
+      "status": "out_for_delivery",
+      "delivery_date": "2026-05-20",
+      "pieces": 9,
+      "hazmat": false,
+      "declared_value": 22400.0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-8102257",
+    "hold_days": 3
+   },
+   "initial_request_values": {
+    "hold_days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-8102257",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "7302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.status",
+     "value": "out_for_delivery",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.delivery_date",
+     "value": "2026-05-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The dispatcher at the Denver terminal texted this morning that their pallets were loaded on today's delivery route.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The delivery confirmation email they got last week said the freight would arrive today.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Maya Okafor, logistics coordinator at an outdoor gear retailer; organized and polite, but second-guesses herself.",
+   "reason_for_call": "Their Denver store's receiving dock is closed for floor resurfacing, so she wants the shipment kept at the terminal for a few days.",
+   "task_instructions": "Start by giving the PRO number, the PIN, and saying the shipment is already out for delivery today; ask for a 6-day hold. Before the agent does anything, change your mind and say 3 days is enough. Mention the dispatcher's text and the confirmation email. If the agent declines, accept politely and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-40982",
+      "company_name": "Gulf Coast Restaurant Supply",
+      "contact_email": "freight@gulfcoastrs.example.com",
+      "account_pin": "1196",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-6650418",
+      "account_id": "A-40982",
+      "origin_city": "Mobile",
+      "destination_city": "Atlanta",
+      "destination_terminal_id": "T-ATL",
+      "status": "at_terminal",
+      "delivery_date": "2026-05-25",
+      "pieces": 14,
+      "hazmat": false,
+      "declared_value": 18400.0
+     },
+     {
+      "shipment_id": "PRO-6649001",
+      "account_id": "A-40982",
+      "origin_city": "Mobile",
+      "destination_city": "Atlanta",
+      "destination_terminal_id": "T-ATL",
+      "status": "delivered",
+      "delivery_date": "2026-03-18",
+      "pieces": 7,
+      "hazmat": false,
+      "declared_value": 8300.0
+     }
+    ],
+    "delivery_hold": [
+     {
+      "hold_id": "H-6120",
+      "shipment_id": "PRO-6649001",
+      "account_id": "A-40982",
+      "hold_days": 2,
+      "new_delivery_date": "2026-03-18",
+      "storage_fee": 0.0,
+      "created": "2026-03-13"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-6650418",
+    "hold_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-6650418",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.delivery_date",
+     "value": "2026-05-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "1196",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dale Fontenot, purchasing lead at a restaurant supplier; blunt and busy, types in fragments.",
+   "reason_for_call": "Their Atlanta customer pushed back an opening, so he wants the kitchen equipment held five days.",
+   "task_instructions": "Very short answers. Say up front: the PRO number, that it's due May 22, and you want it held 5 days. Give the PIN only if asked. If the agent says the date on file differs, just accept it.",
+   "expected_outcome": "hold"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-52260",
+      "company_name": "Lakeshore Medical Imaging",
+      "contact_email": "receiving@lakeshoremi.example.com",
+      "account_pin": "8830",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-2209344",
+      "account_id": "A-52260",
+      "origin_city": "Minneapolis",
+      "destination_city": "Chicago",
+      "destination_terminal_id": "T-CHI",
+      "status": "in_transit",
+      "delivery_date": "2026-05-26",
+      "pieces": 3,
+      "hazmat": false,
+      "declared_value": 78500.0
+     },
+     {
+      "shipment_id": "PRO-2209351",
+      "account_id": "A-52260",
+      "origin_city": "Minneapolis",
+      "destination_city": "Dallas",
+      "destination_terminal_id": "T-DAL",
+      "status": "in_transit",
+      "delivery_date": "2026-05-27",
+      "pieces": 5,
+      "hazmat": false,
+      "declared_value": 6200.0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-2209344",
+    "hold_days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.contact_email",
+     "value": "receiving@lakeshoremi.example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.destination_city",
+     "value": "Chicago",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "8830",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya Raman, facilities manager at a medical imaging company; impatient and under deadline pressure.",
+   "reason_for_call": "The Chicago clinic's installation room isn't ready, so the scanner components must wait at the terminal four more days.",
+   "task_instructions": "You don't have the PRO number; give the company's receiving email and say it's the shipment going to Chicago. Give the PIN when asked. If the agent says it must go to review instead of being held now, push back at least twice demanding it be done immediately, then accept.",
+   "expected_outcome": "review_value"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-61734",
+      "company_name": "Northfield Hardware Co-op",
+      "contact_email": "dock@northfieldhw.example.com",
+      "account_pin": "5067",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-9020876",
+      "account_id": "A-61734",
+      "origin_city": "Tulsa",
+      "destination_city": "Dallas",
+      "destination_terminal_id": "T-DAL",
+      "status": "in_transit",
+      "delivery_date": "2026-05-24",
+      "pieces": 11,
+      "hazmat": false,
+      "declared_value": 15300.0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-9020876",
+    "hold_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-9020876",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "5067",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 10,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gary Lindqvist, store manager at a hardware co-op; short-tempered and used to getting his way.",
+   "reason_for_call": "The Dallas store is being remodeled and can't take the delivery until the work is finished, so he wants the freight kept at the terminal.",
+   "task_instructions": "Give the PRO number and the PIN in your first message and say you want the shipment held at the terminal, without saying for how long. Only when the agent asks how many days, say 10 days. If refused, argue that the remodel can't be rushed and demand an exception at least twice, then accept and end. Do not offer a shorter hold.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-73390",
+      "company_name": "Delta Janitorial Distributors",
+      "contact_email": "traffic@deltajan.example.com",
+      "account_pin": "2954",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-5518832",
+      "account_id": "A-73390",
+      "origin_city": "Little Rock",
+      "destination_city": "Memphis",
+      "destination_terminal_id": "T-MEM",
+      "status": "in_transit",
+      "delivery_date": "2026-05-22",
+      "pieces": 16,
+      "hazmat": true,
+      "declared_value": 12750.0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-5518832",
+    "hold_days": 4
+   },
+   "initial_request_values": {
+    "hold_days": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-5518832",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "2954",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.hazmat",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Renee Batiste, traffic coordinator at a cleaning-supplies distributor; friendly but a little scattered.",
+   "reason_for_call": "Their Memphis customer's dock is being repaired, so she wants the delivery held.",
+   "task_instructions": "Give the PRO number and PIN, say it's just ordinary cleaning supplies and not hazmat, and ask for a 2-day hold. Before the agent acts, say you just heard the repairs will take longer and ask for 4 days instead. If the agent says it must go to operations for review, accept.",
+   "expected_outcome": "review_hazmat"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-84105",
+      "company_name": "Sierra Vista Solar Installers",
+      "contact_email": "projects@sierravistasolar.example.com",
+      "account_pin": "6671",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-4471960",
+      "account_id": "A-84105",
+      "origin_city": "Phoenix",
+      "destination_city": "Dallas",
+      "destination_terminal_id": "T-DAL",
+      "status": "in_transit",
+      "delivery_date": "2026-05-27",
+      "pieces": 20,
+      "hazmat": true,
+      "declared_value": 41200.0
+     },
+     {
+      "shipment_id": "PRO-4471988",
+      "account_id": "A-84105",
+      "origin_city": "Phoenix",
+      "destination_city": "Atlanta",
+      "destination_terminal_id": "T-ATL",
+      "status": "booked",
+      "delivery_date": "2026-06-03",
+      "pieces": 8,
+      "hazmat": false,
+      "declared_value": 17600.0
+     },
+     {
+      "shipment_id": "PRO-4469012",
+      "account_id": "A-84105",
+      "origin_city": "Phoenix",
+      "destination_city": "Dallas",
+      "destination_terminal_id": "T-DAL",
+      "status": "delivered",
+      "delivery_date": "2026-02-11",
+      "pieces": 18,
+      "hazmat": true,
+      "declared_value": 38900.0
+     },
+     {
+      "shipment_id": "PRO-4470233",
+      "account_id": "A-84105",
+      "origin_city": "Phoenix",
+      "destination_city": "Denver",
+      "destination_terminal_id": "T-DEN",
+      "status": "delivered",
+      "delivery_date": "2026-03-30",
+      "pieces": 12,
+      "hazmat": false,
+      "declared_value": 21000.0
+     }
+    ],
+    "delivery_hold": [
+     {
+      "hold_id": "H-7034",
+      "shipment_id": "PRO-4469012",
+      "account_id": "A-84105",
+      "hold_days": 3,
+      "new_delivery_date": "2026-02-11",
+      "storage_fee": 65.0,
+      "created": "2026-02-05"
+     },
+     {
+      "hold_id": "H-7188",
+      "shipment_id": "PRO-4470233",
+      "account_id": "A-84105",
+      "hold_days": 4,
+      "new_delivery_date": "2026-03-30",
+      "storage_fee": 110.0,
+      "created": "2026-03-24"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-4471960",
+    "hold_days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-4471960",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "6671",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "They also have a shipment of mounting racks booked to Atlanta next month, which is fine as scheduled.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A delivery to Denver back in March arrived a day late and the crew had to wait around.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was going to ask for a rate quote on a flatbed load but decided to email sales instead.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Lucia Herrera, project scheduler at a solar installation company; warm, clear and cooperative.",
+   "reason_for_call": "The Dallas job site permit was delayed, so the panel and battery shipment needs to wait at the terminal six days.",
+   "task_instructions": "Give the PRO number and ask for a 6-day hold. Mention the side topics naturally. Give the PIN when asked and accept the storage fee the agent quotes.",
+   "expected_outcome": "hold"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-95021",
+      "company_name": "Front Range Brewing Supply",
+      "contact_email": "ops@frontrangebrew.example.com",
+      "account_pin": "3140",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "PRO-3307802",
+      "account_id": "A-95021",
+      "origin_city": "Albuquerque",
+      "destination_city": "Denver",
+      "destination_terminal_id": "T-DEN",
+      "status": "in_transit",
+      "delivery_date": "2026-05-20",
+      "pieces": 7,
+      "hazmat": false,
+      "declared_value": 13100.0
+     },
+     {
+      "shipment_id": "PRO-3307715",
+      "account_id": "A-95021",
+      "origin_city": "Albuquerque",
+      "destination_city": "Denver",
+      "destination_terminal_id": "T-DEN",
+      "status": "delivered",
+      "delivery_date": "2026-05-19",
+      "pieces": 5,
+      "hazmat": false,
+      "declared_value": 9400.0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "PRO-3307802",
+    "hold_days": 3
+   },
+   "initial_request_values": {
+    "shipment_id": "PRO-3307715",
+    "hold_days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "PRO-3307802",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.hold_days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "3140",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ben Kowalczyk, owner of a homebrew supply wholesaler; easygoing and willing to bargain.",
+   "reason_for_call": "His Denver warehouse is closed for a few days and he wants freight kept at the terminal.",
+   "task_instructions": "Give your PIN and first ask for a 3-day hold on the other shipment (the earlier one). If the agent refuses, ask instead for a 3-day hold on the shipment arriving today, giving its PRO number. If that is also refused, accept and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

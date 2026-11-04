@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Policy names no tool or procedure for fetching transactions (which account/card/deposit to query, whether to ask the customer which product, or list all linked products first).",
+  "'Recent' is undefined: no default time window, number of transactions, or date range relative to the simulation date 2026-07-16.",
+  "No guidance on filtering or searching (by amount, merchant, type, debit/credit, date) or on pagination/sorting order when there are many results.",
+  "Unspecified how to present results: fields shown, formatting, masking of account/card numbers, how many to list, whether to summarize.",
+  "Edge cases not covered: customer asks about an unlinked or another person's account (refuse is stated, but how to handle ambiguity), no transactions found, tool errors, pending vs. posted transactions.",
+  "Disputed or unrecognized transactions: policy does not say whether to proceed to a dispute, raise a service request, freeze/block a card, or escalate, nor in what order.",
+  "Customer may ask follow-ups such as balance, statement download, or fees/charges explanations, so it is unclear when to use the knowledge base versus transaction tools.",
+  "Unspecified whether the customer should be asked clarifying questions or the agent should proactively fetch with defaults.",
+  "Bank conventions for categorizing or labeling transactions (merchant descriptors, internal codes) and how to explain them without exposing internal field names."
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which product the 'renewal change' applies to (term deposit vs recurring deposit vs other) and which tool/action implements it \u2014 policy lists only close_deposit/get_deposit_closure_quote, with no tool named for changing renewal/maturity instructions",
+  "Exact order of steps: KB search first, then look up the customer's deposits, then quote, then the change \u2014 and whether the quote is needed before a renewal change or only before closure",
+  "What 'quote' means here: premature closure quote vs. maturity/renewal value vs. penalty/interest-rate quote; which fields to present (penalty, payout, TDS, net amount)",
+  "Whether the final action is a renewal-instruction change (auto-renew on/off, principal-only vs principal+interest, tenure change), a closure, or no mutation at all if the customer declines",
+  "How 'informed decision' is judged: what must be disclosed (penalty, reduced rate, lock-in, notice period, renewal rate vs current rate) and whether explicit confirmation is required for a renewal change since the policy only lists four confirm-required actions",
+  "Quality threshold for KB results: what score counts as weak, how many refinements to attempt, what category filters exist, and what to do if the KB still doesn't answer",
+  "Customer behavior: may be vague on which deposit, ask for hypotheticals, compare options, change their mind midway, or push for a decision from the assistant",
+  "Edge cases: deposit already matured or within a grace/renewal window relative to the 2026-07-16 date, deposit not linked to the customer, joint holders, lien-marked or pledged deposits, multiple eligible deposits",
+  "Bank conventions: rounding, interest rate/penalty calculation basis, date formats, currency, whether to state that a change is irreversible or can be reverted before maturity",
+  "When to escalate or raise a service request if no tool supports the requested renewal change, versus explaining the policy and declining"
+ ]
+}

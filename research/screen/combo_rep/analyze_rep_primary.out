@@ -1,0 +1,87 @@
+
+######## NEW: 30 replication families: 30 families with real episodes of both agents
+              size   mean
+src    agent             
+real   flash   180  0.272
+       g38     180  0.278
+seeded flash   180  0.239
+       g38     180  0.261
+monitor M1            : AUC 0.679, within family x agent 0.783
+monitor M2 seeded     : AUC 0.846, within family x agent 0.772
+== F=20 h=5 q=0.99: best constant always human 5.20, oracle per family 2.18
+   probes only [seeded    ]                  3.35  vs best -1.85 [-3.19, -0.26]
+   combined [seeded     | M1           ]  3.09  vs best -2.11 [-3.21, -0.90] | vs probes only -0.26 [-0.99, +0.38]  human share 0.33
+   combined [seeded     | M2 seeded    ]  2.56  vs best -2.64 [-3.47, -1.81] | vs probes only -0.78 [-1.99, +0.07]  human share 0.38
+   probes only [seeded+cal]                  3.69  vs best -1.51 [-2.85, +0.13]
+   combined [seeded+cal | M1           ]  3.21  vs best -1.99 [-3.11, -0.77] | vs probes only -0.48 [-1.18, +0.10]  human share 0.33
+   combined [seeded+cal | M2 seeded    ]  2.93  vs best -2.27 [-3.28, -1.15] | vs probes only -0.76 [-2.09, +0.32]  human share 0.37
+== F=20 h=2 q=0.95: best constant always human 3.00, oracle per family 1.40
+   probes only [seeded    ]                  1.85  vs best -1.15 [-1.70, -0.63]
+   combined [seeded     | M1           ]  2.55  vs best -0.45 [-1.35, +0.62] | vs probes only +0.70 [-0.03, +1.58]  human share 0.43
+   combined [seeded     | M2 seeded    ]  1.75  vs best -1.25 [-1.81, -0.70] | vs probes only -0.10 [-0.43, +0.19]  human share 0.43
+   probes only [seeded+cal]                  1.97  vs best -1.03 [-1.65, -0.41]
+   combined [seeded+cal | M1           ]  2.54  vs best -0.46 [-1.44, +0.63] | vs probes only +0.57 [-0.04, +1.37]  human share 0.36
+   combined [seeded+cal | M2 seeded    ]  1.74  vs best -1.26 [-1.82, -0.70] | vs probes only -0.24 [-0.67, +0.12]  human share 0.42
+== F=50 h=5 q=0.99: best constant always human 5.50, oracle per family 2.57
+   probes only [seeded    ]                  3.68  vs best -1.82 [-2.93, -0.71]
+   combined [seeded     | M1           ]  4.66  vs best -0.84 [-2.49, +1.23] | vs probes only +0.98 [-0.47, +2.89]  human share 0.54
+   combined [seeded     | M2 seeded    ]  3.49  vs best -2.01 [-3.14, -0.87] | vs probes only -0.19 [-1.02, +0.49]  human share 0.43
+   probes only [seeded+cal]                  3.97  vs best -1.53 [-2.81, -0.06]
+   combined [seeded+cal | M1           ]  4.76  vs best -0.74 [-2.47, +1.39] | vs probes only +0.79 [-0.72, +2.64]  human share 0.51
+   combined [seeded+cal | M2 seeded    ]  3.49  vs best -2.01 [-3.17, -0.81] | vs probes only -0.48 [-1.66, +0.38]  human share 0.43
+== F=10 h=5 q=0.99: best constant always flash 2.73, oracle per family 1.69
+   probes only [seeded    ]                  2.30  vs best -0.43 [-0.92, -0.05]
+   combined [seeded     | M1           ]  2.32  vs best -0.41 [-1.05, +0.24] | vs probes only +0.02 [-0.47, +0.60]  human share 0.22
+   combined [seeded     | M2 seeded    ]  2.18  vs best -0.54 [-1.35, +0.28] | vs probes only -0.11 [-0.78, +0.59]  human share 0.28
+   probes only [seeded+cal]                  2.59  vs best -0.14 [-0.80, +0.53]
+   combined [seeded+cal | M1           ]  2.50  vs best -0.23 [-0.97, +0.52] | vs probes only -0.10 [-0.48, +0.30]  human share 0.22
+   combined [seeded+cal | M2 seeded    ]  2.44  vs best -0.29 [-1.04, +0.45] | vs probes only -0.16 [-0.57, +0.32]  human share 0.18
+
+######## ALL: 20 earlier + 30 new families: 50 families with real episodes of both agents
+              size   mean
+src    agent             
+doc    flash   120  0.458
+       g38     120  0.308
+real   flash   300  0.320
+       g38     300  0.343
+seeded flash   300  0.260
+       g38     300  0.293
+monitor M1            : AUC 0.694, within family x agent 0.724
+monitor M2 seeded     : AUC 0.853, within family x agent 0.787
+monitor M2 doc+seeded : AUC 0.845, within family x agent 0.762
+== F=20 h=5 q=0.99: best constant always human 5.20, oracle per family 2.44
+   probes only [seeded    ]                  3.47  vs best -1.73 [-2.73, -0.56]
+   combined [seeded     | M1           ]  3.27  vs best -1.93 [-2.77, -1.10] | vs probes only -0.20 [-1.11, +0.58]  human share 0.35
+   combined [seeded     | M2 seeded    ]  3.02  vs best -2.18 [-2.97, -1.34] | vs probes only -0.44 [-1.18, +0.08]  human share 0.36
+   combined [seeded     | M2 doc+seeded]  2.90  vs best -2.30 [-3.04, -1.47] | vs probes only -0.56 [-1.29, -0.02]  human share 0.36
+   probes only [seeded+cal]                  4.01  vs best -1.19 [-2.30, +0.08]
+   combined [seeded+cal | M1           ]  3.27  vs best -1.93 [-2.74, -1.06] | vs probes only -0.74 [-1.58, -0.11]  human share 0.37
+   combined [seeded+cal | M2 seeded    ]  3.23  vs best -1.97 [-2.79, -1.11] | vs probes only -0.78 [-1.62, -0.16]  human share 0.37
+   combined [seeded+cal | M2 doc+seeded]  3.24  vs best -1.96 [-2.77, -1.08] | vs probes only -0.77 [-1.63, -0.09]  human share 0.38
+== F=20 h=2 q=0.95: best constant always human 3.00, oracle per family 1.62
+   probes only [seeded    ]                  2.19  vs best -0.81 [-1.40, -0.14]
+   combined [seeded     | M1           ]  2.45  vs best -0.55 [-1.19, +0.23] | vs probes only +0.26 [-0.12, +0.70]  human share 0.39
+   combined [seeded     | M2 seeded    ]  2.09  vs best -0.91 [-1.51, -0.21] | vs probes only -0.10 [-0.47, +0.31]  human share 0.40
+   combined [seeded     | M2 doc+seeded]  2.09  vs best -0.91 [-1.49, -0.26] | vs probes only -0.11 [-0.35, +0.13]  human share 0.38
+   probes only [seeded+cal]                  2.47  vs best -0.53 [-1.20, +0.22]
+   combined [seeded+cal | M1           ]  2.50  vs best -0.50 [-1.12, +0.25] | vs probes only +0.03 [-0.26, +0.33]  human share 0.42
+   combined [seeded+cal | M2 seeded    ]  2.09  vs best -0.91 [-1.52, -0.22] | vs probes only -0.38 [-0.73, -0.10]  human share 0.40
+   combined [seeded+cal | M2 doc+seeded]  2.23  vs best -0.77 [-1.37, -0.08] | vs probes only -0.24 [-0.71, +0.15]  human share 0.43
+== F=50 h=5 q=0.99: best constant always human 5.50, oracle per family 2.97
+   probes only [seeded    ]                  4.59  vs best -0.91 [-2.24, +0.81]
+   combined [seeded     | M1           ]  5.17  vs best -0.33 [-1.76, +1.42] | vs probes only +0.57 [-0.32, +1.56]  human share 0.48
+   combined [seeded     | M2 seeded    ]  4.55  vs best -0.95 [-2.33, +0.72] | vs probes only -0.04 [-0.87, +0.96]  human share 0.43
+   combined [seeded     | M2 doc+seeded]  4.33  vs best -1.17 [-2.46, +0.44] | vs probes only -0.26 [-0.74, +0.07]  human share 0.45
+   probes only [seeded+cal]                  5.27  vs best -0.23 [-1.85, +1.61]
+   combined [seeded+cal | M1           ]  4.90  vs best -0.60 [-1.85, +0.83] | vs probes only -0.37 [-1.33, +0.58]  human share 0.55
+   combined [seeded+cal | M2 seeded    ]  4.51  vs best -0.99 [-2.36, +0.74] | vs probes only -0.75 [-1.65, -0.01]  human share 0.45
+   combined [seeded+cal | M2 doc+seeded]  3.88  vs best -1.62 [-2.69, -0.36] | vs probes only -1.39 [-2.73, -0.34]  human share 0.52
+== F=10 h=5 q=0.99: best constant always flash 3.21, oracle per family 1.93
+   probes only [seeded    ]                  2.56  vs best -0.65 [-1.27, -0.16]
+   combined [seeded     | M1           ]  2.44  vs best -0.76 [-1.46, -0.13] | vs probes only -0.11 [-0.54, +0.32]  human share 0.25
+   combined [seeded     | M2 seeded    ]  2.45  vs best -0.76 [-1.38, -0.19] | vs probes only -0.11 [-0.37, +0.21]  human share 0.16
+   combined [seeded     | M2 doc+seeded]  2.47  vs best -0.74 [-1.37, -0.17] | vs probes only -0.09 [-0.35, +0.21]  human share 0.18
+   probes only [seeded+cal]                  2.81  vs best -0.39 [-1.11, +0.34]
+   combined [seeded+cal | M1           ]  2.62  vs best -0.59 [-1.32, +0.09] | vs probes only -0.19 [-0.48, +0.08]  human share 0.25
+   combined [seeded+cal | M2 seeded    ]  2.75  vs best -0.46 [-1.17, +0.20] | vs probes only -0.07 [-0.38, +0.21]  human share 0.21
+   combined [seeded+cal | M2 doc+seeded]  2.64  vs best -0.57 [-1.26, +0.06] | vs probes only -0.17 [-0.52, +0.14]  human share 0.18

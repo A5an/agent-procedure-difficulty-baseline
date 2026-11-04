@@ -1,0 +1,4 @@
+17 families complete; real success 0.52
+doc     rho +0.70 [+0.39, +0.82]  Brier skill -0.04  mean |p-real| 0.32  delegate p>=0.9: 65% of cases, success 73%
+pseudo  rho +0.59 [+0.16, +0.89]  Brier skill +0.27  mean |p-real| 0.21  delegate p>=0.9: 47% of cases, success 73%
+H2 Brier skill PSEUDO - DOC: +0.31 [-0.07, +0.82]

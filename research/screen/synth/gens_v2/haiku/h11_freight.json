@@ -1,0 +1,861 @@
+{
+ "procedure_id": "h11_freight",
+ "domain": "freight shipping",
+ "organization": "Keystone Linehaul Freight",
+ "title": "Delivery date changes",
+ "summary": "Move the delivery date of a freight shipment later when the account and the shipment qualify, charging a capped reschedule fee.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Freight customer accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "contact_email": "str",
+    "status": "enum:good_standing|credit_hold|closed",
+    "credit_limit": "number",
+    "balance_due": "number"
+   }
+  },
+  "shipment": {
+   "key": "shipment_id",
+   "description": "Freight shipments booked by accounts",
+   "fields": {
+    "shipment_id": "str",
+    "account_id": "ref:account",
+    "origin_city": "str",
+    "destination_city": "str",
+    "service": "enum:standard|expedited|guaranteed",
+    "status": "enum:booked|in_transit|delivered|cancelled",
+    "delivery_date": "date",
+    "weight_kg": "int",
+    "fee_charged": "number"
+   }
+  },
+  "reschedule_record": {
+   "key": "record_id",
+   "description": "History of delivery date changes and their fees",
+   "fields": {
+    "record_id": "str",
+    "shipment_id": "ref:shipment",
+    "fee": "number",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for staff review of a shipment",
+   "fields": {
+    "request_id": "str",
+    "shipment_id": "ref:shipment",
+    "reason": "enum:credit_hold|customs_hold|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_shipment",
+   "kind": "get",
+   "entity": "shipment",
+   "description": "Look up a shipment by its shipment number."
+  },
+  {
+   "name": "find_shipments_by_route",
+   "kind": "search",
+   "entity": "shipment",
+   "by": [
+    "origin_city",
+    "destination_city"
+   ],
+   "description": "List shipments that run from a given origin city to a given destination city. Use it when the customer does not know the shipment number."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a customer account by its account number. A shipment's account is its account_id."
+  },
+  {
+   "name": "find_reschedules_by_shipment",
+   "kind": "search",
+   "entity": "reschedule_record",
+   "by": [
+    "shipment_id"
+   ],
+   "description": "List the reschedule records already made on a shipment."
+  },
+  {
+   "name": "reschedule_shipment",
+   "kind": "update",
+   "entity": "shipment",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment whose delivery date is moved."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date."
+    },
+    "fee": {
+     "type": "number",
+     "description": "The reschedule fee to add to the shipment."
+    }
+   },
+   "set": {
+    "delivery_date": "args.new_date",
+    "fee_charged": "rec.fee_charged + args.fee"
+   },
+   "description": "Set a new delivery date on a shipment and add the reschedule fee to the shipment's fees charged."
+  },
+  {
+   "name": "create_reschedule_record",
+   "kind": "create",
+   "entity": "reschedule_record",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment that was rescheduled."
+    },
+    "fee": {
+     "type": "number",
+     "description": "The reschedule fee charged."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "fee": "args.fee",
+    "created": "today"
+   },
+   "description": "Record a reschedule on a shipment's history with its fee."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment the review is about."
+    },
+    "reason": {
+     "type": "enum:credit_hold|customs_hold|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff to review a shipment instead of changing it."
+  }
+ ],
+ "request": {
+  "shipment_id": {
+   "type": "ref:shipment",
+   "description": "the shipment you want moved"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the new delivery date you want"
+  }
+ },
+ "claims": {
+  "contact_email": {
+   "type": "str",
+   "description": "the contact email address on your account with us"
+  }
+ },
+ "bindings": [
+  {
+   "name": "shp",
+   "entity": "shipment",
+   "key": "req.shipment_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "shp.account_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the delivery date to the new date, charge the reschedule fee, and record the reschedule.",
+   "calls": [
+    {
+     "tool": "reschedule_shipment",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "new_date": "req.new_date",
+      "fee": "min(300, days_between(shp.delivery_date, req.new_date) * (60 if shp.service == 'guaranteed' else 40 if shp.service == 'expedited' else 25))"
+     }
+    },
+    {
+     "tool": "create_reschedule_record",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "fee": "min(300, days_between(shp.delivery_date, req.new_date) * (60 if shp.service == 'guaranteed' else 40 if shp.service == 'expedited' else 25))"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The account is over its credit limit: open a credit-hold review instead of moving the date.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "reason": "'credit_hold'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not move the delivery date; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.contact_email != acct.contact_email",
+   "outcome": "refuse",
+   "explain": "The caller must give the contact email on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status == 'closed'",
+   "outcome": "refuse",
+   "explain": "Closed accounts cannot reschedule shipments."
+  },
+  {
+   "id": "R3",
+   "when": "shp.status == 'delivered' or shp.status == 'cancelled'",
+   "outcome": "refuse",
+   "explain": "Delivered or cancelled shipments cannot be rescheduled."
+  },
+  {
+   "id": "R4",
+   "when": "req.new_date <= shp.delivery_date",
+   "outcome": "refuse",
+   "explain": "The new delivery date must be later than the current one."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(shp.delivery_date, req.new_date) > 30",
+   "outcome": "refuse",
+   "explain": "A delivery date cannot be moved more than 30 days."
+  },
+  {
+   "id": "R6",
+   "when": "shp.status == 'in_transit' and days_between(shp.delivery_date, req.new_date) > 10",
+   "outcome": "refuse",
+   "explain": "An in-transit shipment can be moved at most 10 days."
+  },
+  {
+   "id": "R7",
+   "when": "db_count('reschedule_record', 'shipment_id', shp.shipment_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A shipment can be rescheduled at most twice."
+  },
+  {
+   "id": "R8",
+   "when": "acct.balance_due > acct.credit_limit",
+   "outcome": "review",
+   "explain": "If the account owes more than its credit limit, open a credit-hold review instead of moving the date."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nOnly the contact on the account can ask to move a delivery date. Every shipment belongs to one account. Before you change anything, identify the shipment, find its account, and confirm the caller's identity: the contact email they give must match the contact email on the account. Capitalisation does not matter. If it does not match, or they cannot give it, make no change.\n\n## Finding the shipment\nUse the shipment number if the customer has it. If not, ask for the origin city and the destination city and list the shipments on that route. If more than one matches, ask for another detail to pick the right one. Do not guess.\n\n## Checks before a reschedule\nRun these checks in this order. The first one that applies decides the outcome.\n1. The contact email must match the account (see above). Otherwise refuse.\n2. Closed accounts cannot reschedule. Refuse.\n3. Delivered or cancelled shipments cannot be rescheduled. Refuse.\n4. The new date must be later than the current delivery date. Earlier or same dates are refused.\n5. A move may be at most 30 days after the current delivery date. Refuse longer moves.\n6. An in-transit shipment may be moved at most 10 days. Refuse longer moves on in-transit shipments.\n7. A shipment can be rescheduled at most twice. Use the reschedule history search to list the records already on the shipment. If there are two or more, refuse.\n8. If the account's balance due is above its credit limit, do not reschedule. Open a credit-hold review request for the shipment instead, and tell the customer that finance will contact them.\n\nIf none of these applies, reschedule the shipment.\n\n## How to reschedule\nDays moved is the new date minus the current delivery date. The daily rate depends on the service: standard 25.00, expedited 40.00, guaranteed 60.00. The fee is days moved times the daily rate, capped at 300.00. Then:\n1. Call reschedule_shipment with the shipment, the new date and the fee. This sets the new delivery date and adds the fee to the shipment.\n2. Call create_reschedule_record with the shipment and the same fee.\n\nTell the customer the new delivery date and the fee.\n\n## Credit-hold review\nWhen check 8 applies, call create_review_request for the shipment with reason credit_hold. Do not move the date.\n\n## Refusals\nExplain the reason in plain words and change nothing. Refusals are final. Do not make exceptions, even when the customer argues.\n\n## Never\nDo not waive or reduce the fee. Do not change the service, status or account of a shipment. Do not reschedule for a caller who failed the identity check. Do not change any shipment the customer did not name.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACC-0100",
+    "company_name": "Ironbridge Packaging",
+    "contact_email": "ops@ironbridgepack.example",
+    "status": "good_standing",
+    "credit_limit": 4000,
+    "balance_due": 0
+   }
+  ],
+  "shipment": [
+   {
+    "shipment_id": "SHP-00100",
+    "account_id": "ACC-0100",
+    "origin_city": "Phoenix",
+    "destination_city": "El Paso",
+    "service": "standard",
+    "status": "delivered",
+    "delivery_date": "2026-05-10",
+    "weight_kg": 1200,
+    "fee_charged": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-4410",
+      "company_name": "Brightwater Foods",
+      "contact_email": "ops@brightwaterfoods.example",
+      "status": "good_standing",
+      "credit_limit": 5000,
+      "balance_due": 1200
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-51203",
+      "account_id": "ACC-4410",
+      "origin_city": "Louisville",
+      "destination_city": "Memphis",
+      "service": "standard",
+      "status": "in_transit",
+      "delivery_date": "2026-05-26",
+      "weight_kg": 2400,
+      "fee_charged": 0
+     },
+     {
+      "shipment_id": "SHP-51204",
+      "account_id": "ACC-4410",
+      "origin_city": "Louisville",
+      "destination_city": "Nashville",
+      "service": "standard",
+      "status": "booked",
+      "delivery_date": "2026-06-02",
+      "weight_kg": 800,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-51203",
+    "new_date": "2026-06-08"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-51203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "ops@brightwaterfoods.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Our other truck for Nashville is still booked for June 2, and that one is fine as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We had a billing question last month, but someone on your side already closed it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The dock team is asking for a new pallet jack, which has nothing to do with this.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "shipment_id": "SHP-51203",
+    "new_date": "2026-07-20"
+   },
+   "persona": "Carlos, a logistics coordinator at a food distributor. Polite but firm, and short on time.",
+   "reason_for_call": "The warehouse is short-staffed and he wants the Memphis load pushed back for a while.",
+   "task_instructions": "Give the shipment number and the contact email in your first message. Ask first for a new delivery date of July 20. When the agent refuses, say you need June 8 instead and will accept no other date. Once the agent has refused that too, accept the decision and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-5582",
+      "company_name": "Northgate Pharma Logistics",
+      "contact_email": "dispatch@northgatepharma.example",
+      "status": "good_standing",
+      "credit_limit": 9000,
+      "balance_due": 0
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-62018",
+      "account_id": "ACC-5582",
+      "origin_city": "Toledo",
+      "destination_city": "Savannah",
+      "service": "guaranteed",
+      "status": "booked",
+      "delivery_date": "2026-05-28",
+      "weight_kg": 3100,
+      "fee_charged": 180.0
+     }
+    ],
+    "reschedule_record": [
+     {
+      "record_id": "RS-7301",
+      "shipment_id": "SHP-62018",
+      "fee": 60.0,
+      "created": "2026-04-02"
+     },
+     {
+      "record_id": "RS-7302",
+      "shipment_id": "SHP-62018",
+      "fee": 120.0,
+      "created": "2026-05-01"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-62018",
+    "new_date": "2026-06-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-62018",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "dispatch@northgatepharma.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.status",
+     "value": "booked",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.service",
+     "value": "guaranteed",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It is the pharmaceutical load going to Savannah, and we chose the guaranteed service for it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "We have already moved this same shipment twice this spring, so I want to be sure it is still allowed.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "shipment_id": "SHP-62018",
+    "new_date": "2026-06-03"
+   },
+   "persona": "Helen, a dispatch manager at a pharmaceutical distributor. Organised and precise.",
+   "reason_for_call": "The receiving site asked for a later delivery and she wants the date changed.",
+   "task_instructions": "Give the shipment number, the contact email, the guaranteed service and that the shipment is still booked in your first message. Ask first for June 3. As soon as the agent starts checking, change your mind before anything is done and ask for June 10 instead. Accept whatever the agent decides and be polite.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-3348",
+      "company_name": "Calder Steel Imports",
+      "contact_email": "traffic@caldersteel.example",
+      "status": "good_standing",
+      "credit_limit": 5000,
+      "balance_due": 6400
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-33907",
+      "account_id": "ACC-3348",
+      "origin_city": "Monterrey",
+      "destination_city": "Laredo",
+      "service": "expedited",
+      "status": "booked",
+      "delivery_date": "2026-05-29",
+      "weight_kg": 1800,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-33907",
+    "new_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-33907",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "traffic@caldersteel.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 4200,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mateo, a dispatcher who types very short messages and assumes the account is in good order.",
+   "reason_for_call": "He wants the Laredo load moved to June 2.",
+   "task_instructions": "Answer in under ten words. Give the shipment number, the new date and the contact email in your first message. You believe the account balance is about 4,200. Accept whatever the agent decides.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-7015",
+      "company_name": "Summit Crane Rentals",
+      "contact_email": "accounts@summitcrane.example",
+      "status": "good_standing",
+      "credit_limit": 2000,
+      "balance_due": 0
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-70152",
+      "account_id": "ACC-7015",
+      "origin_city": "Reno",
+      "destination_city": "Tacoma",
+      "service": "standard",
+      "status": "booked",
+      "delivery_date": "2026-05-24",
+      "weight_kg": 1500,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-70152",
+    "new_date": "2026-05-27"
+   },
+   "customer_facts": [
+    {
+     "fact": "shp.origin_city",
+     "value": "Reno",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.destination_city",
+     "value": "Tacoma",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "accounts@summitcrane.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dev, a crane-rental operator who is in a hurry and irritated by phone menus.",
+   "reason_for_call": "A crane is not ready for the Tacoma delivery and he needs the date pushed a few days.",
+   "task_instructions": "You do not have the shipment number. Give the origin city and destination city first, then the new date and the contact email. Push the agent to act quickly and keep repeating that you are in a hurry. Accept the result once it is done.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-6620",
+      "company_name": "Pinecrest Medical Supply",
+      "contact_email": "logistics@pinecrestmed.example",
+      "status": "good_standing",
+      "credit_limit": 4000,
+      "balance_due": 900
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-66203",
+      "account_id": "ACC-6620",
+      "origin_city": "Dallas",
+      "destination_city": "Little Rock",
+      "service": "standard",
+      "status": "booked",
+      "delivery_date": "2026-05-25",
+      "weight_kg": 600,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-66203",
+    "new_date": "2026-07-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-66203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-07-01",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "logistics@pinecrestmed.example",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ruth, a purchasing agent at a medical supplier. Impatient and used to getting her way.",
+   "reason_for_call": "Her hospital customer wants the Little Rock delivery pushed out to early July.",
+   "task_instructions": "Give the shipment number in your first message. Do not give the new date or the contact email until the agent asks for each one; when asked, answer with them. If the agent refuses the date, argue that the hospital insists and ask for an exception at least twice before you accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1187",
+      "company_name": "Prairie Hollow Dairy",
+      "contact_email": "dispatch@prairiehollow.example",
+      "status": "good_standing",
+      "credit_limit": 3000,
+      "balance_due": 1500
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-11874",
+      "account_id": "ACC-1187",
+      "origin_city": "Chicago",
+      "destination_city": "Newark",
+      "service": "standard",
+      "status": "booked",
+      "delivery_date": "2026-05-27",
+      "weight_kg": 2200,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-11874",
+    "new_date": "2026-06-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-11874",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "dispatch@prairiehollow.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "shp.status",
+     "value": "in_transit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "shipment_id": "SHP-11874",
+    "new_date": "2026-06-01"
+   },
+   "persona": "Nadia, who runs dispatch for a dairy. Friendly but scattered.",
+   "reason_for_call": "The Newark load needs to go out later than planned.",
+   "task_instructions": "Give the shipment number, the contact email and the belief that the truck already left the plant in your first message. Ask first for June 1. Once the agent starts checking, change your mind before anything is done and ask for June 10 instead. Accept the decision and end the call.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-8842",
+      "company_name": "Vantage Lumber Co",
+      "contact_email": "shipping@vantagelumber.example",
+      "status": "good_standing",
+      "credit_limit": 7500,
+      "balance_due": 2100
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-88421",
+      "account_id": "ACC-8842",
+      "origin_city": "Atlanta",
+      "destination_city": "Charlotte",
+      "service": "guaranteed",
+      "status": "booked",
+      "delivery_date": "2026-06-05",
+      "weight_kg": 4100,
+      "fee_charged": 45.0
+     },
+     {
+      "shipment_id": "SHP-88427",
+      "account_id": "ACC-8842",
+      "origin_city": "Atlanta",
+      "destination_city": "Raleigh",
+      "service": "standard",
+      "status": "booked",
+      "delivery_date": "2026-06-11",
+      "weight_kg": 900,
+      "fee_charged": 0
+     }
+    ],
+    "reschedule_record": [
+     {
+      "record_id": "RS-8801",
+      "shipment_id": "SHP-88421",
+      "fee": 45.0,
+      "created": "2026-04-20"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-88421",
+    "new_date": "2026-06-09"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-88421",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "shipping@vantagelumber.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "We are thinking about switching to a new lumber supplier next year, but that is not part of this call.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Our forklift was serviced last week and it is working well.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The Raleigh shipment is fine, so please do not touch that one.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a procurement lead who answers clearly and quickly.",
+   "reason_for_call": "The Charlotte load needs four more days because the job site is delayed.",
+   "task_instructions": "Give the shipment number, the new date and the contact email in your first message. Answer the agent's questions helpfully. Accept the result and thank the agent.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2291",
+      "company_name": "Harbor Point Cold Storage",
+      "contact_email": "ops@harborpointcold.example",
+      "status": "good_standing",
+      "credit_limit": 3000,
+      "balance_due": 0
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "SHP-22913",
+      "account_id": "ACC-2291",
+      "origin_city": "Seattle",
+      "destination_city": "Portland",
+      "service": "expedited",
+      "status": "booked",
+      "delivery_date": "2026-06-04",
+      "weight_kg": 900,
+      "fee_charged": 0
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "SHP-22913",
+    "new_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "SHP-22913",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "ops@harborpointcold.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "shipment_id": "SHP-22913",
+    "new_date": "2026-07-20"
+   },
+   "persona": "Marcus, a warehouse manager at a cold-storage firm. Direct and a little stressed.",
+   "reason_for_call": "A refrigeration unit is down and he wants to change the Portland delivery date.",
+   "task_instructions": "Give the shipment number, the contact email and the new date in your first message. Ask first for July 20. When the agent refuses, ask for June 1 instead, since you want the load earlier. Accept the decision once it is refused and end the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

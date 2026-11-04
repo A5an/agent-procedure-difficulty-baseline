@@ -1,0 +1,2 @@
+features ['probe_rate', 'is_g38', 'n_profile', 'n_login_context', 'n_accounts', 'n_deposits', 'n_loans', 'n_cards', 'n_mandates', 'n_insurance', 'n_requests', 'n_offers', 'size']
+within family x agent AUC from customer records + probe rate: 0.513 over 50 cells; pooled AUC 0.766 (probe rate alone 0.821)

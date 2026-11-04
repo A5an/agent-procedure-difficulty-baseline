@@ -1,0 +1,786 @@
+{
+ "F=20 U=0 human=$2 q=0.95": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 6.007827527
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 6.174821730833333
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 3.354183216333333
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 3.8905829899333333
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 4.438096488
+  },
+  {
+   "policy": "human",
+   "success": 0.95,
+   "unsafe": 0.025000000000000022,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 3.000000000000001
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.853,
+   "unsafe": 0.035666666666666666,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 3.243916323266667
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8263333333333334,
+   "unsafe": 0.04366666666666667,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 3.791429821333333
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7616666666666667,
+   "unsafe": 0.06333333333333332,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 5.015982591166667
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7566666666666666,
+   "unsafe": 0.05566666666666668,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 5.015281571066667
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8456666666666667,
+   "unsafe": 0.04066666666666666,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 3.168738240666667
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8496666666666667,
+   "unsafe": 0.04266666666666667,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 3.1820107433333336
+  }
+ ],
+ "F=20 U=0 human=$2 q=0.99": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 6.007827527
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 6.174821730833333
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 3.354183216333333
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 3.8905829899333333
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 4.438096488
+  },
+  {
+   "policy": "human",
+   "success": 0.99,
+   "unsafe": 0.0050000000000000044,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 2.2
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.8586,
+   "unsafe": 0.033800000000000004,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 3.1319163232666667
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8319333333333333,
+   "unsafe": 0.04073333333333333,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 3.6794298213333336
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7656666666666667,
+   "unsafe": 0.060666666666666653,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 4.935982591166666
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7593333333333334,
+   "unsafe": 0.05379999999999999,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 4.961948237733332
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8464666666666667,
+   "unsafe": 0.04013333333333333,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 3.1527382406666664
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8526,
+   "unsafe": 0.04053333333333333,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 3.1233440766666667
+  }
+ ],
+ "F=20 U=0 human=$5 q=0.95": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 6.007827527
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 6.174821730833333
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 3.354183216333333
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 3.8905829899333333
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 4.438096488
+  },
+  {
+   "policy": "human",
+   "success": 0.95,
+   "unsafe": 0.025000000000000022,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 6.000000000000001
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.853,
+   "unsafe": 0.035666666666666666,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 3.6639163232666667
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8263333333333334,
+   "unsafe": 0.04366666666666667,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 4.211429821333333
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7616666666666667,
+   "unsafe": 0.06333333333333332,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 5.315982591166667
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7566666666666666,
+   "unsafe": 0.05566666666666668,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 5.215281571066667
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8456666666666667,
+   "unsafe": 0.04066666666666666,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 3.228738240666667
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8496666666666667,
+   "unsafe": 0.04266666666666667,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 3.4020107433333333
+  }
+ ],
+ "F=20 U=0 human=$5 q=0.99": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 6.007827527
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 6.174821730833333
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 3.354183216333333
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 3.8905829899333333
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 4.438096488
+  },
+  {
+   "policy": "human",
+   "success": 0.99,
+   "unsafe": 0.0050000000000000044,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 5.2
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.8586,
+   "unsafe": 0.033800000000000004,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 3.5519163232666666
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8319333333333333,
+   "unsafe": 0.04073333333333333,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 4.099429821333334
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7656666666666667,
+   "unsafe": 0.060666666666666653,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 5.235982591166666
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7593333333333334,
+   "unsafe": 0.05379999999999999,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 5.161948237733332
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8464666666666667,
+   "unsafe": 0.04013333333333333,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 3.2127382406666665
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8526,
+   "unsafe": 0.04053333333333333,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 3.343344076666667
+  }
+ ],
+ "F=20 U=200 human=$2 q=0.95": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 24.674494193666668
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 28.841488397499997
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 11.354183216333332
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 13.223916323266668
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 15.104763154666667
+  },
+  {
+   "policy": "human",
+   "success": 0.95,
+   "unsafe": 0.025000000000000022,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 8.000000000000005
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.853,
+   "unsafe": 0.035666666666666666,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 10.3772496566
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8263333333333334,
+   "unsafe": 0.04366666666666667,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 12.524763154666667
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7616666666666667,
+   "unsafe": 0.06333333333333332,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 17.682649257833333
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7566666666666666,
+   "unsafe": 0.05566666666666668,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 16.148614904400002
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8456666666666667,
+   "unsafe": 0.04066666666666666,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 11.302071574
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8496666666666667,
+   "unsafe": 0.04266666666666667,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 11.715344076666668
+  }
+ ],
+ "F=20 U=200 human=$2 q=0.99": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 24.674494193666668
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 28.841488397499997
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 11.354183216333332
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 13.223916323266668
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 15.104763154666667
+  },
+  {
+   "policy": "human",
+   "success": 0.99,
+   "unsafe": 0.0050000000000000044,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 3.200000000000001
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.8586,
+   "unsafe": 0.033800000000000004,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 9.891916323266667
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8319333333333333,
+   "unsafe": 0.04073333333333333,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 11.826096488000001
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7656666666666667,
+   "unsafe": 0.060666666666666653,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 17.069315924499996
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7593333333333334,
+   "unsafe": 0.05379999999999999,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 15.72194823773333
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8464666666666667,
+   "unsafe": 0.04013333333333333,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 11.179404907333334
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8526,
+   "unsafe": 0.04053333333333333,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 11.230010743333333
+  }
+ ],
+ "F=20 U=200 human=$5 q=0.95": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 24.674494193666668
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 28.841488397499997
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 11.354183216333332
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 13.223916323266668
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 15.104763154666667
+  },
+  {
+   "policy": "human",
+   "success": 0.95,
+   "unsafe": 0.025000000000000022,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 11.000000000000005
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.853,
+   "unsafe": 0.035666666666666666,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 10.7972496566
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8263333333333334,
+   "unsafe": 0.04366666666666667,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 12.944763154666667
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7616666666666667,
+   "unsafe": 0.06333333333333332,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 17.98264925783333
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7566666666666666,
+   "unsafe": 0.05566666666666668,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 16.3486149044
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8456666666666667,
+   "unsafe": 0.04066666666666666,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 11.362071574
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8496666666666667,
+   "unsafe": 0.04266666666666667,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 11.935344076666668
+  }
+ ],
+ "F=20 U=200 human=$5 q=0.99": [
+  {
+   "policy": "flash",
+   "success": 0.7,
+   "unsafe": 0.09333333333333334,
+   "api_usd": 0.007827526999999999,
+   "human_share": 0.0,
+   "loss": 24.674494193666668
+  },
+  {
+   "policy": "pro",
+   "success": 0.6933333333333334,
+   "unsafe": 0.11333333333333333,
+   "api_usd": 0.041488397499999996,
+   "human_share": 0.0,
+   "loss": 28.841488397499997
+  },
+  {
+   "policy": "g38",
+   "success": 0.8333333333333334,
+   "unsafe": 0.04,
+   "api_usd": 0.020849883000000003,
+   "human_share": 0.0,
+   "loss": 11.354183216333332
+  },
+  {
+   "policy": "flash>pro",
+   "success": 0.8066666666666666,
+   "unsafe": 0.04666666666666667,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.0,
+   "loss": 13.223916323266668
+  },
+  {
+   "policy": "pro>flash",
+   "success": 0.78,
+   "unsafe": 0.05333333333333334,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.0,
+   "loss": 15.104763154666667
+  },
+  {
+   "policy": "human",
+   "success": 0.99,
+   "unsafe": 0.0050000000000000044,
+   "api_usd": 0.0,
+   "human_share": 1.0,
+   "loss": 6.200000000000001
+  },
+  {
+   "policy": "gate+human:flash>pro",
+   "success": 0.8586,
+   "unsafe": 0.033800000000000004,
+   "api_usd": 0.023916323266666664,
+   "human_share": 0.14,
+   "loss": 10.311916323266667
+  },
+  {
+   "policy": "gate+human:pro>flash",
+   "success": 0.8319333333333333,
+   "unsafe": 0.04073333333333333,
+   "api_usd": 0.038096488000000005,
+   "human_share": 0.14,
+   "loss": 12.246096488
+  },
+  {
+   "policy": "2x+human:flash|pro",
+   "success": 0.7656666666666667,
+   "unsafe": 0.060666666666666653,
+   "api_usd": 0.049315924500000004,
+   "human_share": 0.1,
+   "loss": 17.369315924499997
+  },
+  {
+   "policy": "2x+human:flash|flash (5 Oct)",
+   "success": 0.7593333333333334,
+   "unsafe": 0.05379999999999999,
+   "api_usd": 0.015281571066666666,
+   "human_share": 0.06666666666666667,
+   "loss": 15.92194823773333
+  },
+  {
+   "policy": "2x+human:g38|g38 (5 Oct)",
+   "success": 0.8464666666666667,
+   "unsafe": 0.04013333333333333,
+   "api_usd": 0.04207157400000001,
+   "human_share": 0.02,
+   "loss": 11.239404907333334
+  },
+  {
+   "policy": "2x+human:g38|flash",
+   "success": 0.8526,
+   "unsafe": 0.04053333333333333,
+   "api_usd": 0.02867741,
+   "human_share": 0.07333333333333333,
+   "loss": 11.450010743333333
+  }
+ ]
+}

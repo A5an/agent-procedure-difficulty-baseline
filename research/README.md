@@ -4,6 +4,20 @@ This folder holds the methods we built on top of the baseline in this repository
 reports of every experiment round. The baseline itself (Agent psychometrics + 18 ADeLe levels, pooled ρ 0.131) and the
 evaluation protocol are unchanged; see `../EVALUATION_PROTOCOL.md`.
 
+## November 2-4: from features to probe runs
+
+The feature-engineering line above tops out at rho 0.2-0.35. From November 2 the work moved to running similar tasks
+("probes") and turning their outcomes into a calibrated success percentage, plus a router over agent / agent with
+escalation / human. Overview, table of all experiments and how to rerun: `screen/CONTEXT_2026-11-04.md` (Russian).
+Each experiment folder has a `PREREG.md` written before the run and a `REPORT.md`: `mf`, `e8x`, `tib`, `tib/seeded`,
+`monitor`, `autonomy`, `synth`, `combo`, `combo_rep`, `metrics`, `calib`, `pimprove`, `seqtest`, `caseknn`, `docgap`,
+`transfer_agents`, `claude_agent`.
+
+Main results: probes written from past conversations give a calibrated percentage (delegating at predicted >= 90%
+gives 91-96% success among delegated cases); a router that adds a monitor trained on the probe episodes beats "always
+human" by about $2.3 per case on TauIndianBankBench, replicated on 30 unseen families; documentation-only probes remain
+the open problem.
+
 ## Results
 
 Pooled within-domain Spearman ρ over the four new-process scenarios (SOPBench and τ², new procedures and new domain).

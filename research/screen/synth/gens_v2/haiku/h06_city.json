@@ -1,0 +1,877 @@
+{
+ "procedure_id": "h06_city",
+ "domain": "city tax office",
+ "organization": "Calder Falls City Tax Office",
+ "title": "Property tax installment extensions",
+ "summary": "Move the due date of one property tax installment later by a requested number of days when the taxpayer and the account qualify.",
+ "entities": {
+  "taxpayer": {
+   "key": "taxpayer_id",
+   "description": "Property owners registered with the tax office",
+   "fields": {
+    "taxpayer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "account_status": "enum:good|delinquent|closed",
+    "extensions_used": "int"
+   }
+  },
+  "property": {
+   "key": "property_id",
+   "description": "Taxable properties and their owners",
+   "fields": {
+    "property_id": "str",
+    "owner_id": "ref:taxpayer",
+    "address": "str",
+    "lien_filed": "bool"
+   }
+  },
+  "installment": {
+   "key": "installment_id",
+   "description": "Scheduled payments of property tax on a property",
+   "fields": {
+    "installment_id": "str",
+    "property_id": "ref:property",
+    "due_date": "date",
+    "amount": "number",
+    "paid": "bool",
+    "extensions": "int"
+   }
+  },
+  "notice": {
+   "key": "notice_id",
+   "description": "Letters sent to taxpayers about their installments",
+   "fields": {
+    "notice_id": "str",
+    "installment_id": "ref:installment",
+    "kind": "enum:extension_granted|payment_reminder",
+    "sent_on": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_taxpayer",
+   "kind": "get",
+   "entity": "taxpayer",
+   "description": "Look up a taxpayer by taxpayer number."
+  },
+  {
+   "name": "find_taxpayers_by_email",
+   "kind": "search",
+   "entity": "taxpayer",
+   "by": [
+    "email"
+   ],
+   "description": "Find taxpayers by the email address on their account."
+  },
+  {
+   "name": "get_property",
+   "kind": "get",
+   "entity": "property",
+   "description": "Look up a property by its property number."
+  },
+  {
+   "name": "find_properties_by_address",
+   "kind": "search",
+   "entity": "property",
+   "by": [
+    "address"
+   ],
+   "description": "Find properties by their street address."
+  },
+  {
+   "name": "get_installment",
+   "kind": "get",
+   "entity": "installment",
+   "description": "Look up an installment by its installment number."
+  },
+  {
+   "name": "find_installments_by_property",
+   "kind": "search",
+   "entity": "installment",
+   "by": [
+    "property_id"
+   ],
+   "description": "List all installments scheduled for a property."
+  },
+  {
+   "name": "extend_installment",
+   "kind": "update",
+   "entity": "installment",
+   "args": {
+    "installment_id": {
+     "type": "ref:installment",
+     "description": "The installment whose due date is moved."
+    },
+    "new_due_date": {
+     "type": "date",
+     "description": "The new due date for the installment."
+    }
+   },
+   "set": {
+    "due_date": "args.new_due_date",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Set a new due date on an installment and count one extension against it."
+  },
+  {
+   "name": "record_taxpayer_extension",
+   "kind": "update",
+   "entity": "taxpayer",
+   "args": {
+    "taxpayer_id": {
+     "type": "ref:taxpayer",
+     "description": "The taxpayer who owns the installment."
+    }
+   },
+   "set": {
+    "extensions_used": "rec.extensions_used + 1"
+   },
+   "description": "Count one extension against the taxpayer's account."
+  },
+  {
+   "name": "create_notice",
+   "kind": "create",
+   "entity": "notice",
+   "args": {
+    "installment_id": {
+     "type": "ref:installment",
+     "description": "The installment the notice is about."
+    },
+    "kind": {
+     "type": "enum:extension_granted|payment_reminder",
+     "description": "Which letter to send."
+    }
+   },
+   "fields": {
+    "installment_id": "args.installment_id",
+    "kind": "args.kind",
+    "sent_on": "today"
+   },
+   "description": "Queue a letter to the taxpayer about an installment."
+  }
+ ],
+ "request": {
+  "installment_id": {
+   "type": "ref:installment",
+   "description": "the property tax installment whose due date you want moved later"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many days later you want the due date moved"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "installment",
+   "entity": "installment",
+   "key": "req.installment_id"
+  },
+  {
+   "name": "property",
+   "entity": "property",
+   "key": "installment.property_id"
+  },
+  {
+   "name": "taxpayer",
+   "entity": "taxpayer",
+   "key": "property.owner_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Move the installment's due date by the requested days, count the extension on the installment and the taxpayer, and queue an extension letter.",
+   "calls": [
+    {
+     "tool": "extend_installment",
+     "args": {
+      "installment_id": "installment.installment_id",
+      "new_due_date": "add_days(installment.due_date, req.days)"
+     }
+    },
+    {
+     "tool": "record_taxpayer_extension",
+     "args": {
+      "taxpayer_id": "taxpayer.taxpayer_id"
+     }
+    },
+    {
+     "tool": "create_notice",
+     "args": {
+      "installment_id": "installment.installment_id",
+      "kind": "'extension_granted'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change anything; explain which check the request failed.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != taxpayer.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the taxpayer account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "taxpayer.account_status != 'good'",
+   "outcome": "refuse",
+   "explain": "Only taxpayers whose account status is good can have an installment extended."
+  },
+  {
+   "id": "R3",
+   "when": "property.lien_filed",
+   "outcome": "refuse",
+   "explain": "No installment on a property with a filed tax lien can be extended."
+  },
+  {
+   "id": "R4",
+   "when": "installment.paid",
+   "outcome": "refuse",
+   "explain": "A paid installment cannot be extended."
+  },
+  {
+   "id": "R5",
+   "when": "installment.extensions >= 1",
+   "outcome": "refuse",
+   "explain": "Each installment can be extended at most once."
+  },
+  {
+   "id": "R6",
+   "when": "req.days > 30",
+   "outcome": "refuse",
+   "explain": "A request for more than 30 days is refused."
+  },
+  {
+   "id": "R7",
+   "when": "taxpayer.extensions_used >= 3",
+   "outcome": "refuse",
+   "explain": "A taxpayer may use at most three extensions in total across all installments on the account."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who can ask\nProperty owners can ask to move the due date of one property tax installment later, by phone or at the counter. Before anything is changed, identify the installment and confirm the caller is the owner of record. Find the installment, the property it belongs to and the taxpayer who owns that property. The date of birth the caller gives must match the date of birth on the taxpayer account. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the installment\nUse the installment number if the caller has it. Otherwise find the property by the street address it is on, list the installments scheduled for that property, and ask which one they mean, using its due date or amount. Do not guess between installments.\n\n## Checks before an extension\nUse what the records show, not what the caller remembers. Check the following in order. If any check fails, make no change and tell the caller which check failed.\n1. The date of birth given must match the taxpayer account.\n2. The taxpayer's account status must be good. Delinquent or closed accounts cannot have installments extended; refer the caller to the collections desk.\n3. The property must not have a tax lien filed against it. If a lien has been filed, no installment on that property can be extended; refer the caller to the collections desk.\n4. The installment must not already be paid.\n5. The installment must not have been extended before. Each installment can be extended once.\n6. The caller may ask for 30 days or fewer. Requests for more than 30 days are declined, not reduced to 30.\n7. The taxpayer may use at most three extensions in total across all installments on the account. If the account has already used three or more, decline.\n\n## When all checks pass\nCompute the new due date by adding the requested number of days to the installment's current due date. Then:\n- Set the installment's due date to the new date. This counts one extension against the installment.\n- Count one extension against the taxpayer's account.\n- Queue an extension_granted letter for the installment.\nTell the caller the new due date.\n\n## Never\nDo not waive, reduce or refund interest or penalties. Do not extend an installment for a caller who failed the identity check. Do not change any date other than the requested due date. Do not extend an installment you have not been able to identify.",
+ "db_common": {
+  "taxpayer": [
+   {
+    "taxpayer_id": "T-0412",
+    "full_name": "Ruth Abernathy",
+    "email": "ruth.abernathy@example.org",
+    "birth_date": "1949-05-22",
+    "account_status": "good",
+    "extensions_used": 0
+   }
+  ],
+  "property": [
+   {
+    "property_id": "P-0412",
+    "owner_id": "T-0412",
+    "address": "301 Pinecrest Road",
+    "lien_filed": false
+   }
+  ],
+  "installment": [
+   {
+    "installment_id": "I-0412",
+    "property_id": "P-0412",
+    "due_date": "2026-06-30",
+    "amount": 540.0,
+    "paid": false,
+    "extensions": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-3187",
+      "full_name": "Marisol Quintero",
+      "email": "marisol.quintero@example.org",
+      "birth_date": "1976-06-09",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-5521",
+      "owner_id": "T-3187",
+      "address": "218 Harbor Lane",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-7713",
+      "property_id": "P-5521",
+      "due_date": "2026-06-12",
+      "amount": 1840.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-7713",
+    "days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-7713",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 45,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1976-06-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "installment.paid",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bill is the second-half property tax for the house on Harbor Lane.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The first half was paid in January through the online portal.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The reminder letter came in the mail last week with the amount printed on it.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "installment_id": "I-7713",
+    "days": 14
+   },
+   "persona": "Marisol, a pharmacist who keeps her paperwork sorted by month. Polite and quick.",
+   "reason_for_call": "She wants to push back the second-half property tax payment so she can cover it after a bonus comes in.",
+   "task_instructions": "In your first message, ask to move the due date on your second-half property tax installment for the house on Harbor Lane. Give the installment number and your date of birth, and say you have not paid it yet. Your first request is 14 extra days. Before the agent makes any change, switch your request to 45 days and mention the bonus. Accept whatever the agent decides.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-4420",
+      "full_name": "Darius Venn",
+      "email": "darius.venn@example.org",
+      "birth_date": "1988-01-27",
+      "account_status": "good",
+      "extensions_used": 1
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-6038",
+      "owner_id": "T-4420",
+      "address": "77 Quarry Road",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-8805",
+      "property_id": "P-6038",
+      "due_date": "2026-06-30",
+      "amount": 620.4,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-8805",
+    "days": 20
+   },
+   "initial_request_values": {
+    "installment_id": "I-8805",
+    "days": 60
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-8805",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 20,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-01-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "installment.extensions",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Darius, a warehouse supervisor who handles the household bills and is sure the county already gave him a break on this one.",
+   "reason_for_call": "He wants more time on the summer installment for the house on Quarry Road.",
+   "task_instructions": "Open by asking for 60 extra days on the summer installment for the house on Quarry Road, giving the installment number and your date of birth. When the agent refuses, ask for 20 days instead. Say you got an extension on this bill last fall and insist on it if the agent checks. Accept the agent's answer once it has been made.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-5079",
+      "full_name": "Kiran Dhillon",
+      "email": "kiran.dhillon@example.org",
+      "birth_date": "1992-10-03",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-7140",
+      "owner_id": "T-5079",
+      "address": "9 Beacon Terrace",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-9302",
+      "property_id": "P-7140",
+      "due_date": "2026-07-01",
+      "amount": 975.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-9302",
+    "days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-9302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-10-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kiran, a delivery driver who is always between shifts and short on time.",
+   "reason_for_call": "He wants three more weeks to pay the summer property tax on Beacon Terrace.",
+   "task_instructions": "Say everything in your first message: the installment number, your date of birth, and that you want 21 more days. If the agent asks you to wait or asks for anything you have not already given, say you are in a hurry and repeat the request. Keep pressing for the change until it is made.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-6612",
+      "full_name": "Edith Morrow",
+      "email": "edith.morrow@example.org",
+      "birth_date": "1957-12-08",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-8227",
+      "owner_id": "T-6612",
+      "address": "41 Orchard Hill Drive",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-5501",
+      "property_id": "P-8227",
+      "due_date": "2026-03-15",
+      "amount": 1210.0,
+      "paid": true,
+      "extensions": 0
+     },
+     {
+      "installment_id": "I-5502",
+      "property_id": "P-8227",
+      "due_date": "2026-06-20",
+      "amount": 1210.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-5501",
+    "days": 14
+   },
+   "initial_request_values": {
+    "installment_id": "I-5502",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-5501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1957-12-08",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "installment.paid",
+     "value": true,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I have lived on Orchard Hill Drive since 2011.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister in Dayton is also asking about a tax bill for her flat.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am thinking about applying for the senior exemption next year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Edith, a retired librarian who keeps careful notes on every bill and writes things down by hand.",
+   "reason_for_call": "She wants more time on a property tax bill for her house on Orchard Hill Drive.",
+   "task_instructions": "First ask for 10 extra days on the June installment for your house on Orchard Hill Drive, and give that installment's number. Then, when the agent looks at it, say you actually mean the March installment and ask for 14 days, giving its number. Give your date of birth only if asked. If the agent asks whether the March installment is paid, say yes, it was paid in March. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-7305",
+      "full_name": "Samir Castellanos",
+      "email": "samir.castellanos@example.org",
+      "birth_date": "1979-08-19",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-9410",
+      "owner_id": "T-7305",
+      "address": "5 Mill Race Way",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-6001",
+      "property_id": "P-9410",
+      "due_date": "2026-06-05",
+      "amount": 705.0,
+      "paid": false,
+      "extensions": 0
+     },
+     {
+      "installment_id": "I-6002",
+      "property_id": "P-9410",
+      "due_date": "2026-09-05",
+      "amount": 705.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-6001",
+    "days": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-6001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-08-19",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The September bill is my other half, and I am not asking about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am thinking of moving to Tucson in the fall, but nothing is decided.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My daughter usually handles the paperwork for the car registration.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Samir, a high school chemistry teacher who is organized and answers every question right away.",
+   "reason_for_call": "He wants a short extension on the June half of his property tax on Mill Race Way.",
+   "task_instructions": "Answer every question promptly and fully. In your first message, ask to push back the June property tax installment on Mill Race Way by 12 days, and give the installment number and your date of birth. Mention your other items only if the agent asks what else is on your account. Accept the result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-8844",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "birth_date": "1984-04-17",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-1177",
+      "owner_id": "T-8844",
+      "address": "22 Walnut Grove",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-3301",
+      "property_id": "P-1177",
+      "due_date": "2026-06-10",
+      "amount": 880.0,
+      "paid": false,
+      "extensions": 0
+     },
+     {
+      "installment_id": "I-3302",
+      "property_id": "P-1177",
+      "due_date": "2026-08-10",
+      "amount": 880.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-3301",
+    "days": 15
+   },
+   "customer_facts": [
+    {
+     "fact": "property.address",
+     "value": "22 Walnut Grove",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "installment.due_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 15,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-04-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a dental hygienist who is always on her phone between patients and wants things fixed fast.",
+   "reason_for_call": "She wants more time on the June property tax installment for her house on Walnut Grove.",
+   "task_instructions": "You do not know the installment number, so do not give one. Your first message: ask for a 15-day extension on the June property tax bill for the house on Walnut Grove. When the agent asks for identifying details, give your date of birth and say the due date is June 10. If the agent hesitates, say you are short on time and ask again. Keep pressing until the extension is made.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-9056",
+      "full_name": "Oluwaseun Brandt",
+      "email": "ob.brandt@example.org",
+      "birth_date": "1971-09-14",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-2049",
+      "owner_id": "T-9056",
+      "address": "130 Fernhill Avenue",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-4418",
+      "property_id": "P-2049",
+      "due_date": "2026-06-28",
+      "amount": 1475.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-4418",
+    "days": 35
+   },
+   "initial_request_values": {
+    "installment_id": "I-4418",
+    "days": 40
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-4418",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 35,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1971-09-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Oluwaseun, a civil engineer who is polite, direct, and used to dealing with government offices.",
+   "reason_for_call": "He wants more time on the June property tax installment for his house on Fernhill Avenue.",
+   "task_instructions": "Your first message: give the installment number and your date of birth, and ask for more time on the June property tax installment for Fernhill Avenue. Do not name a number of days until the agent asks how many. When asked, ask for 40 extra days. When the agent refuses, say 40 is too many and ask for 35 days instead, and say that is reasonable. Accept the agent's decision on the 35 days once it is made.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1462",
+      "full_name": "Gustavo Ferreira",
+      "email": "gustavo.ferreira@example.org",
+      "birth_date": "1963-03-30",
+      "account_status": "good",
+      "extensions_used": 0
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-3390",
+      "owner_id": "T-1462",
+      "address": "8 Cedar Pass",
+      "lien_filed": false
+     }
+    ],
+    "installment": [
+     {
+      "installment_id": "I-2750",
+      "property_id": "P-3390",
+      "due_date": "2026-06-15",
+      "amount": 2210.0,
+      "paid": false,
+      "extensions": 0
+     }
+    ]
+   },
+   "request_values": {
+    "installment_id": "I-2750",
+    "days": 45
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installment_id",
+     "value": "I-2750",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 45,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1963-03-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gustavo, a contractor who is busy on job sites and answers in as few words as possible.",
+   "reason_for_call": "He wants about six weeks more on the June property tax bill for his house on Cedar Pass.",
+   "task_instructions": "Answer in three words or fewer. In your first message, give the installment number and your date of birth, and say you want more time on the June bill. Give the number of days only when the agent asks how many, and then say forty-five. Do not explain anything beyond what is asked.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

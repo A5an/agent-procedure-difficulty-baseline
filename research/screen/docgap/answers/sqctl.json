@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The one-line description 'Check \u2192 set controls \u2192 verify' does not say what is checked (card status, current limits, channel settings, linked-card ownership) or which tool or lookup supplies it.",
+  "'Set controls' is undefined. It could mean freeze/unfreeze, changing limits, or toggling channels such as online, international, contactless, or ATM/POS. The policy names only toggle_card_freeze and block_card, so the tools and parameters for limits and channels are unspecified.",
+  "Freeze versus permanent block is ambiguous in practice. Policy says to use freeze for lost, misplaced, or temporary locks and block only for stolen or compromised cards with explicit confirmation. It does not say how to handle a customer who says 'lost' but suspects theft, or who asks to block without saying why, or whether to offer a freeze first.",
+  "The order of steps is not fixed. It is unclear whether to look up the card state first, whether to confirm before every change or only for irreversible ones (freeze is not on the confirm list), and whether a bundle of changes needs one confirmation or several.",
+  "The verification step is unspecified: re-fetch the card details and compare, report the result to the customer in plain language, and what to do if the post-change state does not match the request.",
+  "Customer cards are not identified. The policy does not say how to pick a card when the customer has several (credit, debit, virtual, primary, add-on) or how to refuse an unlinked or someone else's card ID.",
+  "Edge cases are unspecified: the card is already frozen or blocked, expired, or not yet activated; the requested limit exceeds a bank maximum or minimum; a block cannot be undone, so a replacement card may be needed; a customer changes their mind or gives an ambiguous confirmation.",
+  "Limit and control rules (maximum values, cooling-off periods, whether international or online use must be enabled first, any fees) live in the knowledge base. The policy does not say when to consult it or how to treat weak search hits for these rules.",
+  "Escalation is thinly specified. If a tool fails or a change is not permitted, the policy does not say whether to raise a service request or transfer, or which one applies.",
+  "Bank conventions are unstated: currency and amount formats, whether limits are daily or per transaction, whether a freeze affects recurring payments or mandates, and how much to explain about side effects such as replacement cards or pending transactions.",
+  "Customer behavior is open: vague requests ('make my card safer'), multiple requests in one turn, a request partway through that turns into a lost-card scenario, or pushing for a permanent block without confirming."
+ ]
+}

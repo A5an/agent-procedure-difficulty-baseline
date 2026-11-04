@@ -1,0 +1,690 @@
+{
+ "procedure_id": "p18_pet",
+ "domain": "pet insurance",
+ "organization": "PawWell Pet Insurance",
+ "title": "Changing a policy's annual deductible",
+ "summary": "Change the annual deductible on a pet insurance policy when the policy, its claims and the pet's age allow it.",
+ "entities": {
+  "policy": {
+   "key": "policy_id",
+   "description": "Pet insurance policies, one per insured pet",
+   "fields": {
+    "policy_id": "str",
+    "holder_name": "str",
+    "holder_email": "str",
+    "pet_id": "ref:pet",
+    "pet_name": "str",
+    "plan": "enum:accident_only|accident_illness|comprehensive",
+    "status": "enum:active|lapsed|cancelled",
+    "deductible": "int",
+    "deductible_since": "date",
+    "open_claims": "int",
+    "monthly_premium": "number"
+   }
+  },
+  "pet": {
+   "key": "pet_id",
+   "description": "Insured pets",
+   "fields": {
+    "pet_id": "str",
+    "name": "str",
+    "species": "enum:dog|cat",
+    "breed": "str",
+    "birth_date": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a policy by its policy number (format PW-######). Shows status, current annual deductible, number of open claims and the insured pet."
+  },
+  {
+   "name": "find_policies_by_email",
+   "kind": "search",
+   "entity": "policy",
+   "by": [
+    "holder_email"
+   ],
+   "description": "List all policies whose policyholder email on file matches the given address."
+  },
+  {
+   "name": "get_pet",
+   "kind": "get",
+   "entity": "pet",
+   "description": "Look up an insured pet by its pet id, including species, breed and date of birth."
+  },
+  {
+   "name": "change_deductible",
+   "kind": "update",
+   "entity": "policy",
+   "args": {
+    "policy_id": {
+     "type": "ref:policy",
+     "description": "The policy whose deductible is changed."
+    },
+    "new_deductible": {
+     "type": "int",
+     "description": "The new annual deductible in dollars."
+    }
+   },
+   "set": {
+    "deductible": "args.new_deductible",
+    "deductible_since": "today"
+   },
+   "description": "Set a new annual deductible on a policy, effective today."
+  }
+ ],
+ "request": {
+  "policy_id": {
+   "type": "ref:policy",
+   "description": "the policy number of the pet policy whose deductible you want changed"
+  },
+  "new_deductible": {
+   "type": "int",
+   "description": "the annual deductible amount in dollars you want on the policy"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "policy",
+   "entity": "policy",
+   "key": "req.policy_id"
+  },
+  {
+   "name": "pet",
+   "entity": "pet",
+   "key": "policy.pet_id"
+  }
+ ],
+ "outcomes": {
+  "change": {
+   "kind": "perform",
+   "description": "Change the policy's annual deductible to the amount the customer asked for.",
+   "calls": [
+    {
+     "tool": "change_deductible",
+     "args": {
+      "policy_id": "req.policy_id",
+      "new_deductible": "req.new_deductible"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the deductible; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "policy.status != 'active'",
+   "outcome": "refuse",
+   "explain": "The deductible can only be changed on an active policy, not a lapsed or cancelled one."
+  },
+  {
+   "id": "R2",
+   "when": "policy.open_claims > 0",
+   "outcome": "refuse",
+   "explain": "The deductible cannot be changed while the policy has any open claim still being processed."
+  },
+  {
+   "id": "R3",
+   "when": "req.new_deductible < policy.deductible and days_between(pet.birth_date, today) >= 2922",
+   "outcome": "refuse",
+   "explain": "A deductible cannot be lowered when the insured pet is 8 years old or older; raising it is still allowed."
+  }
+ ],
+ "default_outcome": "change",
+ "policy_text": "## Purpose\nPolicyholders may ask to change the annual deductible on a pet's policy. A deductible change applies to one policy (one pet) at a time and takes effect today.\n\n## Finding the policy\nAsk for the policy number (it starts with PW-). If the customer does not have it, look up their policies by the email address on file for the policyholder. If more than one policy comes back, ask which pet the request is about and use the policy for that pet. If you cannot find the policy from the policy number or the email on file, you cannot make the change; do not guess. Also confirm the exact deductible amount the customer wants before making any change.\n\nOnce you have the policy, look up the insured pet to check its date of birth.\n\n## When a change is allowed\nCheck these in order:\n1. **Policy status.** Only active policies can have their deductible changed. If the policy is lapsed or cancelled, decline.\n2. **Open claims.** If the policy has one or more open claims (claims still being processed), decline. The customer can call back once every claim on the policy is closed. Go by the number of open claims shown on the policy record, not by what the customer believes.\n3. **Senior pets.** If the insured pet is 8 years old or older today (based on the date of birth on our records), the deductible cannot be lowered. Raising the deductible is still allowed for senior pets. Go by the date of birth on file, not the age the customer believes the pet is.\n\nIf none of these applies, change the deductible to exactly the amount the customer asked for, using change_deductible.\n\n## Never\n- Do not change the deductible to an amount the customer did not ask for, and do not offer a partial reduction instead of declining.\n- Do not make exceptions to the rules above, however urgent the request.\n- Do not change any other policy of the same customer, and do not change anything else on the policy.",
+ "db_common": {
+  "policy": [
+   {
+    "policy_id": "PW-100001",
+    "holder_name": "Lorraine Whitaker",
+    "holder_email": "l.whitaker@example.org",
+    "pet_id": "PET-1001",
+    "pet_name": "Baxter",
+    "plan": "accident_illness",
+    "status": "active",
+    "deductible": 250,
+    "deductible_since": "2025-02-01",
+    "open_claims": 0,
+    "monthly_premium": 48.9
+   }
+  ],
+  "pet": [
+   {
+    "pet_id": "PET-1001",
+    "name": "Baxter",
+    "species": "dog",
+    "breed": "Beagle",
+    "birth_date": "2020-06-15"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-410233",
+      "holder_name": "Marcus Delgado",
+      "holder_email": "marcus.delgado@example.com",
+      "pet_id": "PET-4101",
+      "pet_name": "Rufus",
+      "plan": "comprehensive",
+      "status": "active",
+      "deductible": 250,
+      "deductible_since": "2023-09-01",
+      "open_claims": 0,
+      "monthly_premium": 89.4
+     },
+     {
+      "policy_id": "PW-410234",
+      "holder_name": "Marcus Delgado",
+      "holder_email": "marcus.delgado@example.com",
+      "pet_id": "PET-4102",
+      "pet_name": "Juniper",
+      "plan": "accident_illness",
+      "status": "active",
+      "deductible": 250,
+      "deductible_since": "2024-01-15",
+      "open_claims": 1,
+      "monthly_premium": 41.75
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-4101",
+      "name": "Rufus",
+      "species": "dog",
+      "breed": "Labrador Retriever",
+      "birth_date": "2016-03-11"
+     },
+     {
+      "pet_id": "PET-4102",
+      "name": "Juniper",
+      "species": "cat",
+      "breed": "Maine Coon",
+      "birth_date": "2021-07-22"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-410233",
+    "new_deductible": 500
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-410233",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 500,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Rufus",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His cat Juniper is on a separate policy and has a claim for a urinary infection that is still being processed.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He was thinking about asking about a dental add-on for Rufus but decides not to bother today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He moved from Tucson to Phoenix last year and already updated his address.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Rufus had his knee surgery claim paid out in full two years ago.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a contractor calling between job sites, impatient and short on time, who hates being kept on hold.",
+   "reason_for_call": "He wants to raise the deductible on his old Labrador's policy to bring the monthly premium down.",
+   "task_instructions": "Open by giving the policy number, saying it is for Rufus, and that you want the deductible raised to 500. Mention your cat's pending claim, the dental add-on idea you are dropping, and your move as side remarks. Be impatient and push the agent to hurry. If the agent refuses, argue and ask for an exception at least twice before accepting. Only ask about Rufus's policy.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-522870",
+      "holder_name": "Priya Raman",
+      "holder_email": "priya.raman@example.net",
+      "pet_id": "PET-5201",
+      "pet_name": "Mochi",
+      "plan": "accident_illness",
+      "status": "active",
+      "deductible": 500,
+      "deductible_since": "2024-06-10",
+      "open_claims": 1,
+      "monthly_premium": 37.2
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-5201",
+      "name": "Mochi",
+      "species": "dog",
+      "breed": "Shiba Inu",
+      "birth_date": "2020-08-14"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-522870",
+    "new_deductible": 250
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-522870",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 250,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.open_claims",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a marketing manager who is convinced her last vet claim was settled and gets irritated when told otherwise.",
+   "reason_for_call": "She wants to lower her dog's deductible to 250 because vet visits have become more frequent.",
+   "task_instructions": "Give the policy number and the amount you want right away, and state that you have no open claims since your last one was finished. If the agent refuses, insist the claim is closed and ask for an exception at least twice, then accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-603115",
+      "holder_name": "Hannah Okafor",
+      "holder_email": "hannah.okafor@example.net",
+      "pet_id": "PET-6101",
+      "pet_name": "Pistachio",
+      "plan": "comprehensive",
+      "status": "active",
+      "deductible": 500,
+      "deductible_since": "2023-03-01",
+      "open_claims": 0,
+      "monthly_premium": 52.6
+     },
+     {
+      "policy_id": "PW-603116",
+      "holder_name": "Hannah Okafor",
+      "holder_email": "hannah.okafor@example.net",
+      "pet_id": "PET-6102",
+      "pet_name": "Biscuit",
+      "plan": "accident_illness",
+      "status": "active",
+      "deductible": 250,
+      "deductible_since": "2021-11-20",
+      "open_claims": 0,
+      "monthly_premium": 68.3
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-6101",
+      "name": "Pistachio",
+      "species": "cat",
+      "breed": "British Shorthair",
+      "birth_date": "2023-01-09"
+     },
+     {
+      "pet_id": "PET-6102",
+      "name": "Biscuit",
+      "species": "dog",
+      "breed": "Cocker Spaniel",
+      "birth_date": "2015-06-02"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-603115",
+    "new_deductible": 250
+   },
+   "initial_request_values": {
+    "new_deductible": 100
+   },
+   "customer_facts": [
+    {
+     "fact": "policy.holder_email",
+     "value": "hannah.okafor@example.net",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Pistachio",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 250,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a graduate student, friendly but indecisive about money matters.",
+   "reason_for_call": "She wants a lower deductible on her young cat's policy but does not have her policy number to hand.",
+   "task_instructions": "Say you do not have the policy number but give the email you use with the insurer and say it is about your cat Pistachio. First ask to lower the deductible to 100. Before the agent makes any change, change your mind and say 250 is the amount you want instead. Answer questions cooperatively.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-714402",
+      "holder_name": "Tomasz Nowak",
+      "holder_email": "t.nowak@example.com",
+      "pet_id": "PET-7101",
+      "pet_name": "Bella",
+      "plan": "accident_illness",
+      "status": "active",
+      "deductible": 250,
+      "deductible_since": "2022-05-01",
+      "open_claims": 0,
+      "monthly_premium": 58.15
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-7101",
+      "name": "Bella",
+      "species": "dog",
+      "breed": "Border Collie",
+      "birth_date": "2021-04-02"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-714402",
+    "new_deductible": 500
+   },
+   "initial_request_values": {
+    "new_deductible": 750
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-714402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 500,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pet.birth_date",
+     "value": "2021-04-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.open_claims",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Bella's ear infection claim from March was paid out last month, so nothing is pending on her policy.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Bella was born on 2 April 2021, so she just turned five.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The policy is in his own name, Tomasz Nowak, and he pays it every month without a gap.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tomasz, an accountant who has worked out the premium numbers carefully and likes to give all the details at once.",
+   "reason_for_call": "He wants to raise the deductible on his Border Collie's policy to save on premiums.",
+   "task_instructions": "In your first message give the policy number, Bella's birth date, and say she has no open claims. First ask to raise the deductible to 750. Before the agent makes any change, say you reconsidered and want 500 instead. Be cooperative otherwise.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-825519",
+      "holder_name": "Grace Liu",
+      "holder_email": "grace.liu@example.org",
+      "pet_id": "PET-8101",
+      "pet_name": "Saffron",
+      "plan": "comprehensive",
+      "status": "active",
+      "deductible": 500,
+      "deductible_since": "2022-02-28",
+      "open_claims": 0,
+      "monthly_premium": 46.8
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-8101",
+      "name": "Saffron",
+      "species": "cat",
+      "breed": "Abyssinian",
+      "birth_date": "2017-02-20"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-825519",
+    "new_deductible": 250
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-825519",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 250,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pet.birth_date",
+     "value": "2019-02-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a calm and polite librarian who adopted her cat as a kitten and believes the cat is seven.",
+   "reason_for_call": "She wants to lower her cat's deductible to 250 ahead of expected vet visits.",
+   "task_instructions": "Give the policy number, the amount you want, and say your cat was born on 20 February 2019 and is seven. If the agent says the records show otherwise and declines, accept the explanation politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-936027",
+      "holder_name": "Ahmed Saleh",
+      "holder_email": "ahmed.saleh@example.com",
+      "pet_id": "PET-9101",
+      "pet_name": "Kito",
+      "plan": "accident_illness",
+      "status": "active",
+      "deductible": 750,
+      "deductible_since": "2023-10-15",
+      "open_claims": 0,
+      "monthly_premium": 29.95
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-9101",
+      "name": "Kito",
+      "species": "dog",
+      "breed": "Basenji",
+      "birth_date": "2022-10-05"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-936027",
+    "new_deductible": 250
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-936027",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 250,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ahmed, a friendly pharmacist who got a raise and wants better coverage for his young dog.",
+   "reason_for_call": "He wants to lower his dog's deductible to 250.",
+   "task_instructions": "State the policy number and that you want the deductible lowered to 250 in your first message. Answer any question politely and confirm when asked.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-147720",
+      "holder_name": "Rosa Bianchi",
+      "holder_email": "rosa.bianchi@example.it",
+      "pet_id": "PET-1471",
+      "pet_name": "Nero",
+      "plan": "accident_only",
+      "status": "active",
+      "deductible": 250,
+      "deductible_since": "2024-04-01",
+      "open_claims": 0,
+      "monthly_premium": 22.4
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-1471",
+      "name": "Nero",
+      "species": "dog",
+      "breed": "Cane Corso",
+      "birth_date": "2022-01-18"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-147720",
+    "new_deductible": 500
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_deductible",
+     "value": 500,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.holder_name",
+     "value": "Rosa Bianchi",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "policy.pet_name",
+     "value": "Nero",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a restaurant owner who closed her old email account and lost her policy papers when she moved.",
+   "reason_for_call": "She wants to raise her dog's deductible to 500.",
+   "task_instructions": "Give very short answers. Give your name and the amount. You do not know the policy number and cannot say which email address the insurer has. Give your dog's name only if asked. If the agent cannot find the policy, accept it and end.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "PW-258841",
+      "holder_name": "Daniel Fischer",
+      "holder_email": "d.fischer@example.de",
+      "pet_id": "PET-2581",
+      "pet_name": "Otto",
+      "plan": "accident_illness",
+      "status": "lapsed",
+      "deductible": 250,
+      "deductible_since": "2023-07-01",
+      "open_claims": 0,
+      "monthly_premium": 34.5
+     }
+    ],
+    "pet": [
+     {
+      "pet_id": "PET-2581",
+      "name": "Otto",
+      "species": "cat",
+      "breed": "Norwegian Forest Cat",
+      "birth_date": "2019-11-30"
+     }
+    ]
+   },
+   "request_values": {
+    "policy_id": "PW-258841",
+    "new_deductible": 500
+   },
+   "customer_facts": [
+    {
+     "fact": "req.policy_id",
+     "value": "PW-258841",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_deductible",
+     "value": 500,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, a software tester who writes in clipped, minimal sentences.",
+   "reason_for_call": "He wants to change the deductible on his cat's policy.",
+   "task_instructions": "Say only that you want to change the deductible and give the policy number. Give the amount 500 only when asked. Keep every answer to a few words. If declined, accept and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which loan product/scheme applies and where the interest rate comes from (KB lookup vs. customer-supplied vs. product default) is unspecified; the policy says never invent rates but gives no rule for what to do if the customer proposes a rate.",
+  "Required inputs (principal, tenure, rate, tenure unit months vs. years) and what to do when the customer omits or gives ambiguous ones are not stated, nor which to ask for first.",
+  "The EMI formula and conventions are unspecified: reducing-balance vs. flat rate, monthly compounding, rounding rules, and whether processing fees, insurance, or GST are included.",
+  "No tool is named for EMI calculation; unclear whether a calculator tool exists or the assistant must compute manually, and how results should be validated.",
+  "Eligibility limits (min/max amount, min/max tenure, rate bands by credit profile or loan type) are not given, so out-of-range requests (e.g., tenure beyond max) have no defined handling.",
+  "Whether the customer's existing loans, credit score, or account data should be consulted for personalized rates, or whether the estimate is purely generic, is unclear. Also unclear is how to handle a request for an existing linked loan vs. a prospective one.",
+  "Final action is undefined: just quote the estimate, provide a disclaimer that it is indicative, offer an application or service request, or escalate. No rule on whether to raise a request for a loan application.",
+  "Edge cases such as zero or negative values, very small amounts, prepayment or step-up scenarios, comparing multiple tenures, or the customer changing parameters mid-conversation are not addressed.",
+  "Disclosure conventions (indicative-only wording, how to present the breakdown of total interest and total payable, currency formatting) are bank-specific and unstated."
+ ]
+}

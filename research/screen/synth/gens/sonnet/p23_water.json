@@ -1,0 +1,632 @@
+{
+ "procedure_id": "p23_water",
+ "domain": "water utility",
+ "organization": "Clearwater Municipal Water Utility",
+ "title": "Leak bill adjustments",
+ "summary": "Credit part of an unusually high water bill caused by a leak when the bill and the account qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer water accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "phone": "str",
+    "service_address": "str",
+    "leak_credits_used": "int"
+   }
+  },
+  "bill": {
+   "key": "bill_id",
+   "description": "Monthly water bills",
+   "fields": {
+    "bill_id": "str",
+    "account_id": "ref:account",
+    "period_end": "date",
+    "usage_gallons": "int",
+    "avg_usage_gallons": "int",
+    "excess_charge": "number",
+    "amount_due": "number",
+    "adjusted": "bool"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a water account by account number."
+  },
+  {
+   "name": "find_accounts_by_phone",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "phone"
+   ],
+   "description": "Find accounts by the phone number on file."
+  },
+  {
+   "name": "get_bill",
+   "kind": "get",
+   "entity": "bill",
+   "description": "Look up a bill by bill number."
+  },
+  {
+   "name": "find_bills_by_account",
+   "kind": "search",
+   "entity": "bill",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all bills of an account."
+  },
+  {
+   "name": "apply_leak_credit",
+   "kind": "update",
+   "entity": "bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill to credit."
+    },
+    "credit_amount": {
+     "type": "number",
+     "description": "Credit amount in dollars to subtract from the amount due."
+    }
+   },
+   "set": {
+    "amount_due": "rec.amount_due - args.credit_amount",
+    "adjusted": "True"
+   },
+   "description": "Subtract a leak credit from the amount due on a bill and mark the bill as adjusted."
+  },
+  {
+   "name": "record_leak_credit",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account that received the credit."
+    }
+   },
+   "set": {
+    "leak_credits_used": "rec.leak_credits_used + 1"
+   },
+   "description": "Count one more leak credit used on the account."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:bill",
+   "description": "the bill you want a leak adjustment on"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "bill.account_id"
+  }
+ ],
+ "outcomes": {
+  "adjust": {
+   "kind": "perform",
+   "description": "Credit half of the excess charge on the bill and record the credit on the account.",
+   "calls": [
+    {
+     "tool": "apply_leak_credit",
+     "args": {
+      "bill_id": "req.bill_id",
+      "credit_amount": "round(bill.excess_charge * 0.5, 2)"
+     }
+    },
+    {
+     "tool": "record_leak_credit",
+     "args": {
+      "account_id": "acct.account_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not adjust the bill; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "bill.adjusted or acct.leak_credits_used >= 2",
+   "outcome": "refuse",
+   "explain": "A bill that was already adjusted, or an account that already received two leak credits, cannot get another leak credit."
+  },
+  {
+   "id": "R2",
+   "when": "bill.usage_gallons < 2 * bill.avg_usage_gallons",
+   "outcome": "refuse",
+   "explain": "The bill's usage must be at least double the account's average usage to qualify."
+  }
+ ],
+ "default_outcome": "adjust",
+ "policy_text": "## Purpose\nCustomers whose bill is unusually high because of a leak may ask for a leak adjustment. This procedure says when one can be given.\n\n## Finding the bill\nUse the bill number if the customer has it. If not, find the account by the phone number on file, list its bills, and ask which billing period (period end date) the customer means if there is more than one. If you cannot identify the bill, do not change anything and tell the customer what you would need.\n\n## When a leak adjustment is allowed\n- A bill that has already been adjusted cannot be adjusted again, and an account that has already received two leak credits cannot receive another.\n- The bill's usage in gallons must be at least double the account's average usage in gallons. Usage below that does not qualify, even if the customer reports a leak.\n\nGo by the figures in our records, not by what the customer remembers.\n\n## What to do if allowed\nDo both steps, in this order: (1) apply a leak credit to the bill equal to half of the bill's excess charge, rounded to the cent; (2) record one leak credit on the account.\n\n## If not allowed\nDo not change anything. Explain the reason briefly and politely.\n\n## Never\nDo not offer a larger credit, do not waive the rules as an exception, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-9000",
+    "holder_name": "Walter Hughes",
+    "phone": "555-0900",
+    "service_address": "900 Mill Road",
+    "leak_credits_used": 0
+   }
+  ],
+  "bill": [
+   {
+    "bill_id": "B-9000",
+    "account_id": "A-9000",
+    "period_end": "2026-04-30",
+    "usage_gallons": 7000,
+    "avg_usage_gallons": 7200,
+    "excess_charge": 0,
+    "amount_due": 58.4,
+    "adjusted": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1101",
+      "holder_name": "Marcus Bell",
+      "phone": "555-0141",
+      "service_address": "14 Birch Lane",
+      "leak_credits_used": 0
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3001",
+      "account_id": "A-1101",
+      "period_end": "2026-03-31",
+      "usage_gallons": 9000,
+      "avg_usage_gallons": 8500,
+      "excess_charge": 0,
+      "amount_due": 70.2,
+      "adjusted": false
+     },
+     {
+      "bill_id": "B-3002",
+      "account_id": "A-1101",
+      "period_end": "2026-04-30",
+      "usage_gallons": 24000,
+      "avg_usage_gallons": 8500,
+      "excess_charge": 110.0,
+      "amount_due": 182.5,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3002"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.holder_name",
+     "value": "Marcus Bell",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "bill_id": "B-3001"
+   },
+   "persona": "Marcus, a homeowner calling from a borrowed phone, a bit flustered about a water bill.",
+   "reason_for_call": "He thinks a leak made his water bill too high and wants a leak adjustment, but he has no bill in front of him and the phone he is using is not the one the utility has on file.",
+   "task_instructions": "First ask about the March bill, then say you actually mean the April bill. You only know your name. You do not have a bill number, account number or the phone number on file, and you cannot recall other details. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1201",
+      "holder_name": "Priya Nair",
+      "phone": "555-0172",
+      "service_address": "58 Cedar Court",
+      "leak_credits_used": 0
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3101",
+      "account_id": "A-1201",
+      "period_end": "2026-04-30",
+      "usage_gallons": 9400,
+      "avg_usage_gallons": 8200,
+      "excess_charge": 7.2,
+      "amount_due": 64.1,
+      "adjusted": false
+     },
+     {
+      "bill_id": "B-3102",
+      "account_id": "A-1201",
+      "period_end": "2026-03-31",
+      "usage_gallons": 8100,
+      "avg_usage_gallons": 8200,
+      "excess_charge": 0,
+      "amount_due": 61.5,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3101"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3101",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also recently planted a vegetable garden.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a problem with her trash pickup last month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her neighbor's sprinkler floods the sidewalk.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a teacher who answers in as few words as possible.",
+   "reason_for_call": "She noticed her April water bill is higher than usual and wonders about a leak credit.",
+   "task_instructions": "Give only what is asked, in a few words. Do not elaborate. Mention the garden, trash pickup and neighbor's sprinkler only if the conversation naturally allows, one short line each. Accept the answer if refused.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1301",
+      "holder_name": "Gus Ferreira",
+      "phone": "555-0188",
+      "service_address": "7 Harbor Street",
+      "leak_credits_used": 2
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3201",
+      "account_id": "A-1301",
+      "period_end": "2026-04-30",
+      "usage_gallons": 31000,
+      "avg_usage_gallons": 9000,
+      "excess_charge": 150.0,
+      "amount_due": 230.5,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3201"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3201",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gus, a restaurant owner who is impatient and expects quick service.",
+   "reason_for_call": "A pipe burst in his basement and his bill is huge; he wants a leak credit.",
+   "task_instructions": "Describe the burst pipe and ask for a credit, but do not volunteer the bill number; give it only when asked. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1401",
+      "holder_name": "Tomas Reyes",
+      "phone": "555-0199",
+      "service_address": "220 Oak Avenue",
+      "leak_credits_used": 1
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3301",
+      "account_id": "A-1401",
+      "period_end": "2026-04-30",
+      "usage_gallons": 21000,
+      "avg_usage_gallons": 8000,
+      "excess_charge": 96.4,
+      "amount_due": 188.75,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3301"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.leak_credits_used",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a retired mechanic who speaks tersely and thinks he has used his credits already.",
+   "reason_for_call": "A toilet leak raised his bill and he wants a leak credit, though he believes he has already received two before.",
+   "task_instructions": "Say briefly you want a leak credit and that you think you already got two before. Keep answers very short. Do not elaborate.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1501",
+      "holder_name": "Helen Okafor",
+      "phone": "555-0163",
+      "service_address": "31 Elm Street",
+      "leak_credits_used": 1
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3401",
+      "account_id": "A-1501",
+      "period_end": "2026-04-30",
+      "usage_gallons": 28000,
+      "avg_usage_gallons": 10000,
+      "excess_charge": 120.0,
+      "amount_due": 95.0,
+      "adjusted": true
+     },
+     {
+      "bill_id": "B-3402",
+      "account_id": "A-1501",
+      "period_end": "2026-03-31",
+      "usage_gallons": 10500,
+      "avg_usage_gallons": 10000,
+      "excess_charge": 0,
+      "amount_due": 82.0,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3401"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.phone",
+     "value": "555-0163",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.period_end",
+     "value": "2026-04-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Helen, a landlord who is firm and impatient and forgets what was already done on her bill.",
+   "reason_for_call": "She wants a leak credit on her April water bill after a leak in a rental unit, but she does not have the bill number.",
+   "task_instructions": "Give your phone number. You do not know the bill number; if asked which bill, say it is the one for the period ending April 30, 2026. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1601",
+      "holder_name": "Mei Lin Chen",
+      "phone": "555-0120",
+      "service_address": "405 Willow Drive",
+      "leak_credits_used": 0
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3501",
+      "account_id": "A-1601",
+      "period_end": "2026-04-30",
+      "usage_gallons": 16000,
+      "avg_usage_gallons": 8000,
+      "excess_charge": 61.3,
+      "amount_due": 133.2,
+      "adjusted": false
+     },
+     {
+      "bill_id": "B-3502",
+      "account_id": "A-1601",
+      "period_end": "2026-03-31",
+      "usage_gallons": 8300,
+      "avg_usage_gallons": 8000,
+      "excess_charge": 0,
+      "amount_due": 71.4,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3501"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3501",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She is thinking about installing a rain barrel.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her March bill was normal.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She recently moved her office to a new building.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Mei Lin, a friendly accountant who likes chatting.",
+   "reason_for_call": "A leaking garden hose connection doubled her April usage and she asks for a leak credit.",
+   "task_instructions": "State the bill number and ask for the credit. Chat a little about the rain barrel, the normal March bill and the office move, but answer all questions clearly.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1701",
+      "holder_name": "Samir Haddad",
+      "phone": "555-0134",
+      "service_address": "88 Pine Ridge",
+      "leak_credits_used": 0
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3601",
+      "account_id": "A-1701",
+      "period_end": "2026-04-30",
+      "usage_gallons": 30000,
+      "avg_usage_gallons": 11000,
+      "excess_charge": 142.0,
+      "amount_due": 210.3,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3601"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3601",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samir, a polite software developer.",
+   "reason_for_call": "A broken underground pipe wasted water and he wants a leak adjustment on his April bill.",
+   "task_instructions": "In your first message give the bill number and ask for a leak adjustment. Answer any question politely.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1801",
+      "holder_name": "Rosa Delgado",
+      "phone": "555-0155",
+      "service_address": "12 Maple Terrace",
+      "leak_credits_used": 1
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-3801",
+      "account_id": "A-1801",
+      "period_end": "2026-03-31",
+      "usage_gallons": 9000,
+      "avg_usage_gallons": 8800,
+      "excess_charge": 0,
+      "amount_due": 74.6,
+      "adjusted": false
+     },
+     {
+      "bill_id": "B-3802",
+      "account_id": "A-1801",
+      "period_end": "2026-04-30",
+      "usage_gallons": 26000,
+      "avg_usage_gallons": 8800,
+      "excess_charge": 108.5,
+      "amount_due": 171.9,
+      "adjusted": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3802"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3802",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.usage_gallons",
+     "value": 26000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.phone",
+     "value": "555-0155",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "A pipe under her kitchen sink burst in April and a plumber repaired it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She has received one leak credit on this account before.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "bill_id": "B-3801"
+   },
+   "persona": "Rosa, a baker who is organized and chatty.",
+   "reason_for_call": "She wants a leak adjustment after a burst pipe, and first mixes up which month's bill to use.",
+   "task_instructions": "First ask for an adjustment on the March bill, then realize the leak was in April and switch to the April bill before anything is done. Mention the repaired pipe, that your April usage was about 26,000 gallons, and the earlier credit. Answer questions clearly.",
+   "expected_outcome": "adjust"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

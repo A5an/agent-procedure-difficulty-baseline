@@ -1,0 +1,911 @@
+{
+ "procedure_id": "p22_dental",
+ "domain": "dental clinic",
+ "organization": "Brightwater Family Dental",
+ "title": "Appointment rescheduling",
+ "summary": "Move a scheduled dental appointment to another open slot when the patient, the appointment and the new slot qualify.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Registered patients of the clinic",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "birth_date": "date"
+   }
+  },
+  "slot": {
+   "key": "slot_id",
+   "description": "Bookable chair times with a dentist",
+   "fields": {
+    "slot_id": "str",
+    "slot_date": "date",
+    "dentist": "str",
+    "is_open": "bool",
+    "duration_min": "int"
+   }
+  },
+  "appointment": {
+   "key": "appointment_id",
+   "description": "Patient appointments",
+   "fields": {
+    "appointment_id": "str",
+    "patient_id": "ref:patient",
+    "slot_id": "ref:slot",
+    "procedure": "enum:checkup|cleaning|filling|root_canal|crown",
+    "duration_min": "int",
+    "status": "enum:scheduled|completed|cancelled"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for the office manager to approve a change",
+   "fields": {
+    "request_id": "str",
+    "appointment_id": "ref:appointment",
+    "reason": "enum:late_change|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient by patient number."
+  },
+  {
+   "name": "get_appointment",
+   "kind": "get",
+   "entity": "appointment",
+   "description": "Look up an appointment by appointment number."
+  },
+  {
+   "name": "get_slot",
+   "kind": "get",
+   "entity": "slot",
+   "description": "Look up a chair time slot by slot code."
+  },
+  {
+   "name": "find_appointments_by_patient",
+   "kind": "search",
+   "entity": "appointment",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all appointments of a patient by patient number."
+  },
+  {
+   "name": "release_slot",
+   "kind": "update",
+   "entity": "slot",
+   "args": {
+    "slot_id": {
+     "type": "ref:slot",
+     "description": "The slot to make available again."
+    }
+   },
+   "set": {
+    "is_open": "True"
+   },
+   "description": "Mark a slot as open so that others can book it."
+  },
+  {
+   "name": "book_slot",
+   "kind": "update",
+   "entity": "slot",
+   "args": {
+    "slot_id": {
+     "type": "ref:slot",
+     "description": "The slot to take."
+    }
+   },
+   "set": {
+    "is_open": "False"
+   },
+   "description": "Mark a slot as taken."
+  },
+  {
+   "name": "move_appointment",
+   "kind": "update",
+   "entity": "appointment",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment to move."
+    },
+    "new_slot_id": {
+     "type": "ref:slot",
+     "description": "The slot the appointment moves to."
+    }
+   },
+   "set": {
+    "slot_id": "args.new_slot_id"
+   },
+   "description": "Point an appointment at a different slot."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment the request is about."
+    },
+    "reason": {
+     "type": "enum:late_change|other",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for the office manager to approve a change to an appointment."
+  }
+ ],
+ "request": {
+  "appointment_id": {
+   "type": "ref:appointment",
+   "description": "the appointment you want to move"
+  },
+  "new_slot_id": {
+   "type": "ref:slot",
+   "description": "the slot code of the new time you want"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "appt",
+   "entity": "appointment",
+   "key": "req.appointment_id"
+  },
+  {
+   "name": "pat",
+   "entity": "patient",
+   "key": "appt.patient_id"
+  },
+  {
+   "name": "old",
+   "entity": "slot",
+   "key": "appt.slot_id"
+  },
+  {
+   "name": "new",
+   "entity": "slot",
+   "key": "req.new_slot_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Release the old slot, take the new slot and move the appointment.",
+   "calls": [
+    {
+     "tool": "release_slot",
+     "args": {
+      "slot_id": "old.slot_id"
+     }
+    },
+    {
+     "tool": "book_slot",
+     "args": {
+      "slot_id": "new.slot_id"
+     }
+    },
+    {
+     "tool": "move_appointment",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "new_slot_id": "new.slot_id"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The appointment is too close to move directly: open an approval request for the office manager.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "reason": "'late_change'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not move the appointment; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pat.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "appt.status != 'scheduled'",
+   "outcome": "refuse",
+   "explain": "Only appointments that are still scheduled can be moved."
+  },
+  {
+   "id": "R3",
+   "when": "not new.is_open or new.duration_min < appt.duration_min or days_between(today, new.slot_date) <= 0",
+   "outcome": "refuse",
+   "explain": "The new slot must be open, in the future and at least as long as the appointment."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(today, old.slot_date) < 2",
+   "outcome": "approval",
+   "explain": "If the current appointment is today or tomorrow, open an approval request instead of moving it."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nPatients can ask to move an appointment by phone or chat. Before changing anything, find the appointment and the patient it belongs to, and confirm identity: the date of birth the caller gives must match the one on file. If it does not match, or they cannot give it, make no change.\n\n## Finding the appointment\nUse the appointment number if the patient has it. Otherwise, if the patient can give their patient number, list their appointments and ask which procedure they mean if there is more than one. If the appointment cannot be identified, or the patient cannot tell you the slot code of the new time they want, you cannot proceed; do not guess.\n\n## When an appointment can be moved\nCheck these in order and stop at the first that applies:\n1. Identity: the date of birth must match (see above), otherwise decline.\n2. The appointment must still have the status scheduled. Completed or cancelled appointments cannot be moved; decline.\n3. The new slot must be open, must be on a date after today, and must be at least as long (in minutes) as the appointment. Otherwise decline. Do not offer to shorten the appointment or pick another slot on your own.\n4. If the current appointment is today or tomorrow (fewer than 2 days from today), do not move it. Open an approval request with reason late_change and tell the patient the office manager will contact them.\n\n## Doing the move\nIf none of the above applies, make exactly these changes in this order: release the old slot, book the new slot, then move the appointment to the new slot.\n\n## Never\nDo not move an appointment for someone who failed the identity check, do not waive or change any clinic rule for insistent callers, and do not change anything the patient did not ask for.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2101",
+      "full_name": "Mei Tanaka",
+      "phone": "555-0141",
+      "birth_date": "1988-03-14"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4101",
+      "slot_date": "2026-06-03",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 45
+     },
+     {
+      "slot_id": "S-5101",
+      "slot_date": "2026-06-10",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 60
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3101",
+      "patient_id": "P-2101",
+      "slot_id": "S-4101",
+      "procedure": "cleaning",
+      "duration_min": 45,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3101",
+    "new_slot_id": "S-5101"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pat.full_name",
+     "value": "Mei Tanaka",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mei, a graphic designer who is in a hurry and replies in very few words.",
+   "reason_for_call": "She wants to move her cleaning to a later date but has lost the reminder card and just got a new phone number.",
+   "task_instructions": "Keep answers to a few words. You do not know your appointment number or patient number and have no other way to identify the booking. Say so if asked, and accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2102",
+      "full_name": "Daniel Reyes",
+      "phone": "555-0172",
+      "birth_date": "1975-09-30"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4102",
+      "slot_date": "2026-05-29",
+      "dentist": "Dr. Lindqvist",
+      "is_open": false,
+      "duration_min": 30
+     },
+     {
+      "slot_id": "S-5102",
+      "slot_date": "2026-06-05",
+      "dentist": "Dr. Lindqvist",
+      "is_open": true,
+      "duration_min": 30
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3102",
+      "patient_id": "P-2102",
+      "slot_id": "S-4102",
+      "procedure": "checkup",
+      "duration_min": 30,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3102",
+    "new_slot_id": "S-5102"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-09-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, a truck dispatcher who writes short messages.",
+   "reason_for_call": "A work trip clashes with his checkup, so he wants it moved a week later.",
+   "task_instructions": "In your first message give your appointment number, the new slot code and your date of birth. After that answer only what is asked, in as few words as possible.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2103",
+      "full_name": "Priya Nair",
+      "phone": "555-0193",
+      "birth_date": "1992-12-05"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4103",
+      "slot_date": "2026-06-04",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 60
+     },
+     {
+      "slot_id": "S-5103",
+      "slot_date": "2026-06-09",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 60
+     },
+     {
+      "slot_id": "S-5113",
+      "slot_date": "2026-06-11",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 60
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3103",
+      "patient_id": "P-2103",
+      "slot_id": "S-4103",
+      "procedure": "filling",
+      "duration_min": 60,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3103",
+    "new_slot_id": "S-5113"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5113",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-12-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "new.is_open",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a postgraduate student with a flexible but crowded schedule.",
+   "reason_for_call": "She wants to move her filling to a day that suits her lab schedule better.",
+   "task_instructions": "First ask to move your appointment to the slot with the earlier date (the first slot code you were offered). Before anything is done, change your mind and ask for the later slot instead, and say you believe it is still open because the clinic's text message listed it. Give your appointment number and date of birth upfront. If the agent declines, accept after one polite question.",
+   "expected_outcome": "refuse",
+   "initial_request_values": {
+    "new_slot_id": "S-5103"
+   }
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2104",
+      "full_name": "Tomasz Kowalski",
+      "phone": "555-0114",
+      "birth_date": "1983-07-21"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4104",
+      "slot_date": "2026-06-02",
+      "dentist": "Dr. Lindqvist",
+      "is_open": false,
+      "duration_min": 45
+     },
+     {
+      "slot_id": "S-4114",
+      "slot_date": "2026-06-16",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 60
+     },
+     {
+      "slot_id": "S-5104",
+      "slot_date": "2026-06-10",
+      "dentist": "Dr. Lindqvist",
+      "is_open": true,
+      "duration_min": 45
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3104",
+      "patient_id": "P-2104",
+      "slot_id": "S-4104",
+      "procedure": "cleaning",
+      "duration_min": 45,
+      "status": "scheduled"
+     },
+     {
+      "appointment_id": "A-3114",
+      "patient_id": "P-2104",
+      "slot_id": "S-4114",
+      "procedure": "filling",
+      "duration_min": 60,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3104",
+    "new_slot_id": "S-5104"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.patient_id",
+     "value": "P-2104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.procedure",
+     "value": "cleaning",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-07-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a contractor who is impatient and wants things done quickly.",
+   "reason_for_call": "He needs his teeth cleaning moved because of a job site deadline.",
+   "task_instructions": "You do not know the appointment number. Say you have your patient number and that it is the cleaning, not the filling. Press the agent to hurry and complain about delays, but answer every question. Give your date of birth when asked.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2105",
+      "full_name": "Grace Adeyemi",
+      "phone": "555-0156",
+      "birth_date": "1969-01-18"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4105",
+      "slot_date": "2026-05-21",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 90
+     },
+     {
+      "slot_id": "S-5105",
+      "slot_date": "2026-05-27",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 90
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3105",
+      "patient_id": "P-2105",
+      "slot_id": "S-4105",
+      "procedure": "crown",
+      "duration_min": 90,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3105",
+    "new_slot_id": "S-5105"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-01-18",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.procedure",
+     "value": "crown",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "old.slot_date",
+     "value": "2026-05-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her crown appointment is tomorrow morning.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The new slot she wants is next Wednesday, with the same dentist, Dr. Okafor.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Grace, a school principal who is polite and well organized.",
+   "reason_for_call": "A school inspection has been scheduled for tomorrow, so she cannot make her crown appointment.",
+   "task_instructions": "Explain your situation in your first message, with the appointment number, new slot code, procedure, the current appointment date (May 21, 2026) and your date of birth. Mention that the appointment is tomorrow morning and that the new slot is next Wednesday with the same dentist. Accept it if the agent says the office manager will follow up.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2106",
+      "full_name": "Hiroshi Mori",
+      "phone": "555-0188",
+      "birth_date": "1996-04-02"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4106",
+      "slot_date": "2026-06-08",
+      "dentist": "Dr. Lindqvist",
+      "is_open": false,
+      "duration_min": 30
+     },
+     {
+      "slot_id": "S-5106",
+      "slot_date": "2026-06-15",
+      "dentist": "Dr. Lindqvist",
+      "is_open": true,
+      "duration_min": 30
+     },
+     {
+      "slot_id": "S-5116",
+      "slot_date": "2026-06-17",
+      "dentist": "Dr. Lindqvist",
+      "is_open": true,
+      "duration_min": 45
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3106",
+      "patient_id": "P-2106",
+      "slot_id": "S-4106",
+      "procedure": "checkup",
+      "duration_min": 30,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3106",
+    "new_slot_id": "S-5116"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5116",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1996-04-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hiroshi, a software tester who is friendly but a bit indecisive.",
+   "reason_for_call": "He wants to push his checkup back by about a week.",
+   "task_instructions": "Give your appointment number and first ask for the slot on the 15th (the earlier slot code). Before anything is done, change your mind and ask for the slot on the 17th instead. Give your date of birth only when asked.",
+   "expected_outcome": "reschedule",
+   "initial_request_values": {
+    "new_slot_id": "S-5106"
+   }
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2107",
+      "full_name": "Fatima Al-Sayed",
+      "phone": "555-0167",
+      "birth_date": "1980-06-23"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4107",
+      "slot_date": "2026-06-09",
+      "dentist": "Dr. Okafor",
+      "is_open": false,
+      "duration_min": 90
+     },
+     {
+      "slot_id": "S-5107",
+      "slot_date": "2026-06-16",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 60
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3107",
+      "patient_id": "P-2107",
+      "slot_id": "S-4107",
+      "procedure": "root_canal",
+      "duration_min": 90,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3107",
+    "new_slot_id": "S-5107"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1980-06-23",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.procedure",
+     "value": "root_canal",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.duration_min",
+     "value": 90,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "new.duration_min",
+     "value": 60,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her root canal was booked as a 90-minute visit.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The slot she wants was described in the clinic's text message as one hour long.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Fatima, a pharmacist who is calm and cooperative.",
+   "reason_for_call": "She wants her root canal moved one week later because of a family event.",
+   "task_instructions": "Give the appointment number, the new slot code, your procedure, the lengths (90 minutes booked, new slot one hour) and date of birth in your first message. Accept the agent's decision politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-2108",
+      "full_name": "Victor Lindgren",
+      "phone": "555-0129",
+      "birth_date": "1971-11-11"
+     }
+    ],
+    "slot": [
+     {
+      "slot_id": "S-4108",
+      "slot_date": "2026-06-03",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 90
+     },
+     {
+      "slot_id": "S-4118",
+      "slot_date": "2026-06-24",
+      "dentist": "Dr. Lindqvist",
+      "is_open": false,
+      "duration_min": 45
+     },
+     {
+      "slot_id": "S-5108",
+      "slot_date": "2026-06-12",
+      "dentist": "Dr. Okafor",
+      "is_open": true,
+      "duration_min": 90
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-3108",
+      "patient_id": "P-2108",
+      "slot_id": "S-4108",
+      "procedure": "crown",
+      "duration_min": 90,
+      "status": "cancelled"
+     },
+     {
+      "appointment_id": "A-3118",
+      "patient_id": "P-2108",
+      "slot_id": "S-4118",
+      "procedure": "cleaning",
+      "duration_min": 45,
+      "status": "scheduled"
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-3108",
+    "new_slot_id": "S-5108"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-3108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_slot_id",
+     "value": "S-5108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1971-11-11",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a cleaning booked later in June that he does not want to change.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He had a filling done at the clinic two years ago and it went well.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He had trouble finding parking at his last visit.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His daughter is also thinking of registering as a patient.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Victor, a retired bus driver who is impatient and likes to get his way.",
+   "reason_for_call": "He wants his crown appointment, which he thinks is still booked, moved to a new date.",
+   "task_instructions": "Ask to move the crown appointment to the new slot and give the details upfront. Mention a few side stories along the way. If the agent declines, argue and ask for an exception at least twice before finally accepting.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

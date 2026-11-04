@@ -1,0 +1,1128 @@
+{
+ "procedure_id": "h02_mortgage",
+ "domain": "mortgage servicing",
+ "organization": "Keystone Harbor Mortgage Servicing",
+ "title": "Payment deferral requests",
+ "summary": "Move one or more upcoming monthly mortgage payments to a non-interest-bearing deferred balance when the borrower, the loan and the property qualify, or send larger and riskier requests to the hardship review team.",
+ "entities": {
+  "borrower": {
+   "key": "borrower_id",
+   "description": "People who are the primary obligor on a serviced mortgage loan",
+   "fields": {
+    "borrower_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "ssn_last4": "str",
+    "mailing_city": "str"
+   }
+  },
+  "loan": {
+   "key": "loan_id",
+   "description": "Mortgage loans serviced by Keystone Harbor",
+   "fields": {
+    "loan_id": "str",
+    "borrower_id": "ref:borrower",
+    "property_id": "ref:property",
+    "loan_type": "enum:conventional_30|conventional_15|fha_30|va_30",
+    "status": "enum:current|delinquent|foreclosure|paid_off",
+    "origination_date": "date",
+    "monthly_payment": "number",
+    "unpaid_principal": "number",
+    "days_past_due": "int",
+    "deferred_balance": "number",
+    "next_due_date": "date"
+   }
+  },
+  "property": {
+   "key": "property_id",
+   "description": "The property that secures a loan, with its occupancy and hazard insurance status",
+   "fields": {
+    "property_id": "str",
+    "street_address": "str",
+    "city": "str",
+    "occupancy": "enum:owner_occupied|second_home|rental|vacant",
+    "insurance_status": "enum:active|lapsed|cancelled",
+    "insurance_carrier": "str"
+   }
+  },
+  "deferral": {
+   "key": "deferral_id",
+   "description": "Payment deferrals granted on a loan, past and present",
+   "fields": {
+    "deferral_id": "str",
+    "loan_id": "ref:loan",
+    "months": "int",
+    "deferred_amount": "number",
+    "created": "date",
+    "status": "enum:active|completed"
+   }
+  },
+  "hardship_review": {
+   "key": "review_id",
+   "description": "Cases sent to the hardship review team for a decision",
+   "fields": {
+    "review_id": "str",
+    "loan_id": "ref:loan",
+    "months": "int",
+    "reason": "enum:serious_delinquency|extended_term",
+    "created": "date"
+   }
+  },
+  "borrower_notice": {
+   "key": "notice_id",
+   "description": "Written notices queued for mailing to the borrower",
+   "fields": {
+    "notice_id": "str",
+    "loan_id": "ref:loan",
+    "notice_type": "enum:deferral_confirmation|review_acknowledgement",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_borrower",
+   "kind": "get",
+   "entity": "borrower",
+   "description": "Look up a borrower by borrower ID."
+  },
+  {
+   "name": "find_borrower_by_email",
+   "kind": "search",
+   "entity": "borrower",
+   "by": [
+    "email"
+   ],
+   "description": "Find borrowers by the email address on file."
+  },
+  {
+   "name": "find_borrower_by_phone",
+   "kind": "search",
+   "entity": "borrower",
+   "by": [
+    "phone"
+   ],
+   "description": "Find borrowers by the phone number on file (format 555-555-0123)."
+  },
+  {
+   "name": "get_loan",
+   "kind": "get",
+   "entity": "loan",
+   "description": "Look up a mortgage loan by loan number."
+  },
+  {
+   "name": "find_loans_by_borrower",
+   "kind": "search",
+   "entity": "loan",
+   "by": [
+    "borrower_id"
+   ],
+   "description": "List all loans where the given borrower is the primary obligor."
+  },
+  {
+   "name": "get_property",
+   "kind": "get",
+   "entity": "property",
+   "description": "Look up the property securing a loan, including occupancy and hazard insurance status."
+  },
+  {
+   "name": "find_deferrals_by_loan",
+   "kind": "search",
+   "entity": "deferral",
+   "by": [
+    "loan_id"
+   ],
+   "description": "List every payment deferral ever granted on a loan, active or completed."
+  },
+  {
+   "name": "create_deferral",
+   "kind": "create",
+   "entity": "deferral",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the deferral is granted on."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of monthly payments being deferred."
+    },
+    "deferred_amount": {
+     "type": "number",
+     "description": "Total amount deferred: monthly payment times months, rounded to the cent."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "months": "args.months",
+    "deferred_amount": "args.deferred_amount",
+    "created": "today",
+    "status": "'active'"
+   },
+   "description": "Record a new payment deferral on a loan."
+  },
+  {
+   "name": "apply_deferral_to_loan",
+   "kind": "update",
+   "entity": "loan",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan to update."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The deferred amount to add to the loan's deferred balance."
+    }
+   },
+   "set": {
+    "deferred_balance": "rec.deferred_balance + args.amount"
+   },
+   "description": "Add a deferred amount to the loan's non-interest-bearing deferred balance."
+  },
+  {
+   "name": "create_hardship_review",
+   "kind": "create",
+   "entity": "hardship_review",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the review is about."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of months the borrower asked to defer."
+    },
+    "reason": {
+     "type": "enum:serious_delinquency|extended_term",
+     "description": "Why the request needs hardship review."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "months": "args.months",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a deferral request to the hardship review team."
+  },
+  {
+   "name": "create_borrower_notice",
+   "kind": "create",
+   "entity": "borrower_notice",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the notice is about."
+    },
+    "notice_type": {
+     "type": "enum:deferral_confirmation|review_acknowledgement",
+     "description": "Which notice to mail."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "notice_type": "args.notice_type",
+    "created": "today"
+   },
+   "description": "Queue a written notice to be mailed to the borrower."
+  }
+ ],
+ "request": {
+  "loan_id": {
+   "type": "ref:loan",
+   "description": "the mortgage loan whose payments you want to defer"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many monthly payments you want to defer"
+  }
+ },
+ "claims": {
+  "ssn_last4": {
+   "type": "str",
+   "description": "the last four digits of your Social Security number"
+  }
+ },
+ "bindings": [
+  {
+   "name": "loan",
+   "entity": "loan",
+   "key": "req.loan_id"
+  },
+  {
+   "name": "bor",
+   "entity": "borrower",
+   "key": "loan.borrower_id"
+  },
+  {
+   "name": "prop",
+   "entity": "property",
+   "key": "loan.property_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Grant the deferral: record it, add the amount to the loan's deferred balance, and mail a confirmation.",
+   "calls": [
+    {
+     "tool": "create_deferral",
+     "args": {
+      "loan_id": "req.loan_id",
+      "months": "req.months",
+      "deferred_amount": "round(loan.monthly_payment * req.months, 2)"
+     }
+    },
+    {
+     "tool": "apply_deferral_to_loan",
+     "args": {
+      "loan_id": "req.loan_id",
+      "amount": "round(loan.monthly_payment * req.months, 2)"
+     }
+    },
+    {
+     "tool": "create_borrower_notice",
+     "args": {
+      "loan_id": "req.loan_id",
+      "notice_type": "'deferral_confirmation'"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Send the request to the hardship review team and mail an acknowledgement instead of granting the deferral.",
+   "calls": [
+    {
+     "tool": "create_hardship_review",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "months": "req.months",
+      "reason": "'serious_delinquency' if loan.days_past_due > 60 else 'extended_term'"
+     }
+    },
+    {
+     "tool": "create_borrower_notice",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "notice_type": "'review_acknowledgement'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not grant or route the deferral; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.ssn_last4 != bor.ssn_last4",
+   "outcome": "refuse",
+   "explain": "The caller must give the last four digits of the borrower's Social Security number exactly as on file."
+  },
+  {
+   "id": "R2",
+   "when": "loan.status in ['foreclosure', 'paid_off']",
+   "outcome": "refuse",
+   "explain": "Loans in foreclosure or already paid off cannot receive a deferral."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(loan.origination_date, today) < 365",
+   "outcome": "refuse",
+   "explain": "A loan must have been originated at least 365 days ago to be eligible."
+  },
+  {
+   "id": "R4",
+   "when": "req.months < 1 or req.months > 6",
+   "outcome": "refuse",
+   "explain": "A deferral must cover between 1 and 6 monthly payments."
+  },
+  {
+   "id": "R5",
+   "when": "db_count('deferral', 'loan_id', loan.loan_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A loan can receive at most two deferrals over its life, so a loan with two or more deferrals on record is not eligible."
+  },
+  {
+   "id": "R6",
+   "when": "prop.insurance_status != 'active'",
+   "outcome": "refuse",
+   "explain": "The property securing the loan must have active hazard insurance."
+  },
+  {
+   "id": "R7",
+   "when": "prop.occupancy != 'owner_occupied'",
+   "outcome": "refuse",
+   "explain": "Only loans on owner-occupied primary residences are eligible."
+  },
+  {
+   "id": "R8",
+   "when": "loan.days_past_due > 60",
+   "outcome": "review",
+   "explain": "Loans more than 60 days past due go to hardship review with reason serious_delinquency instead of an immediate deferral."
+  },
+  {
+   "id": "R9",
+   "when": "req.months > 3",
+   "outcome": "review",
+   "explain": "Requests to defer 4 to 6 payments go to hardship review with reason extended_term."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Purpose\nBorrowers facing a short-term setback may ask to defer one or more upcoming monthly payments. A deferred payment is moved to a non-interest-bearing deferred balance that is due when the loan is paid off, refinanced or the home is sold. This procedure covers how to handle those requests by phone or chat.\n\n## Finding the loan\nUse the loan number if the borrower has it. If not, find the borrower by the email address or phone number on file, then list the loans where they are the primary borrower. If more than one loan comes back, ask which loan they mean (for example by loan type: 30-year conventional, 15-year conventional, FHA or VA) and use only that loan. If you cannot identify the borrower and the exact loan, or the borrower does not tell you how many payments they want to defer, do not make any change.\n\n## Identity check\nBefore anything else, ask for the last four digits of the borrower's Social Security number and compare them to the borrower record linked to the loan. If they do not match, or the caller cannot give them, decline. Do not hint at the correct digits.\n\n## Eligibility checks (apply in this order; the first one that applies decides)\n1. Loan status: if the loan's status is foreclosure or paid off, decline.\n2. Seasoning: the loan must have been originated at least 365 days before today. If fewer than 365 days have passed since the origination date, decline. Use the origination date on our records, not the date the borrower remembers.\n3. Length: a deferral must cover a whole number of monthly payments from 1 to 6. If the number of payments requested is less than 1 (for example 0) or more than 6, decline. Do not change the number yourself. If the borrower then asks for a number of payments from 1 to 6, treat it as a new request and run the checks on that number.\n4. Prior deferrals: a loan may receive at most two deferrals over its life. Look up the loan's deferral history; if two or more deferrals (active or completed) are already on record for the loan, decline.\n5. Hazard insurance: look up the property securing the loan. Its hazard insurance status must be active; if it is lapsed or cancelled, decline and tell the borrower to restore coverage first.\n6. Occupancy: the property must be the borrower's owner-occupied primary residence. If the property is a second home, a rental or vacant, decline.\n7. Serious delinquency: if the loan is more than 60 days past due (61 days or more), do not grant a deferral. Open a hardship review with reason serious_delinquency.\n8. Extended term: if the borrower asks to defer more than 3 payments (that is, 4, 5 or 6), do not grant it directly. Open a hardship review with reason extended_term.\n\nA loan exactly 60 days past due is not sent to review under check 7. When declining under any check, make no changes and explain the reason.\n\n## Opening a hardship review\nWhen check 7 or 8 applies:\n- Step 1: create a hardship review for the loan with the number of payments the borrower requested and the reason (serious_delinquency if the loan is more than 60 days past due, otherwise extended_term).\n- Step 2: queue a review_acknowledgement notice for the loan.\nTell the borrower the hardship team will contact them. Do not record a deferral or change the deferred balance.\n\n## Granting a deferral\nIf none of the checks above applies, grant the deferral for the number of payments requested:\n- Compute the deferred amount: the loan's monthly payment on file multiplied by the number of months, rounded to the cent. Example: a monthly payment of 1,500.25 deferred for 3 months is 4,500.75.\n- Step 1: record the deferral on the loan with the number of months and the deferred amount.\n- Step 2: apply the same deferred amount to the loan's deferred balance.\n- Step 3: queue a deferral_confirmation notice for the loan.\nTell the borrower the amount deferred.\n\n## Never\nDo not grant a deferral or open a review for a caller who failed the identity check. Do not change the number of months the borrower asked for. Do not act on a loan other than the one the borrower asked about, and do not change anything else on the loan.",
+ "db_common": {
+  "borrower": [
+   {
+    "borrower_id": "B-70011",
+    "full_name": "Gloria Fenwick",
+    "email": "gfenwick@example.net",
+    "phone": "717-555-0102",
+    "ssn_last4": "3019",
+    "mailing_city": "Harrisburg"
+   }
+  ],
+  "property": [
+   {
+    "property_id": "P-500100",
+    "street_address": "14 Orchard Hill Rd",
+    "city": "Harrisburg",
+    "occupancy": "owner_occupied",
+    "insurance_status": "active",
+    "insurance_carrier": "Erie Insurance"
+   }
+  ],
+  "loan": [
+   {
+    "loan_id": "ML-300100",
+    "borrower_id": "B-70011",
+    "property_id": "P-500100",
+    "loan_type": "conventional_30",
+    "status": "current",
+    "origination_date": "2014-05-02",
+    "monthly_payment": 1420.18,
+    "unpaid_principal": 168220.4,
+    "days_past_due": 0,
+    "deferred_balance": 1420.18,
+    "next_due_date": "2026-06-01"
+   }
+  ],
+  "deferral": [
+   {
+    "deferral_id": "D-900001",
+    "loan_id": "ML-300100",
+    "months": 1,
+    "deferred_amount": 1420.18,
+    "created": "2021-01-12",
+    "status": "completed"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-71204",
+      "full_name": "Curtis Abernathy",
+      "email": "c.abernathy@fastmail.com",
+      "phone": "614-555-0187",
+      "ssn_last4": "4471",
+      "mailing_city": "Columbus"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-510482",
+      "street_address": "88 Larkspur Ln",
+      "city": "Columbus",
+      "occupancy": "owner_occupied",
+      "insurance_status": "lapsed",
+      "insurance_carrier": "Buckeye Mutual"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-310482",
+      "borrower_id": "B-71204",
+      "property_id": "P-510482",
+      "loan_type": "conventional_30",
+      "status": "current",
+      "origination_date": "2018-06-15",
+      "monthly_payment": 2104.55,
+      "unpaid_principal": 287410.22,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-310482",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "bor.email",
+     "value": "c.abernathy@fastmail.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "4471",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Curtis, a long-haul truck dispatcher writing between calls. Gives the bare minimum.",
+   "reason_for_call": "His overtime was cut and he wants to push two mortgage payments back. He does not have his loan number handy.",
+   "task_instructions": "Say you want to defer two payments and give your email. Answer each question in as few words as possible and never add anything unasked. Give the last four of your SSN only when asked. If declined, say 'ok' and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-72330",
+      "full_name": "Denise Okafor",
+      "email": "denise.okafor@gmail.com",
+      "phone": "757-555-0164",
+      "ssn_last4": "9026",
+      "mailing_city": "Norfolk"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-522915",
+      "street_address": "2201 Bayview Ct",
+      "city": "Norfolk",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "USAA"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-322915",
+      "borrower_id": "B-72330",
+      "property_id": "P-522915",
+      "loan_type": "va_30",
+      "status": "current",
+      "origination_date": "2016-09-30",
+      "monthly_payment": 1788.1,
+      "unpaid_principal": 241906.73,
+      "days_past_due": 0,
+      "deferred_balance": 5364.3,
+      "next_due_date": "2026-06-01"
+     }
+    ],
+    "deferral": [
+     {
+      "deferral_id": "D-912201",
+      "loan_id": "ML-322915",
+      "months": 2,
+      "deferred_amount": 3576.2,
+      "created": "2020-05-04",
+      "status": "completed"
+     },
+     {
+      "deferral_id": "D-912202",
+      "loan_id": "ML-322915",
+      "months": 1,
+      "deferred_amount": 1788.1,
+      "created": "2023-11-10",
+      "status": "completed"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-322915",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-322915",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "9026",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Denise, a Navy veteran and school administrator. Direct, impatient, and used to getting things done.",
+   "reason_for_call": "An unexpected roof repair drained her savings and she wants to defer two payments.",
+   "task_instructions": "In your first message give the loan number, the last four of your SSN and say you want to defer two payments. If refused, argue that you have always paid in the end and ask for an exception at least twice, getting more insistent. Then accept and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-73518",
+      "full_name": "Hector Villanueva",
+      "email": "hvillanueva@outlook.com",
+      "phone": "512-555-0143",
+      "ssn_last4": "3308",
+      "mailing_city": "Austin"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-534410",
+      "street_address": "4709 Cedar Bend Dr",
+      "city": "Austin",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "Texas Farm Bureau"
+     },
+     {
+      "property_id": "P-534977",
+      "street_address": "312 W Mesa St",
+      "city": "San Marcos",
+      "occupancy": "rental",
+      "insurance_status": "active",
+      "insurance_carrier": "Texas Farm Bureau"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-334410",
+      "borrower_id": "B-73518",
+      "property_id": "P-534410",
+      "loan_type": "fha_30",
+      "status": "current",
+      "origination_date": "2020-02-21",
+      "monthly_payment": 1946.82,
+      "unpaid_principal": 263118.5,
+      "days_past_due": 12,
+      "deferred_balance": 1946.82,
+      "next_due_date": "2026-05-01"
+     },
+     {
+      "loan_id": "ML-334977",
+      "borrower_id": "B-73518",
+      "property_id": "P-534977",
+      "loan_type": "conventional_15",
+      "status": "current",
+      "origination_date": "2019-07-09",
+      "monthly_payment": 1210.44,
+      "unpaid_principal": 98340.11,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ],
+    "deferral": [
+     {
+      "deferral_id": "D-913301",
+      "loan_id": "ML-334410",
+      "months": 1,
+      "deferred_amount": 1946.82,
+      "created": "2022-08-01",
+      "status": "completed"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-334410",
+    "months": 3
+   },
+   "initial_request_values": {
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "bor.phone",
+     "value": "512-555-0143",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.loan_type",
+     "value": "fha_30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "3308",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hector, a restaurant owner whose kitchen is closed for renovation. Practical and willing to bargain.",
+   "reason_for_call": "With the restaurant closed he wants breathing room on the FHA loan on his home. He has no loan number, only the phone number on the account.",
+   "task_instructions": "Give your phone number and say it is about your FHA loan on your house. First ask to defer eight payments. Give the last four of your SSN when asked. Only after the agent refuses the eight months, ask for three months instead and accept the result.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-74602",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@proton.me",
+      "phone": "408-555-0129",
+      "ssn_last4": "5512",
+      "mailing_city": "San Jose"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-546120",
+      "street_address": "961 Almaden Grove Way",
+      "city": "San Jose",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "Mercury Insurance"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-346120",
+      "borrower_id": "B-74602",
+      "property_id": "P-546120",
+      "loan_type": "conventional_30",
+      "status": "current",
+      "origination_date": "2025-08-14",
+      "monthly_payment": 2675.4,
+      "unpaid_principal": 512880,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-346120",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-346120",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "5512",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.origination_date",
+     "value": "2025-03-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a software engineer on unpaid parental leave. Polite and patient.",
+   "reason_for_call": "Her leave pay ended earlier than expected and she wants to defer one payment. She is sure she closed on the house in early March last year.",
+   "task_instructions": "Give the loan number, the last four of your SSN and ask to defer one payment. Mention that you closed on the house on March 1 last year, so it has been over a year. If the agent says the records show a later date and declines, accept it politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-75809",
+      "full_name": "Marcus Lindqvist",
+      "email": "mlindqvist@yahoo.com",
+      "phone": "612-555-0176",
+      "ssn_last4": "2290",
+      "mailing_city": "Minneapolis"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-558031",
+      "street_address": "3318 Upton Ave S",
+      "city": "Minneapolis",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "American Family"
+     },
+     {
+      "property_id": "P-558044",
+      "street_address": "27 Loon Point Trl",
+      "city": "Brainerd",
+      "occupancy": "second_home",
+      "insurance_status": "active",
+      "insurance_carrier": "American Family"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-358031",
+      "borrower_id": "B-75809",
+      "property_id": "P-558031",
+      "loan_type": "conventional_30",
+      "status": "current",
+      "origination_date": "2017-04-12",
+      "monthly_payment": 2318.45,
+      "unpaid_principal": 302455.9,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     },
+     {
+      "loan_id": "ML-358044",
+      "borrower_id": "B-75809",
+      "property_id": "P-558044",
+      "loan_type": "conventional_15",
+      "status": "current",
+      "origination_date": "2021-06-30",
+      "monthly_payment": 1387.6,
+      "unpaid_principal": 141220.35,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-358031",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-358031",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "2290",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He got an escrow shortage letter last month on the loan for his lake cabin up north and mentions he will deal with it separately.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He has been reading about refinance rates and asks in passing whether they are any better now, but says he is not ready to refinance.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His daughter starts college in the fall and tuition is a big part of why money is tight.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His loan was transferred to Keystone Harbor from another servicer back in 2021 and he still sometimes mixes up the websites.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a chatty high-school band director who tends to wander off topic.",
+   "reason_for_call": "Tuition and a car repair hit at the same time and he wants to defer payments on the mortgage for his home in the city.",
+   "task_instructions": "Give the loan number of your home loan and the last four of your SSN up front. First ask to defer five payments. Before the agent does anything, change your mind and say two payments will be enough. Mention the other details naturally while talking. Accept the result.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-76145",
+      "full_name": "Yolanda Briggs",
+      "email": "ybriggs@comcast.net",
+      "phone": "404-555-0151",
+      "ssn_last4": "6834",
+      "mailing_city": "Decatur"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-561577",
+      "street_address": "509 Kirkwood Pl",
+      "city": "Decatur",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "Allstate"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-361577",
+      "borrower_id": "B-76145",
+      "property_id": "P-561577",
+      "loan_type": "fha_30",
+      "status": "current",
+      "origination_date": "2021-10-05",
+      "monthly_payment": 1612.93,
+      "unpaid_principal": 214760.08,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-361577",
+    "months": 5
+   },
+   "initial_request_values": {
+    "months": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-361577",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "6834",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yolanda, a home health aide recovering from knee surgery. Calm but determined to get as much relief as she can.",
+   "reason_for_call": "She will be off work for several months after surgery and wants to defer her mortgage payments.",
+   "task_instructions": "Give your loan number and ask to defer nine payments. Give the last four of your SSN only when asked. When the agent refuses nine, ask for five instead. If told it goes to a review team, accept that.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-77230",
+      "full_name": "Tobias Reinholt",
+      "email": "t.reinholt@icloud.com",
+      "phone": "414-555-0138",
+      "ssn_last4": "1157",
+      "mailing_city": "Milwaukee"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-572208",
+      "street_address": "1840 N Prospect Ave",
+      "city": "Milwaukee",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "State Farm"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-372208",
+      "borrower_id": "B-77230",
+      "property_id": "P-572208",
+      "loan_type": "conventional_30",
+      "status": "delinquent",
+      "origination_date": "2019-03-18",
+      "monthly_payment": 2489.7,
+      "unpaid_principal": 331902.64,
+      "days_past_due": 75,
+      "deferred_balance": 0,
+      "next_due_date": "2026-03-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-372208",
+    "months": 3
+   },
+   "initial_request_values": {
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-372208",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "1157",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.days_past_due",
+     "value": 75,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His homeowners insurance with State Farm renewed in March and is fully paid.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He still lives in the house; it is his only home.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He lost his job at a machine shop in February, which is why he has fallen about two and a half months behind.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tobias, a laid-off machinist who is organized and upfront about his situation.",
+   "reason_for_call": "He has a new job starting soon and wants to defer payments to catch his breath.",
+   "task_instructions": "In your first message give the loan number, the last four of your SSN, say you are about 75 days behind, and ask to defer two payments. Mention your insurance renewal, that it is your only home, and your job loss. Before the agent does anything, change your mind and ask for three payments instead. Accept the result.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-78415",
+      "full_name": "Renata Szabo",
+      "email": "renata.szabo@gmail.com",
+      "phone": "520-555-0193",
+      "ssn_last4": "7740",
+      "mailing_city": "Denver"
+     }
+    ],
+    "property": [
+     {
+      "property_id": "P-584901",
+      "street_address": "6120 E Calle Ojo Feliz",
+      "city": "Tucson",
+      "occupancy": "rental",
+      "insurance_status": "active",
+      "insurance_carrier": "Liberty Mutual"
+     },
+     {
+      "property_id": "P-584955",
+      "street_address": "2275 S Clarkson St",
+      "city": "Denver",
+      "occupancy": "owner_occupied",
+      "insurance_status": "active",
+      "insurance_carrier": "Liberty Mutual"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "ML-384901",
+      "borrower_id": "B-78415",
+      "property_id": "P-584901",
+      "loan_type": "conventional_30",
+      "status": "current",
+      "origination_date": "2015-07-22",
+      "monthly_payment": 1923.16,
+      "unpaid_principal": 176480.27,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     },
+     {
+      "loan_id": "ML-384955",
+      "borrower_id": "B-78415",
+      "property_id": "P-584955",
+      "loan_type": "conventional_30",
+      "status": "current",
+      "origination_date": "2022-04-15",
+      "monthly_payment": 3104.88,
+      "unpaid_principal": 448915.6,
+      "days_past_due": 0,
+      "deferred_balance": 0,
+      "next_due_date": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "ML-384901",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "ML-384901",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.ssn_last4",
+     "value": "7740",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She has a home equity line of credit with a different bank on her other house and complains about its rate.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She wants to switch to paperless statements someday but says it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She read online that she might be able to drop mortgage insurance and asks about it, then says never mind for now.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She has had a loan with Keystone Harbor for over ten years and has never missed a payment.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Renata, a hospital billing manager who is used to arguing with insurers and does not take no easily.",
+   "reason_for_call": "A big tenant turnover and repair bill left her short, and she wants to defer three payments on her Tucson house loan.",
+   "task_instructions": "Give the loan number, the last four of your SSN and ask to defer three payments. Mention the other details as asides. If refused, push back hard, point to your perfect payment history and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ },
+ "_policy_before_fix": "## Purpose\nBorrowers facing a short-term setback may ask to defer one or more upcoming monthly payments. A deferred payment is moved to a non-interest-bearing deferred balance that is due when the loan is paid off, refinanced or the home is sold. This procedure covers how to handle those requests by phone or chat.\n\n## Finding the loan\nUse the loan number if the borrower has it. If not, find the borrower by the email address or phone number on file, then list the loans where they are the primary borrower. If more than one loan comes back, ask which loan they mean (for example by loan type: 30-year conventional, 15-year conventional, FHA or VA) and use only that loan. If you cannot identify the borrower and the exact loan, do not make any change.\n\n## Identity check\nBefore anything else, ask for the last four digits of the borrower's Social Security number and compare them to the borrower record linked to the loan. If they do not match, or the caller cannot give them, decline. Do not hint at the correct digits.\n\n## Eligibility checks (apply in this order; the first one that applies decides)\n1. Loan status: loans in foreclosure or already paid off cannot be deferred.\n2. Seasoning: the loan must have been originated at least 365 days before today. Use the origination date on our records, not the date the borrower remembers.\n3. Length: a deferral covers at least 1 and at most 6 monthly payments. Requests for more than 6 are declined; do not shorten the request yourself. If the borrower then asks for a number of months within the limit, treat it as a new request.\n4. Prior deferrals: a loan may receive at most two deferrals over its life. Look up the loan's deferral history; if two or more deferrals (active or completed) are already on record, decline.\n5. Hazard insurance: look up the property securing the loan. Its hazard insurance status must be active; if it is lapsed or cancelled, decline and tell the borrower to restore coverage first.\n6. Occupancy: the property must be the borrower's owner-occupied primary residence. Second homes, rentals and vacant properties are not eligible.\n7. Serious delinquency: if the loan is more than 60 days past due, do not grant a deferral. Open a hardship review with reason serious_delinquency.\n8. Extended term: if the borrower asks to defer more than 3 payments (that is, 4, 5 or 6), do not grant it directly. Open a hardship review with reason extended_term.\n\nWhen opening a hardship review, record the loan and the number of months requested, then queue a review_acknowledgement notice for the loan. Tell the borrower the hardship team will contact them.\n\n## Granting a deferral\nIf none of the checks above applies, grant the deferral for the number of payments requested:\n- Compute the deferred amount: the loan's monthly payment on file multiplied by the number of months, rounded to the cent. Example: a monthly payment of 1,500.25 deferred for 3 months is 4,500.75.\n- Step 1: record the deferral on the loan with the number of months and the deferred amount.\n- Step 2: apply the same deferred amount to the loan's deferred balance.\n- Step 3: queue a deferral_confirmation notice for the loan.\nTell the borrower the amount deferred.\n\n## Never\nDo not grant a deferral or open a review for a caller who failed the identity check. Do not change the number of months the borrower asked for. Do not act on a loan other than the one the borrower asked about, and do not change anything else on the loan."
+}

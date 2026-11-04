@@ -1,0 +1,974 @@
+{
+ "procedure_id": "h01_auto",
+ "domain": "auto insurance claims",
+ "organization": "Cedar Mutual Auto Insurance",
+ "title": "Collision claim settlement payout",
+ "summary": "Settle an open collision repair claim by recording the payout and issuing a payment when the policyholder, policy, repair shop and claim all qualify.",
+ "entities": {
+  "policyholder": {
+   "key": "policyholder_id",
+   "description": "Insured customers",
+   "fields": {
+    "policyholder_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "fraud_hold": "bool"
+   }
+  },
+  "policy": {
+   "key": "policy_id",
+   "description": "Auto insurance policies with collision coverage",
+   "fields": {
+    "policy_id": "str",
+    "policyholder_id": "ref:policyholder",
+    "status": "enum:active|lapsed|cancelled",
+    "deductible": "number",
+    "coverage_limit": "number"
+   }
+  },
+  "repair_shop": {
+   "key": "shop_id",
+   "description": "Repair shops known to the insurer",
+   "fields": {
+    "shop_id": "str",
+    "name": "str",
+    "network_status": "enum:preferred|approved|suspended"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Collision claims",
+   "fields": {
+    "claim_id": "str",
+    "policy_id": "ref:policy",
+    "shop_id": "ref:repair_shop",
+    "loss_date": "date",
+    "reported_date": "date",
+    "status": "enum:open|settled|denied",
+    "estimate": "number",
+    "total_loss": "bool",
+    "payout_amount": "number"
+   }
+  },
+  "payment": {
+   "key": "payment_id",
+   "description": "Payments issued on claims",
+   "fields": {
+    "payment_id": "str",
+    "claim_id": "ref:claim",
+    "amount": "number",
+    "payee": "enum:shop|policyholder",
+    "created": "date"
+   }
+  },
+  "adjuster_review": {
+   "key": "review_id",
+   "description": "Requests for a senior adjuster to review a claim",
+   "fields": {
+    "review_id": "str",
+    "claim_id": "ref:claim",
+    "reason": "enum:high_value|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by claim number."
+  },
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a policy by policy number."
+  },
+  {
+   "name": "get_policyholder",
+   "kind": "get",
+   "entity": "policyholder",
+   "description": "Look up a policyholder by policyholder ID."
+  },
+  {
+   "name": "get_repair_shop",
+   "kind": "get",
+   "entity": "repair_shop",
+   "description": "Look up a repair shop by shop ID."
+  },
+  {
+   "name": "find_policyholder_by_email",
+   "kind": "search",
+   "entity": "policyholder",
+   "by": [
+    "email"
+   ],
+   "description": "Find policyholders by the email address on file."
+  },
+  {
+   "name": "find_policies_by_holder",
+   "kind": "search",
+   "entity": "policy",
+   "by": [
+    "policyholder_id"
+   ],
+   "description": "List all policies of a policyholder."
+  },
+  {
+   "name": "find_claims_by_policy",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "policy_id"
+   ],
+   "description": "List all claims filed under a policy."
+  },
+  {
+   "name": "settle_claim",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to settle."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The payout amount in dollars."
+    }
+   },
+   "set": {
+    "status": "'settled'",
+    "payout_amount": "args.amount"
+   },
+   "description": "Mark a claim as settled and record the payout amount."
+  },
+  {
+   "name": "create_payment",
+   "kind": "create",
+   "entity": "payment",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim being paid."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The payment amount in dollars."
+    },
+    "payee": {
+     "type": "enum:shop|policyholder",
+     "description": "Who receives the payment."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "amount": "args.amount",
+    "payee": "args.payee",
+    "created": "today"
+   },
+   "description": "Issue a payment on a claim to the repair shop or the policyholder."
+  },
+  {
+   "name": "create_adjuster_review",
+   "kind": "create",
+   "entity": "adjuster_review",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to be reviewed."
+    },
+    "reason": {
+     "type": "enum:high_value|other",
+     "description": "Why a senior adjuster should review it."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a senior adjuster to review a claim."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want settled"
+  },
+  "payee": {
+   "type": "enum:shop|policyholder",
+   "description": "who you want the payment sent to: the repair shop (shop) or yourself (policyholder)"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "pol",
+   "entity": "policy",
+   "key": "clm.policy_id"
+  },
+  {
+   "name": "holder",
+   "entity": "policyholder",
+   "key": "pol.policyholder_id"
+  },
+  {
+   "name": "shop",
+   "entity": "repair_shop",
+   "key": "clm.shop_id"
+  }
+ ],
+ "outcomes": {
+  "settle": {
+   "kind": "perform",
+   "description": "Record the settlement on the claim and issue the payment for the same amount to the requested payee.",
+   "calls": [
+    {
+     "tool": "settle_claim",
+     "args": {
+      "claim_id": "req.claim_id",
+      "amount": "round(min(clm.estimate - pol.deductible, pol.coverage_limit), 2)"
+     }
+    },
+    {
+     "tool": "create_payment",
+     "args": {
+      "claim_id": "req.claim_id",
+      "amount": "round(min(clm.estimate - pol.deductible, pol.coverage_limit), 2)",
+      "payee": "req.payee"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The payout is large: open a senior adjuster review instead of settling.",
+   "calls": [
+    {
+     "tool": "create_adjuster_review",
+     "args": {
+      "claim_id": "clm.claim_id",
+      "reason": "'high_value'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not settle or pay; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != holder.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file for the policyholder before any change."
+  },
+  {
+   "id": "R2",
+   "when": "holder.fraud_hold",
+   "outcome": "refuse",
+   "explain": "Claims of policyholders with a fraud hold cannot be settled through this channel."
+  },
+  {
+   "id": "R3",
+   "when": "clm.status != 'open'",
+   "outcome": "refuse",
+   "explain": "Only open claims can be settled."
+  },
+  {
+   "id": "R4",
+   "when": "pol.status != 'active'",
+   "outcome": "refuse",
+   "explain": "The policy must be active."
+  },
+  {
+   "id": "R5",
+   "when": "clm.total_loss",
+   "outcome": "refuse",
+   "explain": "Total loss claims are handled by a separate process and cannot be settled here."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(clm.loss_date, clm.reported_date) > 30",
+   "outcome": "refuse",
+   "explain": "The accident must have been reported within 30 days of the loss date."
+  },
+  {
+   "id": "R7",
+   "when": "clm.estimate <= pol.deductible",
+   "outcome": "refuse",
+   "explain": "If the repair estimate does not exceed the deductible, nothing is payable."
+  },
+  {
+   "id": "R8",
+   "when": "req.payee == 'shop' and shop.network_status == 'suspended'",
+   "outcome": "refuse",
+   "explain": "Payment cannot be sent directly to a suspended repair shop."
+  },
+  {
+   "id": "R9",
+   "when": "min(clm.estimate - pol.deductible, pol.coverage_limit) > 5000",
+   "outcome": "review",
+   "explain": "Payouts above 5000.00 need a senior adjuster review instead of immediate settlement."
+  }
+ ],
+ "default_outcome": "settle",
+ "policy_text": "## Who can ask\nPolicyholders can ask to have an open collision repair claim settled and paid, by phone or chat. Before changing anything, find the claim and confirm the caller's identity: the date of birth they give must match the date of birth on file for the policyholder who owns the policy behind the claim. If it does not match, or they cannot give it, make no change.\n\n## Finding the claim\nUse the claim number if the caller has it. Otherwise ask for the policy number, list the claims on that policy, and ask which accident they mean (for example by the loss date). You can also find the policyholder by the email on file and list their policies. If the claim cannot be identified, or the caller does not say who should be paid, do not guess; no change can be made.\n\n## Checks before settling\nLook up the policy, the policyholder and the repair shop on the claim yourself; the caller will not mention them. The claim must pass every check below, in this order:\n1. Identity: the date of birth given must match the file.\n2. If the policyholder has a fraud hold on file, the claim cannot be settled here. Decline without giving details.\n3. The claim must be open. Settled or denied claims cannot be settled again.\n4. The policy status must be active (not lapsed or cancelled).\n5. Total loss claims cannot be settled here; decline.\n6. The accident must have been reported within 30 days of the loss date (reported date minus loss date no more than 30 days).\n7. The repair estimate must be higher than the policy deductible; otherwise nothing is payable.\n8. If the caller wants the payment sent to the repair shop and that shop's network status is suspended, decline. Payment to a suspended shop is not allowed (payment to the policyholder is still fine).\n9. Compute the payout as the repair estimate minus the deductible, but never more than the policy coverage limit. If this payout is more than 5000.00, do not settle; open an adjuster review request with reason high_value and tell the caller a senior adjuster will contact them.\n\nIf the payout is 5000.00 or less and all checks pass, settle the claim: first record the settlement on the claim with the computed payout, then issue one payment of the same amount to the payee the caller asked for (shop or policyholder).\n\n## Never\nDo not settle for a caller who failed the identity check, do not change deductibles or limits, do not promise exceptions, do not pay anyone other than the payee the caller chose, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "repair_shop": [
+   {
+    "shop_id": "S-100",
+    "name": "Lakeside Collision",
+    "network_status": "preferred"
+   },
+   {
+    "shop_id": "S-101",
+    "name": "Ridgeway Auto Body",
+    "network_status": "approved"
+   },
+   {
+    "shop_id": "S-102",
+    "name": "Quickfix Bodyworks",
+    "network_status": "suspended"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1001",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "birth_date": "1984-03-09",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2001",
+      "policyholder_id": "H-1001",
+      "status": "active",
+      "deductible": 500,
+      "coverage_limit": 25000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3001",
+      "policy_id": "P-2001",
+      "shop_id": "S-101",
+      "loss_date": "2026-04-28",
+      "reported_date": "2026-05-02",
+      "status": "open",
+      "estimate": 3400,
+      "total_loss": false,
+      "payout_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3001",
+    "payee": "shop"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "shop",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-03-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.deductible",
+     "value": 250,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a delivery driver who writes in very short messages and believes his deductible is lower than it is.",
+   "reason_for_call": "His car is repaired and he wants the claim paid to the body shop.",
+   "task_instructions": "Keep every message very short. Give the claim number, that the shop should be paid, your date of birth, and say your deductible is 250. If the agent says the deductible on file is different, accept it briefly.",
+   "expected_outcome": "settle"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1002",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "birth_date": "1991-08-21",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2002",
+      "policyholder_id": "H-1002",
+      "status": "active",
+      "deductible": 1000,
+      "coverage_limit": 15000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3002",
+      "policy_id": "P-2002",
+      "shop_id": "S-102",
+      "loss_date": "2026-04-20",
+      "reported_date": "2026-04-22",
+      "status": "open",
+      "estimate": 4100,
+      "total_loss": false,
+      "payout_amount": 0
+     },
+     {
+      "claim_id": "C-3003",
+      "policy_id": "P-2002",
+      "shop_id": "S-100",
+      "loss_date": "2025-12-02",
+      "reported_date": "2025-12-03",
+      "status": "settled",
+      "estimate": 650,
+      "total_loss": false,
+      "payout_amount": 350
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3002",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1991-08-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a second car on the same policy that she rarely drives.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was happy with the multi-car discount on her last renewal.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a windshield claim last winter that was paid quickly.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her rental car pickup was delayed by a day and the clerk was rude.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "payee": "shop"
+   },
+   "persona": "Priya, a product manager who talks a lot about side topics and tries to get what she first asked for before settling for less.",
+   "reason_for_call": "Her car has been repaired after a collision and she wants the claim paid.",
+   "task_instructions": "First ask for the claim to be paid directly to the body shop. If the agent refuses, ask once or twice why and whether another option exists, then ask for the payment to be sent to you instead. Mention your side stories naturally during the chat.",
+   "expected_outcome": "settle"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1003",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.com",
+      "birth_date": "1976-12-02",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2003",
+      "policyholder_id": "H-1003",
+      "status": "active",
+      "deductible": 500,
+      "coverage_limit": 20000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3004",
+      "policy_id": "P-2003",
+      "shop_id": "S-100",
+      "loss_date": "2026-03-01",
+      "reported_date": "2026-04-15",
+      "status": "open",
+      "estimate": 2800,
+      "total_loss": false,
+      "payout_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3004",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1976-12-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "payee": "shop"
+   },
+   "persona": "Tomas, a retired mechanic who is a bit indecisive about the paperwork.",
+   "reason_for_call": "He wants the payout for a parking-lot collision that happened in the winter.",
+   "task_instructions": "Give the claim number and your date of birth. At first say you think the body shop should be paid. When the agent asks who should receive the payment, say you changed your mind and want it sent to you instead. If the claim is declined, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1004",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.com",
+      "birth_date": "1969-05-17",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2004",
+      "policyholder_id": "H-1004",
+      "status": "lapsed",
+      "deductible": 750,
+      "coverage_limit": 18000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3005",
+      "policy_id": "P-2004",
+      "shop_id": "S-101",
+      "loss_date": "2026-05-03",
+      "reported_date": "2026-05-05",
+      "status": "open",
+      "estimate": 3600,
+      "total_loss": false,
+      "payout_amount": 0
+     },
+     {
+      "claim_id": "C-3006",
+      "policy_id": "P-2004",
+      "shop_id": "S-100",
+      "loss_date": "2026-02-11",
+      "reported_date": "2026-02-12",
+      "status": "settled",
+      "estimate": 1900,
+      "total_loss": false,
+      "payout_amount": 1150
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3005",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "clm.policy_id",
+     "value": "P-2004",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.loss_date",
+     "value": "2026-05-03",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-05-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "payee": "shop"
+   },
+   "persona": "Grace, a school administrator who misplaced her claim letter.",
+   "reason_for_call": "She wants the payout for her recent collision but does not have the claim number.",
+   "task_instructions": "Say you lost the letter with the claim number but know your policy number. First say the body shop should be paid, then change your mind and ask for it to be sent to you. Give the accident date only if asked. Accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1005",
+      "full_name": "Hannah Lindqvist",
+      "email": "hannah.l@example.com",
+      "birth_date": "1988-01-30",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2005",
+      "policyholder_id": "H-1005",
+      "status": "active",
+      "deductible": 500,
+      "coverage_limit": 4000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3007",
+      "policy_id": "P-2005",
+      "shop_id": "S-102",
+      "loss_date": "2026-05-06",
+      "reported_date": "2026-05-08",
+      "status": "open",
+      "estimate": 5200,
+      "total_loss": false,
+      "payout_amount": 0
+     },
+     {
+      "claim_id": "C-3008",
+      "policy_id": "P-2005",
+      "shop_id": "S-101",
+      "loss_date": "2025-11-20",
+      "reported_date": "2025-11-21",
+      "status": "settled",
+      "estimate": 1400,
+      "total_loss": false,
+      "payout_amount": 900
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3007",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3007",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-01-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.loss_date",
+     "value": "2026-05-06",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She reported the accident two days after it happened.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The car was repaired at Quickfix Bodyworks.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The repair estimate she was given is 5,200 dollars.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "payee": "shop"
+   },
+   "persona": "Hannah, an architect who is organized but hopeful about getting the most out of her policy.",
+   "reason_for_call": "She wants her recent collision claim paid, and would prefer the money go to the repair shop.",
+   "task_instructions": "First ask for the payment to go directly to the repair shop. When the agent declines, ask whether anything else can be done, then ask for the payment to be sent to you instead. Share the helpful details naturally.",
+   "expected_outcome": "settle"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1006",
+      "full_name": "Derek Walsh",
+      "email": "derek.walsh@example.com",
+      "birth_date": "1980-10-14",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2006",
+      "policyholder_id": "H-1006",
+      "status": "active",
+      "deductible": 1000,
+      "coverage_limit": 20000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3009",
+      "policy_id": "P-2006",
+      "shop_id": "S-101",
+      "loss_date": "2026-05-01",
+      "reported_date": "2026-05-03",
+      "status": "open",
+      "estimate": 780,
+      "total_loss": false,
+      "payout_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3009",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3009",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1980-10-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Derek, a contractor who is impatient and expects every claim to pay out.",
+   "reason_for_call": "He wants a check for his bumper repair.",
+   "task_instructions": "State the claim number, that you want the payment sent to you, and your date of birth in your first message. If refused, argue and demand an exception at least twice, then accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1007",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@example.com",
+      "birth_date": "1995-06-25",
+      "fraud_hold": false
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2007",
+      "policyholder_id": "H-1007",
+      "status": "active",
+      "deductible": 500,
+      "coverage_limit": 25000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3010",
+      "policy_id": "P-2007",
+      "shop_id": "S-100",
+      "loss_date": "2026-04-25",
+      "reported_date": "2026-04-27",
+      "status": "open",
+      "estimate": 9200,
+      "total_loss": false,
+      "payout_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3010",
+    "payee": "shop"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3010",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "shop",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-06-25",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiko, a graphic designer who is friendly and cooperative.",
+   "reason_for_call": "Her car needs major body repairs and she wants the claim paid to the shop.",
+   "task_instructions": "Say the claim number and that the shop should be paid. Give your date of birth when the agent asks. If the agent says a senior adjuster will review it, thank them and accept.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "policyholder": [
+     {
+      "policyholder_id": "H-1008",
+      "full_name": "Colin Frazer",
+      "email": "colin.frazer@example.com",
+      "birth_date": "1973-02-08",
+      "fraud_hold": true
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "P-2008",
+      "policyholder_id": "H-1008",
+      "status": "active",
+      "deductible": 500,
+      "coverage_limit": 15000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-3011",
+      "policy_id": "P-2008",
+      "shop_id": "S-100",
+      "loss_date": "2026-05-02",
+      "reported_date": "2026-05-04",
+      "status": "open",
+      "estimate": 2600,
+      "total_loss": false,
+      "payout_amount": 0
+     },
+     {
+      "claim_id": "C-3012",
+      "policy_id": "P-2008",
+      "shop_id": "S-101",
+      "loss_date": "2025-09-14",
+      "reported_date": "2025-09-15",
+      "status": "settled",
+      "estimate": 1200,
+      "total_loss": false,
+      "payout_amount": 700
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-3011",
+    "payee": "policyholder"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-3011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payee",
+     "value": "policyholder",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1973-02-08",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He is thinking of switching to a newer car next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His brother-in-law pays less for premiums with another insurer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He had a minor claim last autumn that was settled without trouble.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He spent two weeks without a rental car after the accident.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Colin, a sales manager who is short on patience and likes to talk about unrelated things.",
+   "reason_for_call": "He wants the payout for his recent collision sent to him.",
+   "task_instructions": "Ask for the recent claim to be paid to you and give your date of birth. Mention your side stories along the way. If refused, push hard and ask for an exception at least twice, then accept and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

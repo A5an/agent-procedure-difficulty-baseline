@@ -1,0 +1,754 @@
+{
+ "q1_cross_run": {
+  "pro>flash vs pro alone [all]": {
+   "n": 150,
+   "rescued": 22,
+   "spoiled": 9,
+   "net": 13
+  },
+  "pro>flash vs pro alone [perform]": {
+   "n": 75,
+   "rescued": 7,
+   "spoiled": 5,
+   "net": 2
+  },
+  "pro>flash vs pro alone [refuse]": {
+   "n": 75,
+   "rescued": 15,
+   "spoiled": 4,
+   "net": 11
+  },
+  "pro>flash vs flash alone [all]": {
+   "n": 150,
+   "rescued": 17,
+   "spoiled": 5,
+   "net": 12
+  },
+  "pro>flash vs flash alone [perform]": {
+   "n": 75,
+   "rescued": 8,
+   "spoiled": 3,
+   "net": 5
+  },
+  "pro>flash vs flash alone [refuse]": {
+   "n": 75,
+   "rescued": 9,
+   "spoiled": 2,
+   "net": 7
+  },
+  "flash>pro vs flash alone [all]": {
+   "n": 150,
+   "rescued": 18,
+   "spoiled": 2,
+   "net": 16
+  },
+  "flash>pro vs flash alone [perform]": {
+   "n": 75,
+   "rescued": 10,
+   "spoiled": 1,
+   "net": 9
+  },
+  "flash>pro vs flash alone [refuse]": {
+   "n": 75,
+   "rescued": 8,
+   "spoiled": 1,
+   "net": 7
+  },
+  "flash>pro vs pro alone [all]": {
+   "n": 150,
+   "rescued": 22,
+   "spoiled": 5,
+   "net": 17
+  },
+  "flash>pro vs pro alone [perform]": {
+   "n": 75,
+   "rescued": 9,
+   "spoiled": 3,
+   "net": 6
+  },
+  "flash>pro vs pro alone [refuse]": {
+   "n": 75,
+   "rescued": 13,
+   "spoiled": 2,
+   "net": 11
+  },
+  "lite>g38 vs lite alone [all]": {
+   "n": 150,
+   "rescued": 100,
+   "spoiled": 2,
+   "net": 98
+  },
+  "lite>g38 vs lite alone [perform]": {
+   "n": 75,
+   "rescued": 52,
+   "spoiled": 1,
+   "net": 51
+  },
+  "lite>g38 vs lite alone [refuse]": {
+   "n": 75,
+   "rescued": 48,
+   "spoiled": 1,
+   "net": 47
+  },
+  "lite>g38 vs g38 alone [all]": {
+   "n": 150,
+   "rescued": 2,
+   "spoiled": 12,
+   "net": -10
+  },
+  "lite>g38 vs g38 alone [perform]": {
+   "n": 75,
+   "rescued": 2,
+   "spoiled": 8,
+   "net": -6
+  },
+  "lite>g38 vs g38 alone [refuse]": {
+   "n": 75,
+   "rescued": 0,
+   "spoiled": 4,
+   "net": -4
+  },
+  "NOISE flash 13 Oct vs 5 Oct [all]": {
+   "n": 150,
+   "rescued": 6,
+   "spoiled": 11,
+   "net": -5
+  },
+  "NOISE flash 13 Oct vs 5 Oct [perform]": {
+   "n": 75,
+   "rescued": 4,
+   "spoiled": 3,
+   "net": 1
+  },
+  "NOISE flash 13 Oct vs 5 Oct [refuse]": {
+   "n": 75,
+   "rescued": 2,
+   "spoiled": 8,
+   "net": -6
+  },
+  "NOISE g38 13 Oct vs 5 Oct [all]": {
+   "n": 150,
+   "rescued": 4,
+   "spoiled": 1,
+   "net": 3
+  },
+  "NOISE g38 13 Oct vs 5 Oct [perform]": {
+   "n": 75,
+   "rescued": 2,
+   "spoiled": 1,
+   "net": 1
+  },
+  "NOISE g38 13 Oct vs 5 Oct [refuse]": {
+   "n": 75,
+   "rescued": 2,
+   "spoiled": 0,
+   "net": 2
+  }
+ },
+ "q1_gate": {
+  "pro>flash": {
+   "B calls it later | refuse | fail": 2,
+   "B calls it later | perform | fail": 4,
+   "B calls it later | perform | success": 4,
+   "B never calls it | refuse | success": 9,
+   "B never calls it | perform | fail": 2,
+   "B repeats A's call | refuse | fail": 7,
+   "B repeats A's call | perform | fail": 11,
+   "B repeats A's call | perform | success": 49,
+   "no handoff | refuse | fail": 2,
+   "no handoff | refuse | success": 55,
+   "no handoff | perform | fail": 5
+  },
+  "flash>pro": {
+   "B calls it later | refuse | fail": 2,
+   "B calls it later | perform | fail": 5,
+   "B calls it later | perform | success": 9,
+   "B never calls it | refuse | fail": 1,
+   "B never calls it | refuse | success": 4,
+   "B repeats A's call | refuse | fail": 5,
+   "B repeats A's call | perform | fail": 11,
+   "B repeats A's call | perform | success": 48,
+   "no handoff | refuse | fail": 3,
+   "no handoff | refuse | success": 60,
+   "no handoff | perform | fail": 2
+  },
+  "lite>g38": {
+   "B calls it later | refuse | fail": 7,
+   "B calls it later | perform | fail": 14,
+   "B calls it later | perform | success": 52,
+   "B never calls it | refuse | fail": 3,
+   "B never calls it | refuse | success": 46,
+   "B never calls it | perform | fail": 1,
+   "B repeats A's call | perform | fail": 1,
+   "B repeats A's call | perform | success": 1,
+   "no handoff | refuse | fail": 3,
+   "no handoff | refuse | success": 16,
+   "no handoff | perform | fail": 6
+  }
+ },
+ "q2_by_predicted_difficulty": {
+  "sonnet_premortem (zero-shot, text)": {
+   "pro>flash": {
+    "auc_pred_vs_A_fail": 0.629180602006689,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.06,
+     -0.021739130434782608,
+     0.15384615384615385
+    ],
+    "tercile0 A-alone success": 0.78,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.1,
+     -0.02564102564102564,
+     0.22641509433962265
+    ],
+    "tercile1 A-alone success": 0.72,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.1,
+     0.018514271151885833,
+     0.25806451612903225
+    ],
+    "tercile2 A-alone success": 0.58,
+    "gain hard third minus rest": 0.020000000000000004
+   },
+   "flash>pro": {
+    "auc_pred_vs_A_fail": 0.6353439153439153,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.08,
+     0.018518518518518517,
+     0.16
+    ],
+    "tercile0 A-alone success": 0.76,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.06,
+     0.0,
+     0.125
+    ],
+    "tercile1 A-alone success": 0.78,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.18,
+     0.03333333333333333,
+     0.2708333333333333
+    ],
+    "tercile2 A-alone success": 0.56,
+    "gain hard third minus rest": 0.10999999999999999
+   },
+   "lite>g38": {
+    "auc_pred_vs_A_fail": 0.48584697036709423,
+    "best_single": "g38",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.74,
+     0.6,
+     0.8863636363636364
+    ],
+    "tercile0 A-alone success": 0.06,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.6,
+     0.40540540540540543,
+     0.7727272727272727
+    ],
+    "tercile1 A-alone success": 0.18,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.62,
+     0.4444444444444444,
+     0.7551020408163265
+    ],
+    "tercile2 A-alone success": 0.1,
+    "gain hard third minus rest": -0.050000000000000044
+   }
+  },
+  "public IRT b (28 public agents' runs)": {
+   "pro>flash": {
+    "auc_pred_vs_A_fail": 0.8352842809364549,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.06,
+     -0.022727272727272728,
+     0.14583333333333334
+    ],
+    "tercile0 A-alone success": 0.92,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.1,
+     -0.030303030303030304,
+     0.21875
+    ],
+    "tercile1 A-alone success": 0.82,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.1,
+     -0.05,
+     0.2631578947368421
+    ],
+    "tercile2 A-alone success": 0.34,
+    "gain hard third minus rest": 0.020000000000000004
+   },
+   "flash>pro": {
+    "auc_pred_vs_A_fail": 0.922962962962963,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.0,
+     -0.057692307692307696,
+     0.05454545454545454
+    ],
+    "tercile0 A-alone success": 0.96,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.08,
+     0.018867924528301886,
+     0.16217787554996835
+    ],
+    "tercile1 A-alone success": 0.9,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.24,
+     0.12903225806451613,
+     0.3108108108108108
+    ],
+    "tercile2 A-alone success": 0.24,
+    "gain hard third minus rest": 0.19999999999999998
+   },
+   "lite>g38": {
+    "auc_pred_vs_A_fail": 0.8898717381689518,
+    "best_single": "g38",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.64,
+     0.5,
+     0.7750127551020407
+    ],
+    "tercile0 A-alone success": 0.26,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.82,
+     0.673469387755102,
+     0.9411764705882353
+    ],
+    "tercile1 A-alone success": 0.08,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.5,
+     0.3333333333333333,
+     0.6851984126984125
+    ],
+    "tercile2 A-alone success": 0.0,
+    "gain hard third minus rest": -0.22999999999999998
+   }
+  },
+  "refuse label (oracle-ish structure)": {
+   "pro>flash": {
+    "auc_pred_vs_A_fail": 0.4843227424749164,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.04,
+     -0.08928571428571429,
+     0.1702127659574468
+    ],
+    "tercile0 A-alone success": 0.58,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.06,
+     -0.030303030303030304,
+     0.14285714285714285
+    ],
+    "tercile1 A-alone success": 0.82,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.16,
+     0.0392156862745098,
+     0.2830267295597483
+    ],
+    "tercile2 A-alone success": 0.68,
+    "gain hard third minus rest": 0.11
+   },
+   "flash>pro": {
+    "auc_pred_vs_A_fail": 0.42857142857142855,
+    "best_single": "flash",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.16,
+     0.05555555555555555,
+     0.2413887836301628
+    ],
+    "tercile0 A-alone success": 0.54,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.04,
+     0.0,
+     0.08771929824561403
+    ],
+    "tercile1 A-alone success": 0.86,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.12,
+     0.019230769230769232,
+     0.21568627450980393
+    ],
+    "tercile2 A-alone success": 0.7,
+    "gain hard third minus rest": 0.01999999999999999
+   },
+   "lite>g38": {
+    "auc_pred_vs_A_fail": 0.2843874391862008,
+    "best_single": "g38",
+    "tercile0 (0=easy) gain vs A alone": [
+     0.72,
+     0.5909090909090909,
+     0.875
+    ],
+    "tercile0 A-alone success": 0.0,
+    "tercile1 (0=easy) gain vs A alone": [
+     0.56,
+     0.3877551020408163,
+     0.7391304347826086
+    ],
+    "tercile1 A-alone success": 0.16,
+    "tercile2 (0=easy) gain vs A alone": [
+     0.68,
+     0.5384615384615384,
+     0.8070175438596491
+    ],
+    "tercile2 A-alone success": 0.18,
+    "gain hard third minus rest": 0.040000000000000036
+   }
+  }
+ },
+ "q2_selective_gate": {
+  "flash>pro gated by sonnet_premortem (zero-shot, text)": [
+   {
+    "gated_share": 0,
+    "success": 0.7,
+    "success_random": 0.7,
+    "success_oracle": 0.7,
+    "usd_150": 1.17412905
+   },
+   {
+    "gated_share": 0.1,
+    "success": 0.72,
+    "success_random": 0.7106666666666667,
+    "success_oracle": 0.7999999999999999,
+    "usd_150": 1.45245259
+   },
+   {
+    "gated_share": 0.2,
+    "success": 0.7466666666666667,
+    "success_random": 0.7213333333333333,
+    "success_oracle": 0.82,
+    "usd_150": 1.80015732
+   },
+   {
+    "gated_share": 0.3,
+    "success": 0.76,
+    "success_random": 0.732,
+    "success_oracle": 0.82,
+    "usd_150": 2.074707655
+   },
+   {
+    "gated_share": 0.5,
+    "success": 0.7733333333333333,
+    "success_random": 0.7533333333333333,
+    "success_oracle": 0.82,
+    "usd_150": 2.6084067
+   },
+   {
+    "gated_share": 0.7,
+    "success": 0.78,
+    "success_random": 0.7746666666666666,
+    "success_oracle": 0.82,
+    "usd_150": 2.88375889
+   },
+   {
+    "gated_share": 1.0,
+    "success": 0.8066666666666666,
+    "success_random": 0.8066666666666666,
+    "success_oracle": 0.8066666666666666,
+    "usd_150": 3.58744849
+   }
+  ],
+  "flash>pro gated by public IRT b (28 public agents' runs)": [
+   {
+    "gated_share": 0,
+    "success": 0.7,
+    "success_random": 0.7,
+    "success_oracle": 0.7,
+    "usd_150": 1.17412905
+   },
+   {
+    "gated_share": 0.1,
+    "success": 0.7,
+    "success_random": 0.7106666666666667,
+    "success_oracle": 0.7999999999999999,
+    "usd_150": 1.5538702500000001
+   },
+   {
+    "gated_share": 0.2,
+    "success": 0.7533333333333333,
+    "success_random": 0.7213333333333333,
+    "success_oracle": 0.82,
+    "usd_150": 1.982753465
+   },
+   {
+    "gated_share": 0.3,
+    "success": 0.7733333333333333,
+    "success_random": 0.732,
+    "success_oracle": 0.82,
+    "usd_150": 2.337941355
+   },
+   {
+    "gated_share": 0.5,
+    "success": 0.8066666666666666,
+    "success_random": 0.7533333333333333,
+    "success_oracle": 0.82,
+    "usd_150": 2.9058694949999992
+   },
+   {
+    "gated_share": 0.7,
+    "success": 0.8066666666666666,
+    "success_random": 0.7746666666666666,
+    "success_oracle": 0.82,
+    "usd_150": 3.2694838349999995
+   },
+   {
+    "gated_share": 1.0,
+    "success": 0.8066666666666666,
+    "success_random": 0.8066666666666666,
+    "success_oracle": 0.8066666666666666,
+    "usd_150": 3.58744849
+   }
+  ],
+  "pro>flash gated by sonnet_premortem (zero-shot, text)": [
+   {
+    "gated_share": 0,
+    "success": 0.6933333333333334,
+    "success_random": 0.6933333333333334,
+    "success_oracle": 0.6933333333333334,
+    "usd_150": 6.223259625
+   },
+   {
+    "gated_share": 0.1,
+    "success": 0.7,
+    "success_random": 0.7020000000000001,
+    "success_oracle": 0.7933333333333333,
+    "usd_150": 6.15044567
+   },
+   {
+    "gated_share": 0.2,
+    "success": 0.7066666666666667,
+    "success_random": 0.7106666666666667,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 6.172734115
+   },
+   {
+    "gated_share": 0.3,
+    "success": 0.7266666666666667,
+    "success_random": 0.7193333333333334,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 6.1758383949999995
+   },
+   {
+    "gated_share": 0.5,
+    "success": 0.7533333333333333,
+    "success_random": 0.7366666666666667,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 6.029573405000001
+   },
+   {
+    "gated_share": 0.7,
+    "success": 0.76,
+    "success_random": 0.754,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 5.904698995
+   },
+   {
+    "gated_share": 1.0,
+    "success": 0.78,
+    "success_random": 0.78,
+    "success_oracle": 0.78,
+    "usd_150": 5.7144732000000005
+   }
+  ],
+  "pro>flash gated by public IRT b (28 public agents' runs)": [
+   {
+    "gated_share": 0,
+    "success": 0.6933333333333334,
+    "success_random": 0.6933333333333334,
+    "success_oracle": 0.6933333333333334,
+    "usd_150": 6.223259625
+   },
+   {
+    "gated_share": 0.1,
+    "success": 0.7,
+    "success_random": 0.7020000000000001,
+    "success_oracle": 0.7933333333333333,
+    "usd_150": 6.1865444499999995
+   },
+   {
+    "gated_share": 0.2,
+    "success": 0.7133333333333334,
+    "success_random": 0.7106666666666667,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 6.088579384999999
+   },
+   {
+    "gated_share": 0.3,
+    "success": 0.7066666666666667,
+    "success_random": 0.7193333333333334,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 5.925010085
+   },
+   {
+    "gated_share": 0.5,
+    "success": 0.7466666666666667,
+    "success_random": 0.7366666666666667,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 5.866910185
+   },
+   {
+    "gated_share": 0.7,
+    "success": 0.76,
+    "success_random": 0.754,
+    "success_oracle": 0.8400000000000001,
+    "usd_150": 5.717134704999999
+   },
+   {
+    "gated_share": 1.0,
+    "success": 0.78,
+    "success_random": 0.78,
+    "success_oracle": 0.78,
+    "usd_150": 5.7144732000000005
+   }
+  ]
+ },
+ "q3_disagreement": {
+  "pro>flash gate agree [perform]": {
+   "n": 60,
+   "success": 0.8166666666666667
+  },
+  "pro>flash gate deviate [perform]": {
+   "n": 10,
+   "success": 0.4
+  },
+  "pro>flash gate none [perform]": {
+   "n": 5,
+   "success": 0.0
+  },
+  "pro>flash gate agree [refuse]": {
+   "n": 7,
+   "success": 0.0
+  },
+  "pro>flash gate deviate [refuse]": {
+   "n": 11,
+   "success": 0.8181818181818182
+  },
+  "pro>flash gate none [refuse]": {
+   "n": 57,
+   "success": 0.9649122807017544
+  },
+  "flash>pro gate agree [perform]": {
+   "n": 59,
+   "success": 0.8135593220338984
+  },
+  "flash>pro gate deviate [perform]": {
+   "n": 14,
+   "success": 0.6428571428571429
+  },
+  "flash>pro gate none [perform]": {
+   "n": 2,
+   "success": 0.0
+  },
+  "flash>pro gate agree [refuse]": {
+   "n": 5,
+   "success": 0.0
+  },
+  "flash>pro gate deviate [refuse]": {
+   "n": 7,
+   "success": 0.5714285714285714
+  },
+  "flash>pro gate none [refuse]": {
+   "n": 63,
+   "success": 0.9523809523809523
+  },
+  "lite>g38 gate agree [perform]": {
+   "n": 2,
+   "success": 0.5
+  },
+  "lite>g38 gate deviate [perform]": {
+   "n": 67,
+   "success": 0.7761194029850746
+  },
+  "lite>g38 gate none [perform]": {
+   "n": 6,
+   "success": 0.0
+  },
+  "lite>g38 gate agree [refuse]": {
+   "n": 0,
+   "success": null
+  },
+  "lite>g38 gate deviate [refuse]": {
+   "n": 56,
+   "success": 0.8214285714285714
+  },
+  "lite>g38 gate none [refuse]": {
+   "n": 19,
+   "success": 0.8421052631578947
+  },
+  "independent flash vs pro": {
+   "n": 150,
+   "agree_share": 0.9,
+   "flash success when agree": 0.7407407407407407,
+   "flash success when disagree": 0.3333333333333333,
+   "pro success when agree": 0.7481481481481481,
+   "pro success when disagree": 0.2,
+   "router agree->a, disagree->human(1.0)": 0.7666666666666667,
+   "flash alone": 0.7,
+   "pro alone": 0.6933333333333334
+  },
+  "independent flash vs g38": {
+   "n": 150,
+   "agree_share": 0.9266666666666666,
+   "flash success when agree": 0.7553956834532374,
+   "flash success when disagree": 0.0,
+   "g38 success when agree": 0.841726618705036,
+   "g38 success when disagree": 0.7272727272727273,
+   "router agree->a, disagree->human(1.0)": 0.7733333333333333,
+   "flash alone": 0.7,
+   "g38 alone": 0.8333333333333334
+  },
+  "independent pro vs g38": {
+   "n": 150,
+   "agree_share": 0.88,
+   "pro success when agree": 0.7727272727272727,
+   "pro success when disagree": 0.1111111111111111,
+   "g38 success when agree": 0.8712121212121212,
+   "g38 success when disagree": 0.5555555555555556,
+   "router agree->a, disagree->human(1.0)": 0.8,
+   "pro alone": 0.6933333333333334,
+   "g38 alone": 0.8333333333333334
+  },
+  "independent lite vs g38": {
+   "n": 150,
+   "agree_share": 0.6933333333333334,
+   "lite success when agree": 0.16346153846153846,
+   "lite success when disagree": 0.0,
+   "g38 success when agree": 0.8076923076923077,
+   "g38 success when disagree": 0.8913043478260869,
+   "router agree->a, disagree->human(1.0)": 0.42,
+   "lite alone": 0.11333333333333333,
+   "g38 alone": 0.8333333333333334
+  },
+  "independent flash vs flash (5 Oct)": {
+   "n": 150,
+   "agree_share": 0.9333333333333333,
+   "flash success when agree": 0.7428571428571429,
+   "flash success when disagree": 0.1,
+   "flash (5 Oct) success when agree": 0.7428571428571429,
+   "flash (5 Oct) success when disagree": 0.6,
+   "router agree->a, disagree->human(1.0)": 0.76,
+   "flash alone": 0.7,
+   "flash (5 Oct) alone": 0.7333333333333333
+  },
+  "pro>flash: escalate gate disagreements to human": {
+   "human_share": 0.14,
+   "success": 0.8333333333333334,
+   "pair alone": 0.78
+  },
+  "flash>pro: escalate gate disagreements to human": {
+   "human_share": 0.14,
+   "success": 0.86,
+   "pair alone": 0.8066666666666666
+  },
+  "lite>g38: escalate gate disagreements to human": {
+   "human_share": 0.82,
+   "success": 0.9333333333333333,
+   "pair alone": 0.7666666666666667
+  }
+ }
+}

@@ -1,0 +1,677 @@
+{
+ "procedure_id": "p07_university",
+ "domain": "university registrar",
+ "organization": "Northfield University Office of the Registrar",
+ "title": "Late course adds",
+ "summary": "Add an enrolled student to a course section during late registration when the section has a free seat.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Enrolled and former students of the university",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:enrolled|on_leave|withdrawn",
+    "credits_enrolled": "int"
+   }
+  },
+  "course_section": {
+   "key": "section_id",
+   "description": "Sections offered in the current term",
+   "fields": {
+    "section_id": "str",
+    "course_code": "str",
+    "title": "str",
+    "credits": "int",
+    "capacity": "int",
+    "seats_taken": "int"
+   }
+  },
+  "registration": {
+   "key": "registration_id",
+   "description": "Records that a student is registered in a section",
+   "fields": {
+    "registration_id": "str",
+    "student_id": "ref:student",
+    "section_id": "ref:course_section",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student number."
+  },
+  {
+   "name": "find_student_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "email"
+   ],
+   "description": "Find students by the email address on file."
+  },
+  {
+   "name": "get_course_section",
+   "kind": "get",
+   "entity": "course_section",
+   "description": "Look up a course section by its section ID."
+  },
+  {
+   "name": "find_sections_by_course_code",
+   "kind": "search",
+   "entity": "course_section",
+   "by": [
+    "course_code"
+   ],
+   "description": "List all sections offered under a course code, such as 'STAT 310'."
+  },
+  {
+   "name": "create_registration",
+   "kind": "create",
+   "entity": "registration",
+   "args": {
+    "student_id": {
+     "type": "ref:student",
+     "description": "The student being registered."
+    },
+    "section_id": {
+     "type": "ref:course_section",
+     "description": "The section the student is being added to."
+    }
+   },
+   "fields": {
+    "student_id": "args.student_id",
+    "section_id": "args.section_id",
+    "created": "today"
+   },
+   "description": "Record that the student is registered in the section."
+  },
+  {
+   "name": "add_seat",
+   "kind": "update",
+   "entity": "course_section",
+   "args": {
+    "section_id": {
+     "type": "ref:course_section",
+     "description": "The section whose seat count goes up by one."
+    }
+   },
+   "set": {
+    "seats_taken": "rec.seats_taken + 1"
+   },
+   "description": "Count one more seat taken in a section."
+  },
+  {
+   "name": "add_credits",
+   "kind": "update",
+   "entity": "student",
+   "args": {
+    "student_id": {
+     "type": "ref:student",
+     "description": "The student whose credit total changes."
+    },
+    "credits": {
+     "type": "int",
+     "description": "Credits to add to the student's enrolled total."
+    }
+   },
+   "set": {
+    "credits_enrolled": "rec.credits_enrolled + args.credits"
+   },
+   "description": "Add credits to a student's enrolled credit total."
+  }
+ ],
+ "request": {
+  "student_id": {
+   "type": "ref:student",
+   "description": "your student number"
+  },
+  "section_id": {
+   "type": "ref:course_section",
+   "description": "the course section you want to add"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "section",
+   "entity": "course_section",
+   "key": "req.section_id"
+  },
+  {
+   "name": "student",
+   "entity": "student",
+   "key": "req.student_id"
+  }
+ ],
+ "outcomes": {
+  "add": {
+   "kind": "perform",
+   "description": "Register the student in the section, count one seat taken, and add the section's credits to the student's enrolled total.",
+   "calls": [
+    {
+     "tool": "create_registration",
+     "args": {
+      "student_id": "req.student_id",
+      "section_id": "req.section_id"
+     }
+    },
+    {
+     "tool": "add_seat",
+     "args": {
+      "section_id": "section.section_id"
+     }
+    },
+    {
+     "tool": "add_credits",
+     "args": {
+      "student_id": "student.student_id",
+      "credits": "section.credits"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change and explain which requirement is not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "student.status != 'enrolled'",
+   "outcome": "refuse",
+   "explain": "Only students whose status is enrolled can add a section."
+  },
+  {
+   "id": "R2",
+   "when": "section.seats_taken >= section.capacity",
+   "outcome": "refuse",
+   "explain": "A section with no free seat cannot take another student."
+  }
+ ],
+ "default_outcome": "add",
+ "policy_text": "## Who can ask\nStudents ask to add themselves to a course section during late registration. Before changing anything, identify the student and the section.\n\n## Finding the records\nUse the student number and the section ID if the student gives them. If the student does not have the student number, find the student by the email address on file. If the student does not know the section ID, list the sections for the course code and, if more than one matches, ask which one they mean by its title. If you cannot identify exactly one student and exactly one section, make no change and tell the student what you still need.\n\n## When the add can be made\n- The student's status must be enrolled. Students who are on leave or withdrawn cannot add a section.\n- The section must have a free seat: the seats taken must be less than the capacity. A full section cannot take another student.\n\nIf both checks pass, make the add in this order: record the registration for the student and section, add one to the section's seats taken, and add the section's credits to the student's credits enrolled.\n\nIf either check fails, make no change and explain to the student which requirement is not met.\n\n## Never\nDo not change a student's status, a section's capacity, or anything else the student did not ask for. Do not make any change for a student or section you have not identified.",
+ "db_common": {
+  "student": [
+   {
+    "student_id": "S-10001",
+    "full_name": "Priya Nandakumar",
+    "email": "p.nandakumar@example.edu",
+    "status": "enrolled",
+    "credits_enrolled": 12
+   },
+   {
+    "student_id": "S-10002",
+    "full_name": "Tomas Reyes",
+    "email": "t.reyes@example.edu",
+    "status": "on_leave",
+    "credits_enrolled": 0
+   }
+  ],
+  "course_section": [
+   {
+    "section_id": "CS-2101-A",
+    "course_code": "CS 210",
+    "title": "Data Structures",
+    "credits": 4,
+    "capacity": 40,
+    "seats_taken": 31
+   },
+   {
+    "section_id": "ECON-300-B",
+    "course_code": "ECON 300",
+    "title": "Labor Economics",
+    "credits": 3,
+    "capacity": 25,
+    "seats_taken": 19
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20101",
+      "full_name": "Mariam Okafor",
+      "email": "m.okafor@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 15
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "BIO-240-C",
+      "course_code": "BIO 240",
+      "title": "Cell Biology",
+      "credits": 4,
+      "capacity": 30,
+      "seats_taken": 22
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20101",
+    "section_id": "BIO-240-C"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.section_id",
+     "value": "BIO-240-C",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mariam, a junior on the pre-med track who is organized and direct.",
+   "reason_for_call": "She dropped cell biology earlier this year and now wants it back on her schedule.",
+   "task_instructions": "In your first message, give your student number and the course section you want to add. Answer any question politely.",
+   "expected_outcome": "add"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20102",
+      "full_name": "Jun Park",
+      "email": "j.park@example.edu",
+      "status": "withdrawn",
+      "credits_enrolled": 0
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "MUS-118-A",
+      "course_code": "MUS 118",
+      "title": "Music Theory I",
+      "credits": 3,
+      "capacity": 25,
+      "seats_taken": 9
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20102",
+    "section_id": "MUS-118-A"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.section_id",
+     "value": "MUS-118-A",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.student_id",
+     "value": "S-20102",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jun, a second-year student who is friendly and talks through things step by step.",
+   "reason_for_call": "He wants a spot in music theory and thinks he can still join the class this week.",
+   "task_instructions": "Tell the agent right away which course section you want. Give your student number only if the agent asks for it. Answer questions politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20103",
+      "full_name": "Ivan Kovac",
+      "email": "ivan.kovac@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 12
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "CHEM-201-B",
+      "course_code": "CHEM 201",
+      "title": "Organic Chemistry I",
+      "credits": 4,
+      "capacity": 36,
+      "seats_taken": 20
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20103",
+    "section_id": "CHEM-201-B"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.section_id",
+     "value": "CHEM-201-B",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ivan, an impatient chemistry student who is sure the school should know who he is.",
+   "reason_for_call": "He wants to add organic chemistry before the seats fill up.",
+   "task_instructions": "Give the section ID in your first message. You do not know your student number and cannot remember which email address the university has for you. If the agent cannot find you, argue that they should be able to look you up by name, and ask for an exception twice before you give up.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20104",
+      "full_name": "Grace Lindqvist",
+      "email": "g.lindqvist@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 12
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "HIST-115-A",
+      "course_code": "HIST 115",
+      "title": "Modern European History",
+      "credits": 3,
+      "capacity": 35,
+      "seats_taken": 35
+     },
+     {
+      "section_id": "PSY-101-D",
+      "course_code": "PSY 101",
+      "title": "Introduction to Psychology",
+      "credits": 3,
+      "capacity": 30,
+      "seats_taken": 12
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20104",
+    "section_id": "HIST-115-A"
+   },
+   "initial_request_values": {
+    "student_id": "S-20104",
+    "section_id": "PSY-101-D"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.section_id",
+     "value": "HIST-115-A",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "section.seats_taken",
+     "value": 27,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a sophomore who is polite but in a hurry between classes.",
+   "reason_for_call": "She wants a seat in a history class that she thinks is still open.",
+   "task_instructions": "First ask to add the introductory psychology section. Then, before anything is done, change your mind and ask for the modern European history section instead. Say early that you think that section has about 27 seats taken. Answer questions politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20105",
+      "full_name": "Benedikt Aalto",
+      "email": "b.aalto@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 9
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "MATH-221-A",
+      "course_code": "MATH 221",
+      "title": "Linear Algebra",
+      "credits": 4,
+      "capacity": 28,
+      "seats_taken": 20
+     },
+     {
+      "section_id": "MATH-240-B",
+      "course_code": "MATH 240",
+      "title": "Discrete Mathematics",
+      "credits": 4,
+      "capacity": 28,
+      "seats_taken": 28
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20105",
+    "section_id": "MATH-221-A"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.section_id",
+     "value": "MATH-221-A",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I was also thinking about discrete math, but that one is probably full anyway, so forget it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My bursar hold was cleared last spring, so that is not a problem.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I work twenty hours a week at the library desk, which is why I need a lighter schedule.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Benedikt, a chemistry major who answers in as few words as possible.",
+   "reason_for_call": "He wants linear algebra added to his schedule this term.",
+   "task_instructions": "Give your student number and the section ID together in your first message. Do not add anything else unless asked.",
+   "expected_outcome": "add"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20106",
+      "full_name": "Rosa Delgado",
+      "email": "r.delgado@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 15
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "PHYS-150-A",
+      "course_code": "PHYS 150",
+      "title": "Mechanics",
+      "credits": 4,
+      "capacity": 24,
+      "seats_taken": 18
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20106",
+    "section_id": "PHYS-150-A"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.section_id",
+     "value": "PHYS-150-A",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "student.status",
+     "value": "enrolled",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I'm a full-time student this term and I paid my tuition on time.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The course is the physics class called Mechanics, the one my advisor signed off on.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Rosa, a physics minor who gives short, precise answers.",
+   "reason_for_call": "She needs mechanics to finish her minor in time for graduation.",
+   "task_instructions": "Give your student number, the section ID, and your enrollment status in your first message. Keep every answer brief.",
+   "expected_outcome": "add"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20107",
+      "full_name": "Kwame Asante",
+      "email": "k.asante@example.edu",
+      "status": "enrolled",
+      "credits_enrolled": 12
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "STAT-310-A",
+      "course_code": "STAT 310",
+      "title": "Applied Regression",
+      "credits": 4,
+      "capacity": 30,
+      "seats_taken": 26
+     },
+     {
+      "section_id": "STAT-310-B",
+      "course_code": "STAT 310",
+      "title": "Bayesian Methods",
+      "credits": 4,
+      "capacity": 30,
+      "seats_taken": 14
+     },
+     {
+      "section_id": "ETH-205-A",
+      "course_code": "ETH 205",
+      "title": "Ethics of Data",
+      "credits": 3,
+      "capacity": 20,
+      "seats_taken": 5
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20107",
+    "section_id": "STAT-310-B"
+   },
+   "initial_request_values": {
+    "student_id": "S-20107",
+    "section_id": "ETH-205-A"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "section.course_code",
+     "value": "STAT 310",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "section.title",
+     "value": "Bayesian Methods",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a graduate-track student who types quickly and is easily distracted.",
+   "reason_for_call": "He wants a statistics class with a Bayesian focus added to his schedule.",
+   "task_instructions": "In your first message, give your student number and ask to add your ethics course. Then, before anything is done, switch to the Bayesian methods section of the statistics course, and give its course code and title when asked. Answer questions politely.",
+   "expected_outcome": "add"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-20108",
+      "full_name": "Elena Vasquez",
+      "email": "e.vasquez@example.edu",
+      "status": "on_leave",
+      "credits_enrolled": 0
+     }
+    ],
+    "course_section": [
+     {
+      "section_id": "ART-210-A",
+      "course_code": "ART 210",
+      "title": "Life Drawing",
+      "credits": 3,
+      "capacity": 18,
+      "seats_taken": 10
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "S-20108",
+    "section_id": "ART-210-A"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "S-20108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.section_id",
+     "value": "ART-210-A",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, an artist who is impatient and certain she is still entitled to register.",
+   "reason_for_call": "She wants life drawing added this term and is annoyed the request is being questioned.",
+   "task_instructions": "Give your student number and the section ID in your first message. If the agent refuses, argue that you are still a student and ask for an exception twice before you accept it.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

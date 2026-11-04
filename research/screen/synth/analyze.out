@@ -1,0 +1,145 @@
+== G1 generation
+haiku {'briefs': 24, 'accepted': 23, 'round0_clean': 13, 'round0_proc_ok': 21, 'round0_cases_ok_mean': 6.291666666666667, 'mean_rounds': 1.625, 'cases_kept': 183, 'minutes_per_brief': 2.345902777777778, 'out_tokens_per_brief': 34713.5, 'notional_usd_total': 0.50760189}
+sonnet {'briefs': 24, 'accepted': 24, 'round0_clean': 10, 'round0_proc_ok': 23, 'round0_cases_ok_mean': 6.625, 'mean_rounds': 1.5833333333333333, 'cases_kept': 192, 'minutes_per_brief': 1.499236111111111, 'out_tokens_per_brief': 14999.958333333334, 'notional_usd_total': 5.357970700000001}
+opus {'briefs': 24, 'accepted': 24, 'round0_clean': 19, 'round0_proc_ok': 24, 'round0_cases_ok_mean': 7.208333333333333, 'mean_rounds': 1.25, 'cases_kept': 192, 'minutes_per_brief': 2.213125, 'out_tokens_per_brief': 15609.958333333334, 'notional_usd_total': 9.9882598}
+== G2 policy check
+haiku {'procs': 23, 'clean_at_first': 23, 'clean_after_fix': 23, 'rules_exact_first': 1.0, 'rules_exact_final': 1.0} flagged: []
+sonnet {'procs': 24, 'clean_at_first': 24, 'clean_after_fix': 24, 'rules_exact_first': 1.0, 'rules_exact_final': 1.0} flagged: []
+opus {'procs': 24, 'clean_at_first': 24, 'clean_after_fix': 24, 'rules_exact_first': 1.0, 'rules_exact_final': 1.0} flagged: []
+episodes: 1701 {'flash': {'haiku': 183, 'opus': 192, 'sonnet': 192}, 'g38': {'haiku': 183, 'opus': 192, 'sonnet': 192}, 'lite': {'haiku': 183, 'opus': 192, 'sonnet': 192}}
+== G3 diversity
+haiku {'entities': 3.435, 'tools': 6.261, 'search_tools': 1.783, 'bindings': 2.13, 'fields_per_entity': 5.293, 'policy_words': 349.783, 'policy_3gram_jaccard_within': 0.037, 'persona_3gram_jaccard_within': 0.017, 'policy_3gram_jaccard_example': 0.07, 'rules_deciding_some_case': 0.694}
+sonnet {'entities': 3.542, 'tools': 6.625, 'search_tools': 1.958, 'bindings': 2.542, 'fields_per_entity': 5.406, 'policy_words': 298.625, 'policy_3gram_jaccard_within': 0.058, 'persona_3gram_jaccard_within': 0.023, 'policy_3gram_jaccard_example': 0.089, 'rules_deciding_some_case': 0.771}
+opus {'entities': 3.333, 'tools': 6.875, 'search_tools': 2.292, 'bindings': 2.25, 'fields_per_entity': 6.494, 'policy_words': 434.583, 'policy_3gram_jaccard_within': 0.028, 'persona_3gram_jaccard_within': 0.01, 'policy_3gram_jaccard_example': 0.033, 'rules_deciding_some_case': 0.783}
+haiku vs sonnet on the same brief: policy 3-gram Jaccard 0.085, title word Jaccard 0.23
+haiku vs opus on the same brief: policy 3-gram Jaccard 0.050, title word Jaccard 0.20
+sonnet vs opus on the same brief: policy 3-gram Jaccard 0.066, title word Jaccard 0.29
+== G4/G5 difficulty and discrimination
+haiku   lite   n  183  fail 0.27 [0.21, 0.34]  SD of procedure rates 0.16
+haiku   flash  n  183  fail 0.11 [0.07, 0.16]  SD of procedure rates 0.11
+haiku   g38    n  183  fail 0.09 [0.05, 0.14]  SD of procedure rates 0.11
+sonnet  lite   n  192  fail 0.29 [0.22, 0.35]  SD of procedure rates 0.17
+sonnet  flash  n  192  fail 0.06 [0.03, 0.09]  SD of procedure rates 0.08
+sonnet  g38    n  192  fail 0.03 [0.01, 0.05]  SD of procedure rates 0.05
+opus    lite   n  192  fail 0.32 [0.24, 0.39]  SD of procedure rates 0.19
+opus    flash  n  192  fail 0.02 [0.01, 0.04]  SD of procedure rates 0.05
+opus    g38    n  192  fail 0.03 [0.01, 0.05]  SD of procedure rates 0.05
+haiku   split-half reliability of procedure difficulty -0.20 [-1.42, 0.32]  agents ['flash', 'g38', 'lite']  fail {'flash': 0.11475409836065574, 'g38': 0.09289617486338798, 'lite': 0.273224043715847}
+sonnet  split-half reliability of procedure difficulty 0.17 [-0.68, 0.64]  agents ['flash', 'g38', 'lite']  fail {'flash': 0.057291666666666664, 'g38': 0.026041666666666668, 'lite': 0.2916666666666667}
+opus    split-half reliability of procedure difficulty 0.57 [0.23, 0.76]  agents ['flash', 'g38', 'lite']  fail {'flash': 0.020833333333333332, 'g38': 0.026041666666666668, 'lite': 0.3177083333333333}
+== G6 label audit
+cause   agent  user
+gen                
+haiku      18     2
+opus       19     1
+sonnet     19     1
+== per-level failure rates (rows: level, cols: generator), per agent
+lite
+gen            haiku  opus  sonnet
+level                             
+conflicting     0.19  0.43    0.39
+distracting     0.33  0.21    0.32
+helpful_extra   0.30  0.36    0.39
+insufficient    0.04  0.00    0.04
+lookup          0.24  0.29    0.21
+on_request      0.59  0.46    0.29
+upfront         0.19  0.43    0.36
+   level-profile correlation haiku vs sonnet: 0.12
+   level-profile correlation haiku vs opus: 0.35
+   level-profile correlation sonnet vs opus: 0.48
+flash
+gen            haiku  opus  sonnet
+level                             
+conflicting     0.15  0.00    0.07
+distracting     0.15  0.07    0.11
+helpful_extra   0.04  0.04    0.07
+insufficient    0.00  0.00    0.00
+lookup          0.12  0.00    0.00
+on_request      0.15  0.04    0.11
+upfront         0.19  0.00    0.04
+   level-profile correlation haiku vs sonnet: 0.44
+   level-profile correlation haiku vs opus: 0.06
+   level-profile correlation sonnet vs opus: 0.83
+g38
+gen            haiku  opus  sonnet
+level                             
+conflicting     0.04  0.04    0.00
+distracting     0.15  0.04    0.04
+helpful_extra   0.07  0.04    0.11
+insufficient    0.00  0.00    0.00
+lookup          0.08  0.04    0.00
+on_request      0.15  0.00    0.04
+upfront         0.15  0.04    0.00
+   level-profile correlation haiku vs sonnet: 0.31
+   level-profile correlation haiku vs opus: 0.16
+   level-profile correlation sonnet vs opus: 0.00
+== factor models (logistic coefficients, log-odds; cluster bootstrap over procedures)
+-- lite pooled (n 567)
+   level=on_request         0.59 [0.02, 1.19]  *
+   level=lookup             -0.38 [-1.02, 0.22]
+   level=insufficient       -1.97 [-2.61, -1.41]  *
+   level=helpful_extra      0.15 [-0.40, 0.73]
+   level=distracting        -0.13 [-0.71, 0.42]
+   level=conflicting        0.08 [-0.47, 0.60]
+   beh=terse                0.28 [-0.29, 0.87]
+   beh=pushy                0.35 [-0.19, 0.87]
+   beh=changes_mind         0.84 [0.35, 1.36]  *
+   cls=perform              -0.03 [-0.45, 0.41]
+   n_rules                  -0.03 [-0.22, 0.16]
+   n_calls                  0.20 [-0.08, 0.52]
+   escalation               0.47 [0.04, 0.91]  *
+   verification             -0.13 [-0.58, 0.30]
+   gen=sonnet               0.09 [-0.42, 0.58]
+   gen=opus                 0.22 [-0.29, 0.74]
+-- flash pooled (n 567)
+   level=on_request         0.42 [-0.43, 1.19]
+   level=lookup             -0.42 [-1.18, 0.31]
+   level=insufficient       -1.39 [-1.78, -1.00]  *
+   level=helpful_extra      -0.27 [-1.22, 0.56]
+   level=distracting        0.45 [-0.33, 1.21]
+   level=conflicting        0.03 [-0.78, 0.78]
+   beh=terse                -0.19 [-1.06, 0.52]
+   beh=pushy                0.21 [-0.66, 0.94]
+   beh=changes_mind         0.65 [-0.08, 1.32]
+   cls=perform              -0.52 [-1.27, 0.16]
+   n_rules                  -0.04 [-0.30, 0.22]
+   n_calls                  0.05 [-0.45, 0.52]
+   escalation               0.34 [-0.30, 1.00]
+   verification             -0.59 [-1.22, 0.08]
+   gen=sonnet               -0.60 [-1.33, 0.09]
+   gen=opus                 -1.41 [-2.14, -0.75]  *
+-- g38 pooled (n 567)
+   level=on_request         0.11 [-0.60, 0.76]
+   level=lookup             -0.22 [-1.03, 0.49]
+   level=insufficient       -1.40 [-1.84, -0.88]  *
+   level=helpful_extra      0.33 [-0.51, 1.11]
+   level=distracting        0.13 [-0.75, 0.99]
+   level=conflicting        -0.82 [-1.71, 0.28]
+   beh=terse                0.28 [-0.63, 0.94]
+   beh=pushy                0.24 [-0.64, 0.95]
+   beh=changes_mind         1.33 [0.52, 2.08]  *
+   cls=perform              -1.13 [-1.97, -0.25]  *
+   n_rules                  0.10 [-0.19, 0.51]
+   n_calls                  0.10 [-0.42, 0.60]
+   escalation               0.24 [-0.59, 0.98]
+   verification             -0.49 [-1.16, 0.34]
+   gen=sonnet               -1.03 [-1.73, -0.28]  *
+   gen=opus                 -1.03 [-1.76, -0.26]  *
+== raw failure rate by level and agent (pooled)
+agent          flash   g38  lite
+level                           
+conflicting     0.07  0.02  0.34
+distracting     0.11  0.07  0.29
+helpful_extra   0.05  0.07  0.35
+insufficient    0.00  0.00  0.03
+lookup          0.04  0.04  0.25
+on_request      0.10  0.06  0.45
+upfront         0.07  0.06  0.33
+agent         flash   g38  lite
+behavior                       
+changes_mind   0.10  0.10  0.42
+cooperative    0.05  0.02  0.21
+pushy          0.06  0.04  0.29
+terse          0.04  0.04  0.26
+H5 gap(lite-g38) on distracting minus on upfront: -0.05 [-0.20, 0.10]
+H5 gap(lite-g38) on conflicting minus on upfront: 0.05 [-0.09, 0.19]

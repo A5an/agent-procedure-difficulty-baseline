@@ -1,0 +1,670 @@
+{
+ "procedure_id": "p16_employee",
+ "domain": "employee HR self-service",
+ "organization": "Harborline Foods People Services",
+ "title": "Booking paid time off",
+ "summary": "Book a paid time off (vacation) request for an employee when the caller is verified and the request meets notice, length, status and balance rules.",
+ "entities": {
+  "employee": {
+   "key": "employee_id",
+   "description": "Harborline Foods employees and their current paid time off balance",
+   "fields": {
+    "employee_id": "str",
+    "full_name": "str",
+    "work_email": "str",
+    "birth_date": "date",
+    "department": "str",
+    "employment_status": "enum:active|on_leave|suspended|terminated",
+    "pto_balance_days": "number"
+   }
+  },
+  "leave_request": {
+   "key": "request_id",
+   "description": "Paid time off bookings submitted for employees",
+   "fields": {
+    "request_id": "str",
+    "employee_id": "ref:employee",
+    "start_date": "date",
+    "days": "int",
+    "status": "enum:submitted|approved|cancelled",
+    "submitted_on": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_employee",
+   "kind": "get",
+   "entity": "employee",
+   "description": "Look up an employee record by employee ID (the number on the badge and payslip)."
+  },
+  {
+   "name": "find_employee_by_work_email",
+   "kind": "search",
+   "entity": "employee",
+   "by": [
+    "work_email"
+   ],
+   "description": "Find employee records by company work email address."
+  },
+  {
+   "name": "get_leave_request",
+   "kind": "get",
+   "entity": "leave_request",
+   "description": "Look up a paid time off booking by its request ID."
+  },
+  {
+   "name": "find_leave_requests_by_employee",
+   "kind": "search",
+   "entity": "leave_request",
+   "by": [
+    "employee_id"
+   ],
+   "description": "List all paid time off bookings for an employee."
+  },
+  {
+   "name": "create_pto_request",
+   "kind": "create",
+   "entity": "leave_request",
+   "args": {
+    "employee_id": {
+     "type": "ref:employee",
+     "description": "The employee taking the time off."
+    },
+    "start_date": {
+     "type": "date",
+     "description": "First day of the time off."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of working days of time off."
+    }
+   },
+   "fields": {
+    "employee_id": "args.employee_id",
+    "start_date": "args.start_date",
+    "days": "args.days",
+    "status": "'submitted'",
+    "submitted_on": "today"
+   },
+   "description": "Submit a paid time off booking for an employee, starting on the given date for the given number of working days."
+  }
+ ],
+ "request": {
+  "employee_id": {
+   "type": "ref:employee",
+   "description": "your employee ID"
+  },
+  "start_date": {
+   "type": "date",
+   "description": "the first day of the time off you want"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many working days of time off you want"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "emp",
+   "entity": "employee",
+   "key": "req.employee_id"
+  }
+ ],
+ "outcomes": {
+  "book": {
+   "kind": "perform",
+   "description": "Submit the paid time off booking for the requested start date and number of days.",
+   "calls": [
+    {
+     "tool": "create_pto_request",
+     "args": {
+      "employee_id": "emp.employee_id",
+      "start_date": "req.start_date",
+      "days": "req.days"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not book the time off; explain which rule prevents it.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != emp.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must state the date of birth on the employee record before any booking is made."
+  },
+  {
+   "id": "R2",
+   "when": "emp.employment_status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only employees with active status can book paid time off through self-service."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, req.start_date) < 14",
+   "outcome": "refuse",
+   "explain": "Time off must start at least 14 calendar days after today."
+  },
+  {
+   "id": "R4",
+   "when": "req.days > 10",
+   "outcome": "refuse",
+   "explain": "A single booking may cover at most 10 working days."
+  },
+  {
+   "id": "R5",
+   "when": "req.days > emp.pto_balance_days",
+   "outcome": "refuse",
+   "explain": "The requested days cannot exceed the paid time off balance on the employee record."
+  }
+ ],
+ "default_outcome": "book",
+ "policy_text": "## Purpose\nEmployees can contact People Services to book paid time off (vacation). You submit the booking on their behalf. Each booking has a start date and a number of working days.\n\n## Finding the employee\nUse the employee ID if the caller has it (it is printed on the badge and on payslips). If they do not have it, you may search by their company work email address. You cannot search by name. If you cannot find the employee record from the ID or the work email, you cannot book anything; tell the caller to come back when they have their employee ID or work email.\n\n## Identity check\nBefore booking, ask for the caller's date of birth and compare it with the date of birth on the employee record. If it does not match, or the caller cannot give it, do not book anything.\n\n## Booking rules\nCheck these in order. If any applies, decline the booking and explain why:\n1. Employment status: only employees whose status is active can book time off through self-service. Employees who are on leave, suspended or terminated cannot.\n2. Notice: the time off must start at least 14 calendar days after today. Requests that start sooner, or on a past date, are declined.\n3. Length: one booking can cover at most 10 working days. Longer requests are declined, not shortened; the employee may call again for a shorter period.\n4. Balance: the number of days requested cannot be more than the paid time off balance on the employee record. A request for exactly the balance is allowed. Always go by the balance in the system, not the figure the employee believes they have.\n\nIf none of these applies, submit the booking with create_pto_request using the employee's ID, the requested start date and the requested number of days, and tell the employee it has been submitted.\n\n## Never\nDo not make exceptions to these rules, do not split or shorten a request on your own, do not change balances or employment status, and do not book time off for anyone other than the verified caller.",
+ "db_common": {
+  "employee": [
+   {
+    "employee_id": "E-30001",
+    "full_name": "Grace Odum",
+    "work_email": "g.odum@harborlinefoods.com",
+    "birth_date": "1979-10-02",
+    "department": "Quality Assurance",
+    "employment_status": "active",
+    "pto_balance_days": 18.0
+   },
+   {
+    "employee_id": "E-30002",
+    "full_name": "Henrik Vass",
+    "work_email": "h.vass@harborlinefoods.com",
+    "birth_date": "1992-01-25",
+    "department": "Logistics",
+    "employment_status": "active",
+    "pto_balance_days": 6.5
+   }
+  ],
+  "leave_request": [
+   {
+    "request_id": "LR-70001",
+    "employee_id": "E-30001",
+    "start_date": "2026-06-08",
+    "days": 5,
+    "status": "approved",
+    "submitted_on": "2026-05-02"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-40217",
+      "full_name": "Tomasz Wierzbicki",
+      "work_email": "t.wierzbicki@harborlinefoods.com",
+      "birth_date": "1987-03-14",
+      "department": "Production",
+      "employment_status": "active",
+      "pto_balance_days": 15.5
+     },
+     {
+      "employee_id": "E-40388",
+      "full_name": "Agnieszka Wierzbicka",
+      "work_email": "a.wierzbicka@harborlinefoods.com",
+      "birth_date": "1989-08-30",
+      "department": "Finance",
+      "employment_status": "active",
+      "pto_balance_days": 7.0
+     }
+    ],
+    "leave_request": [
+     {
+      "request_id": "LR-70114",
+      "employee_id": "E-40388",
+      "start_date": "2026-07-20",
+      "days": 4,
+      "status": "approved",
+      "submitted_on": "2026-04-28"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-40217",
+    "start_date": "2026-06-15",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-40217",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1987-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His wife also works at the company, in Finance, and already has her own time off booked for later in the summer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He asked People Services last week about the retirement plan match and is still waiting for a reply on that.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His parking pass stopped working at the staff garage on Monday, but he says he'll sort that out with security himself.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomasz, a production line supervisor who calls on his short break and dislikes long conversations.",
+   "reason_for_call": "He wants a week off in mid-June to help his parents move house.",
+   "task_instructions": "Give your employee ID, the start date and the number of days in very few words. Answer only what is asked, briefly. Mention the side matters about your wife's time off, the retirement plan question and the parking pass only in passing, and do not ask for anything about them.",
+   "expected_outcome": "book"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-41320",
+      "full_name": "Danielle Okafor",
+      "work_email": "d.okafor@harborlinefoods.com",
+      "birth_date": "1984-12-09",
+      "department": "Sales",
+      "employment_status": "active",
+      "pto_balance_days": 9.5
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-41320",
+    "start_date": "2026-07-13",
+    "days": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-41320",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-07-13",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-12-09",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "emp.pto_balance_days",
+     "value": 20,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Danielle, a regional sales manager between client meetings, impatient and used to getting things done fast.",
+   "reason_for_call": "She wants to book eight days off in July for a family trip and is sure she has about twenty days saved up.",
+   "task_instructions": "Open by saying you have twenty days of vacation and want eight of them from mid-July, and give your employee ID. Be impatient and push the agent to hurry. If the agent says your balance is different, grumble but accept it as long as the booking goes through. If the agent refuses for any reason, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "book"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-42056",
+      "full_name": "Hiroshi Tanabe",
+      "work_email": "h.tanabe@harborlinefoods.com",
+      "birth_date": "1995-05-27",
+      "department": "Research and Development",
+      "employment_status": "active",
+      "pto_balance_days": 12.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-42056",
+    "start_date": "2026-05-28",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-42056",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-05-27",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hiroshi, a food scientist in the test kitchen, polite and methodical.",
+   "reason_for_call": "A friend's wedding came up at short notice and he wants three days off starting next week.",
+   "task_instructions": "In your first message give your employee ID, your date of birth, the start date and that you want three days. Be polite. If the agent declines, accept the explanation, thank them and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-43871",
+      "full_name": "Rukayat Adeyemi",
+      "work_email": "r.adeyemi@harborlinefoods.com",
+      "birth_date": "1990-02-17",
+      "department": "Customer Care",
+      "employment_status": "on_leave",
+      "pto_balance_days": 16.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-43871",
+    "start_date": "2026-06-29",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "emp.work_email",
+     "value": "r.adeyemi@harborlinefoods.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-02-17",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rukayat, a customer care team lead currently at home with a newborn, typing short messages one-handed.",
+   "reason_for_call": "She wants to add a week of vacation at the end of June and does not have her employee ID to hand.",
+   "task_instructions": "Give your work email, the start date and five days, very briefly. You do not know your employee ID. Give your date of birth only if asked. Keep every answer to a few words. If the agent says it cannot be booked, accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-44603",
+      "full_name": "Beatriz Lindqvist",
+      "work_email": "b.lindqvist@harborlinefoods.com",
+      "birth_date": "1982-11-04",
+      "department": "Finance",
+      "employment_status": "active",
+      "pto_balance_days": 14.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-44603",
+    "start_date": "2026-08-03",
+    "days": 11
+   },
+   "initial_request_values": {
+    "days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-44603",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-08-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 11,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1982-11-04",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.pto_balance_days",
+     "value": 14,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She checked the HR portal this morning and it showed 14 vacation days available.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She is working full time in the Finance department as normal and is not on any kind of leave.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Beatriz, a senior accountant, friendly and chatty, planning a summer trip to Sweden.",
+   "reason_for_call": "She wants to book time off in early August for a family trip.",
+   "task_instructions": "Start by giving your employee ID, date of birth, the start date and asking for six days. Mention that the portal showed 14 days available and that you are working normally in Finance. Before the agent books anything, change your mind: your sister invited you to stay longer, so you want eleven days instead. If the agent declines the eleven days, accept the explanation and say you will think about how to split it; do not ask for anything else.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-41955",
+      "full_name": "Marisol Quintero",
+      "work_email": "m.quintero@harborlinefoods.com",
+      "birth_date": "1988-06-21",
+      "department": "Packaging",
+      "employment_status": "active",
+      "pto_balance_days": 11.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-41955",
+    "start_date": "2026-07-06",
+    "days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "emp.full_name",
+     "value": "Marisol Quintero",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-07-06",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-06-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a packaging line operator calling from home; her badge went through the wash and she rarely uses her work email.",
+   "reason_for_call": "She wants four days off in early July for her daughter's graduation.",
+   "task_instructions": "Give your full name, date of birth, the start date and four days. You do not know your employee ID and cannot remember your work email address. Be friendly and cooperative. If the agent cannot find your record, accept that and say you will call back with your ID.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-45129",
+      "full_name": "Kwame Mensah-Boateng",
+      "work_email": "k.mensahboateng@harborlinefoods.com",
+      "birth_date": "1976-09-12",
+      "department": "Logistics",
+      "employment_status": "active",
+      "pto_balance_days": 10.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-45129",
+    "start_date": "2026-06-22",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-45129",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1976-09-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.pto_balance_days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The HR portal shows he has exactly 10 vacation days left.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He came back from a leave of absence in March and has been working full time in Logistics since then.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Kwame, a warehouse logistics coordinator, blunt and in a hurry, who has had trouble with the HR portal before.",
+   "reason_for_call": "He wants two full weeks off from late June to visit family in Ghana and the portal keeps timing out.",
+   "task_instructions": "Give your employee ID, date of birth, the start date and ten days in your first message, and say the portal shows exactly ten days left and that you are back at work full time since March. Be impatient and press the agent to just book it. If the agent refuses, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "book"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-46288",
+      "full_name": "Leila Haddadi",
+      "work_email": "l.haddadi@harborlinefoods.com",
+      "birth_date": "1999-04-03",
+      "department": "Marketing",
+      "employment_status": "active",
+      "pto_balance_days": 8.0
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-46288",
+    "start_date": "2026-06-08",
+    "days": 4
+   },
+   "initial_request_values": {
+    "start_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-46288",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.start_date",
+     "value": "2026-06-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1999-04-03",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Leila, a junior marketing coordinator, cheerful and a little indecisive.",
+   "reason_for_call": "She wants four days off in early June for a short beach trip with friends.",
+   "task_instructions": "Give your employee ID and ask for four days starting the first of June. Give your date of birth only when asked. Before the agent books anything, change your mind: your friends moved the trip a week later, so you want the four days to start on the eighth of June instead. Answer questions politely.",
+   "expected_outcome": "book"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

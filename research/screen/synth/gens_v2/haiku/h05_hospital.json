@@ -1,0 +1,742 @@
+{
+ "procedure_id": "h05_hospital",
+ "domain": "hospital billing office",
+ "organization": "Harbor Valley Health System",
+ "title": "Payment plan changes",
+ "summary": "Change the length of a patient's installment plan on a hospital bill when the account and the request qualify.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Patients who receive care and are billed for it",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "birth_date": "date",
+    "in_collections": "bool",
+    "payment_hold": "bool"
+   }
+  },
+  "account": {
+   "key": "account_id",
+   "description": "Billing accounts, one per hospital bill",
+   "fields": {
+    "account_id": "str",
+    "patient_id": "ref:patient",
+    "contact_phone": "str",
+    "service_date": "date",
+    "balance": "number",
+    "term_months": "int",
+    "monthly_payment": "number",
+    "plan_status": "enum:active|paused|closed"
+   }
+  },
+  "plan_change": {
+   "key": "change_id",
+   "description": "Record of each payment plan change made on an account",
+   "fields": {
+    "change_id": "str",
+    "account_id": "ref:account",
+    "changed_on": "date",
+    "new_term_months": "int"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient by patient number."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a billing account by account number."
+  },
+  {
+   "name": "find_accounts_by_phone",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "contact_phone"
+   ],
+   "description": "List billing accounts that have the given contact phone number on them. Several accounts can share one phone number; use the service date to tell them apart."
+  },
+  {
+   "name": "find_plan_changes_by_account",
+   "kind": "search",
+   "entity": "plan_change",
+   "by": [
+    "account_id"
+   ],
+   "description": "List the payment plan changes already recorded on an account."
+  },
+  {
+   "name": "set_payment_plan",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account whose plan is changed."
+    },
+    "months": {
+     "type": "int",
+     "description": "The new number of installment months."
+    },
+    "monthly": {
+     "type": "number",
+     "description": "The new monthly installment in dollars, rounded to the cent."
+    }
+   },
+   "set": {
+    "term_months": "args.months",
+    "monthly_payment": "args.monthly"
+   },
+   "description": "Set the number of installment months and the monthly installment on an account."
+  },
+  {
+   "name": "create_plan_change",
+   "kind": "create",
+   "entity": "plan_change",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account whose plan was changed."
+    },
+    "new_term_months": {
+     "type": "int",
+     "description": "The new number of installment months."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "changed_on": "today",
+    "new_term_months": "args.new_term_months"
+   },
+   "description": "Record that a payment plan change was made on an account today."
+  }
+ ],
+ "request": {
+  "account_id": {
+   "type": "ref:account",
+   "description": "the account whose payment plan you want changed"
+  },
+  "term_months": {
+   "type": "int",
+   "description": "how many months you want to spread the balance over"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "account",
+   "entity": "account",
+   "key": "req.account_id"
+  },
+  {
+   "name": "patient",
+   "entity": "patient",
+   "key": "account.patient_id"
+  }
+ ],
+ "outcomes": {
+  "adjust": {
+   "kind": "perform",
+   "description": "Set the new term and monthly installment on the account, then record the plan change.",
+   "calls": [
+    {
+     "tool": "set_payment_plan",
+     "args": {
+      "account_id": "account.account_id",
+      "months": "req.term_months",
+      "monthly": "round(account.balance / req.term_months, 2)"
+     }
+    },
+    {
+     "tool": "create_plan_change",
+     "args": {
+      "account_id": "account.account_id",
+      "new_term_months": "req.term_months"
+     }
+    }
+   ]
+  },
+  "decline": {
+   "kind": "refuse",
+   "description": "Do not change the plan; explain why it cannot be changed here.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "patient.in_collections == True",
+   "outcome": "decline",
+   "explain": "A patient whose account has been placed with the outside collections agency cannot have the plan changed here."
+  },
+  {
+   "id": "R2",
+   "when": "patient.payment_hold == True",
+   "outcome": "decline",
+   "explain": "A patient on a payment hold after a returned payment cannot have the plan changed until the hold is cleared."
+  },
+  {
+   "id": "R3",
+   "when": "account.plan_status != 'active'",
+   "outcome": "decline",
+   "explain": "Only accounts with an active payment plan can have the plan changed."
+  },
+  {
+   "id": "R4",
+   "when": "req.term_months > 24",
+   "outcome": "decline",
+   "explain": "The payment plan cannot run longer than 24 months."
+  },
+  {
+   "id": "R5",
+   "when": "db_count('plan_change', 'account_id', account.account_id) >= 2",
+   "outcome": "decline",
+   "explain": "An account that has already had two plan changes cannot have another."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(account.service_date, today) > 180 or round(account.balance / req.term_months, 2) < 25",
+   "outcome": "decline",
+   "explain": "The bill must be for care within the last 180 days, and the monthly installment for the requested term must be at least 25.00."
+  }
+ ],
+ "default_outcome": "adjust",
+ "policy_text": "## Who can ask\nPatients, or someone acting for the patient, can ask to change the payment plan on a hospital bill by phone or in person. Before changing anything, find the billing account the request is about, then look up the patient it belongs to.\n\n## Finding the account\nUse the account number if the caller gives it. If not, search by the contact phone number on the account. If more than one account has that number, use the date of the hospital service the caller gives to pick the one they mean. Do not change an account unless it is clearly the one the caller means. If the account cannot be identified, ask for more detail and make no change.\n\n## The requested term\nThe caller must tell you how many months they want the balance spread over. If they have not said, ask before you go on. Use only the number the caller gives.\n\n## Checks, in this order\n1. The patient must not have been placed with the outside collections agency. If they have, decline and tell the caller that the billing office cannot change the plan and that the collections agency handles the account.\n2. The patient must not be on a payment hold. A hold is placed after a returned payment. If the patient is on a hold, decline and tell the caller the plan cannot be changed until the hold is cleared.\n3. The account's payment plan must be active. Paused or closed plans cannot be changed here. Decline if the status is not active.\n4. The requested term must be 24 months or less. Requests for longer terms are declined, not shortened.\n5. Look up the plan changes already recorded on the account. An account that has already had two plan changes cannot have another. Decline if there are two or more.\n6. The service date on the account must be no more than 180 days before today. Bills for older care are declined. Also work out the monthly installment for the requested term: divide the balance on the account by the number of months and round to the cent. The monthly installment must be at least 25.00. If it would be less, decline and offer no alternative term.\n\nUse the balance from the account record, even if the caller states a different amount.\n\n## When the change is allowed\nIf every check passes, make the change in this order: first set the new number of months and the monthly installment on the account, using the monthly installment worked out in check 6. Then record a plan change on the account with the new number of months. Tell the caller the new monthly amount and the number of months.\n\n## When the change is declined\nMake no changes to the account. Explain the reason in plain words, using the check that applies, and tell the caller what they can do next: for example, call the billing office during business hours. Do not offer a different term in place of the one requested.\n\n## Never\nDo not change the balance, do not waive or reduce any charge, do not change an account the caller did not ask about, do not shorten or lengthen a requested term to get it through the checks, and do not make a change based on a balance the caller states when the record shows something else.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "PT-0950",
+    "full_name": "Walter Henn",
+    "birth_date": "1949-05-06",
+    "in_collections": false,
+    "payment_hold": false
+   }
+  ],
+  "account": [
+   {
+    "account_id": "AC-10250",
+    "patient_id": "PT-0950",
+    "contact_phone": "214-555-0199",
+    "service_date": "2026-04-02",
+    "balance": 300.0,
+    "term_months": 0,
+    "monthly_payment": 0.0,
+    "plan_status": "active"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-2291",
+      "full_name": "Marcus Dell",
+      "birth_date": "1972-03-14",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-40817",
+      "patient_id": "PT-2291",
+      "contact_phone": "312-555-0142",
+      "service_date": "2026-02-03",
+      "balance": 1800.0,
+      "term_months": 6,
+      "monthly_payment": 300.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-40817",
+    "term_months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-40817",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 12,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a warehouse supervisor clearing a hospital bill from a February knee scan.",
+   "reason_for_call": "He wants the balance spread over a longer period so the monthly payment is smaller.",
+   "task_instructions": "Open with your account number and say you want the plan made longer. Do not say how many months you want unless the agent asks; when asked, say twelve. Sound impatient and ask for a quick answer. Accept the result when it is given.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6101",
+      "full_name": "Nadia Okafor",
+      "birth_date": "1983-02-17",
+      "in_collections": false,
+      "payment_hold": false
+     },
+     {
+      "patient_id": "PT-6102",
+      "full_name": "Caleb Dunmore",
+      "birth_date": "1990-11-05",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-61042",
+      "patient_id": "PT-6101",
+      "contact_phone": "503-555-0148",
+      "service_date": "2026-03-18",
+      "balance": 2400.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     },
+     {
+      "account_id": "AC-61043",
+      "patient_id": "PT-6102",
+      "contact_phone": "503-555-0148",
+      "service_date": "2026-01-09",
+      "balance": 500.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-61042",
+    "term_months": 30
+   },
+   "initial_request_values": {
+    "account_id": "AC-61042",
+    "term_months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "account.contact_phone",
+     "value": "503-555-0148",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.service_date",
+     "value": "2026-03-18",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 30,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nadia, a teacher who calls from her phone between classes and is sure the bill is hers.",
+   "reason_for_call": "She has a hospital bill from March and wants a payment plan that fits her budget.",
+   "task_instructions": "You do not know the account number. Give the phone number on the account and the March service date when you first speak. Ask first for six months. Before the agent makes any change, switch to thirty months and do not mention six again. Accept the agent's answer calmly.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-4420",
+      "full_name": "Ella Brandt",
+      "birth_date": "1979-08-30",
+      "in_collections": false,
+      "payment_hold": false
+     },
+     {
+      "patient_id": "PT-4421",
+      "full_name": "Gabe Brandt",
+      "birth_date": "1977-04-12",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-62010",
+      "patient_id": "PT-4420",
+      "contact_phone": "720-555-0163",
+      "service_date": "2026-03-10",
+      "balance": 1000.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     },
+     {
+      "account_id": "AC-62011",
+      "patient_id": "PT-4421",
+      "contact_phone": "720-555-0163",
+      "service_date": "2026-04-22",
+      "balance": 700.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-62010",
+    "term_months": 10
+   },
+   "initial_request_values": {
+    "account_id": "AC-62010",
+    "term_months": 36
+   },
+   "customer_facts": [
+    {
+     "fact": "account.contact_phone",
+     "value": "720-555-0163",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.service_date",
+     "value": "2026-03-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ella, a retired bookkeeper who handles her own paperwork carefully and reads every line.",
+   "reason_for_call": "She had a procedure in March and wants a payment plan she can manage on her pension.",
+   "task_instructions": "You do not know the account number. Give the phone number on the account and the March service date when you first speak. Ask first for thirty-six months. Before the agent makes any change, switch to ten months and do not mention thirty-six again. Accept the agent's confirmation.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-5530",
+      "full_name": "Corinne Ayala",
+      "birth_date": "1964-08-22",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-70115",
+      "patient_id": "PT-5530",
+      "contact_phone": "617-555-0121",
+      "service_date": "2026-01-15",
+      "balance": 3200.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     },
+     {
+      "account_id": "AC-70116",
+      "patient_id": "PT-5530",
+      "contact_phone": "617-555-0121",
+      "service_date": "2026-04-10",
+      "balance": 480.0,
+      "term_months": 4,
+      "monthly_payment": 120.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-70115",
+    "term_months": 16
+   },
+   "initial_request_values": {
+    "account_id": "AC-70115",
+    "term_months": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-70115",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 16,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The April bill is for a lab visit and she thinks it is nearly paid off.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She also wants the parking charge from a January trip looked at, but she will call about that separately.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her daughter usually handles the paperwork, and she is at work until five.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Corinne, a cafeteria manager who runs her household bills from a paper notebook.",
+   "reason_for_call": "She wants a longer payment plan on her January surgery bill so the monthly amount is smaller.",
+   "task_instructions": "Give the account number for the January bill and the surgery reason when you first speak. Ask first for thirty months. When the agent declines, ask for sixteen months instead and accept it. Mention each side point once, in passing, and only if it fits the conversation.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6604",
+      "full_name": "Ruth Callahan",
+      "birth_date": "1958-12-01",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-83340",
+      "patient_id": "PT-6604",
+      "contact_phone": "303-555-0106",
+      "service_date": "2026-01-20",
+      "balance": 2400.0,
+      "term_months": 6,
+      "monthly_payment": 400.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-83340",
+    "term_months": 16
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-83340",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 16,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.balance",
+     "value": 2100.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ruth, a retired postal clerk who keeps her paperwork in a shoebox and answers in few words.",
+   "reason_for_call": "She thinks her hospital balance is down to about two thousand one hundred and wants it stretched over sixteen months.",
+   "task_instructions": "Keep every answer to a few words. In your first message, give your account number, say your balance is about 2100, and ask for sixteen months. If the agent gives a different balance, say fine and do not argue.",
+   "expected_outcome": "adjust"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-7713",
+      "full_name": "Dennis Moreau",
+      "birth_date": "1960-03-03",
+      "in_collections": true,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-90422",
+      "patient_id": "PT-7713",
+      "contact_phone": "404-555-0189",
+      "service_date": "2025-12-11",
+      "balance": 950.0,
+      "term_months": 0,
+      "monthly_payment": 0.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-90422",
+    "term_months": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-90422",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dennis, a sales manager who expects everything to be handled in one phone call.",
+   "reason_for_call": "He wants to pay his hospital bill in ten monthly installments and is sure a plan can be set up today.",
+   "task_instructions": "In your first message, give your account number and ask for ten months. If you are refused, argue that you have always paid your bills and ask for an exception at least twice before you accept. Do not volunteer anything else.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-8825",
+      "full_name": "Lorraine Feld",
+      "birth_date": "1947-07-07",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-95013",
+      "patient_id": "PT-8825",
+      "contact_phone": "614-555-0134",
+      "service_date": "2025-12-18",
+      "balance": 3000.0,
+      "term_months": 12,
+      "monthly_payment": 250.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": [
+     {
+      "change_id": "PC-30011",
+      "account_id": "AC-95013",
+      "changed_on": "2026-03-02",
+      "new_term_months": 6
+     },
+     {
+      "change_id": "PC-30012",
+      "account_id": "AC-95013",
+      "changed_on": "2026-04-14",
+      "new_term_months": 12
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "AC-95013",
+    "term_months": 18
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-95013",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 18,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.service_date",
+     "value": "2025-12-18",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bill is for my knee surgery in December, so the service date is last December.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I have already changed the plan twice, once in March and once in April.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Lorraine, a retired librarian who is organized and apologetic about calling again.",
+   "reason_for_call": "She wants to stretch her knee surgery bill over eighteen months.",
+   "task_instructions": "Be cooperative. In your first message, give your account number, the service date, and the eighteen-month request. Mention the earlier plan changes when you give the details. Answer the agent's questions directly. Accept a refusal politely.",
+   "expected_outcome": "decline"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-1190",
+      "full_name": "Marisol Quintero",
+      "birth_date": "1975-09-19",
+      "in_collections": false,
+      "payment_hold": false
+     }
+    ],
+    "account": [
+     {
+      "account_id": "AC-44187",
+      "patient_id": "PT-1190",
+      "contact_phone": "206-555-0195",
+      "service_date": "2025-10-28",
+      "balance": 1200.0,
+      "term_months": 6,
+      "monthly_payment": 200.0,
+      "plan_status": "active"
+     }
+    ],
+    "plan_change": []
+   },
+   "request_values": {
+    "account_id": "AC-44187",
+    "term_months": 12
+   },
+   "initial_request_values": {
+    "account_id": "AC-44187",
+    "term_months": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "AC-44187",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_months",
+     "value": 12,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a teacher who was treated for a broken wrist and wants a payment arrangement that fits her summer budget.",
+   "reason_for_call": "She wants a longer plan on an October hospital bill.",
+   "task_instructions": "Give your account number when you first speak. Start by asking for thirty months. When the agent declines, ask whether a shorter plan is possible instead. When the agent asks how many months you want, say twelve. Accept whatever decision follows.",
+   "expected_outcome": "decline"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

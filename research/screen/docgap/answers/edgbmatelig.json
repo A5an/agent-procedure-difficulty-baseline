@@ -1,0 +1,15 @@
+{
+ "gap_score": 6,
+ "gaps": [
+  "Tool names, parameters, and the exact lookup calls for listing mandates and for verifying the active list afterward are not specified, nor is whether a status filter exists.",
+  "Policy requires confirmation before cancel_mandate, but the description doesn't say whether the customer confirms explicitly, in advance, or only after being asked. Whether to ask again or proceed is left open.",
+  "The description assumes exactly one active mandate and one paused one. It doesn't say what to do with several active mandates, none, or an ambiguous one, nor how to pick which to cancel or whether to ask the customer.",
+  "The paused mandate must be left untouched, but it isn't clear how to treat a customer who asks to cancel it too, or whether the customer asks to cancel 'all'. Nor is it clear how to treat paused as distinct from active.",
+  "How to identify the mandate (by merchant, amount, ID, or reference) is unspecified, including how to present the list without exposing internal field names or IDs.",
+  "Cancellation might fail, be rejected, or be pending (e.g., a notice period or cutoff). Fallback behavior and whether to escalate or raise a service request are not defined.",
+  "Whether the knowledge base should be consulted on cancellation rules, such as effects on future debits, paused mandates, or merchant notification, isn't stated.",
+  "The customer's behavior is unspecified: they may change their mind, decline, or ask side questions, and the policy says not to mutate in those cases.",
+  "The wording and detail of the final verification report (what to say about the active list being empty and the paused mandate still present) are unspecified, as are the mandate details to include (status, merchant, amount, next debit date).",
+  "The simulation date (2026-07-16) may matter for mandate expiry or next-debit logic, but how isn't specified."
+ ]
+}

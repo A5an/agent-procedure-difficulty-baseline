@@ -1,0 +1,1097 @@
+{
+ "procedure_id": "h08_car",
+ "domain": "car dealership service center",
+ "organization": "Cascade Ridge Toyota-Honda Service Center",
+ "title": "Courtesy loaner extensions",
+ "summary": "Extend the return date of a courtesy loaner vehicle while the customer's own car is still being repaired, when the customer, the repair and the loaner unit allow it.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Service customers on file",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "email": "str",
+    "license_last4": "str"
+   }
+  },
+  "repair_order": {
+   "key": "ro_number",
+   "description": "Repair orders for customers' own vehicles in the shop",
+   "fields": {
+    "ro_number": "str",
+    "customer_id": "ref:customer",
+    "vehicle": "str",
+    "status": "enum:open|waiting_parts|ready_for_pickup|closed",
+    "promised_date": "date"
+   }
+  },
+  "loaner_unit": {
+   "key": "unit_id",
+   "description": "Courtesy loaner vehicles in the dealership fleet",
+   "fields": {
+    "unit_id": "str",
+    "model": "str",
+    "plate": "str",
+    "assigned_until": "date",
+    "next_reservation_date": "date"
+   }
+  },
+  "loaner_agreement": {
+   "key": "agreement_id",
+   "description": "Courtesy loaner agreements tying a customer, a repair order and a loaner unit",
+   "fields": {
+    "agreement_id": "str",
+    "customer_id": "ref:customer",
+    "ro_number": "ref:repair_order",
+    "unit_id": "ref:loaner_unit",
+    "start_date": "date",
+    "return_date": "date",
+    "extensions": "int",
+    "status": "enum:active|returned|closed"
+   }
+  },
+  "loaner_extension": {
+   "key": "extension_id",
+   "description": "Log of loaner extensions granted",
+   "fields": {
+    "extension_id": "str",
+    "agreement_id": "ref:loaner_agreement",
+    "days": "int",
+    "created": "date"
+   }
+  },
+  "manager_review": {
+   "key": "review_id",
+   "description": "Requests for the service manager to approve a loaner extension",
+   "fields": {
+    "review_id": "str",
+    "agreement_id": "ref:loaner_agreement",
+    "requested_days": "int",
+    "reason": "enum:repeat_extension|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a service customer by customer ID."
+  },
+  {
+   "name": "find_customers_by_phone",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "phone"
+   ],
+   "description": "Find customers by the phone number on file (format 503-555-0100)."
+  },
+  {
+   "name": "get_loaner_agreement",
+   "kind": "get",
+   "entity": "loaner_agreement",
+   "description": "Look up a courtesy loaner agreement by its agreement number."
+  },
+  {
+   "name": "find_agreements_by_customer",
+   "kind": "search",
+   "entity": "loaner_agreement",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all loaner agreements (current and past) of a customer."
+  },
+  {
+   "name": "get_repair_order",
+   "kind": "get",
+   "entity": "repair_order",
+   "description": "Look up a repair order by RO number, including its current status."
+  },
+  {
+   "name": "get_loaner_unit",
+   "kind": "get",
+   "entity": "loaner_unit",
+   "description": "Look up a loaner vehicle by unit ID, including its next reservation date."
+  },
+  {
+   "name": "extend_loaner_agreement",
+   "kind": "update",
+   "entity": "loaner_agreement",
+   "args": {
+    "agreement_id": {
+     "type": "ref:loaner_agreement",
+     "description": "The agreement to extend."
+    },
+    "new_return_date": {
+     "type": "date",
+     "description": "The new return date of the loaner."
+    }
+   },
+   "set": {
+    "return_date": "args.new_return_date",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Set a new return date on a loaner agreement and count one extension."
+  },
+  {
+   "name": "set_unit_hold",
+   "kind": "update",
+   "entity": "loaner_unit",
+   "args": {
+    "unit_id": {
+     "type": "ref:loaner_unit",
+     "description": "The loaner vehicle to hold."
+    },
+    "assigned_until": {
+     "type": "date",
+     "description": "The date until which the vehicle stays assigned."
+    }
+   },
+   "set": {
+    "assigned_until": "args.assigned_until"
+   },
+   "description": "Update the date until which a loaner vehicle is held for its current driver."
+  },
+  {
+   "name": "create_extension_record",
+   "kind": "create",
+   "entity": "loaner_extension",
+   "args": {
+    "agreement_id": {
+     "type": "ref:loaner_agreement",
+     "description": "The agreement that was extended."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days added."
+    }
+   },
+   "fields": {
+    "agreement_id": "args.agreement_id",
+    "days": "args.days",
+    "created": "today"
+   },
+   "description": "Log an extension granted on a loaner agreement."
+  },
+  {
+   "name": "create_manager_review",
+   "kind": "create",
+   "entity": "manager_review",
+   "args": {
+    "agreement_id": {
+     "type": "ref:loaner_agreement",
+     "description": "The agreement the review is about."
+    },
+    "requested_days": {
+     "type": "int",
+     "description": "Number of extra days the customer asked for."
+    },
+    "reason": {
+     "type": "enum:repeat_extension|other",
+     "description": "Why the manager must review it."
+    }
+   },
+   "fields": {
+    "agreement_id": "args.agreement_id",
+    "requested_days": "args.requested_days",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a loaner extension request to the service manager for approval."
+  }
+ ],
+ "request": {
+  "agreement_id": {
+   "type": "ref:loaner_agreement",
+   "description": "the loaner agreement you want extended"
+  },
+  "extra_days": {
+   "type": "int",
+   "description": "how many extra days you want to keep the loaner"
+  }
+ },
+ "claims": {
+  "license_last4": {
+   "type": "str",
+   "description": "the last four digits of your driver's license number"
+  }
+ },
+ "bindings": [
+  {
+   "name": "agr",
+   "entity": "loaner_agreement",
+   "key": "req.agreement_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "agr.customer_id"
+  },
+  {
+   "name": "ro",
+   "entity": "repair_order",
+   "key": "agr.ro_number"
+  },
+  {
+   "name": "unit",
+   "entity": "loaner_unit",
+   "key": "agr.unit_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the agreement to the new return date, hold the loaner unit until that date, and log the extension.",
+   "calls": [
+    {
+     "tool": "extend_loaner_agreement",
+     "args": {
+      "agreement_id": "agr.agreement_id",
+      "new_return_date": "add_days(agr.return_date, req.extra_days)"
+     }
+    },
+    {
+     "tool": "set_unit_hold",
+     "args": {
+      "unit_id": "unit.unit_id",
+      "assigned_until": "add_days(agr.return_date, req.extra_days)"
+     }
+    },
+    {
+     "tool": "create_extension_record",
+     "args": {
+      "agreement_id": "agr.agreement_id",
+      "days": "req.extra_days"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The agreement has already been extended twice: send the request to the service manager instead of extending.",
+   "calls": [
+    {
+     "tool": "create_manager_review",
+     "args": {
+      "agreement_id": "agr.agreement_id",
+      "requested_days": "req.extra_days",
+      "reason": "'repeat_extension'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not extend; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.license_last4 != cust.license_last4",
+   "outcome": "refuse",
+   "explain": "The caller must give the last four digits of the driver's license on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "agr.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active loaner agreements can be extended."
+  },
+  {
+   "id": "R3",
+   "when": "ro.status in ['ready_for_pickup', 'closed']",
+   "outcome": "refuse",
+   "explain": "If the customer's own vehicle is ready for pickup or the repair order is closed, the loaner cannot be extended."
+  },
+  {
+   "id": "R4",
+   "when": "req.extra_days > 7",
+   "outcome": "refuse",
+   "explain": "One extension can add at most 7 days; longer requests are declined, not shortened."
+  },
+  {
+   "id": "R5",
+   "when": "add_days(agr.return_date, req.extra_days) >= unit.next_reservation_date",
+   "outcome": "refuse",
+   "explain": "If the new return date would fall on or after the loaner unit's next reservation date, the extension is refused."
+  },
+  {
+   "id": "R6",
+   "when": "agr.extensions >= 2",
+   "outcome": "review",
+   "explain": "An agreement already extended twice needs service manager approval, so a manager review is opened instead of extending."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Purpose\nCustomers whose own vehicle is in our shop may drive a courtesy loaner. When the repair runs long, they can ask to keep the loaner longer. This procedure explains when you may extend the loaner agreement and how.\n\n## Finding the agreement\nUse the loaner agreement number if the customer has it. If not, find the customer by the phone number on file, then list their loaner agreements. Customers often have past agreements that are already returned; if more than one agreement comes up, ask a detail (for example the date they picked up the loaner) to pick the right one. Make sure you know exactly how many extra days the customer wants; ask if they have not said.\n\nOnce you have the agreement, look up the customer it belongs to, the repair order it is tied to, and the loaner unit. You must check the repair order and the loaner unit yourself; customers usually do not know their status.\n\n## Identity check\nBefore any change, ask for the last four digits of the customer's driver's license. They must match the digits on the customer record. If they do not match, or the customer cannot give them, do not make any change.\n\n## When an extension is allowed (check in this order)\n1. The agreement must be active. Returned or closed agreements cannot be extended.\n2. The customer's own vehicle must still be in repair. If the repair order status is ready_for_pickup or closed, the loaner cannot be extended; the customer should return it and collect their car.\n3. One extension adds at most 7 days. If the customer asks for more than 7 days, decline the request; do not shorten it yourself. The customer may make a new request for 7 days or fewer.\n4. Compute the new return date: the current return date on the agreement (as recorded in our system, not what the customer remembers) plus the number of extra days requested. If the loaner unit has a next reservation date and the new return date falls on or after that date, refuse the extension. If the unit has no next reservation, this check passes.\n5. If the agreement has already been extended two or more times, do not extend it. Instead open a service manager review with reason repeat_extension and the number of days requested, and tell the customer the service manager will contact them.\n\n## Granting the extension\nIf all checks pass, do these three things, in this order:\n1. Extend the loaner agreement to the new return date (current return date plus requested days).\n2. Hold the loaner unit until that same new return date.\n3. Log the extension with the number of days added.\nTell the customer the new return date.\n\n## Never\nDo not extend for a caller who failed the identity check. Do not shorten or change the number of days the customer asked for. Do not move or cancel another customer's reservation. Do not change anything the customer did not ask for.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1001",
+    "full_name": "Gloria Venn",
+    "phone": "503-555-0100",
+    "email": "gloria.venn@example.com",
+    "license_last4": "1188"
+   }
+  ],
+  "repair_order": [
+   {
+    "ro_number": "RO-500001",
+    "customer_id": "C-1001",
+    "vehicle": "2019 Honda Pilot",
+    "status": "open",
+    "promised_date": "2026-05-24"
+   }
+  ],
+  "loaner_unit": [
+   {
+    "unit_id": "LU-01",
+    "model": "2025 Toyota Corolla",
+    "plate": "8KDW201",
+    "assigned_until": "2026-05-24",
+    "next_reservation_date": null
+   }
+  ],
+  "loaner_agreement": [
+   {
+    "agreement_id": "LA-20001",
+    "customer_id": "C-1001",
+    "ro_number": "RO-500001",
+    "unit_id": "LU-01",
+    "start_date": "2026-05-15",
+    "return_date": "2026-05-24",
+    "extensions": 0,
+    "status": "active"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2310",
+      "full_name": "Derek Anselmo",
+      "phone": "503-555-0182",
+      "email": "derek.anselmo@example.com",
+      "license_last4": "4471"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512077",
+      "customer_id": "C-2310",
+      "vehicle": "2021 Ford F-150",
+      "status": "waiting_parts",
+      "promised_date": "2026-05-26"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-14",
+      "model": "2025 Toyota RAV4",
+      "plate": "9TRX442",
+      "assigned_until": "2026-05-21",
+      "next_reservation_date": "2026-06-02"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30152",
+      "customer_id": "C-2310",
+      "ro_number": "RO-512077",
+      "unit_id": "LU-14",
+      "start_date": "2026-05-13",
+      "return_date": "2026-05-21",
+      "extensions": 0,
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30152",
+    "extra_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30152",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "4471",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Derek, a general contractor who runs between job sites all day and hates waiting on hold.",
+   "reason_for_call": "His pickup truck is still in the shop and his loaner is due back tomorrow; he needs five more days with it.",
+   "task_instructions": "In your first message give the agreement number, the five extra days and the last four digits of your license. Be impatient: ask the agent to hurry, complain that the repair is taking too long. If anything is refused, argue and demand an exception at least twice before accepting.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2455",
+      "full_name": "Hannah Kowalczyk",
+      "phone": "971-555-0123",
+      "email": "hannah.k@example.com",
+      "license_last4": "0938"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512230",
+      "customer_id": "C-2455",
+      "vehicle": "2019 Subaru Outback",
+      "status": "waiting_parts",
+      "promised_date": "2026-05-28"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-07",
+      "model": "2024 Honda CR-V",
+      "plate": "7BNM118",
+      "assigned_until": "2026-05-22",
+      "next_reservation_date": "2026-06-05"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30207",
+      "customer_id": "C-2455",
+      "ro_number": "RO-512230",
+      "unit_id": "LU-07",
+      "start_date": "2026-05-12",
+      "return_date": "2026-05-22",
+      "extensions": 0,
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30207",
+    "extra_days": 6
+   },
+   "initial_request_values": {
+    "agreement_id": "LA-30207",
+    "extra_days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30207",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "0938",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ro.status",
+     "value": "waiting_parts",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "agr.extensions",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My service advisor told me the replacement transmission valve body is on backorder and should arrive around the 27th.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I picked up the loaner, a gray CR-V, on May 12.",
+     "kind": "helpful"
+    },
+    {
+     "text": "This is the first time I've asked to keep the loaner longer.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hannah, a high-school chemistry teacher, organized and friendly, who keeps notes of every conversation with the dealership.",
+   "reason_for_call": "Her Subaru is still waiting on a backordered part, so she needs to keep the loaner past its return date.",
+   "task_instructions": "Give the agreement number and the last four digits of your license in your first message, mention that your car is waiting for parts and that you have never extended before, and first ask for four extra days. Before the agent makes any change, remember you have a school field trip and ask for six days instead. Mention the backordered part and the pickup date naturally.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2589",
+      "full_name": "Luis Ferreira",
+      "phone": "503-555-0166",
+      "email": "luis.ferreira@example.com",
+      "license_last4": "7720"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512391",
+      "customer_id": "C-2589",
+      "vehicle": "2020 Chevrolet Silverado",
+      "status": "open",
+      "promised_date": "2026-05-24"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-22",
+      "model": "2025 Hyundai Tucson",
+      "plate": "8HZP907",
+      "assigned_until": "2026-05-23",
+      "next_reservation_date": "2026-05-28"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30288",
+      "customer_id": "C-2589",
+      "ro_number": "RO-512391",
+      "unit_id": "LU-22",
+      "start_date": "2026-05-16",
+      "return_date": "2026-05-23",
+      "extensions": 1,
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30288",
+    "extra_days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30288",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "7720",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "agr.return_date",
+     "value": "2026-05-25",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Luis, a restaurant owner who is short on time and convinced he remembers every date correctly.",
+   "reason_for_call": "His truck repair is dragging on and he wants four more days with the loaner, which he believes is due back on the 25th.",
+   "task_instructions": "In your first message give the agreement number, the last four digits of your license, say the loaner is due back on May 25 and ask for four more days. If the agent says the current return date is the 23rd and the new date is the 27th, push back hard, insist it was the 25th and that you should get it until the 29th; after arguing at least twice, accept four days from the date in the system. If anything is refused, demand an exception at least twice before accepting.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2614",
+      "full_name": "Tamsin Okafor",
+      "phone": "360-555-0191",
+      "email": "tamsin.okafor@example.com",
+      "license_last4": "5562"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512418",
+      "customer_id": "C-2614",
+      "vehicle": "2018 Mazda CX-5",
+      "status": "waiting_parts",
+      "promised_date": "2026-05-30"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-09",
+      "model": "2024 Nissan Rogue",
+      "plate": "6WLA350",
+      "assigned_until": "2026-05-22",
+      "next_reservation_date": "2026-05-27"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30311",
+      "customer_id": "C-2614",
+      "ro_number": "RO-512418",
+      "unit_id": "LU-09",
+      "start_date": "2026-05-15",
+      "return_date": "2026-05-22",
+      "extensions": 0,
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30311",
+    "extra_days": 7
+   },
+   "initial_request_values": {
+    "agreement_id": "LA-30311",
+    "extra_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30311",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 7,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "5562",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tamsin, a freelance photographer who is practical and willing to bargain to get what she needs.",
+   "reason_for_call": "Her Mazda is waiting for parts with no clear finish date, so she wants to keep the loaner much longer.",
+   "task_instructions": "Give the agreement number and say you want to keep the loaner longer, without naming a number of days until the agent asks. When asked how many days, say ten. Give the last four digits of your license only when asked. If the agent refuses the ten days, ask for seven days instead. If that is also refused, ask once whether anything can be done, then accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2702",
+      "full_name": "Marcus Bell",
+      "phone": "503-555-0134",
+      "email": "marcus.bell@example.com",
+      "license_last4": "3189"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512455",
+      "customer_id": "C-2702",
+      "vehicle": "2022 Kia Telluride",
+      "status": "ready_for_pickup",
+      "promised_date": "2026-05-19"
+     },
+     {
+      "ro_number": "RO-498870",
+      "customer_id": "C-2702",
+      "vehicle": "2022 Kia Telluride",
+      "status": "closed",
+      "promised_date": "2026-02-11"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-03",
+      "model": "2025 Toyota Camry",
+      "plate": "9CMY215",
+      "assigned_until": "2026-05-21",
+      "next_reservation_date": null
+     },
+     {
+      "unit_id": "LU-11",
+      "model": "2023 Ford Escape",
+      "plate": "7FEX664",
+      "assigned_until": "2026-02-11",
+      "next_reservation_date": "2026-05-29"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30340",
+      "customer_id": "C-2702",
+      "ro_number": "RO-512455",
+      "unit_id": "LU-03",
+      "start_date": "2026-05-14",
+      "return_date": "2026-05-21",
+      "extensions": 0,
+      "status": "active"
+     },
+     {
+      "agreement_id": "LA-29102",
+      "customer_id": "C-2702",
+      "ro_number": "RO-498870",
+      "unit_id": "LU-11",
+      "start_date": "2026-02-06",
+      "return_date": "2026-02-11",
+      "extensions": 0,
+      "status": "returned"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30340",
+    "extra_days": 3
+   },
+   "initial_request_values": {
+    "agreement_id": "LA-30340",
+    "extra_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30340",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "3189",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Back in February I had a loaner Escape for a few days while they did a recall repair on the same Telluride.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was going to ask what you charge for a tire rotation, but it can wait for another day.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My wife's Highlander is due for an oil change next month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We're driving to my nephew's wedding in Bend this weekend.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a chatty retired postal worker who likes to tell stories and drifts between topics.",
+   "reason_for_call": "He has not heard that his Telluride is done and wants to keep the loaner a bit longer for a weekend trip.",
+   "task_instructions": "Give the agreement number and the last four digits of your license early. First ask for five more days, then, before anything is done, decide three days is enough and ask for three instead. Chat about the other things in passing. If the agent tells you your car is ready and the loaner cannot be extended, be pleasantly surprised and accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2781",
+      "full_name": "Priya Raman",
+      "phone": "541-555-0177",
+      "email": "priya.raman@example.com",
+      "license_last4": "6604"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512502",
+      "customer_id": "C-2781",
+      "vehicle": "2021 Volkswagen Tiguan",
+      "status": "waiting_parts",
+      "promised_date": "2026-05-27"
+     },
+     {
+      "ro_number": "RO-501340",
+      "customer_id": "C-2781",
+      "vehicle": "2017 Honda Civic",
+      "status": "closed",
+      "promised_date": "2026-03-03"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-18",
+      "model": "2025 Kia Sportage",
+      "plate": "9KSP781",
+      "assigned_until": "2026-05-23",
+      "next_reservation_date": null
+     },
+     {
+      "unit_id": "LU-05",
+      "model": "2024 Chevrolet Malibu",
+      "plate": "8CMB032",
+      "assigned_until": "2026-03-03",
+      "next_reservation_date": "2026-06-10"
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30395",
+      "customer_id": "C-2781",
+      "ro_number": "RO-512502",
+      "unit_id": "LU-18",
+      "start_date": "2026-05-17",
+      "return_date": "2026-05-23",
+      "extensions": 0,
+      "status": "active"
+     },
+     {
+      "agreement_id": "LA-27711",
+      "customer_id": "C-2781",
+      "ro_number": "RO-501340",
+      "unit_id": "LU-05",
+      "start_date": "2026-02-28",
+      "return_date": "2026-03-03",
+      "extensions": 0,
+      "status": "returned"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30395",
+    "extra_days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30395",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "2915",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Back in March my son had a loaner Malibu while his Civic was in for brakes.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Do you sell all-weather floor mats? Actually, never mind, I'll look online.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The Sportage paired with my phone right away, which was nice.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I'm driving up to Portland on Saturday to see my sister.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a pharmacist, polite and patient. She renewed her driver's license last month and reads the digits off the new card in her wallet.",
+   "reason_for_call": "Her Tiguan is still waiting for parts and she would like three more days with the loaner.",
+   "task_instructions": "Give the agreement number, three extra days and the last four digits from the license card in your wallet in your first message. Mention the other things in passing. You do not know any other license number. If the agent cannot verify you, accept it calmly and say you will come in person.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2836",
+      "full_name": "Eitan Shapiro",
+      "phone": "503-555-0158",
+      "email": "eitan.shapiro@example.com",
+      "license_last4": "8813"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512540",
+      "customer_id": "C-2836",
+      "vehicle": "2016 BMW X3",
+      "status": "waiting_parts",
+      "promised_date": "2026-06-01"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-25",
+      "model": "2025 Toyota Highlander",
+      "plate": "9THL390",
+      "assigned_until": "2026-05-22",
+      "next_reservation_date": null
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30402",
+      "customer_id": "C-2836",
+      "ro_number": "RO-512540",
+      "unit_id": "LU-25",
+      "start_date": "2026-05-06",
+      "return_date": "2026-05-22",
+      "extensions": 2,
+      "status": "active"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30402",
+    "extra_days": 5
+   },
+   "initial_request_values": {
+    "agreement_id": "LA-30402",
+    "extra_days": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.agreement_id",
+     "value": "LA-30402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "8813",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Eitan, a software consultant, calm and reasonable, used to negotiating contracts.",
+   "reason_for_call": "His older BMW has been in the shop for two weeks waiting on parts, and he needs the loaner longer again.",
+   "task_instructions": "Give the agreement number and first ask for nine more days. Give the last four digits of your license only when asked. If the agent refuses the nine days, ask for five days instead. If the agent says a manager must approve it, accept that and thank them.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2903",
+      "full_name": "Rosa Delgado",
+      "phone": "971-555-0149",
+      "email": "rosa.delgado@example.com",
+      "license_last4": "2246"
+     }
+    ],
+    "repair_order": [
+     {
+      "ro_number": "RO-512577",
+      "customer_id": "C-2903",
+      "vehicle": "2020 Toyota Tacoma",
+      "status": "waiting_parts",
+      "promised_date": "2026-05-29"
+     },
+     {
+      "ro_number": "RO-503115",
+      "customer_id": "C-2903",
+      "vehicle": "2020 Toyota Tacoma",
+      "status": "closed",
+      "promised_date": "2026-04-02"
+     }
+    ],
+    "loaner_unit": [
+     {
+      "unit_id": "LU-16",
+      "model": "2024 Honda Accord",
+      "plate": "8HAC559",
+      "assigned_until": "2026-05-23",
+      "next_reservation_date": null
+     },
+     {
+      "unit_id": "LU-02",
+      "model": "2023 Hyundai Elantra",
+      "plate": "7HEL221",
+      "assigned_until": "2026-04-02",
+      "next_reservation_date": null
+     }
+    ],
+    "loaner_agreement": [
+     {
+      "agreement_id": "LA-30433",
+      "customer_id": "C-2903",
+      "ro_number": "RO-512577",
+      "unit_id": "LU-16",
+      "start_date": "2026-05-14",
+      "return_date": "2026-05-23",
+      "extensions": 0,
+      "status": "active"
+     },
+     {
+      "agreement_id": "LA-28560",
+      "customer_id": "C-2903",
+      "ro_number": "RO-503115",
+      "unit_id": "LU-02",
+      "start_date": "2026-03-30",
+      "return_date": "2026-04-02",
+      "extensions": 0,
+      "status": "returned"
+     }
+    ]
+   },
+   "request_values": {
+    "agreement_id": "LA-30433",
+    "extra_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.phone",
+     "value": "971-555-0149",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.extra_days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "agr.start_date",
+     "value": "2026-05-14",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.license_last4",
+     "value": "2246",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a nurse on a short break between shifts, who answers in as few words as possible.",
+   "reason_for_call": "Her Tacoma is still in the shop and she wants ten more days with the loaner, but she left the paperwork in the glovebox.",
+   "task_instructions": "Say you want ten more days on your loaner and give your phone number; you do not have the agreement number. Answer only what is asked, in a few words. If asked when you picked up the loaner, say May 14. Give the last four digits of your license only when asked. If refused, accept briefly and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

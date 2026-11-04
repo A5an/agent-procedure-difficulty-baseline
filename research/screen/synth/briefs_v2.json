@@ -1,0 +1,770 @@
+[
+ {
+  "procedure_id": "h01_auto",
+  "domain": "auto insurance claims",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 9,
+   "n_calls": 2,
+   "escalation": true,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "conflicting",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "distracting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "on_request",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c4",
+    "level": "lookup",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "helpful_extra",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "on_request",
+    "behavior": "cooperative",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "distracting",
+    "behavior": "pushy",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h02_mortgage",
+  "domain": "mortgage servicing",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 9,
+   "n_calls": 3,
+   "escalation": true,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "lookup",
+    "behavior": "terse",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c2",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "lookup",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "conflicting",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c7",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "distracting",
+    "behavior": "pushy",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h03_business",
+  "domain": "business mobile accounts",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 6,
+   "n_calls": 2,
+   "escalation": false,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "helpful_extra",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "on_request",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "upfront",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "conflicting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "on_request",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "lookup",
+    "behavior": "cooperative",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "lookup",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h04_airline",
+  "domain": "airline loyalty program",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 8,
+   "n_calls": 2,
+   "escalation": true,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "on_request",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c2",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "distracting",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "upfront",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "conflicting",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c7",
+    "level": "lookup",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "lookup",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h05_hospital",
+  "domain": "hospital billing office",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 6,
+   "n_calls": 2,
+   "escalation": false,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "on_request",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "lookup",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "lookup",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "distracting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c5",
+    "level": "conflicting",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "helpful_extra",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h06_city",
+  "domain": "city tax office",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 7,
+   "n_calls": 3,
+   "escalation": false,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c2",
+    "level": "conflicting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "distracting",
+    "behavior": "cooperative",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "lookup",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c7",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "on_request",
+    "behavior": "terse",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h07_school",
+  "domain": "school district transport",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 7,
+   "n_calls": 3,
+   "escalation": false,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "conflicting",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "on_request",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "distracting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "lookup",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h08_car",
+  "domain": "car dealership service center",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 6,
+   "n_calls": 3,
+   "escalation": true,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "conflicting",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c6",
+    "level": "distracting",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "lookup",
+    "behavior": "terse",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h09_bike",
+  "domain": "bike share membership",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 9,
+   "n_calls": 2,
+   "escalation": false,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "on_request",
+    "behavior": "cooperative",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "lookup",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "conflicting",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "conflicting",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "helpful_extra",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c6",
+    "level": "distracting",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "on_request",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "upfront",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h10_cloud",
+  "domain": "cloud hosting billing",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 8,
+   "n_calls": 3,
+   "escalation": true,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "on_request",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c2",
+    "level": "distracting",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "lookup",
+    "behavior": "terse",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c4",
+    "level": "on_request",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c5",
+    "level": "conflicting",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "upfront",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c7",
+    "level": "conflicting",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h11_freight",
+  "domain": "freight shipping",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 8,
+   "n_calls": 2,
+   "escalation": true,
+   "verification": true,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": true
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "distracting",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c2",
+    "level": "helpful_extra",
+    "behavior": "changes_mind",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c3",
+    "level": "conflicting",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "lookup",
+    "behavior": "pushy",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c5",
+    "level": "on_request",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c6",
+    "level": "conflicting",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c7",
+    "level": "distracting",
+    "behavior": "cooperative",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c8",
+    "level": "upfront",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   }
+  ]
+ },
+ {
+  "procedure_id": "h12_university",
+  "domain": "university housing",
+  "today": "2026-05-20",
+  "structure": {
+   "n_rules": 7,
+   "n_calls": 3,
+   "escalation": false,
+   "verification": false,
+   "min_hidden_rules": 2,
+   "computed_arg": true,
+   "db_count": false
+  },
+  "cases": [
+   {
+    "case_id": "c1",
+    "level": "lookup",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c2",
+    "level": "lookup",
+    "behavior": "changes_mind",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c3",
+    "level": "conflicting",
+    "behavior": "terse",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c4",
+    "level": "on_request",
+    "behavior": "cooperative",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c5",
+    "level": "helpful_extra",
+    "behavior": "negotiates",
+    "cls": "perform"
+   },
+   {
+    "case_id": "c6",
+    "level": "upfront",
+    "behavior": "pushy",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c7",
+    "level": "conflicting",
+    "behavior": "negotiates",
+    "cls": "refuse"
+   },
+   {
+    "case_id": "c8",
+    "level": "distracting",
+    "behavior": "pushy",
+    "cls": "refuse"
+   }
+  ]
+ }
+]

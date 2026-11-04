@@ -1,0 +1,730 @@
+{
+ "procedure_id": "p23_water",
+ "domain": "water utility",
+ "organization": "Cascade Valley Water District",
+ "title": "Leak adjustment credits",
+ "summary": "Grant a one-time credit on a water bill inflated by a repaired leak when the account and the bill qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Residential water service accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "service_address": "str",
+    "phone": "str",
+    "status": "enum:active|closed",
+    "last_leak_adjustment": "date",
+    "last_leak_repair_date": "date"
+   }
+  },
+  "bill": {
+   "key": "bill_id",
+   "description": "Monthly water bills issued on an account",
+   "fields": {
+    "bill_id": "str",
+    "account_id": "ref:account",
+    "period_start": "date",
+    "period_end": "date",
+    "usage_kgal": "int",
+    "typical_usage_kgal": "int",
+    "rate_per_kgal": "number",
+    "amount_due": "number",
+    "leak_credit": "number",
+    "status": "enum:open|paid"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a water service account by its account number."
+  },
+  {
+   "name": "find_accounts_by_phone",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "phone"
+   ],
+   "description": "Find accounts by the phone number on file (format 503-555-0100)."
+  },
+  {
+   "name": "get_bill",
+   "kind": "get",
+   "entity": "bill",
+   "description": "Look up a bill by its bill number. Shows usage in thousands of gallons, the account's typical usage for the period, the rate, amount due and any leak credit."
+  },
+  {
+   "name": "find_bills_by_account",
+   "kind": "search",
+   "entity": "bill",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all bills issued on an account."
+  },
+  {
+   "name": "apply_leak_credit",
+   "kind": "update",
+   "entity": "bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill receiving the leak credit."
+    },
+    "credit_amount": {
+     "type": "number",
+     "description": "Credit in dollars: half of (usage minus typical usage) times the rate per thousand gallons."
+    }
+   },
+   "set": {
+    "leak_credit": "args.credit_amount",
+    "amount_due": "rec.amount_due - args.credit_amount"
+   },
+   "description": "Apply a leak adjustment credit to a bill and reduce its amount due by that credit."
+  },
+  {
+   "name": "record_leak_adjustment",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the adjusted bill belongs to."
+    },
+    "repair_date": {
+     "type": "date",
+     "description": "The date the customer says the leak was repaired."
+    }
+   },
+   "set": {
+    "last_leak_adjustment": "today",
+    "last_leak_repair_date": "args.repair_date"
+   },
+   "description": "Record on the account that a leak adjustment was granted today, with the leak repair date."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:bill",
+   "description": "the water bill that was inflated by the leak and that you want adjusted"
+  },
+  "repair_date": {
+   "type": "date",
+   "description": "the date the leak was repaired"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "account",
+   "entity": "account",
+   "key": "bill.account_id"
+  }
+ ],
+ "outcomes": {
+  "apply_adjustment": {
+   "kind": "perform",
+   "description": "Credit half of the excess usage charge on the bill, then record the adjustment and repair date on the account.",
+   "calls": [
+    {
+     "tool": "apply_leak_credit",
+     "args": {
+      "bill_id": "req.bill_id",
+      "credit_amount": "(bill.usage_kgal - bill.typical_usage_kgal) * bill.rate_per_kgal / 2"
+     }
+    },
+    {
+     "tool": "record_leak_adjustment",
+     "args": {
+      "account_id": "bill.account_id",
+      "repair_date": "req.repair_date"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not adjust the bill; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "account.last_leak_adjustment > add_days(today, -365)",
+   "outcome": "refuse",
+   "explain": "An account can receive only one leak adjustment in any 365-day period, so a request is declined if the last adjustment was less than 365 days ago."
+  },
+  {
+   "id": "R2",
+   "when": "bill.usage_kgal < 2 * bill.typical_usage_kgal",
+   "outcome": "refuse",
+   "explain": "A bill qualifies only if its usage is at least double the account's typical usage for the period."
+  }
+ ],
+ "default_outcome": "apply_adjustment",
+ "policy_text": "## Purpose\nWhen a customer's water bill is unusually high because of a leak on their property that has since been repaired, the District grants a one-time leak adjustment credit. This policy explains who qualifies and how to apply the credit.\n\n## Finding the bill and account\nAsk for the bill number printed on the statement. If the customer does not have it, ask for the phone number on file for the account, find the account, then list its bills and ask which billing period they mean (for example, the period ending date). If the customer cannot give either the bill number or the phone number on file, you cannot locate the account; do not guess from names or addresses. No further identity verification is required for this request.\n\nAlso ask the customer for the date the leak was repaired. You need it to record the adjustment.\n\n## Eligibility\n1. One adjustment per 365 days. If the account's last leak adjustment was granted less than 365 days ago (counting back from today), decline the request. Go by the date on the account record, not by what the customer remembers.\n2. The bill must show abnormal usage. The bill's usage must be at least double the typical usage shown on that bill. If usage is less than twice the typical usage, the bill does not qualify and you must decline.\n\nThere are no exceptions to these rules. Do not escalate or promise future review for a declined request.\n\n## Applying the adjustment\nIf the request qualifies, make these two changes, in this order:\n1. Apply the leak credit to the bill. The credit is half of the excess usage charge: (usage minus typical usage, in thousands of gallons) multiplied by the rate per thousand gallons, divided by 2. Example: usage 20, typical 8, rate 6.50 gives (20 - 8) x 6.50 / 2 = 39.00.\n2. Record the leak adjustment on the account, giving the repair date the customer told you.\n\nTell the customer the credit amount and the new amount due.\n\n## Never\nDo not apply a credit to a bill that does not qualify, do not change the credit formula, do not adjust more than the one bill the customer asked about, and do not make changes the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "WA-100001",
+    "holder_name": "Harold Brennan",
+    "service_address": "88 Alder Court, Cascade Valley",
+    "phone": "503-555-0101",
+    "status": "active",
+    "last_leak_adjustment": null,
+    "last_leak_repair_date": null
+   }
+  ],
+  "bill": [
+   {
+    "bill_id": "BL-1001",
+    "account_id": "WA-100001",
+    "period_start": "2026-04-15",
+    "period_end": "2026-05-14",
+    "usage_kgal": 7,
+    "typical_usage_kgal": 7,
+    "rate_per_kgal": 6.5,
+    "amount_due": 63.5,
+    "leak_credit": 0,
+    "status": "open"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-830152",
+      "holder_name": "Priya Raman",
+      "service_address": "412 Larkspur Lane, Cascade Valley",
+      "phone": "614-555-0122",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-6001",
+      "account_id": "WA-830152",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 25,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 180.5,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-6001",
+    "repair_date": "2026-04-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "account.holder_name",
+     "value": "Priya Raman",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.service_address",
+     "value": "412 Larkspur Lane, Cascade Valley",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-04-28",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "bill_id": "BL-6001",
+    "repair_date": "2026-05-02"
+   },
+   "persona": "Priya, a graphic designer who recently switched phone carriers and got a new number. Friendly but a little scattered.",
+   "reason_for_call": "Her latest water bill is far higher than usual after a running toilet she has since fixed, and she wants a leak adjustment.",
+   "task_instructions": "Give your name and address and say you want a leak adjustment on your most recent bill. First say the leak was fixed on May 2, then correct yourself before anything is done: you checked your plumber's text and it was actually April 28. You threw away the paper bill, do not know the bill number or account number, and cannot remember which old phone number the District has on file. If the agent cannot find the account, accept it and say you will call back with the bill.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-220871",
+      "holder_name": "Gerald Okafor",
+      "service_address": "19 Birchwood Drive, Cascade Valley",
+      "phone": "503-555-0144",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-7741",
+      "account_id": "WA-220871",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 11,
+      "typical_usage_kgal": 8,
+      "rate_per_kgal": 6.5,
+      "amount_due": 89.5,
+      "leak_credit": 0,
+      "status": "open"
+     },
+     {
+      "bill_id": "BL-7740",
+      "account_id": "WA-220871",
+      "period_start": "2026-03-15",
+      "period_end": "2026-04-14",
+      "usage_kgal": 8,
+      "typical_usage_kgal": 8,
+      "rate_per_kgal": 6.5,
+      "amount_due": 70.0,
+      "leak_credit": 0,
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-7741",
+    "repair_date": "2026-05-05"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-7741",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He was thinking about switching to paperless billing but decided to leave it for now.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His neighbour has had construction crews digging in the street for weeks.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His water meter was replaced by the District back in 2023.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He paid last month's bill on time.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Gerald, a retired machinist of few words.",
+   "reason_for_call": "He fixed a dripping outdoor spigot and thinks his latest bill is too high, so he wants a leak adjustment.",
+   "task_instructions": "Answer in very short sentences and only what is asked. Mention the side details briefly only if conversation allows, without elaborating. If refused, accept it plainly and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-118305",
+      "holder_name": "Marisol Vega",
+      "service_address": "7 Cedar Hollow Road, Cascade Valley",
+      "phone": "503-555-0163",
+      "status": "active",
+      "last_leak_adjustment": "2025-11-14",
+      "last_leak_repair_date": "2025-11-02"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-6620",
+      "account_id": "WA-118305",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 26,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 187.0,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-6620",
+    "repair_date": "2026-05-06"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-6620",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-06",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a restaurant owner who is short on time and frustrated by her aging house's plumbing.",
+   "reason_for_call": "A burst pipe under her house tripled her water use; it has been fixed and she wants the bill reduced.",
+   "task_instructions": "Give the bill number and ask for a leak adjustment. Give the repair date only when asked. If refused, argue that this was a completely different leak from last time and that it is not your fault, and ask for an exception at least twice before reluctantly accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-305562",
+      "holder_name": "Henrik Dahl",
+      "service_address": "230 Juniper Street, Cascade Valley",
+      "phone": "503-555-0178",
+      "status": "active",
+      "last_leak_adjustment": "2024-08-02",
+      "last_leak_repair_date": "2024-07-25"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8812",
+      "account_id": "WA-305562",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 20,
+      "typical_usage_kgal": 7,
+      "rate_per_kgal": 6.5,
+      "amount_due": 148.0,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8812",
+    "repair_date": "2026-04-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8812",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-04-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.last_leak_adjustment",
+     "value": "2025-09-10",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Henrik, a terse software tester who expects to be turned down.",
+   "reason_for_call": "A leaking irrigation valve ran up his bill; it is fixed and he wants to know if he can get an adjustment.",
+   "task_instructions": "Very short answers. Early on, say you think you already got a leak adjustment last September so it probably will not work. Do not elaborate. Accept whatever the agent decides.",
+   "expected_outcome": "apply_adjustment"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-402219",
+      "holder_name": "Tamsin Leclerc",
+      "service_address": "56 Willow Bend, Cascade Valley",
+      "phone": "503-555-0187",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-9150",
+      "account_id": "WA-402219",
+      "period_start": "2026-03-15",
+      "period_end": "2026-04-14",
+      "usage_kgal": 9,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 76.5,
+      "leak_credit": 0,
+      "status": "paid"
+     },
+     {
+      "bill_id": "BL-9151",
+      "account_id": "WA-402219",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 14,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 109.0,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-9151",
+    "repair_date": "2026-05-03"
+   },
+   "customer_facts": [
+    {
+     "fact": "account.phone",
+     "value": "503-555-0187",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.period_end",
+     "value": "2026-05-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tamsin, an impatient real-estate agent calling between showings.",
+   "reason_for_call": "Her bill for the period ending mid-May is higher than usual after a leaking water heater valve she has since replaced.",
+   "task_instructions": "Give your phone number on file, the billing period end date and the repair date right away. You do not have the bill or account number. If refused, insist the increase is clearly from the leak and demand an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-511094",
+      "holder_name": "Desmond Achebe",
+      "service_address": "901 Sycamore Ridge, Cascade Valley",
+      "phone": "503-555-0192",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-3301",
+      "account_id": "WA-511094",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 24,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 174.0,
+      "leak_credit": 0,
+      "status": "open"
+     },
+     {
+      "bill_id": "BL-3300",
+      "account_id": "WA-511094",
+      "period_start": "2026-03-15",
+      "period_end": "2026-04-14",
+      "usage_kgal": 10,
+      "typical_usage_kgal": 9,
+      "rate_per_kgal": 6.5,
+      "amount_due": 83.0,
+      "leak_credit": 0,
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-3301",
+    "repair_date": "2026-05-09"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-3301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He has a general question about why the sewer fee exists but says it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is planning to put in a drip irrigation system this summer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The previous owner of the house had lived there for thirty years.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He already paid the April bill.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Desmond, a cheerful high-school chemistry teacher who likes to chat.",
+   "reason_for_call": "A cracked pipe in his crawlspace leaked for weeks before he found it and had it fixed; he wants an adjustment on the latest bill.",
+   "task_instructions": "Explain the request with the bill number and repair date. Chat a bit about the side topics, but make clear you only want the latest bill adjusted. Answer any question helpfully.",
+   "expected_outcome": "apply_adjustment"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-614477",
+      "holder_name": "Yuki Tanabe",
+      "service_address": "14 Maple Terrace, Cascade Valley",
+      "phone": "503-555-0115",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-4410",
+      "account_id": "WA-614477",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 30,
+      "typical_usage_kgal": 10,
+      "rate_per_kgal": 6.5,
+      "amount_due": 213.0,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-4410",
+    "repair_date": "2026-05-11"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-4410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-11",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yuki, a polite pharmacist who keeps tidy records.",
+   "reason_for_call": "An underground service line leak was repaired and she wants the leak adjustment on her latest bill.",
+   "task_instructions": "In your first message give the bill number, the repair date and what you want. Answer politely and thank the agent.",
+   "expected_outcome": "apply_adjustment"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "WA-720036",
+      "holder_name": "Rosa Delgado-Pike",
+      "service_address": "3 Heron Way, Cascade Valley",
+      "phone": "503-555-0139",
+      "status": "active",
+      "last_leak_adjustment": null,
+      "last_leak_repair_date": null
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-5520",
+      "account_id": "WA-720036",
+      "period_start": "2026-04-15",
+      "period_end": "2026-05-14",
+      "usage_kgal": 22,
+      "typical_usage_kgal": 8,
+      "rate_per_kgal": 6.5,
+      "amount_due": 161.0,
+      "leak_credit": 0,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-5520",
+    "repair_date": "2026-05-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-5520",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.repair_date",
+     "value": "2026-05-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.usage_kgal",
+     "value": 22,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She has never had a leak adjustment on this account before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her household normally uses about 8 thousand gallons a month.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The plumber replaced a cracked supply line under the kitchen sink.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "bill_id": "BL-5520",
+    "repair_date": "2026-05-12"
+   },
+   "persona": "Rosa, an organized nurse manager who double-checks everything.",
+   "reason_for_call": "Her latest bill shows 22 thousand gallons after a hidden kitchen leak, which is now fixed.",
+   "task_instructions": "Give the bill number, the usage on the bill and say the leak was fixed on May 12. Before the agent makes any change, correct yourself: you checked the plumber's invoice and the repair was actually May 7. Mention that you have never had an adjustment before and normally use about 8 thousand gallons. Be cooperative.",
+   "expected_outcome": "apply_adjustment"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

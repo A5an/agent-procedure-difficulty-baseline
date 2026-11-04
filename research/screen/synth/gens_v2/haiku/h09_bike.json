@@ -1,0 +1,886 @@
+{
+ "procedure_id": "h09_bike",
+ "domain": "bike share membership",
+ "organization": "Harbor Bike Share",
+ "title": "Ride pass extensions",
+ "summary": "Extend the end date of a member's ride pass by a number of days and charge the extension fee, when the member and the pass qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Bike share members with an account",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "account_status": "enum:good_standing|suspended|closed",
+    "balance_owed": "number"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Catalog of pass plans and their extension terms",
+   "fields": {
+    "plan_code": "str",
+    "name": "str",
+    "fee_per_day": "number",
+    "fee_cap": "number",
+    "extendable": "bool"
+   }
+  },
+  "ride_pass": {
+   "key": "pass_id",
+   "description": "Prepaid passes held by members",
+   "fields": {
+    "pass_id": "str",
+    "member_id": "ref:member",
+    "plan_code": "ref:plan",
+    "expires_on": "date",
+    "times_extended": "int"
+   }
+  },
+  "pass_change": {
+   "key": "change_id",
+   "description": "Log of past pass extensions on any pass of a member",
+   "fields": {
+    "change_id": "str",
+    "pass_id": "ref:ride_pass",
+    "member_id": "ref:member",
+    "days_added": "int",
+    "changed_on": "date"
+   }
+  },
+  "fee": {
+   "key": "fee_id",
+   "description": "Extension fees charged to members",
+   "fields": {
+    "fee_id": "str",
+    "member_id": "ref:member",
+    "pass_id": "ref:ride_pass",
+    "amount": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on their account."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a pass plan by its plan code."
+  },
+  {
+   "name": "get_ride_pass",
+   "kind": "get",
+   "entity": "ride_pass",
+   "description": "Look up a ride pass by its pass number."
+  },
+  {
+   "name": "find_ride_passes_by_member",
+   "kind": "search",
+   "entity": "ride_pass",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all ride passes held by a member."
+  },
+  {
+   "name": "find_changes_by_member",
+   "kind": "search",
+   "entity": "pass_change",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all recorded pass extensions on a member's account, across all their passes."
+  },
+  {
+   "name": "extend_pass",
+   "kind": "update",
+   "entity": "ride_pass",
+   "args": {
+    "pass_id": {
+     "type": "ref:ride_pass",
+     "description": "The pass to extend."
+    },
+    "new_expires": {
+     "type": "date",
+     "description": "The new end date of the pass."
+    }
+   },
+   "set": {
+    "expires_on": "args.new_expires",
+    "times_extended": "rec.times_extended + 1"
+   },
+   "description": "Set a new end date on a pass and count one extension on it."
+  },
+  {
+   "name": "create_fee",
+   "kind": "create",
+   "entity": "fee",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The member being charged."
+    },
+    "pass_id": {
+     "type": "ref:ride_pass",
+     "description": "The pass the fee is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The fee amount in dollars."
+    }
+   },
+   "fields": {
+    "member_id": "args.member_id",
+    "pass_id": "args.pass_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Charge an extension fee to a member for a pass."
+  }
+ ],
+ "request": {
+  "pass_id": {
+   "type": "ref:ride_pass",
+   "description": "the ride pass you want to extend"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many extra days you want added to the pass"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "ride",
+   "entity": "ride_pass",
+   "key": "req.pass_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "ride.member_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "ride.plan_code"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Move the pass end date forward by the requested days and charge the extension fee.",
+   "calls": [
+    {
+     "tool": "extend_pass",
+     "args": {
+      "pass_id": "req.pass_id",
+      "new_expires": "add_days(ride.expires_on, req.days)"
+     }
+    },
+    {
+     "tool": "create_fee",
+     "args": {
+      "member_id": "mem.member_id",
+      "pass_id": "req.pass_id",
+      "amount": "min(plan.fee_cap, round(req.days * plan.fee_per_day, 2))"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the pass or charge anything; explain why the extension cannot be made.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != mem.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "mem.account_status != 'good_standing'",
+   "outcome": "refuse",
+   "explain": "Only accounts in good standing can extend a pass."
+  },
+  {
+   "id": "R3",
+   "when": "mem.balance_owed > 20",
+   "outcome": "refuse",
+   "explain": "Accounts owing more than 20.00 cannot extend a pass until the balance is paid."
+  },
+  {
+   "id": "R4",
+   "when": "not plan.extendable",
+   "outcome": "refuse",
+   "explain": "Passes on a plan that cannot be extended are not extended."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, ride.expires_on) < 0",
+   "outcome": "refuse",
+   "explain": "A pass whose end date is already before today cannot be extended."
+  },
+  {
+   "id": "R6",
+   "when": "req.days < 1 or req.days > 30",
+   "outcome": "refuse",
+   "explain": "A single extension must be between 1 and 30 days."
+  },
+  {
+   "id": "R7",
+   "when": "ride.times_extended >= 2",
+   "outcome": "refuse",
+   "explain": "A pass that has already been extended twice cannot be extended again."
+  },
+  {
+   "id": "R8",
+   "when": "db_count('pass_change', 'member_id', mem.member_id) >= 3",
+   "outcome": "refuse",
+   "explain": "An account with three or more recorded extensions across its passes cannot get a new extension."
+  },
+  {
+   "id": "R9",
+   "when": "days_between(today, add_days(ride.expires_on, req.days)) > 365",
+   "outcome": "refuse",
+   "explain": "The new end date cannot be more than 365 days from today."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who can ask\nMembers can ask to extend a ride pass by phone or chat. Before changing anything, find the pass and the member account it belongs to, and confirm the caller's identity: the date of birth they give must match the one on the account. If it does not match, or they cannot give it, make no change.\n\n## Finding the pass\nUse the pass number if the member has it. Otherwise find the member by the email address on the account, then list the passes on that account. If there is more than one pass, ask which one they mean; the end date of the pass often helps them choose.\n\n## Checks before any extension\nAll of the following must be true. If any one is not, decline the request.\n- The account must be in good standing. Accounts that are suspended or closed cannot extend a pass.\n- The account must not owe more than 20.00. An account owing more than 20.00 cannot extend a pass until the balance is paid.\n- The plan of the pass must be extendable. Some plans, such as the Group 90-day plan, cannot be extended.\n- The pass's end date must not be before today. A pass that has already expired cannot be extended.\n- The member may ask for between 1 and 30 days. Requests outside that range are declined, not shortened.\n- A pass can be extended at most twice. If it has already been extended twice, decline.\n- Look up all recorded pass extensions on the account, across all of its passes. If there are 3 or more such records, decline any new extension on this account.\n- The new end date may not be more than 365 days after today.\n\n## If all checks pass\nExtend the pass as follows:\n1. The new end date is the pass's current end date plus the number of days the member asked for.\n2. The extension fee is the number of days multiplied by the plan's fee per day, rounded to the cent, but never more than the plan's fee cap.\n3. Set the pass's new end date, then create the extension fee for the member and the pass with that amount.\nTell the member the new end date and the fee.\n\n## If a request is declined\nMake no change at all. Do not charge any fee. Explain briefly, in plain words, which requirement is not met.\n\n## Never\nDo not waive or reduce fees. Do not extend a pass for someone who failed the identity check. Do not shorten a request to fit the limits. Do not change anything the member did not ask for. Decide from the account records, not from what the member believes about their account.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_code": "STD-30",
+    "name": "Standard 30-day",
+    "fee_per_day": 0.75,
+    "fee_cap": 12.0,
+    "extendable": true
+   },
+   {
+    "plan_code": "CMT-365",
+    "name": "Commuter annual",
+    "fee_per_day": 0.5,
+    "fee_cap": 15.0,
+    "extendable": true
+   },
+   {
+    "plan_code": "GRP-90",
+    "name": "Group 90-day",
+    "fee_per_day": 0.9,
+    "fee_cap": 20.0,
+    "extendable": false
+   }
+  ],
+  "member": [
+   {
+    "member_id": "MB-19004",
+    "full_name": "Greta Lindqvist",
+    "email": "greta.l@example.net",
+    "birth_date": "1970-05-30",
+    "account_status": "good_standing",
+    "balance_owed": 0.0
+   }
+  ],
+  "ride_pass": [
+   {
+    "pass_id": "RP-40011",
+    "member_id": "MB-19004",
+    "plan_code": "CMT-365",
+    "expires_on": "2026-09-30",
+    "times_extended": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-30418",
+      "full_name": "Tomas Okafor",
+      "email": "tomas.okafor@example.net",
+      "birth_date": "1988-08-14",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-55102",
+      "member_id": "MB-30418",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-05",
+      "times_extended": 0
+     }
+    ],
+    "pass_change": []
+   },
+   "request_values": {
+    "pass_id": "RP-55102",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-55102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-08-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a line cook who rides to work and uses the bike share for his commute. Brisk and polite.",
+   "reason_for_call": "His monthly pass runs out in a couple of weeks and he wants ten more days on it.",
+   "task_instructions": "State the pass number and the number of extra days in your first message. Give your date of birth when the agent asks for it. Answer questions simply.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-30977",
+      "full_name": "Rosa Delgado",
+      "email": "rosa.delgado@example.org",
+      "birth_date": "1979-03-22",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-61840",
+      "member_id": "MB-30977",
+      "plan_code": "CMT-365",
+      "expires_on": "2026-12-01",
+      "times_extended": 0
+     },
+     {
+      "pass_id": "RP-61877",
+      "member_id": "MB-30977",
+      "plan_code": "STD-30",
+      "expires_on": "2026-05-28",
+      "times_extended": 0
+     }
+    ],
+    "pass_change": []
+   },
+   "request_values": {
+    "pass_id": "RP-61877",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "rosa.delgado@example.org",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ride.expires_on",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-03-22",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a dispatcher who keeps two passes: a yearly commuter one and a monthly one for weekends.",
+   "reason_for_call": "She wants two more weeks on the monthly pass, not the yearly one.",
+   "task_instructions": "Keep every answer to a few words. Give your email first. If the agent lists your passes, pick the monthly one by its end date. Give your date of birth only if asked.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-31205",
+      "full_name": "Kenji Watanabe",
+      "email": "kenji.w@example.net",
+      "birth_date": "1992-11-30",
+      "account_status": "good_standing",
+      "balance_owed": 4.5
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-70312",
+      "member_id": "MB-31205",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-02",
+      "times_extended": 1
+     }
+    ],
+    "pass_change": [
+     {
+      "change_id": "PC-71003",
+      "pass_id": "RP-70312",
+      "member_id": "MB-31205",
+      "days_added": 7,
+      "changed_on": "2026-04-18"
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "RP-70312",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-70312",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-11-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_owed",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kenji, a graduate student who is always in a hurry between classes and is sure he cleared his bike fees.",
+   "reason_for_call": "He wants one more week on his monthly pass and believes his account owes nothing.",
+   "task_instructions": "Be impatient and hurry the agent along. Say early that you owe nothing on the account. Accept the answer once the agent gives a clear result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-32019",
+      "full_name": "Leila Nasser",
+      "email": "leila.nasser@example.com",
+      "birth_date": "1984-06-09",
+      "account_status": "suspended",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-80455",
+      "member_id": "MB-32019",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-10",
+      "times_extended": 0
+     }
+    ],
+    "pass_change": []
+   },
+   "initial_request_values": {
+    "pass_id": "RP-80455",
+    "days": 45
+   },
+   "request_values": {
+    "pass_id": "RP-80455",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-80455",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-06-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.account_status",
+     "value": "good_standing",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Leila, a freelance designer who pays by card and believes her account is in good order.",
+   "reason_for_call": "She wants her pass extended. She first asks for a long extension, then settles for ten days.",
+   "task_instructions": "First ask for 45 extra days on the pass. When the agent says no, ask instead for 10 extra days on the same pass. Say early that your account is in good standing. Argue politely once if refused, then accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-33140",
+      "full_name": "Anjali Rao",
+      "email": "anjali.rao@example.net",
+      "birth_date": "1975-01-17",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-90217",
+      "member_id": "MB-33140",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-08",
+      "times_extended": 2
+     }
+    ],
+    "pass_change": [
+     {
+      "change_id": "PC-90301",
+      "pass_id": "RP-90217",
+      "member_id": "MB-33140",
+      "days_added": 7,
+      "changed_on": "2026-03-14"
+     },
+     {
+      "change_id": "PC-90302",
+      "pass_id": "RP-90217",
+      "member_id": "MB-33140",
+      "days_added": 5,
+      "changed_on": "2026-04-19"
+     }
+    ]
+   },
+   "request_values": {
+    "pass_id": "RP-90217",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-90217",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-01-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ride.times_extended",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I already pushed this pass back in March and again in April, so I know it has been extended twice.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It is the monthly standard pass I bought in January, the one I use for the ferry commute.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Anjali, a nurse who commutes by bike and gets annoyed by rules she thinks do not apply to her.",
+   "reason_for_call": "She wants five more days on the pass that ends next month.",
+   "task_instructions": "Be pushy. When refused, ask for an exception this once, then ask again with a different argument. After the second refusal, accept it and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-34566",
+      "full_name": "Marco Bellini",
+      "email": "marco.bellini@example.org",
+      "birth_date": "1990-09-05",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-95011",
+      "member_id": "MB-34566",
+      "plan_code": "STD-30",
+      "expires_on": "2026-05-10",
+      "times_extended": 1
+     },
+     {
+      "pass_id": "RP-95020",
+      "member_id": "MB-34566",
+      "plan_code": "CMT-365",
+      "expires_on": "2026-12-15",
+      "times_extended": 0
+     }
+    ],
+    "pass_change": [
+     {
+      "change_id": "PC-95101",
+      "pass_id": "RP-95011",
+      "member_id": "MB-34566",
+      "days_added": 7,
+      "changed_on": "2026-04-30"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "pass_id": "RP-95011",
+    "days": 21
+   },
+   "request_values": {
+    "pass_id": "RP-95011",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-95011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-09-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My sister used my bike on Saturday and the dock at Harbour Street stuck, which was annoying.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I also have a yearly commuter pass that runs until December, and I am keeping that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I start a new job across town in July, so I am changing my route anyway.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I still need to return a helmet I borrowed from the depot last spring, but that is a separate thing.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marco, a bike courier who holds several passes and sometimes mixes them up.",
+   "reason_for_call": "He wants a week more on his old monthly pass, which ran out last week.",
+   "task_instructions": "First ask for 21 extra days on your monthly pass. Before the agent acts, change it to 7 days on the same pass. Give your date of birth when asked, and answer questions briefly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-35702",
+      "full_name": "Hannah Brooks",
+      "email": "hannah.brooks@example.com",
+      "birth_date": "1986-04-27",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-99014",
+      "member_id": "MB-35702",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-20",
+      "times_extended": 1
+     }
+    ],
+    "pass_change": [
+     {
+      "change_id": "PC-99201",
+      "pass_id": "RP-99014",
+      "member_id": "MB-35702",
+      "days_added": 7,
+      "changed_on": "2026-04-02"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "pass_id": "RP-99014",
+    "days": 45
+   },
+   "request_values": {
+    "pass_id": "RP-99014",
+    "days": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-99014",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-04-27",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a physiotherapist who likes to plan ahead and tends to ask for more than she needs.",
+   "reason_for_call": "She wants her monthly pass extended. She first asks for a long extension, then a shorter one.",
+   "task_instructions": "Start by asking for 45 extra days on the pass. After the agent refuses, ask for 12 extra days on the same pass instead. Give your date of birth only when asked.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "MB-36288",
+      "full_name": "Oleksandr Melnyk",
+      "email": "oleks.melnyk@example.org",
+      "birth_date": "1981-12-02",
+      "account_status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "ride_pass": [
+     {
+      "pass_id": "RP-10577",
+      "member_id": "MB-36288",
+      "plan_code": "STD-30",
+      "expires_on": "2026-06-12",
+      "times_extended": 1
+     },
+     {
+      "pass_id": "RP-10590",
+      "member_id": "MB-36288",
+      "plan_code": "CMT-365",
+      "expires_on": "2027-01-10",
+      "times_extended": 2
+     }
+    ],
+    "pass_change": [
+     {
+      "change_id": "PC-10601",
+      "pass_id": "RP-10577",
+      "member_id": "MB-36288",
+      "days_added": 7,
+      "changed_on": "2026-03-28"
+     },
+     {
+      "change_id": "PC-10602",
+      "pass_id": "RP-10590",
+      "member_id": "MB-36288",
+      "days_added": 5,
+      "changed_on": "2026-02-11"
+     },
+     {
+      "change_id": "PC-10603",
+      "pass_id": "RP-10590",
+      "member_id": "MB-36288",
+      "days_added": 6,
+      "changed_on": "2026-04-08"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "pass_id": "RP-10577",
+    "days": 14
+   },
+   "request_values": {
+    "pass_id": "RP-10577",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pass_id",
+     "value": "RP-10577",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-12-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ride.expires_on",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Oleksandr, an office manager who keeps a pass for each of his two offices.",
+   "reason_for_call": "He wants a short extension on his monthly pass for a trip.",
+   "task_instructions": "In your first message, ask for 14 extra days on the monthly pass, then right away change it to 7 days before the agent does anything. Give the pass number and your date of birth without being asked.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,887 @@
+{
+ "procedure_id": "h06_city",
+ "domain": "city tax office",
+ "organization": "Harborview City Tax Office",
+ "title": "Property tax installment plans",
+ "summary": "Set up a monthly installment plan for an open property tax bill when the owner and the property qualify.",
+ "entities": {
+  "taxpayer": {
+   "key": "taxpayer_id",
+   "description": "Property owners registered with the tax office",
+   "fields": {
+    "taxpayer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "standing": "enum:good|under_audit|lien"
+   }
+  },
+  "property": {
+   "key": "parcel_id",
+   "description": "Taxable parcels of real estate",
+   "fields": {
+    "parcel_id": "str",
+    "owner_id": "ref:taxpayer",
+    "address": "str",
+    "in_foreclosure": "bool"
+   }
+  },
+  "tax_bill": {
+   "key": "bill_id",
+   "description": "Annual property tax bills",
+   "fields": {
+    "bill_id": "str",
+    "parcel_id": "ref:property",
+    "tax_year": "int",
+    "balance": "number",
+    "due_date": "date",
+    "status": "enum:open|on_plan|paid",
+    "penalty_frozen": "bool"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Installment plans set up on tax bills",
+   "fields": {
+    "plan_id": "str",
+    "bill_id": "ref:tax_bill",
+    "months": "int",
+    "monthly_amount": "number",
+    "start_date": "date"
+   }
+  },
+  "notice": {
+   "key": "notice_id",
+   "description": "Letters sent to taxpayers",
+   "fields": {
+    "notice_id": "str",
+    "bill_id": "ref:tax_bill",
+    "kind": "enum:plan_confirmation|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_tax_bill",
+   "kind": "get",
+   "entity": "tax_bill",
+   "description": "Look up a property tax bill by its bill number."
+  },
+  {
+   "name": "get_property",
+   "kind": "get",
+   "entity": "property",
+   "description": "Look up a parcel by its parcel number."
+  },
+  {
+   "name": "get_taxpayer",
+   "kind": "get",
+   "entity": "taxpayer",
+   "description": "Look up a registered taxpayer by taxpayer number."
+  },
+  {
+   "name": "find_taxpayer_by_email",
+   "kind": "search",
+   "entity": "taxpayer",
+   "by": [
+    "email"
+   ],
+   "description": "Find taxpayers by the email address on file."
+  },
+  {
+   "name": "find_bills_by_parcel",
+   "kind": "search",
+   "entity": "tax_bill",
+   "by": [
+    "parcel_id"
+   ],
+   "description": "List all tax bills of a parcel."
+  },
+  {
+   "name": "find_plans_by_bill",
+   "kind": "search",
+   "entity": "payment_plan",
+   "by": [
+    "bill_id"
+   ],
+   "description": "List installment plans that exist for a tax bill."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill the plan is for."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of monthly installments."
+    },
+    "monthly_amount": {
+     "type": "number",
+     "description": "Amount of each monthly installment."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "months": "args.months",
+    "monthly_amount": "args.monthly_amount",
+    "start_date": "add_days(today, 30)"
+   },
+   "description": "Create an installment plan for a bill; the first installment is due 30 days from today."
+  },
+  {
+   "name": "set_bill_on_plan",
+   "kind": "update",
+   "entity": "tax_bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill to mark as on a plan."
+    }
+   },
+   "set": {
+    "status": "'on_plan'",
+    "penalty_frozen": "True"
+   },
+   "description": "Mark a bill as being on an installment plan and freeze further penalties."
+  },
+  {
+   "name": "create_notice",
+   "kind": "create",
+   "entity": "notice",
+   "args": {
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill the letter is about."
+    },
+    "kind": {
+     "type": "enum:plan_confirmation|other",
+     "description": "Type of letter."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Queue a letter to the taxpayer about a bill."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:tax_bill",
+   "description": "the number of the property tax bill you want to pay in installments"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many monthly installments you want"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "tax_bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "prop",
+   "entity": "property",
+   "key": "bill.parcel_id"
+  },
+  {
+   "name": "owner",
+   "entity": "taxpayer",
+   "key": "prop.owner_id"
+  }
+ ],
+ "outcomes": {
+  "setup_plan": {
+   "kind": "perform",
+   "description": "Create the installment plan, mark the bill as on a plan, and queue a confirmation letter.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "bill_id": "req.bill_id",
+      "months": "req.months",
+      "monthly_amount": "round((bill.balance + min(50, round(bill.balance * 0.02, 2))) / req.months, 2)"
+     }
+    },
+    {
+     "tool": "set_bill_on_plan",
+     "args": {
+      "bill_id": "req.bill_id"
+     }
+    },
+    {
+     "tool": "create_notice",
+     "args": {
+      "bill_id": "req.bill_id",
+      "kind": "'plan_confirmation'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up a plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != owner.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth of the property owner on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "owner.standing != 'good'",
+   "outcome": "refuse",
+   "explain": "The owner must be in good standing, not under audit or subject to a lien."
+  },
+  {
+   "id": "R3",
+   "when": "prop.in_foreclosure",
+   "outcome": "refuse",
+   "explain": "Parcels in foreclosure are not eligible for installment plans."
+  },
+  {
+   "id": "R4",
+   "when": "bill.status != 'open'",
+   "outcome": "refuse",
+   "explain": "Only open bills can be put on a plan."
+  },
+  {
+   "id": "R5",
+   "when": "db_count('payment_plan', 'bill_id', bill.bill_id) > 0",
+   "outcome": "refuse",
+   "explain": "A bill that already has a plan cannot get another one."
+  },
+  {
+   "id": "R6",
+   "when": "bill.balance < 500",
+   "outcome": "refuse",
+   "explain": "The bill balance must be at least 500.00 to qualify."
+  },
+  {
+   "id": "R7",
+   "when": "req.months < 2 or req.months > 12",
+   "outcome": "refuse",
+   "explain": "A plan must have between 2 and 12 monthly installments."
+  }
+ ],
+ "default_outcome": "setup_plan",
+ "policy_text": "## Who can ask\nProperty owners may ask by phone or chat to pay an open property tax bill in monthly installments. Before changing anything, find the bill, the parcel it belongs to and the owner of that parcel. Confirm identity: the date of birth the caller gives must match the date of birth on file for the parcel's owner. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the bill\nUse the bill number if the caller has it. Otherwise ask for the parcel number, list the bills of that parcel, and ask the caller which tax year they mean if there is more than one. The owner can also be found by the email address on file.\n\n## When a plan is allowed\nCheck the records yourself; do not rely on what the caller says about them. The balance, status and standing on file decide.\n- The owner must be in good standing. Owners under audit or with a lien on file cannot get a plan.\n- The parcel must not be in foreclosure.\n- The bill must be open. Bills that are already on a plan or already paid are not eligible.\n- The bill must not already have an installment plan on record.\n- The balance on the bill must be at least 500.00.\n- The plan must have between 2 and 12 monthly installments. Requests outside this range are declined, not adjusted.\n\n## How to set up a plan\nIf everything above is fine, do these three things in order:\n1. Create the installment plan with the number of months requested and the monthly amount. The monthly amount is computed as follows: setup fee = 2% of the bill balance, but never more than 50.00 (round the fee to cents); monthly amount = (balance + setup fee) divided by the number of months, rounded to cents.\n2. Mark the bill as on a plan, which also freezes further penalties.\n3. Queue a plan confirmation letter for the bill.\nTell the caller the monthly amount, the number of installments and that the first installment is due in 30 days.\n\n## Never\nDo not waive the setup fee or any balance, do not shorten or lengthen the allowed number of months, do not set up a plan for a caller who failed the identity check, and do not change anything the caller did not ask for.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1001",
+      "full_name": "Marguerite Delacroix",
+      "email": "m.delacroix@example.org",
+      "birth_date": "1957-03-14",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2001",
+      "owner_id": "T-1001",
+      "address": "14 Alder Lane",
+      "in_foreclosure": true
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3001",
+      "parcel_id": "P-2001",
+      "tax_year": 2025,
+      "balance": 1800,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3001",
+    "months": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1957-03-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.balance",
+     "value": 1800,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.status",
+     "value": "open",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "prop.address",
+     "value": "14 Alder Lane",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.tax_year",
+     "value": 2025,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bill is for the 2025 tax year and arrived by mail in March.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The bill is for the house at 14 Alder Lane, where she has lived for decades.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The bill shows a balance of 1800 and she has not paid anything toward it yet.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "months": 4
+   },
+   "persona": "Marguerite, a retired seamstress on a fixed pension. Polite but anxious about money.",
+   "reason_for_call": "She cannot pay her whole property tax bill at once and wants to spread it over monthly payments.",
+   "task_instructions": "Start by asking for four monthly installments and give your date of birth, the bill number, the balance of 1800 and that it is still open. Before anything is done, say four is too much each month and switch to ten installments. Answer questions politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1002",
+      "full_name": "Hamid Rahimi",
+      "email": "hamid.rahimi@example.org",
+      "birth_date": "1972-09-30",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2002",
+      "owner_id": "T-1002",
+      "address": "220 Birch Court",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3002",
+      "parcel_id": "P-2002",
+      "tax_year": 2025,
+      "balance": 1600,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3002",
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1972-09-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.balance",
+     "value": 1450,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 24
+   },
+   "persona": "Hamid, a self-employed electrician who bargains about everything.",
+   "reason_for_call": "He wants very small monthly payments on his property tax bill.",
+   "task_instructions": "First ask for 24 monthly installments. If the agent refuses, ask for 8 installments instead and accept it. You believe the balance is 1450; say so when you describe the bill, and accept the agent's figure from the records.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1003",
+      "full_name": "Colleen O'Brien",
+      "email": "colleen.obrien@example.org",
+      "birth_date": "1985-06-02",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2003",
+      "owner_id": "T-1003",
+      "address": "7 Quarry Street",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3003",
+      "parcel_id": "P-2003",
+      "tax_year": 2025,
+      "balance": 2400,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3003",
+    "months": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3003",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1985-06-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Colleen, a restaurant manager who is always in a hurry.",
+   "reason_for_call": "She wants her property tax split into a year of monthly payments before more penalties pile up.",
+   "task_instructions": "State everything in your first message: bill number, twelve installments and date of birth. Be impatient and urge the agent to hurry, and push back if they ask unnecessary questions, but answer them in the end.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1004",
+      "full_name": "Tomasz Wrobel",
+      "email": "t.wrobel@example.org",
+      "birth_date": "1964-12-08",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2004",
+      "owner_id": "T-1004",
+      "address": "58 Millrace Road",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3004",
+      "parcel_id": "P-2004",
+      "tax_year": 2024,
+      "balance": 2000,
+      "due_date": "2025-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     },
+     {
+      "bill_id": "B-3005",
+      "parcel_id": "P-2004",
+      "tax_year": 2025,
+      "balance": 420,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3005",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1964-12-08",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His daughter is opening a bakery and asked him about a business license.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He also wants to know when the dog license fee is due.",
+     "kind": "distractor"
+    },
+    {
+     "text": "There is a pothole in front of his house that has been there since winter.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He paid a water bill last month and the receipt was misprinted.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "bill_id": "B-3004",
+    "months": 6
+   },
+   "persona": "Tomasz, a retired bus driver who talks a lot and wanders off topic.",
+   "reason_for_call": "He has two older tax bills for his house and wants to pay one in installments.",
+   "task_instructions": "First ask for six installments on the older 2024 bill. Then, before anything is done, say you mixed them up and really mean the smaller 2025 bill, over three installments (give its bill number then). Mention your side stories along the way.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1005",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.org",
+      "birth_date": "1991-04-17",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2005",
+      "owner_id": "T-1005",
+      "address": "3 Harbor Walk, Unit 4B",
+      "in_foreclosure": false
+     },
+     {
+      "parcel_id": "P-2006",
+      "owner_id": "T-1005",
+      "address": "90 Telegraph Hill",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3006",
+      "parcel_id": "P-2005",
+      "tax_year": 2025,
+      "balance": 900,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     },
+     {
+      "bill_id": "B-3007",
+      "parcel_id": "P-2006",
+      "tax_year": 2025,
+      "balance": 0,
+      "due_date": "2026-04-30",
+      "status": "paid",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3006",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3006",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1991-04-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also owns a second small property whose tax she already paid in full.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is curious when the homestead exemption deadline falls.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She recently moved her car registration to a different city office.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a graphic designer, friendly and well organized.",
+   "reason_for_call": "She wants to pay the tax bill for her condo in six monthly installments.",
+   "task_instructions": "Ask for the plan on the condo bill (give its number and your date of birth). Mention the other side topics casually but do not ask the agent to act on them. Answer questions clearly.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1007",
+      "full_name": "Gerald Whitaker",
+      "email": "g.whitaker@example.org",
+      "birth_date": "1950-01-25",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2007",
+      "owner_id": "T-1007",
+      "address": "1 Lighthouse Point",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3008",
+      "parcel_id": "P-2007",
+      "tax_year": 2024,
+      "balance": 0,
+      "due_date": "2025-04-30",
+      "status": "paid",
+      "penalty_frozen": false
+     },
+     {
+      "bill_id": "B-3009",
+      "parcel_id": "P-2007",
+      "tax_year": 2025,
+      "balance": 3000,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3009",
+    "months": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.months",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1950-01-25",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "bill.parcel_id",
+     "value": "P-2007",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "bill.tax_year",
+     "value": 2025,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gerald, a retired harbor pilot, gruff and impatient with paperwork.",
+   "reason_for_call": "He wants to pay this year's property tax over ten months but has misplaced the bill.",
+   "task_instructions": "Say you lost the bill and do not know its number. Give the parcel number and tax year only when asked. Complain about the delay and push the agent to get on with it, but do answer questions.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1008",
+      "full_name": "Beatriz Alvarez",
+      "email": "beatriz.alvarez@example.org",
+      "birth_date": "1979-08-21",
+      "standing": "good"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2008",
+      "owner_id": "T-1008",
+      "address": "412 Cedar Row",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3010",
+      "parcel_id": "P-2008",
+      "tax_year": 2025,
+      "balance": 450,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3010",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3010",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-08-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 14
+   },
+   "persona": "Beatriz, a nurse who negotiates calmly and persistently.",
+   "reason_for_call": "She wants to pay her property tax bill in small monthly amounts.",
+   "task_instructions": "First ask for 14 monthly installments without giving a bill number. If the agent refuses, ask for 6 installments instead. Give the bill number and your date of birth only when asked. If refused again, accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "T-1009",
+      "full_name": "Jun Park",
+      "email": "jun.park@example.org",
+      "birth_date": "1968-02-11",
+      "standing": "lien"
+     }
+    ],
+    "property": [
+     {
+      "parcel_id": "P-2009",
+      "owner_id": "T-1009",
+      "address": "77 Foundry Avenue",
+      "in_foreclosure": false
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "B-3011",
+      "parcel_id": "P-2009",
+      "tax_year": 2025,
+      "balance": 1200,
+      "due_date": "2026-04-30",
+      "status": "open",
+      "penalty_frozen": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-3011",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-3011",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1968-02-11",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jun, a machinist who answers in as few words as possible.",
+   "reason_for_call": "He wants to pay his property tax in six monthly installments.",
+   "task_instructions": "Keep every answer to a few words and give only what is asked. Say only that you want six installments; give the bill number and your date of birth only if asked. Accept a refusal without argument.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

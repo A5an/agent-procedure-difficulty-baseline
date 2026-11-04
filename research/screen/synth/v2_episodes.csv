@@ -1,0 +1,577 @@
+uid,gen,agent,proc,pid,case,fail,level,behavior,cls,n_rules,n_calls,escalation,verification,flagged,domain,f_sufficient,f_needs_asking,f_primary_lookup,f_n_facts,f_n_if_asked,f_n_helpful,f_n_distractor,f_n_conflict,f_n_correct_rule_facts_upfront,f_n_primary_records,f_n_claims_given,f_changes_mind,f_n_calls,f_rule_index
+v2_haiku__h03_business__c4,haiku,flash,haiku/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,0,1,1,0,True,0,2
+v2_haiku__h03_business__c1,haiku,flash,haiku/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,3,0,0,1,1,0,False,2,6
+v2_haiku__h03_business__c6,haiku,flash,haiku/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,3,2,0,0,0,0,1,0,False,0,5
+v2_haiku__h03_business__c3,haiku,flash,haiku/h03_business,h03_business,c3,0,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,3,2,0,0,0,0,1,0,False,2,6
+v2_haiku__h03_business__c5,haiku,flash,haiku/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_haiku__h03_business__c2,haiku,flash,haiku/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,3,0,1,2,0,True,0,4
+v2_haiku__h03_business__c7,haiku,flash,haiku/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,False,2,6
+v2_haiku__h02_mortgage__c1,haiku,flash,haiku/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,1,0,0,1,1,False,0,6
+v2_haiku__h02_mortgage__c2,haiku,flash,haiku/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,2
+v2_haiku__h03_business__c8,haiku,flash,haiku/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,True,0,2
+v2_haiku__h02_mortgage__c4,haiku,flash,haiku/h02_mortgage,h02_mortgage,c4,0,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,5
+v2_haiku__h02_mortgage__c6,haiku,flash,haiku/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,1,0,0,1,1,True,1,8
+v2_haiku__h02_mortgage__c8,haiku,flash,haiku/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,False,0,4
+v2_haiku__h02_mortgage__c3,haiku,flash,haiku/h02_mortgage,h02_mortgage,c3,0,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,3,1,0,1,0,0,1,1,True,3,9
+v2_haiku__h02_mortgage__c7,haiku,flash,haiku/h02_mortgage,h02_mortgage,c7,1,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,3,0,0,1,1,1,True,1,7
+v2_haiku__h02_mortgage__c5,haiku,flash,haiku/h02_mortgage,h02_mortgage,c5,1,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,True,3,9
+v2_haiku__h12_university__c4,haiku,flash,haiku/h12_university,h12_university,c4,0,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,6
+v2_haiku__h12_university__c1,haiku,flash,haiku/h12_university,h12_university,c1,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,2,0,True,3,7
+v2_haiku__h12_university__c3,haiku,flash,haiku/h12_university,h12_university,c3,0,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_haiku__h12_university__c6,haiku,flash,haiku/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,0,0,1,0,False,0,0
+v2_haiku__h12_university__c2,haiku,flash,haiku/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,2,0,True,3,7
+v2_haiku__h12_university__c7,haiku,flash,haiku/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,4
+v2_haiku__h10_cloud__c1,haiku,flash,haiku/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,1,False,0,4
+v2_haiku__h12_university__c5,haiku,flash,haiku/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_haiku__h10_cloud__c2,haiku,flash,haiku/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,3,0,0,2,1,False,0,2
+v2_haiku__h12_university__c8,haiku,flash,haiku/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,3,0,0,2,0,False,0,3
+v2_haiku__h10_cloud__c3,haiku,flash,haiku/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,False,True,2,1,0,0,0,0,1,1,False,0,5
+v2_haiku__h10_cloud__c4,haiku,flash,haiku/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,2,1,True,3,8
+v2_haiku__h11_freight__c1,haiku,flash,haiku/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,True,0,5
+v2_haiku__h10_cloud__c7,haiku,flash,haiku/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,1,False,0,3
+v2_haiku__h10_cloud__c6,haiku,flash,haiku/h10_cloud,h10_cloud,c6,0,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,2,1,True,3,8
+v2_haiku__h10_cloud__c5,haiku,flash,haiku/h10_cloud,h10_cloud,c5,0,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,2,1,True,3,8
+v2_haiku__h11_freight__c2,haiku,flash,haiku/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,1,1,1,True,0,6
+v2_haiku__h11_freight__c3,haiku,flash,haiku/h11_freight,h11_freight,c3,1,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,False,1,7
+v2_haiku__h10_cloud__c8,haiku,flash,haiku/h10_cloud,h10_cloud,c8,1,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,3,0,0,1,3,1,True,3,8
+v2_haiku__h11_freight__c5,haiku,flash,haiku/h11_freight,h11_freight,c5,0,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,2,0,0,0,0,1,1,False,0,4
+v2_haiku__h11_freight__c4,haiku,flash,haiku/h11_freight,h11_freight,c4,0,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,False,True,4,0,0,0,0,0,1,1,False,2,8
+v2_haiku__h11_freight__c7,haiku,flash,haiku/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,False,2,8
+v2_haiku__h11_freight__c8,haiku,flash,haiku/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,1,1,True,0,3
+v2_haiku__h11_freight__c6,haiku,flash,haiku/h11_freight,h11_freight,c6,1,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,2,8
+v2_haiku__h01_auto__c1,haiku,flash,haiku/h01_auto,h01_auto,c1,0,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_haiku__h01_auto__c2,haiku,flash,haiku/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,3,0,0,2,1,True,2,9
+v2_haiku__h01_auto__c4,haiku,flash,haiku/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,False,True,3,1,0,0,0,1,2,1,True,0,3
+v2_haiku__h01_auto__c6,haiku,flash,haiku/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,0,1,1,1,False,0,4
+v2_haiku__h01_auto__c5,haiku,flash,haiku/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,2,0,0,1,1,1,True,2,9
+v2_haiku__h01_auto__c7,haiku,flash,haiku/h01_auto,h01_auto,c7,1,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,1,8
+v2_haiku__h01_auto__c3,haiku,flash,haiku/h01_auto,h01_auto,c3,1,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,2,0,0,0,0,1,1,True,0,6
+v2_haiku__h01_auto__c8,haiku,flash,haiku/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,3,0,0,2,1,False,0,6
+v2_haiku__h09_bike__c1,haiku,flash,haiku/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_haiku__h09_bike__c5,haiku,flash,haiku/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,2,0,0,1,1,1,False,0,6
+v2_haiku__h09_bike__c4,haiku,flash,haiku/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,True,0,1
+v2_haiku__h09_bike__c2,haiku,flash,haiku/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,4,1,0,0,0,1,2,1,False,2,9
+v2_haiku__h09_bike__c6,haiku,flash,haiku/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_haiku__h09_bike__c3,haiku,flash,haiku/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_haiku__h09_bike__c8,haiku,flash,haiku/h09_bike,h09_bike,c8,0,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,0,1,2,1,True,0,7
+v2_haiku__h09_bike__c7,haiku,flash,haiku/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,True,2,9
+v2_haiku__h07_school__c2,haiku,flash,haiku/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,0,1,1,0,False,0,4
+v2_haiku__h07_school__c6,haiku,flash,haiku/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,2,0,0,0,0,0,1,0,False,0,3
+v2_haiku__h07_school__c7,haiku,flash,haiku/h07_school,h07_school,c7,0,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,2
+v2_haiku__h05_hospital__c1,haiku,flash,haiku/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_haiku__h07_school__c8,haiku,flash,haiku/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_haiku__h05_hospital__c2,haiku,flash,haiku/h05_hospital,h05_hospital,c2,1,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,1,2,0,True,0,3
+v2_haiku__h05_hospital__c3,haiku,flash,haiku/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,1,2,0,True,2,6
+v2_haiku__h05_hospital__c4,haiku,flash,haiku/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,3,0,0,2,0,True,2,6
+v2_haiku__h05_hospital__c5,haiku,flash,haiku/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,1,0,False,2,6
+v2_haiku__h05_hospital__c6,haiku,flash,haiku/h05_hospital,h05_hospital,c6,1,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,0
+v2_haiku__h05_hospital__c7,haiku,flash,haiku/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,1,0,False,0,4
+v2_haiku__h04_airline__c1,haiku,flash,haiku/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,4
+v2_haiku__h05_hospital__c8,haiku,flash,haiku/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,True,0,5
+v2_haiku__h04_airline__c3,haiku,flash,haiku/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,3,0,0,2,0,False,2,8
+v2_haiku__h04_airline__c2,haiku,flash,haiku/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,True,2,8
+v2_haiku__h04_airline__c5,haiku,flash,haiku/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_haiku__h04_airline__c4,haiku,flash,haiku/h04_airline,h04_airline,c4,0,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,1,0,True,0,6
+v2_haiku__h04_airline__c7,haiku,flash,haiku/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,False,True,3,0,0,0,0,1,2,0,False,0,1
+v2_haiku__h04_airline__c6,haiku,flash,haiku/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,2,0,0,1,1,0,True,2,8
+v2_haiku__h08_car__c1,haiku,flash,haiku/h08_car,h08_car,c1,0,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_haiku__h04_airline__c8,haiku,flash,haiku/h04_airline,h04_airline,c8,0,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,False,True,3,0,0,0,0,1,2,0,True,0,4
+v2_haiku__h08_car__c2,haiku,flash,haiku/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,3,0,0,1,1,1,True,3,6
+v2_haiku__h08_car__c3,haiku,flash,haiku/h08_car,h08_car,c3,1,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_haiku__h08_car__c5,haiku,flash,haiku/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,True,0,3
+v2_haiku__h08_car__c4,haiku,flash,haiku/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,0,4
+v2_haiku__h08_car__c6,haiku,flash,haiku/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,False,0,1
+v2_haiku__h08_car__c8,haiku,flash,haiku/h08_car,h08_car,c8,0,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,False,True,3,1,0,0,0,0,2,1,False,0,4
+v2_haiku__h07_school__c1,haiku,flash,haiku/h07_school,h07_school,c1,1,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_haiku__h08_car__c7,haiku,flash,haiku/h08_car,h08_car,c7,0,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,3,6
+v2_haiku__h07_school__c3,haiku,flash,haiku/h07_school,h07_school,c3,1,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_haiku__h06_city__c3,haiku,flash,haiku/h06_city,h06_city,c3,1,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_haiku__h07_school__c5,haiku,flash,haiku/h07_school,h07_school,c5,1,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,3,7
+v2_haiku__h07_school__c4,haiku,flash,haiku/h07_school,h07_school,c4,1,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,0,2
+v2_haiku__h06_city__c2,haiku,flash,haiku/h06_city,h06_city,c2,1,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_haiku__h06_city__c1,haiku,flash,haiku/h06_city,h06_city,c1,1,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,0,3,0,0,1,1,1,True,0,5
+v2_haiku__h06_city__c4,haiku,flash,haiku/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,2,0,3,0,0,2,1,True,0,3
+v2_haiku__h06_city__c5,haiku,flash,haiku/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,3,0,0,2,1,False,3,7
+v2_haiku__h06_city__c6,haiku,flash,haiku/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,False,True,4,0,0,0,0,0,2,1,False,3,7
+v2_haiku__h06_city__c8,haiku,flash,haiku/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,1,0,0,0,0,1,1,False,0,5
+v2_haiku__h06_city__c7,haiku,flash,haiku/h06_city,h06_city,c7,1,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,1,0,0,0,0,1,1,True,0,5
+v2_haiku__h01_auto__c4,haiku,g38,haiku/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,False,True,3,1,0,0,0,1,2,1,True,0,3
+v2_haiku__h01_auto__c6,haiku,g38,haiku/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,0,1,1,1,False,0,4
+v2_haiku__h01_auto__c1,haiku,g38,haiku/h01_auto,h01_auto,c1,0,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_haiku__h01_auto__c3,haiku,g38,haiku/h01_auto,h01_auto,c3,1,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,2,0,0,0,0,1,1,True,0,6
+v2_haiku__h01_auto__c5,haiku,g38,haiku/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,2,0,0,1,1,1,True,2,9
+v2_haiku__h01_auto__c8,haiku,g38,haiku/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,3,0,0,2,1,False,0,6
+v2_haiku__h02_mortgage__c1,haiku,g38,haiku/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,1,0,0,1,1,False,0,6
+v2_haiku__h02_mortgage__c2,haiku,g38,haiku/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,2
+v2_haiku__h02_mortgage__c3,haiku,g38,haiku/h02_mortgage,h02_mortgage,c3,0,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,3,1,0,1,0,0,1,1,True,3,9
+v2_haiku__h02_mortgage__c4,haiku,g38,haiku/h02_mortgage,h02_mortgage,c4,1,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,5
+v2_haiku__h02_mortgage__c5,haiku,g38,haiku/h02_mortgage,h02_mortgage,c5,0,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,True,3,9
+v2_haiku__h02_mortgage__c6,haiku,g38,haiku/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,1,0,0,1,1,True,1,8
+v2_haiku__h01_auto__c2,haiku,g38,haiku/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,3,0,0,2,1,True,2,9
+v2_haiku__h01_auto__c7,haiku,g38,haiku/h01_auto,h01_auto,c7,0,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,1,8
+v2_haiku__h03_business__c1,haiku,g38,haiku/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,3,0,0,1,1,0,False,2,6
+v2_haiku__h02_mortgage__c8,haiku,g38,haiku/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,False,0,4
+v2_haiku__h03_business__c4,haiku,g38,haiku/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,0,1,1,0,True,0,2
+v2_haiku__h03_business__c3,haiku,g38,haiku/h03_business,h03_business,c3,0,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,3,2,0,0,0,0,1,0,False,2,6
+v2_haiku__h03_business__c6,haiku,g38,haiku/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,3,2,0,0,0,0,1,0,False,0,5
+v2_haiku__h03_business__c2,haiku,g38,haiku/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,3,0,1,2,0,True,0,4
+v2_haiku__h03_business__c5,haiku,g38,haiku/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_haiku__h02_mortgage__c7,haiku,g38,haiku/h02_mortgage,h02_mortgage,c7,0,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,3,0,0,1,1,1,True,1,7
+v2_haiku__h03_business__c7,haiku,g38,haiku/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,False,2,6
+v2_haiku__h04_airline__c1,haiku,g38,haiku/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,4
+v2_haiku__h04_airline__c2,haiku,g38,haiku/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,True,2,8
+v2_haiku__h03_business__c8,haiku,g38,haiku/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,True,0,2
+v2_haiku__h04_airline__c3,haiku,g38,haiku/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,3,0,0,2,0,False,2,8
+v2_haiku__h04_airline__c5,haiku,g38,haiku/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_haiku__h04_airline__c6,haiku,g38,haiku/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,2,0,0,1,1,0,True,2,8
+v2_haiku__h04_airline__c7,haiku,g38,haiku/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,False,True,3,0,0,0,0,1,2,0,False,0,1
+v2_haiku__h05_hospital__c1,haiku,g38,haiku/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_haiku__h04_airline__c8,haiku,g38,haiku/h04_airline,h04_airline,c8,0,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,False,True,3,0,0,0,0,1,2,0,True,0,4
+v2_haiku__h04_airline__c4,haiku,g38,haiku/h04_airline,h04_airline,c4,0,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,1,0,True,0,6
+v2_haiku__h05_hospital__c6,haiku,g38,haiku/h05_hospital,h05_hospital,c6,0,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,0
+v2_haiku__h05_hospital__c2,haiku,g38,haiku/h05_hospital,h05_hospital,c2,1,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,1,2,0,True,0,3
+v2_haiku__h05_hospital__c7,haiku,g38,haiku/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,1,0,False,0,4
+v2_haiku__h05_hospital__c8,haiku,g38,haiku/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,True,0,5
+v2_haiku__h05_hospital__c3,haiku,g38,haiku/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,1,2,0,True,2,6
+v2_haiku__h06_city__c1,haiku,g38,haiku/h06_city,h06_city,c1,1,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,0,3,0,0,1,1,1,True,0,5
+v2_haiku__h05_hospital__c5,haiku,g38,haiku/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,1,0,False,2,6
+v2_haiku__h06_city__c3,haiku,g38,haiku/h06_city,h06_city,c3,0,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_haiku__h05_hospital__c4,haiku,g38,haiku/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,3,0,0,2,0,True,2,6
+v2_haiku__h06_city__c4,haiku,g38,haiku/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,2,0,3,0,0,2,1,True,0,3
+v2_haiku__h06_city__c8,haiku,g38,haiku/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,1,0,0,0,0,1,1,False,0,5
+v2_haiku__h06_city__c2,haiku,g38,haiku/h06_city,h06_city,c2,0,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_haiku__h06_city__c5,haiku,g38,haiku/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,3,0,0,2,1,False,3,7
+v2_haiku__h07_school__c2,haiku,g38,haiku/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,0,1,1,0,False,0,4
+v2_haiku__h07_school__c3,haiku,g38,haiku/h07_school,h07_school,c3,0,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_haiku__h06_city__c7,haiku,g38,haiku/h06_city,h06_city,c7,1,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,1,0,0,0,0,1,1,True,0,5
+v2_haiku__h06_city__c6,haiku,g38,haiku/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,False,True,4,0,0,0,0,0,2,1,False,3,7
+v2_haiku__h07_school__c1,haiku,g38,haiku/h07_school,h07_school,c1,0,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_haiku__h07_school__c6,haiku,g38,haiku/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,2,0,0,0,0,0,1,0,False,0,3
+v2_haiku__h07_school__c4,haiku,g38,haiku/h07_school,h07_school,c4,0,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,0,2
+v2_haiku__h07_school__c5,haiku,g38,haiku/h07_school,h07_school,c5,0,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,3,7
+v2_haiku__h08_car__c2,haiku,g38,haiku/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,3,0,0,1,1,1,True,3,6
+v2_haiku__h07_school__c7,haiku,g38,haiku/h07_school,h07_school,c7,1,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,2
+v2_haiku__h07_school__c8,haiku,g38,haiku/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_haiku__h08_car__c1,haiku,g38,haiku/h08_car,h08_car,c1,0,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_haiku__h08_car__c4,haiku,g38,haiku/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,0,4
+v2_haiku__h08_car__c3,haiku,g38,haiku/h08_car,h08_car,c3,0,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_haiku__h08_car__c8,haiku,g38,haiku/h08_car,h08_car,c8,0,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,False,True,3,1,0,0,0,0,2,1,False,0,4
+v2_haiku__h08_car__c6,haiku,g38,haiku/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,False,0,1
+v2_haiku__h08_car__c7,haiku,g38,haiku/h08_car,h08_car,c7,0,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,3,6
+v2_haiku__h09_bike__c1,haiku,g38,haiku/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_haiku__h09_bike__c2,haiku,g38,haiku/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,4,1,0,0,0,1,2,1,False,2,9
+v2_haiku__h09_bike__c4,haiku,g38,haiku/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,True,0,1
+v2_haiku__h09_bike__c6,haiku,g38,haiku/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_haiku__h09_bike__c3,haiku,g38,haiku/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_haiku__h09_bike__c5,haiku,g38,haiku/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,2,0,0,1,1,1,False,0,6
+v2_haiku__h09_bike__c8,haiku,g38,haiku/h09_bike,h09_bike,c8,0,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,0,1,2,1,True,0,7
+v2_haiku__h10_cloud__c1,haiku,g38,haiku/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,1,False,0,4
+v2_haiku__h08_car__c5,haiku,g38,haiku/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,True,0,3
+v2_haiku__h10_cloud__c2,haiku,g38,haiku/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,3,0,0,2,1,False,0,2
+v2_haiku__h10_cloud__c3,haiku,g38,haiku/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,False,True,2,1,0,0,0,0,1,1,False,0,5
+v2_haiku__h09_bike__c7,haiku,g38,haiku/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,True,2,9
+v2_haiku__h10_cloud__c6,haiku,g38,haiku/h10_cloud,h10_cloud,c6,0,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,2,1,True,3,8
+v2_haiku__h10_cloud__c4,haiku,g38,haiku/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,2,1,True,3,8
+v2_haiku__h10_cloud__c5,haiku,g38,haiku/h10_cloud,h10_cloud,c5,0,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,2,1,True,3,8
+v2_haiku__h10_cloud__c7,haiku,g38,haiku/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,1,False,0,3
+v2_haiku__h11_freight__c3,haiku,g38,haiku/h11_freight,h11_freight,c3,0,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,False,1,7
+v2_haiku__h11_freight__c2,haiku,g38,haiku/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,1,1,1,True,0,6
+v2_haiku__h11_freight__c1,haiku,g38,haiku/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,True,0,5
+v2_haiku__h11_freight__c4,haiku,g38,haiku/h11_freight,h11_freight,c4,0,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,False,True,4,0,0,0,0,0,1,1,False,2,8
+v2_haiku__h11_freight__c8,haiku,g38,haiku/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,1,1,True,0,3
+v2_haiku__h11_freight__c7,haiku,g38,haiku/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,False,2,8
+v2_haiku__h11_freight__c5,haiku,g38,haiku/h11_freight,h11_freight,c5,1,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,2,0,0,0,0,1,1,False,0,4
+v2_haiku__h10_cloud__c8,haiku,g38,haiku/h10_cloud,h10_cloud,c8,0,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,3,0,0,1,3,1,True,3,8
+v2_haiku__h12_university__c4,haiku,g38,haiku/h12_university,h12_university,c4,0,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,6
+v2_haiku__h12_university__c1,haiku,g38,haiku/h12_university,h12_university,c1,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,2,0,True,3,7
+v2_haiku__h12_university__c3,haiku,g38,haiku/h12_university,h12_university,c3,0,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_haiku__h12_university__c2,haiku,g38,haiku/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,2,0,True,3,7
+v2_haiku__h11_freight__c6,haiku,g38,haiku/h11_freight,h11_freight,c6,0,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,2,8
+v2_haiku__h12_university__c6,haiku,g38,haiku/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,0,0,1,0,False,0,0
+v2_haiku__h12_university__c7,haiku,g38,haiku/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,4
+v2_haiku__h12_university__c5,haiku,g38,haiku/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_haiku__h12_university__c8,haiku,g38,haiku/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,3,0,0,2,0,False,0,3
+v2_sonnet__h03_business__c1,sonnet,flash,sonnet/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,4,1,2,0,0,1,1,0,False,2,6
+v2_sonnet__h03_business__c6,sonnet,flash,sonnet/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,0,1
+v2_sonnet__h03_business__c2,sonnet,flash,sonnet/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,3,0,0,2,0,True,0,5
+v2_sonnet__h03_business__c4,sonnet,flash,sonnet/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,0,0,0,1,0,True,0,4
+v2_sonnet__h03_business__c3,sonnet,flash,sonnet/h03_business,h03_business,c3,0,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_sonnet__h02_mortgage__c1,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,0,0,0,1,1,False,0,3
+v2_sonnet__h03_business__c5,sonnet,flash,sonnet/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_sonnet__h03_business__c8,sonnet,flash,sonnet/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,True,True,2,1,0,0,0,0,1,0,True,0,5
+v2_sonnet__h03_business__c7,sonnet,flash,sonnet/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,False,2,6
+v2_sonnet__h02_mortgage__c4,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c4,0,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,6
+v2_sonnet__h02_mortgage__c2,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,5
+v2_sonnet__h02_mortgage__c3,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c3,0,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,3,1,0,0,0,0,1,1,True,3,9
+v2_sonnet__h02_mortgage__c8,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,False,0,1
+v2_sonnet__h02_mortgage__c6,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,0,0,0,1,1,True,3,9
+v2_sonnet__h02_mortgage__c5,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c5,0,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,True,3,9
+v2_sonnet__h02_mortgage__c7,sonnet,flash,sonnet/h02_mortgage,h02_mortgage,c7,0,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,2,0,0,1,1,1,True,3,9
+v2_sonnet__h12_university__c6,sonnet,flash,sonnet/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h12_university__c1,sonnet,flash,sonnet/h12_university,h12_university,c1,1,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,2,0,0,0,0,0,1,0,True,3,7
+v2_sonnet__h12_university__c4,sonnet,flash,sonnet/h12_university,h12_university,c4,0,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,2
+v2_sonnet__h12_university__c2,sonnet,flash,sonnet/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,True,True,2,1,0,0,0,0,1,0,True,3,7
+v2_sonnet__h12_university__c3,sonnet,flash,sonnet/h12_university,h12_university,c3,1,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_sonnet__h10_cloud__c1,sonnet,flash,sonnet/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,0,False,0,5
+v2_sonnet__h12_university__c7,sonnet,flash,sonnet/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,6
+v2_sonnet__h10_cloud__c2,sonnet,flash,sonnet/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,4,0,0,2,0,False,0,6
+v2_sonnet__h12_university__c5,sonnet,flash,sonnet/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_sonnet__h10_cloud__c3,sonnet,flash,sonnet/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,True,True,3,1,0,0,0,0,2,0,False,0,4
+v2_sonnet__h12_university__c8,sonnet,flash,sonnet/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,4,0,0,2,0,False,0,3
+v2_sonnet__h10_cloud__c7,sonnet,flash,sonnet/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,False,0,3
+v2_sonnet__h10_cloud__c8,sonnet,flash,sonnet/h10_cloud,h10_cloud,c8,0,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,2,0,0,1,1,0,True,3,8
+v2_sonnet__h10_cloud__c6,sonnet,flash,sonnet/h10_cloud,h10_cloud,c6,1,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,1,0,True,1,7
+v2_sonnet__h10_cloud__c5,sonnet,flash,sonnet/h10_cloud,h10_cloud,c5,0,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,True,3,8
+v2_sonnet__h10_cloud__c4,sonnet,flash,sonnet/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,2,0,True,3,8
+v2_sonnet__h11_freight__c1,sonnet,flash,sonnet/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,True,0,6
+v2_sonnet__h11_freight__c5,sonnet,flash,sonnet/h11_freight,h11_freight,c5,0,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,2,0,0,0,0,1,1,False,0,4
+v2_sonnet__h11_freight__c3,sonnet,flash,sonnet/h11_freight,h11_freight,c3,0,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,False,2,8
+v2_sonnet__h11_freight__c2,sonnet,flash,sonnet/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,2,1,1,True,0,5
+v2_sonnet__h11_freight__c6,sonnet,flash,sonnet/h11_freight,h11_freight,c6,0,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,1,7
+v2_sonnet__h11_freight__c8,sonnet,flash,sonnet/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,1,1,True,0,1
+v2_sonnet__h11_freight__c4,sonnet,flash,sonnet/h11_freight,h11_freight,c4,0,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,True,True,4,1,0,0,0,0,2,1,False,2,8
+v2_sonnet__h11_freight__c7,sonnet,flash,sonnet/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,False,2,8
+v2_sonnet__h01_auto__c1,sonnet,flash,sonnet/h01_auto,h01_auto,c1,1,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_sonnet__h01_auto__c3,sonnet,flash,sonnet/h01_auto,h01_auto,c3,0,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,True,0,5
+v2_sonnet__h01_auto__c4,sonnet,flash,sonnet/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,True,4,1,0,0,0,0,2,1,True,0,3
+v2_sonnet__h01_auto__c6,sonnet,flash,sonnet/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,0,0,0,1,1,False,0,6
+v2_sonnet__h01_auto__c2,sonnet,flash,sonnet/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,4,0,0,2,1,True,2,9
+v2_sonnet__h01_auto__c5,sonnet,flash,sonnet/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,3,0,0,1,2,1,True,2,9
+v2_sonnet__h01_auto__c7,sonnet,flash,sonnet/h01_auto,h01_auto,c7,0,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,1,8
+v2_sonnet__h01_auto__c8,sonnet,flash,sonnet/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,4,0,0,2,1,False,0,1
+v2_sonnet__h09_bike__c4,sonnet,flash,sonnet/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,True,0,4
+v2_sonnet__h09_bike__c5,sonnet,flash,sonnet/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,5,1,2,0,0,1,1,1,False,0,3
+v2_sonnet__h09_bike__c1,sonnet,flash,sonnet/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_sonnet__h09_bike__c3,sonnet,flash,sonnet/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_sonnet__h09_bike__c2,sonnet,flash,sonnet/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,3,2,0,0,0,0,1,1,False,2,9
+v2_sonnet__h09_bike__c6,sonnet,flash,sonnet/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,6
+v2_sonnet__h07_school__c2,sonnet,flash,sonnet/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,0,0,0,1,0,False,0,5
+v2_sonnet__h07_school__c1,sonnet,flash,sonnet/h07_school,h07_school,c1,0,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_sonnet__h07_school__c6,sonnet,flash,sonnet/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h07_school__c5,sonnet,flash,sonnet/h07_school,h07_school,c5,0,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,3,7
+v2_sonnet__h07_school__c4,sonnet,flash,sonnet/h07_school,h07_school,c4,0,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,0,2
+v2_sonnet__h07_school__c7,sonnet,flash,sonnet/h07_school,h07_school,c7,1,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,5
+v2_sonnet__h05_hospital__c1,sonnet,flash,sonnet/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_sonnet__h07_school__c8,sonnet,flash,sonnet/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_sonnet__h05_hospital__c2,sonnet,flash,sonnet/h05_hospital,h05_hospital,c2,0,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,2,0,0,0,0,0,1,0,True,0,2
+v2_sonnet__h05_hospital__c3,sonnet,flash,sonnet/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,True,True,3,1,0,0,0,0,3,0,True,2,6
+v2_sonnet__h05_hospital__c4,sonnet,flash,sonnet/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,1,3,0,0,2,0,True,2,6
+v2_sonnet__h05_hospital__c5,sonnet,flash,sonnet/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,2,0,False,2,6
+v2_sonnet__h05_hospital__c6,sonnet,flash,sonnet/h05_hospital,h05_hospital,c6,0,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h05_hospital__c8,sonnet,flash,sonnet/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,True,0,4
+v2_sonnet__h04_airline__c1,sonnet,flash,sonnet/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,2
+v2_sonnet__h05_hospital__c7,sonnet,flash,sonnet/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,3,0,False,0,5
+v2_sonnet__h04_airline__c4,sonnet,flash,sonnet/h04_airline,h04_airline,c4,0,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,1,0,True,0,5
+v2_sonnet__h04_airline__c3,sonnet,flash,sonnet/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,4,0,0,3,0,False,2,8
+v2_sonnet__h04_airline__c2,sonnet,flash,sonnet/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,True,2,8
+v2_sonnet__h04_airline__c6,sonnet,flash,sonnet/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,2,0,0,1,1,0,True,1,7
+v2_sonnet__h04_airline__c7,sonnet,flash,sonnet/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,True,True,3,1,0,0,0,0,2,0,False,0,4
+v2_sonnet__h04_airline__c5,sonnet,flash,sonnet/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_sonnet__h04_airline__c8,sonnet,flash,sonnet/h04_airline,h04_airline,c8,0,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,True,True,3,1,0,0,0,0,2,0,True,0,6
+v2_sonnet__h08_car__c1,sonnet,flash,sonnet/h08_car,h08_car,c1,1,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_sonnet__h08_car__c2,sonnet,flash,sonnet/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,6,0,2,0,0,2,1,1,True,3,6
+v2_sonnet__h08_car__c3,sonnet,flash,sonnet/h08_car,h08_car,c3,0,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_sonnet__h08_car__c4,sonnet,flash,sonnet/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,2,0,0,0,0,1,1,True,0,4
+v2_sonnet__h08_car__c5,sonnet,flash,sonnet/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,True,0,3
+v2_sonnet__h08_car__c6,sonnet,flash,sonnet/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,False,0,2
+v2_sonnet__h08_car__c7,sonnet,flash,sonnet/h08_car,h08_car,c7,1,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,1,5
+v2_sonnet__h08_car__c8,sonnet,flash,sonnet/h08_car,h08_car,c8,0,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,False,True,3,1,0,0,0,0,1,1,False,0,3
+v2_sonnet__h06_city__c1,sonnet,flash,sonnet/h06_city,h06_city,c1,0,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,7,0,3,0,0,2,1,1,True,0,2
+v2_sonnet__h06_city__c3,sonnet,flash,sonnet/h06_city,h06_city,c3,0,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_sonnet__h06_city__c2,sonnet,flash,sonnet/h06_city,h06_city,c2,0,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_sonnet__h06_city__c4,sonnet,flash,sonnet/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,3,0,0,4,0,0,2,1,True,0,5
+v2_sonnet__h06_city__c5,sonnet,flash,sonnet/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,3,0,0,2,1,False,3,7
+v2_sonnet__h06_city__c6,sonnet,flash,sonnet/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,True,True,4,3,0,0,0,0,2,1,False,3,7
+v2_sonnet__h06_city__c7,sonnet,flash,sonnet/h06_city,h06_city,c7,0,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,True,0,5
+v2_sonnet__h06_city__c8,sonnet,flash,sonnet/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,False,0,1
+v2_sonnet__h07_school__c3,sonnet,flash,sonnet/h07_school,h07_school,c3,0,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_sonnet__h09_bike__c8,sonnet,flash,sonnet/h09_bike,h09_bike,c8,1,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,0,0,0,1,1,True,0,7
+v2_sonnet__h09_bike__c7,sonnet,flash,sonnet/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,2,0,0,0,0,1,1,True,2,9
+v2_sonnet__h01_auto__c3,sonnet,g38,sonnet/h01_auto,h01_auto,c3,0,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,True,0,5
+v2_sonnet__h01_auto__c6,sonnet,g38,sonnet/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,0,0,0,1,1,False,0,6
+v2_sonnet__h01_auto__c4,sonnet,g38,sonnet/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,True,4,1,0,0,0,0,2,1,True,0,3
+v2_sonnet__h01_auto__c1,sonnet,g38,sonnet/h01_auto,h01_auto,c1,0,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_sonnet__h01_auto__c5,sonnet,g38,sonnet/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,4,0,3,0,0,1,2,1,True,2,9
+v2_sonnet__h02_mortgage__c1,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,0,0,0,1,1,False,0,3
+v2_sonnet__h01_auto__c7,sonnet,g38,sonnet/h01_auto,h01_auto,c7,0,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,1,8
+v2_sonnet__h01_auto__c8,sonnet,g38,sonnet/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,4,0,0,2,1,False,0,1
+v2_sonnet__h02_mortgage__c2,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,5
+v2_sonnet__h02_mortgage__c4,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c4,0,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,6
+v2_sonnet__h01_auto__c2,sonnet,g38,sonnet/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,4,0,0,2,1,True,2,9
+v2_sonnet__h03_business__c1,sonnet,g38,sonnet/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,4,1,2,0,0,1,1,0,False,2,6
+v2_sonnet__h02_mortgage__c8,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,3,0,0,2,1,False,0,1
+v2_sonnet__h03_business__c2,sonnet,g38,sonnet/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,3,0,0,2,0,True,0,5
+v2_sonnet__h02_mortgage__c5,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c5,1,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,True,3,9
+v2_sonnet__h02_mortgage__c6,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,0,0,0,1,1,True,3,9
+v2_sonnet__h02_mortgage__c3,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c3,0,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,3,1,0,0,0,0,1,1,True,3,9
+v2_sonnet__h03_business__c4,sonnet,g38,sonnet/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,0,0,0,1,0,True,0,4
+v2_sonnet__h03_business__c3,sonnet,g38,sonnet/h03_business,h03_business,c3,0,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_sonnet__h02_mortgage__c7,sonnet,g38,sonnet/h02_mortgage,h02_mortgage,c7,0,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,2,0,0,1,1,1,True,3,9
+v2_sonnet__h04_airline__c1,sonnet,g38,sonnet/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,2
+v2_sonnet__h03_business__c8,sonnet,g38,sonnet/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,True,True,2,1,0,0,0,0,1,0,True,0,5
+v2_sonnet__h03_business__c5,sonnet,g38,sonnet/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_sonnet__h03_business__c7,sonnet,g38,sonnet/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,False,2,6
+v2_sonnet__h03_business__c6,sonnet,g38,sonnet/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,0,1
+v2_sonnet__h04_airline__c4,sonnet,g38,sonnet/h04_airline,h04_airline,c4,1,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,1,0,True,0,5
+v2_sonnet__h04_airline__c2,sonnet,g38,sonnet/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,True,2,8
+v2_sonnet__h04_airline__c3,sonnet,g38,sonnet/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,4,0,0,3,0,False,2,8
+v2_sonnet__h04_airline__c5,sonnet,g38,sonnet/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_sonnet__h04_airline__c7,sonnet,g38,sonnet/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,True,True,3,1,0,0,0,0,2,0,False,0,4
+v2_sonnet__h05_hospital__c2,sonnet,g38,sonnet/h05_hospital,h05_hospital,c2,0,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,2,0,0,0,0,0,1,0,True,0,2
+v2_sonnet__h05_hospital__c1,sonnet,g38,sonnet/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_sonnet__h04_airline__c8,sonnet,g38,sonnet/h04_airline,h04_airline,c8,0,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,True,True,3,1,0,0,0,0,2,0,True,0,6
+v2_sonnet__h04_airline__c6,sonnet,g38,sonnet/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,2,0,0,1,1,0,True,1,7
+v2_sonnet__h05_hospital__c5,sonnet,g38,sonnet/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,2,0,False,2,6
+v2_sonnet__h05_hospital__c3,sonnet,g38,sonnet/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,True,True,3,1,0,0,0,0,3,0,True,2,6
+v2_sonnet__h05_hospital__c6,sonnet,g38,sonnet/h05_hospital,h05_hospital,c6,0,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h06_city__c1,sonnet,g38,sonnet/h06_city,h06_city,c1,0,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,7,0,3,0,0,2,1,1,True,0,2
+v2_sonnet__h05_hospital__c4,sonnet,g38,sonnet/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,1,3,0,0,2,0,True,2,6
+v2_sonnet__h05_hospital__c8,sonnet,g38,sonnet/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,1,0,True,0,4
+v2_sonnet__h05_hospital__c7,sonnet,g38,sonnet/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,3,0,False,0,5
+v2_sonnet__h06_city__c3,sonnet,g38,sonnet/h06_city,h06_city,c3,0,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_sonnet__h06_city__c5,sonnet,g38,sonnet/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,3,0,0,2,1,False,3,7
+v2_sonnet__h06_city__c2,sonnet,g38,sonnet/h06_city,h06_city,c2,0,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_sonnet__h06_city__c7,sonnet,g38,sonnet/h06_city,h06_city,c7,0,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,True,0,5
+v2_sonnet__h06_city__c8,sonnet,g38,sonnet/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,False,0,1
+v2_sonnet__h06_city__c6,sonnet,g38,sonnet/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,True,True,4,3,0,0,0,0,2,1,False,3,7
+v2_sonnet__h07_school__c3,sonnet,g38,sonnet/h07_school,h07_school,c3,0,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_sonnet__h07_school__c2,sonnet,g38,sonnet/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,0,0,0,1,0,False,0,5
+v2_sonnet__h06_city__c4,sonnet,g38,sonnet/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,3,0,0,4,0,0,2,1,True,0,5
+v2_sonnet__h07_school__c6,sonnet,g38,sonnet/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h07_school__c1,sonnet,g38,sonnet/h07_school,h07_school,c1,0,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_sonnet__h07_school__c4,sonnet,g38,sonnet/h07_school,h07_school,c4,0,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,0,2
+v2_sonnet__h07_school__c8,sonnet,g38,sonnet/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_sonnet__h07_school__c5,sonnet,g38,sonnet/h07_school,h07_school,c5,0,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,3,0,0,2,0,True,3,7
+v2_sonnet__h08_car__c5,sonnet,g38,sonnet/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,True,0,3
+v2_sonnet__h07_school__c7,sonnet,g38,sonnet/h07_school,h07_school,c7,1,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,5
+v2_sonnet__h08_car__c1,sonnet,g38,sonnet/h08_car,h08_car,c1,0,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_sonnet__h08_car__c4,sonnet,g38,sonnet/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,2,0,0,0,0,1,1,True,0,4
+v2_sonnet__h08_car__c2,sonnet,g38,sonnet/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,6,0,2,0,0,2,1,1,True,3,6
+v2_sonnet__h08_car__c6,sonnet,g38,sonnet/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,3,0,0,2,1,False,0,2
+v2_sonnet__h08_car__c3,sonnet,g38,sonnet/h08_car,h08_car,c3,0,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_sonnet__h09_bike__c2,sonnet,g38,sonnet/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,3,2,0,0,0,0,1,1,False,2,9
+v2_sonnet__h09_bike__c1,sonnet,g38,sonnet/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_sonnet__h09_bike__c5,sonnet,g38,sonnet/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,5,1,2,0,0,1,1,1,False,0,3
+v2_sonnet__h08_car__c7,sonnet,g38,sonnet/h08_car,h08_car,c7,0,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,1,5
+v2_sonnet__h08_car__c8,sonnet,g38,sonnet/h08_car,h08_car,c8,0,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,False,True,3,1,0,0,0,0,1,1,False,0,3
+v2_sonnet__h09_bike__c4,sonnet,g38,sonnet/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,True,0,4
+v2_sonnet__h09_bike__c3,sonnet,g38,sonnet/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_sonnet__h09_bike__c6,sonnet,g38,sonnet/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,6
+v2_sonnet__h10_cloud__c1,sonnet,g38,sonnet/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,0,False,0,5
+v2_sonnet__h09_bike__c8,sonnet,g38,sonnet/h09_bike,h09_bike,c8,0,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,0,0,0,1,1,True,0,7
+v2_sonnet__h10_cloud__c3,sonnet,g38,sonnet/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,True,True,3,1,0,0,0,0,2,0,False,0,4
+v2_sonnet__h10_cloud__c2,sonnet,g38,sonnet/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,4,0,0,2,0,False,0,6
+v2_sonnet__h10_cloud__c5,sonnet,g38,sonnet/h10_cloud,h10_cloud,c5,1,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,True,3,8
+v2_sonnet__h09_bike__c7,sonnet,g38,sonnet/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,2,0,0,0,0,1,1,True,2,9
+v2_sonnet__h10_cloud__c4,sonnet,g38,sonnet/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,2,0,True,3,8
+v2_sonnet__h11_freight__c2,sonnet,g38,sonnet/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,2,1,1,True,0,5
+v2_sonnet__h10_cloud__c7,sonnet,g38,sonnet/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,False,0,3
+v2_sonnet__h11_freight__c1,sonnet,g38,sonnet/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,True,0,6
+v2_sonnet__h10_cloud__c6,sonnet,g38,sonnet/h10_cloud,h10_cloud,c6,0,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,1,0,True,1,7
+v2_sonnet__h10_cloud__c8,sonnet,g38,sonnet/h10_cloud,h10_cloud,c8,0,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,2,0,0,1,1,0,True,3,8
+v2_sonnet__h11_freight__c3,sonnet,g38,sonnet/h11_freight,h11_freight,c3,0,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,False,2,8
+v2_sonnet__h11_freight__c8,sonnet,g38,sonnet/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,1,1,True,0,1
+v2_sonnet__h11_freight__c6,sonnet,g38,sonnet/h11_freight,h11_freight,c6,0,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,1,7
+v2_sonnet__h11_freight__c4,sonnet,g38,sonnet/h11_freight,h11_freight,c4,0,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,True,True,4,1,0,0,0,0,2,1,False,2,8
+v2_sonnet__h11_freight__c7,sonnet,g38,sonnet/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,False,False,3,0,0,3,0,0,2,1,False,2,8
+v2_sonnet__h12_university__c3,sonnet,g38,sonnet/h12_university,h12_university,c3,0,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_sonnet__h12_university__c1,sonnet,g38,sonnet/h12_university,h12_university,c1,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,2,0,0,0,0,0,1,0,True,3,7
+v2_sonnet__h12_university__c4,sonnet,g38,sonnet/h12_university,h12_university,c4,0,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,2
+v2_sonnet__h12_university__c2,sonnet,g38,sonnet/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,True,True,2,1,0,0,0,0,1,0,True,3,7
+v2_sonnet__h11_freight__c5,sonnet,g38,sonnet/h11_freight,h11_freight,c5,0,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,2,0,0,0,0,1,1,False,0,4
+v2_sonnet__h12_university__c6,sonnet,g38,sonnet/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_sonnet__h12_university__c5,sonnet,g38,sonnet/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,3,0,2,0,0,1,1,0,True,3,7
+v2_sonnet__h12_university__c8,sonnet,g38,sonnet/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,4,0,0,2,0,False,0,3
+v2_sonnet__h12_university__c7,sonnet,g38,sonnet/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,6
+v2_opus__h03_business__c4,opus,flash,opus/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,0,0,0,1,0,True,0,3
+v2_opus__h03_business__c1,opus,flash,opus/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,3,0,0,1,1,0,False,2,6
+v2_opus__h03_business__c6,opus,flash,opus/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,0,4
+v2_opus__h03_business__c5,opus,flash,opus/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_opus__h03_business__c3,opus,flash,opus/h03_business,h03_business,c3,1,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_opus__h03_business__c2,opus,flash,opus/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,4,0,0,3,0,True,0,2
+v2_opus__h02_mortgage__c1,opus,flash,opus/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,0,0,0,1,1,False,0,5
+v2_opus__h03_business__c8,opus,flash,opus/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,True,0,5
+v2_opus__h03_business__c7,opus,flash,opus/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,3,0,0,0,0,0,1,0,False,2,6
+v2_opus__h02_mortgage__c4,opus,flash,opus/h02_mortgage,h02_mortgage,c4,0,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,2
+v2_opus__h02_mortgage__c2,opus,flash,opus/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,4
+v2_opus__h02_mortgage__c3,opus,flash,opus/h02_mortgage,h02_mortgage,c3,0,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,4,1,0,0,0,0,2,1,True,3,9
+v2_opus__h02_mortgage__c8,opus,flash,opus/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,False,0,6
+v2_opus__h02_mortgage__c7,opus,flash,opus/h02_mortgage,h02_mortgage,c7,0,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,3,0,0,1,1,1,True,2,7
+v2_opus__h02_mortgage__c6,opus,flash,opus/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,0,0,0,1,1,True,2,8
+v2_opus__h02_mortgage__c5,opus,flash,opus/h02_mortgage,h02_mortgage,c5,0,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,True,3,9
+v2_opus__h12_university__c1,opus,flash,opus/h12_university,h12_university,c1,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,1,0,True,3,7
+v2_opus__h12_university__c3,opus,flash,opus/h12_university,h12_university,c3,0,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_opus__h12_university__c6,opus,flash,opus/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,0,0,0,1,0,False,0,2
+v2_opus__h12_university__c2,opus,flash,opus/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,2,0,0,0,0,0,1,0,True,3,7
+v2_opus__h12_university__c7,opus,flash,opus/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,5
+v2_opus__h12_university__c4,opus,flash,opus/h12_university,h12_university,c4,1,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,6
+v2_opus__h12_university__c8,opus,flash,opus/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,4,0,0,2,0,False,0,3
+v2_opus__h12_university__c5,opus,flash,opus/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,4,0,3,0,0,2,1,0,True,3,7
+v2_opus__h10_cloud__c1,opus,flash,opus/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,0,False,0,1
+v2_opus__h10_cloud__c2,opus,flash,opus/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,4,0,0,2,0,False,0,2
+v2_opus__h10_cloud__c3,opus,flash,opus/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,True,True,3,1,0,0,0,0,2,0,False,0,5
+v2_opus__h10_cloud__c7,opus,flash,opus/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,False,0,3
+v2_opus__h10_cloud__c5,opus,flash,opus/h10_cloud,h10_cloud,c5,0,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,True,3,8
+v2_opus__h10_cloud__c6,opus,flash,opus/h10_cloud,h10_cloud,c6,0,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,1,0,True,3,8
+v2_opus__h11_freight__c1,opus,flash,opus/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,4,0,0,3,1,True,0,5
+v2_opus__h10_cloud__c8,opus,flash,opus/h10_cloud,h10_cloud,c8,0,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,3,0,0,1,3,0,True,1,7
+v2_opus__h11_freight__c2,opus,flash,opus/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,2,1,1,True,0,2
+v2_opus__h10_cloud__c4,opus,flash,opus/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,3,0,True,3,8
+v2_opus__h11_freight__c3,opus,flash,opus/h11_freight,h11_freight,c3,0,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,True,False,4,1,0,0,1,0,2,1,False,2,8
+v2_opus__h11_freight__c4,opus,flash,opus/h11_freight,h11_freight,c4,1,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,True,True,4,1,0,0,0,0,2,1,False,1,7
+v2_opus__h11_freight__c5,opus,flash,opus/h11_freight,h11_freight,c5,0,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,1,0,0,0,0,1,1,False,0,4
+v2_opus__h11_freight__c8,opus,flash,opus/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,2,1,True,0,3
+v2_opus__h11_freight__c6,opus,flash,opus/h11_freight,h11_freight,c6,0,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,1,6
+v2_opus__h11_freight__c7,opus,flash,opus/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,True,False,3,1,0,3,0,0,4,1,False,2,8
+v2_opus__h01_auto__c3,opus,flash,opus/h01_auto,h01_auto,c3,0,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,True,0,3
+v2_opus__h01_auto__c1,opus,flash,opus/h01_auto,h01_auto,c1,0,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,True,False,4,1,0,0,1,0,1,1,False,2,9
+v2_opus__h01_auto__c2,opus,flash,opus/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,3,0,0,2,1,True,2,9
+v2_opus__h01_auto__c4,opus,flash,opus/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,True,4,1,0,0,0,1,2,1,True,0,5
+v2_opus__h01_auto__c6,opus,flash,opus/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,0,0,0,1,1,False,0,6
+v2_opus__h01_auto__c5,opus,flash,opus/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,5,0,3,0,0,2,2,1,True,1,8
+v2_opus__h01_auto__c7,opus,flash,opus/h01_auto,h01_auto,c7,0,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h01_auto__c8,opus,flash,opus/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,3,0,0,2,1,False,0,2
+v2_opus__h09_bike__c1,opus,flash,opus/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h09_bike__c5,opus,flash,opus/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,3,0,0,1,1,1,False,0,7
+v2_opus__h09_bike__c4,opus,flash,opus/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,True,False,4,1,0,0,1,0,1,1,True,0,8
+v2_opus__h09_bike__c6,opus,flash,opus/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_opus__h09_bike__c2,opus,flash,opus/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h07_school__c2,opus,flash,opus/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,0,0,0,1,0,False,0,5
+v2_opus__h07_school__c4,opus,flash,opus/h07_school,h07_school,c4,1,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,0,3
+v2_opus__h07_school__c5,opus,flash,opus/h07_school,h07_school,c5,0,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,3,7
+v2_opus__h07_school__c6,opus,flash,opus/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,4,0,0,0,0,0,2,0,False,0,4
+v2_opus__h07_school__c7,opus,flash,opus/h07_school,h07_school,c7,0,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,6
+v2_opus__h07_school__c8,opus,flash,opus/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,3,0,0,1,1,0,True,3,7
+v2_opus__h05_hospital__c1,opus,flash,opus/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,2,0,False,2,6
+v2_opus__h05_hospital__c2,opus,flash,opus/h05_hospital,h05_hospital,c2,0,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,0,2,0,True,0,2
+v2_opus__h05_hospital__c3,opus,flash,opus/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,0,2,0,True,2,6
+v2_opus__h05_hospital__c4,opus,flash,opus/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,4,0,0,3,0,True,2,6
+v2_opus__h05_hospital__c5,opus,flash,opus/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,1,0,False,2,6
+v2_opus__h09_bike__c3,opus,flash,opus/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_opus__h09_bike__c8,opus,flash,opus/h09_bike,h09_bike,c8,0,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,0,0,0,1,1,True,0,6
+v2_opus__h05_hospital__c6,opus,flash,opus/h05_hospital,h05_hospital,c6,0,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_opus__h09_bike__c7,opus,flash,opus/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,2,0,0,0,0,1,1,True,2,9
+v2_opus__h07_school__c1,opus,flash,opus/h07_school,h07_school,c1,1,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_opus__h07_school__c3,opus,flash,opus/h07_school,h07_school,c3,0,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_opus__h04_airline__c1,opus,flash,opus/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,5
+v2_opus__h05_hospital__c8,opus,flash,opus/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,2,0,True,0,4
+v2_opus__h05_hospital__c7,opus,flash,opus/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,3,0,False,0,5
+v2_opus__h04_airline__c4,opus,flash,opus/h04_airline,h04_airline,c4,0,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,2,0,True,0,0
+v2_opus__h04_airline__c7,opus,flash,opus/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,False,True,4,1,0,0,0,0,2,0,False,0,2
+v2_opus__h04_airline__c2,opus,flash,opus/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,2,0,True,2,8
+v2_opus__h04_airline__c3,opus,flash,opus/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,4,0,0,3,0,False,1,6
+v2_opus__h04_airline__c5,opus,flash,opus/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_opus__h04_airline__c6,opus,flash,opus/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,4,0,3,0,0,2,2,0,True,1,7
+v2_opus__h08_car__c5,opus,flash,opus/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,4,0,0,2,1,True,0,2
+v2_opus__h08_car__c1,opus,flash,opus/h08_car,h08_car,c1,1,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_opus__h08_car__c3,opus,flash,opus/h08_car,h08_car,c3,1,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_opus__h08_car__c6,opus,flash,opus/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,4,0,0,2,1,False,0,0
+v2_opus__h04_airline__c8,opus,flash,opus/h04_airline,h04_airline,c8,0,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,True,True,4,2,0,0,0,0,2,0,True,0,4
+v2_opus__h08_car__c7,opus,flash,opus/h08_car,h08_car,c7,1,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,1,5
+v2_opus__h08_car__c2,opus,flash,opus/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,5,0,3,0,0,2,1,1,True,3,6
+v2_opus__h08_car__c4,opus,flash,opus/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,2,0,0,0,0,1,1,True,0,4
+v2_opus__h06_city__c1,opus,flash,opus/h06_city,h06_city,c1,0,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,0,2,0,0,1,1,1,True,0,3
+v2_opus__h06_city__c4,opus,flash,opus/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_opus__h06_city__c2,opus,flash,opus/h06_city,h06_city,c2,0,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_opus__h06_city__c3,opus,flash,opus/h06_city,h06_city,c3,0,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_opus__h08_car__c8,opus,flash,opus/h08_car,h08_car,c8,1,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,True,True,4,2,0,0,0,0,2,1,False,0,3
+v2_opus__h06_city__c5,opus,flash,opus/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,True,False,3,1,0,4,0,0,2,1,False,3,7
+v2_opus__h06_city__c8,opus,flash,opus/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,False,0,5
+v2_opus__h06_city__c6,opus,flash,opus/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,True,True,4,1,0,0,0,0,2,1,False,3,7
+v2_opus__h06_city__c7,opus,flash,opus/h06_city,h06_city,c7,1,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,True,0,2
+v2_opus__h01_auto__c3,opus,g38,opus/h01_auto,h01_auto,c3,0,on_request,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,True,0,3
+v2_opus__h01_auto__c5,opus,g38,opus/h01_auto,h01_auto,c5,0,helpful_extra,negotiates,perform,9,2,1,1,0,auto insurance claims,True,False,False,5,0,3,0,0,2,2,1,True,1,8
+v2_opus__h01_auto__c1,opus,g38,opus/h01_auto,h01_auto,c1,0,conflicting,terse,perform,9,2,1,1,0,auto insurance claims,True,True,False,4,1,0,0,1,0,1,1,False,2,9
+v2_opus__h01_auto__c4,opus,g38,opus/h01_auto,h01_auto,c4,0,lookup,changes_mind,refuse,9,2,1,1,0,auto insurance claims,True,True,True,4,1,0,0,0,1,2,1,True,0,5
+v2_opus__h01_auto__c6,opus,g38,opus/h01_auto,h01_auto,c6,0,upfront,pushy,refuse,9,2,1,1,0,auto insurance claims,True,False,False,3,0,0,0,0,0,1,1,False,0,6
+v2_opus__h01_auto__c2,opus,g38,opus/h01_auto,h01_auto,c2,0,distracting,negotiates,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,3,0,0,2,1,True,2,9
+v2_opus__h01_auto__c7,opus,g38,opus/h01_auto,h01_auto,c7,0,on_request,cooperative,perform,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h02_mortgage__c1,opus,g38,opus/h02_mortgage,h02_mortgage,c1,0,lookup,terse,refuse,9,3,1,1,0,mortgage servicing,True,False,True,3,1,0,0,0,0,1,1,False,0,5
+v2_opus__h02_mortgage__c2,opus,g38,opus/h02_mortgage,h02_mortgage,c2,0,upfront,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,0,0,0,1,1,False,0,4
+v2_opus__h02_mortgage__c4,opus,g38,opus/h02_mortgage,h02_mortgage,c4,0,conflicting,cooperative,refuse,9,3,1,1,0,mortgage servicing,True,False,False,4,0,0,0,1,0,1,1,False,0,2
+v2_opus__h02_mortgage__c3,opus,g38,opus/h02_mortgage,h02_mortgage,c3,1,lookup,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,True,4,1,0,0,0,0,2,1,True,3,9
+v2_opus__h01_auto__c8,opus,g38,opus/h01_auto,h01_auto,c8,0,distracting,pushy,refuse,9,2,1,1,0,auto insurance claims,True,True,False,3,1,0,3,0,0,2,1,False,0,2
+v2_opus__h03_business__c1,opus,g38,opus/h03_business,h03_business,c1,0,helpful_extra,terse,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,3,0,0,1,1,0,False,2,6
+v2_opus__h02_mortgage__c5,opus,g38,opus/h02_mortgage,h02_mortgage,c5,0,distracting,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,True,3,9
+v2_opus__h02_mortgage__c7,opus,g38,opus/h02_mortgage,h02_mortgage,c7,0,helpful_extra,changes_mind,perform,9,3,1,1,0,mortgage servicing,True,False,False,4,0,3,0,0,1,1,1,True,2,7
+v2_opus__h03_business__c4,opus,g38,opus/h03_business,h03_business,c4,0,upfront,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,2,0,0,0,0,0,1,0,True,0,3
+v2_opus__h03_business__c3,opus,g38,opus/h03_business,h03_business,c3,0,on_request,pushy,perform,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,2,6
+v2_opus__h03_business__c2,opus,g38,opus/h03_business,h03_business,c2,0,distracting,changes_mind,refuse,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,4,0,0,3,0,True,0,2
+v2_opus__h02_mortgage__c6,opus,g38,opus/h02_mortgage,h02_mortgage,c6,0,on_request,negotiates,perform,9,3,1,1,0,mortgage servicing,True,True,False,3,1,0,0,0,0,1,1,True,2,8
+v2_opus__h03_business__c6,opus,g38,opus/h03_business,h03_business,c6,0,on_request,pushy,refuse,6,2,0,0,0,business mobile accounts,True,True,False,2,1,0,0,0,0,1,0,False,0,4
+v2_opus__h03_business__c8,opus,g38,opus/h03_business,h03_business,c8,0,lookup,negotiates,refuse,6,2,0,0,0,business mobile accounts,True,False,True,2,0,0,0,0,0,1,0,True,0,5
+v2_opus__h04_airline__c1,opus,g38,opus/h04_airline,h04_airline,c1,0,on_request,cooperative,refuse,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,1,0,False,0,5
+v2_opus__h03_business__c5,opus,g38,opus/h03_business,h03_business,c5,0,conflicting,negotiates,perform,6,2,0,0,0,business mobile accounts,True,False,False,3,0,0,0,1,0,1,0,True,2,6
+v2_opus__h02_mortgage__c8,opus,g38,opus/h02_mortgage,h02_mortgage,c8,0,distracting,pushy,refuse,9,3,1,1,0,mortgage servicing,True,False,False,3,0,0,4,0,0,2,1,False,0,6
+v2_opus__h03_business__c7,opus,g38,opus/h03_business,h03_business,c7,0,lookup,cooperative,perform,6,2,0,0,0,business mobile accounts,True,False,True,3,0,0,0,0,0,1,0,False,2,6
+v2_opus__h04_airline__c5,opus,g38,opus/h04_airline,h04_airline,c5,0,conflicting,terse,perform,8,2,1,0,0,airline loyalty program,True,False,False,3,0,0,0,1,0,1,0,False,2,8
+v2_opus__h04_airline__c2,opus,g38,opus/h04_airline,h04_airline,c2,0,on_request,negotiates,perform,8,2,1,0,0,airline loyalty program,True,True,False,2,1,0,0,0,0,2,0,True,2,8
+v2_opus__h04_airline__c6,opus,g38,opus/h04_airline,h04_airline,c6,0,helpful_extra,changes_mind,perform,8,2,1,0,0,airline loyalty program,True,False,False,4,0,3,0,0,2,2,0,True,1,7
+v2_opus__h05_hospital__c2,opus,g38,opus/h05_hospital,h05_hospital,c2,0,lookup,changes_mind,refuse,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,0,2,0,True,0,2
+v2_opus__h04_airline__c4,opus,g38,opus/h04_airline,h04_airline,c4,1,upfront,changes_mind,refuse,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,0,0,0,2,0,True,0,0
+v2_opus__h05_hospital__c1,opus,g38,opus/h05_hospital,h05_hospital,c1,0,on_request,pushy,perform,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,2,0,False,2,6
+v2_opus__h04_airline__c3,opus,g38,opus/h04_airline,h04_airline,c3,0,distracting,pushy,perform,8,2,1,0,0,airline loyalty program,True,False,False,2,0,0,4,0,0,3,0,False,1,6
+v2_opus__h04_airline__c7,opus,g38,opus/h04_airline,h04_airline,c7,0,lookup,pushy,refuse,8,2,1,0,0,airline loyalty program,True,False,True,4,1,0,0,0,0,2,0,False,0,2
+v2_opus__h04_airline__c8,opus,g38,opus/h04_airline,h04_airline,c8,1,lookup,negotiates,refuse,8,2,1,0,0,airline loyalty program,True,True,True,4,2,0,0,0,0,2,0,True,0,4
+v2_opus__h05_hospital__c5,opus,g38,opus/h05_hospital,h05_hospital,c5,0,conflicting,terse,perform,6,2,0,0,0,hospital billing office,True,False,False,3,0,0,0,1,0,1,0,False,2,6
+v2_opus__h05_hospital__c7,opus,g38,opus/h05_hospital,h05_hospital,c7,0,helpful_extra,cooperative,refuse,6,2,0,0,0,hospital billing office,True,False,False,3,0,2,0,0,1,3,0,False,0,5
+v2_opus__h05_hospital__c8,opus,g38,opus/h05_hospital,h05_hospital,c8,0,on_request,negotiates,refuse,6,2,0,0,0,hospital billing office,True,True,False,2,1,0,0,0,0,2,0,True,0,4
+v2_opus__h06_city__c1,opus,g38,opus/h06_city,h06_city,c1,0,helpful_extra,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,4,0,2,0,0,1,1,1,True,0,3
+v2_opus__h05_hospital__c6,opus,g38,opus/h05_hospital,h05_hospital,c6,0,upfront,pushy,refuse,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,0,0,0,1,0,False,0,1
+v2_opus__h05_hospital__c4,opus,g38,opus/h05_hospital,h05_hospital,c4,0,distracting,negotiates,perform,6,2,0,0,0,hospital billing office,True,False,False,2,0,0,4,0,0,3,0,True,2,6
+v2_opus__h05_hospital__c3,opus,g38,opus/h05_hospital,h05_hospital,c3,0,lookup,changes_mind,perform,6,2,0,0,0,hospital billing office,True,False,True,3,0,0,0,0,0,2,0,True,2,6
+v2_opus__h06_city__c4,opus,g38,opus/h06_city,h06_city,c4,0,distracting,changes_mind,refuse,7,3,0,1,0,city tax office,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_opus__h06_city__c3,opus,g38,opus/h06_city,h06_city,c3,0,upfront,pushy,perform,7,3,0,1,0,city tax office,True,False,False,3,0,0,0,0,0,1,1,False,3,7
+v2_opus__h06_city__c2,opus,g38,opus/h06_city,h06_city,c2,0,conflicting,negotiates,perform,7,3,0,1,0,city tax office,True,False,False,4,0,0,0,1,0,1,1,True,3,7
+v2_opus__h06_city__c6,opus,g38,opus/h06_city,h06_city,c6,0,lookup,pushy,perform,7,3,0,1,0,city tax office,True,True,True,4,1,0,0,0,0,2,1,False,3,7
+v2_opus__h06_city__c5,opus,g38,opus/h06_city,h06_city,c5,0,distracting,cooperative,perform,7,3,0,1,0,city tax office,True,True,False,3,1,0,4,0,0,2,1,False,3,7
+v2_opus__h06_city__c7,opus,g38,opus/h06_city,h06_city,c7,0,on_request,negotiates,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,True,0,2
+v2_opus__h07_school__c2,opus,g38,opus/h07_school,h07_school,c2,0,upfront,pushy,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,0,0,0,1,0,False,0,5
+v2_opus__h07_school__c1,opus,g38,opus/h07_school,h07_school,c1,1,conflicting,pushy,perform,7,3,0,0,0,school district transport,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_opus__h06_city__c8,opus,g38,opus/h06_city,h06_city,c8,0,on_request,terse,refuse,7,3,0,1,0,city tax office,True,True,False,3,2,0,0,0,0,1,1,False,0,5
+v2_opus__h07_school__c3,opus,g38,opus/h07_school,h07_school,c3,0,on_request,terse,perform,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,False,3,7
+v2_opus__h07_school__c4,opus,g38,opus/h07_school,h07_school,c4,1,distracting,changes_mind,refuse,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,0,3
+v2_opus__h07_school__c7,opus,g38,opus/h07_school,h07_school,c7,0,on_request,negotiates,refuse,7,3,0,0,0,school district transport,True,True,False,2,1,0,0,0,0,1,0,True,0,6
+v2_opus__h08_car__c1,opus,g38,opus/h08_car,h08_car,c1,0,upfront,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,0,0,0,1,1,False,3,6
+v2_opus__h07_school__c6,opus,g38,opus/h07_school,h07_school,c6,0,lookup,cooperative,refuse,7,3,0,0,0,school district transport,True,False,True,4,0,0,0,0,0,2,0,False,0,4
+v2_opus__h08_car__c2,opus,g38,opus/h08_car,h08_car,c2,0,helpful_extra,changes_mind,perform,6,3,1,1,0,car dealership service center,True,False,False,5,0,3,0,0,2,1,1,True,3,6
+v2_opus__h08_car__c5,opus,g38,opus/h08_car,h08_car,c5,0,distracting,changes_mind,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,4,0,0,2,1,True,0,2
+v2_opus__h08_car__c4,opus,g38,opus/h08_car,h08_car,c4,0,on_request,negotiates,refuse,6,3,1,1,0,car dealership service center,True,True,False,3,2,0,0,0,0,1,1,True,0,4
+v2_opus__h08_car__c3,opus,g38,opus/h08_car,h08_car,c3,1,conflicting,pushy,perform,6,3,1,1,0,car dealership service center,True,False,False,4,0,0,0,1,0,1,1,False,3,6
+v2_opus__h07_school__c5,opus,g38,opus/h07_school,h07_school,c5,0,distracting,negotiates,perform,7,3,0,0,0,school district transport,True,False,False,2,0,0,4,0,0,2,0,True,3,7
+v2_opus__h08_car__c6,opus,g38,opus/h08_car,h08_car,c6,0,distracting,cooperative,refuse,6,3,1,1,0,car dealership service center,True,False,False,3,0,0,4,0,0,2,1,False,0,0
+v2_opus__h07_school__c8,opus,g38,opus/h07_school,h07_school,c8,0,helpful_extra,changes_mind,perform,7,3,0,0,0,school district transport,True,False,False,3,0,3,0,0,1,1,0,True,3,7
+v2_opus__h09_bike__c1,opus,g38,opus/h09_bike,h09_bike,c1,0,on_request,cooperative,perform,9,2,0,1,0,bike share membership,True,True,False,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h09_bike__c2,opus,g38,opus/h09_bike,h09_bike,c2,0,lookup,terse,perform,9,2,0,1,0,bike share membership,True,True,True,3,1,0,0,0,0,1,1,False,2,9
+v2_opus__h09_bike__c3,opus,g38,opus/h09_bike,h09_bike,c3,0,conflicting,pushy,perform,9,2,0,1,0,bike share membership,True,False,False,4,0,0,0,1,0,1,1,False,2,9
+v2_opus__h08_car__c8,opus,g38,opus/h08_car,h08_car,c8,0,lookup,terse,refuse,6,3,1,1,0,car dealership service center,True,True,True,4,2,0,0,0,0,2,1,False,0,3
+v2_opus__h09_bike__c6,opus,g38,opus/h09_bike,h09_bike,c6,0,distracting,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,4,0,0,2,1,True,0,4
+v2_opus__h09_bike__c8,opus,g38,opus/h09_bike,h09_bike,c8,0,upfront,changes_mind,refuse,9,2,0,1,0,bike share membership,True,False,False,3,0,0,0,0,0,1,1,True,0,6
+v2_opus__h10_cloud__c1,opus,g38,opus/h10_cloud,h10_cloud,c1,0,on_request,cooperative,refuse,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,1,0,False,0,1
+v2_opus__h08_car__c7,opus,g38,opus/h08_car,h08_car,c7,0,on_request,negotiates,perform,6,3,1,1,0,car dealership service center,True,True,False,3,1,0,0,0,0,1,1,True,1,5
+v2_opus__h09_bike__c4,opus,g38,opus/h09_bike,h09_bike,c4,0,conflicting,negotiates,refuse,9,2,0,1,0,bike share membership,True,True,False,4,1,0,0,1,0,1,1,True,0,8
+v2_opus__h09_bike__c5,opus,g38,opus/h09_bike,h09_bike,c5,0,helpful_extra,pushy,refuse,9,2,0,1,0,bike share membership,True,False,False,4,0,3,0,0,1,1,1,False,0,7
+v2_opus__h10_cloud__c3,opus,g38,opus/h10_cloud,h10_cloud,c3,0,lookup,terse,refuse,8,3,1,0,0,cloud hosting billing,True,True,True,3,1,0,0,0,0,2,0,False,0,5
+v2_opus__h09_bike__c7,opus,g38,opus/h09_bike,h09_bike,c7,0,on_request,negotiates,perform,9,2,0,1,0,bike share membership,True,True,False,3,2,0,0,0,0,1,1,True,2,9
+v2_opus__h10_cloud__c2,opus,g38,opus/h10_cloud,h10_cloud,c2,0,distracting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,4,0,0,2,0,False,0,2
+v2_opus__h10_cloud__c4,opus,g38,opus/h10_cloud,h10_cloud,c4,0,on_request,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,True,False,2,1,0,0,0,0,3,0,True,3,8
+v2_opus__h10_cloud__c5,opus,g38,opus/h10_cloud,h10_cloud,c5,0,conflicting,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,True,3,8
+v2_opus__h10_cloud__c6,opus,g38,opus/h10_cloud,h10_cloud,c6,0,upfront,negotiates,perform,8,3,1,0,0,cloud hosting billing,True,False,False,2,0,0,0,0,0,1,0,True,3,8
+v2_opus__h11_freight__c2,opus,g38,opus/h11_freight,h11_freight,c2,0,helpful_extra,changes_mind,refuse,8,2,1,1,0,freight shipping,True,False,False,5,0,2,0,0,2,1,1,True,0,2
+v2_opus__h10_cloud__c8,opus,g38,opus/h10_cloud,h10_cloud,c8,0,helpful_extra,changes_mind,perform,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,3,0,0,1,3,0,True,1,7
+v2_opus__h11_freight__c1,opus,g38,opus/h11_freight,h11_freight,c1,0,distracting,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,4,0,0,3,1,True,0,5
+v2_opus__h10_cloud__c7,opus,g38,opus/h10_cloud,h10_cloud,c7,0,conflicting,pushy,refuse,8,3,1,0,0,cloud hosting billing,True,False,False,3,0,0,0,1,0,1,0,False,0,3
+v2_opus__h11_freight__c3,opus,g38,opus/h11_freight,h11_freight,c3,0,conflicting,terse,perform,8,2,1,1,0,freight shipping,True,True,False,4,1,0,0,1,0,2,1,False,2,8
+v2_opus__h11_freight__c8,opus,g38,opus/h11_freight,h11_freight,c8,0,upfront,negotiates,refuse,8,2,1,1,0,freight shipping,True,False,False,3,0,0,0,0,0,2,1,True,0,3
+v2_opus__h11_freight__c5,opus,g38,opus/h11_freight,h11_freight,c5,0,on_request,pushy,refuse,8,2,1,1,0,freight shipping,True,True,False,3,1,0,0,0,0,1,1,False,0,4
+v2_opus__h11_freight__c7,opus,g38,opus/h11_freight,h11_freight,c7,0,distracting,cooperative,perform,8,2,1,1,0,freight shipping,True,True,False,3,1,0,3,0,0,4,1,False,2,8
+v2_opus__h11_freight__c6,opus,g38,opus/h11_freight,h11_freight,c6,0,conflicting,changes_mind,perform,8,2,1,1,0,freight shipping,True,False,False,4,0,0,0,1,0,1,1,True,1,6
+v2_opus__h11_freight__c4,opus,g38,opus/h11_freight,h11_freight,c4,0,lookup,pushy,perform,8,2,1,1,0,freight shipping,True,True,True,4,1,0,0,0,0,2,1,False,1,7
+v2_opus__h12_university__c1,opus,g38,opus/h12_university,h12_university,c1,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,3,0,0,0,0,0,1,0,True,3,7
+v2_opus__h12_university__c7,opus,g38,opus/h12_university,h12_university,c7,0,conflicting,negotiates,refuse,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,True,0,5
+v2_opus__h12_university__c3,opus,g38,opus/h12_university,h12_university,c3,0,conflicting,terse,perform,7,3,0,0,0,university housing,True,False,False,3,0,0,0,1,0,1,0,False,3,7
+v2_opus__h12_university__c6,opus,g38,opus/h12_university,h12_university,c6,0,upfront,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,0,0,0,1,0,False,0,2
+v2_opus__h12_university__c2,opus,g38,opus/h12_university,h12_university,c2,0,lookup,changes_mind,perform,7,3,0,0,0,university housing,True,False,True,2,0,0,0,0,0,1,0,True,3,7
+v2_opus__h12_university__c5,opus,g38,opus/h12_university,h12_university,c5,0,helpful_extra,negotiates,perform,7,3,0,0,0,university housing,True,False,False,4,0,3,0,0,2,1,0,True,3,7
+v2_opus__h12_university__c4,opus,g38,opus/h12_university,h12_university,c4,1,on_request,cooperative,refuse,7,3,0,0,0,university housing,True,True,False,2,1,0,0,0,0,1,0,False,0,6
+v2_opus__h12_university__c8,opus,g38,opus/h12_university,h12_university,c8,0,distracting,pushy,refuse,7,3,0,0,0,university housing,True,False,False,2,0,0,4,0,0,2,0,False,0,3

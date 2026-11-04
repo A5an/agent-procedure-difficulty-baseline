@@ -1,0 +1,20 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which account's balance to check first, and how to pick among multiple linked accounts if the customer doesn't say which one",
+  "Whether the 'rate' step means looking up the RD interest rate from the knowledge base or a tool, and how to choose the correct rate for the tenure, customer category (e.g., senior citizen), and scheme",
+  "How the maturity calculation is done: compounding frequency (quarterly vs monthly), rounding, day-count convention, and whether to use a calculator tool or compute manually",
+  "RD parameters the customer must supply or that must be inferred: monthly installment amount, tenure, start date, nominee, debit account, auto-debit mandate setup",
+  "Minimum and maximum installment amounts, allowed tenures, and eligibility rules for opening an RD, which are not in the policy and must come from the knowledge base",
+  "What to do if the balance is insufficient for the first installment or if it would breach a minimum balance requirement",
+  "Whether confirmation is required before create RD; the policy lists confirmation only for closures, blocks, and cancellations, so it is unclear whether RD creation counts as needing confirmation",
+  "Meaning of 'projected RD booking': whether it means actually creating the RD or only simulating it, and what the final action is",
+  "The final 'balance' step: whether it is a post-creation balance check showing the first installment debited, or a projected balance",
+  "Order of steps and whether the customer's stated figures (rate, maturity) should be verified against the looked-up values if they conflict",
+  "Customer behavior: changing their mind after seeing the maturity amount, asking for a different tenure or amount, or refusing to proceed, which means no mutation",
+  "Handling of an unlinked or invalid account ID, which is refused per policy but with no specified wording or alternative",
+  "Edge cases such as tool errors, weak knowledge-base hits requiring query refinement, and when to escalate versus retry",
+  "Bank conventions for the simulation date: whether the start date is today (2026-07-16), and how to compute the maturity date and any holiday adjustments",
+  "Tax treatment (TDS) and premature withdrawal penalties: whether to mention them in the maturity calculation or only when asked"
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "gap_score": 9,
+ "gaps": [
+  "Which tool/action actually issues a cheque book request is not stated; the policy only names stop_cheque_payment and generic 'raise_request', so the final action (direct tool call vs. service request) is unclear",
+  "Which account the cheque book applies to (savings/current, linked product selection) and how to look it up or handle customers with multiple eligible accounts",
+  "Eligibility rules: account types allowed, minimum balance, KYC status, account status (dormant/frozen/closed), prior cheque book outstanding, which are only in the knowledge base and not specified",
+  "Number of leaves/cheque book variants (25/50/100, personalised vs. standard), and whether the customer must choose or a default applies",
+  "Fees/charges for the cheque book, whether they must be disclosed, and whether the customer must consent before debiting them",
+  "Delivery details: address on file vs. new address, branch pickup vs. courier, expected timelines, and whether address changes are in scope",
+  "Whether confirmation is required before submitting the request (policy lists confirmation only for specific irreversible actions, not cheque book requests)",
+  "Order of steps: when to search the knowledge base versus look up accounts versus submit the request, and what to do if KB hits are weak",
+  "Edge cases: customer asks for stop payment, lost/stolen cheque book, or cheque status in the same conversation; customer references an unlinked account (refuse)",
+  "Customer behavior: vague requests, changing their mind mid-flow, pushing for exceptions to ineligibility, or asking for escalation to a human",
+  "What to say on failure or ineligibility, and when to escalate/raise a service request versus decline",
+  "Bank-specific conventions such as the daily/annual request limits, the reference number or acknowledgment to give the customer, and what confirmation details to provide"
+ ]
+}

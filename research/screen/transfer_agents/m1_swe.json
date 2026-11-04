@@ -1,0 +1,215 @@
+{
+ "n_rows": 33,
+ "n_factor_groups_eval": 19,
+ "n_eval_rows": 19,
+ "n_models": 17,
+ "n_harness": 10,
+ "score": {
+  "dec": {
+   "logloss": 0.34198070235824657,
+   "auc": 0.9285050084246427,
+   "mae_share": 0.07867487037670157,
+   "bias": 0.0021073909529618863
+  },
+  "mean": {
+   "logloss": 0.557480049902362,
+   "auc": 0.8151706506675466,
+   "mae_share": 0.22865910731342734,
+   "bias": -0.03875836877112192
+  },
+  "same": {
+   "logloss": 0.3360186263695193,
+   "auc": 0.93138768718093,
+   "mae_share": 0.059420647023126556,
+   "bias": -0.0022784552607353114
+  },
+  "modonly": {
+   "logloss": 0.35330332204545334,
+   "auc": 0.9229024801396946,
+   "mae_share": 0.08253433091094693,
+   "bias": -0.00018541767565838948
+  }
+ },
+ "paired_dec_minus": {
+  "mean": [
+   -0.21549934754411543,
+   -0.317944078016623,
+   -0.12506379428003456,
+   0.8947368421052632
+  ],
+  "same": [
+   0.005962075988727324,
+   -0.043183703813772074,
+   0.0509793559007739,
+   0.3157894736842105
+  ]
+ },
+ "dropped": [],
+ "mapping": [
+  [
+   "20231010_rag_claude2",
+   "rag",
+   "claude2"
+  ],
+  [
+   "20231010_rag_gpt35",
+   "rag",
+   "gpt35"
+  ],
+  [
+   "20240402_rag_claude3opus",
+   "rag",
+   "claude3opus"
+  ],
+  [
+   "20240402_rag_gpt4",
+   "rag",
+   "gpt4"
+  ],
+  [
+   "20231010_rag_swellama13b",
+   "rag",
+   "swellama13b"
+  ],
+  [
+   "20231010_rag_swellama7b",
+   "rag",
+   "swellama7b"
+  ],
+  [
+   "20240402_sweagent_claude3opus",
+   "sweagent",
+   "claude3opus"
+  ],
+  [
+   "20240402_sweagent_gpt4",
+   "sweagent",
+   "gpt4"
+  ],
+  [
+   "20240728_sweagent_gpt4o",
+   "sweagent",
+   "gpt4o"
+  ],
+  [
+   "20240620_sweagent_claude3.5sonnet",
+   "sweagent",
+   "claude35sonnet_old"
+  ],
+  [
+   "20250225_sweagent_claude-3-7-sonnet",
+   "sweagent",
+   "claude37sonnet"
+  ],
+  [
+   "20250522_sweagent_claude-4-sonnet-20250514",
+   "sweagent",
+   "claude4sonnet"
+  ],
+  [
+   "20241022_tools_claude-3-5-haiku",
+   "tools",
+   "claude35haiku"
+  ],
+  [
+   "20241022_tools_claude-3-5-sonnet-updated",
+   "tools",
+   "claude35sonnet_new"
+  ],
+  [
+   "20250224_tools_claude-3-7-sonnet",
+   "tools",
+   "claude37sonnet"
+  ],
+  [
+   "20250522_tools_claude-4-opus",
+   "tools",
+   "claude4opus"
+  ],
+  [
+   "20250522_tools_claude-4-sonnet",
+   "tools",
+   "claude4sonnet"
+  ],
+  [
+   "20241029_OpenHands-CodeAct-2.1-sonnet-20241022",
+   "openhands",
+   "claude35sonnet_new"
+  ],
+  [
+   "20250524_openhands_claude_4_sonnet",
+   "openhands",
+   "claude4sonnet"
+  ],
+  [
+   "20250807_openhands_gpt5",
+   "openhands",
+   "gpt5"
+  ],
+  [
+   "20250716_openhands_kimi_k2",
+   "openhands",
+   "kimik2"
+  ],
+  [
+   "20251127_openhands_claude-opus-4-5",
+   "openhands",
+   "claudeopus45"
+  ],
+  [
+   "20251120_livesweagent_gemini-3-pro-preview",
+   "livesweagent",
+   "gemini3pro"
+  ],
+  [
+   "20251215_livesweagent_claude-opus-4-5",
+   "livesweagent",
+   "claudeopus45"
+  ],
+  [
+   "20241028_agentless-1.5_gpt4o",
+   "agentless",
+   "gpt4o"
+  ],
+  [
+   "20241202_agentless-1.5_claude-3.5-sonnet-20241022",
+   "agentless",
+   "claude35sonnet_new"
+  ],
+  [
+   "20241016_epam-ai-run-gpt-4o",
+   "epam",
+   "gpt4o"
+  ],
+  [
+   "20241212_epam-ai-run-claude-3-5-sonnet",
+   "epam",
+   "claude35sonnet_new"
+  ],
+  [
+   "20250804_epam-ai-run-claude-4-sonnet",
+   "epam",
+   "claude4sonnet"
+  ],
+  [
+   "20250603_Refact_Agent_claude-4-sonnet",
+   "refact",
+   "claude4sonnet"
+  ],
+  [
+   "20250611_moatless_claude-4-sonnet-20250514",
+   "moatless",
+   "claude4sonnet"
+  ],
+  [
+   "20241108_autocoderover-v2.0-claude-3-5-sonnet-20241022",
+   "autocoderover",
+   "claude35sonnet_new"
+  ],
+  [
+   "20250122_autocoderover-v2.1-claude-3-5-sonnet-20241022",
+   "autocoderover",
+   "claude35sonnet_new"
+  ]
+ ]
+}

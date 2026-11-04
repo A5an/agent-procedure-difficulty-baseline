@@ -1,0 +1,794 @@
+{
+ "procedure_id": "p22_dental",
+ "domain": "dental clinic",
+ "organization": "Maple Ridge Family Dental",
+ "title": "Appointment rescheduling",
+ "summary": "Move a patient's dental appointment to a new date when the patient is verified and the visit is eligible to be moved.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Patients registered with the clinic",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "birth_date": "date",
+    "phone": "str"
+   }
+  },
+  "appointment": {
+   "key": "appointment_id",
+   "description": "Scheduled dental visits",
+   "fields": {
+    "appointment_id": "str",
+    "patient_id": "ref:patient",
+    "clinician": "str",
+    "visit_type": "enum:checkup|cleaning|procedure|surgery",
+    "appointment_date": "date",
+    "status": "enum:booked|completed|cancelled",
+    "reschedule_count": "int"
+   }
+  },
+  "reminder": {
+   "key": "reminder_id",
+   "description": "Text-message reminders queued for patients",
+   "fields": {
+    "reminder_id": "str",
+    "appointment_id": "ref:appointment",
+    "channel": "enum:sms|email",
+    "created": "date"
+   }
+  },
+  "schedule_log": {
+   "key": "log_id",
+   "description": "Log of changes made to appointments",
+   "fields": {
+    "log_id": "str",
+    "appointment_id": "ref:appointment",
+    "action": "enum:rescheduled|approval_requested",
+    "created": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for the surgical team to approve a change",
+   "fields": {
+    "request_id": "str",
+    "appointment_id": "ref:appointment",
+    "reason": "enum:surgery_move|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient by patient number."
+  },
+  {
+   "name": "find_patients_by_phone",
+   "kind": "search",
+   "entity": "patient",
+   "by": [
+    "phone"
+   ],
+   "description": "Find patients by the phone number on their record."
+  },
+  {
+   "name": "get_appointment",
+   "kind": "get",
+   "entity": "appointment",
+   "description": "Look up an appointment by its appointment number."
+  },
+  {
+   "name": "find_appointments_by_patient",
+   "kind": "search",
+   "entity": "appointment",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all appointments of a patient."
+  },
+  {
+   "name": "reschedule_appointment",
+   "kind": "update",
+   "entity": "appointment",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment to move."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new date for the visit."
+    }
+   },
+   "set": {
+    "appointment_date": "args.new_date",
+    "reschedule_count": "rec.reschedule_count + 1"
+   },
+   "description": "Set the appointment to the new date and count one reschedule."
+  },
+  {
+   "name": "create_reminder",
+   "kind": "create",
+   "entity": "reminder",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment the reminder is for."
+    },
+    "channel": {
+     "type": "enum:sms|email",
+     "description": "How the reminder is sent."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "channel": "args.channel",
+    "created": "today"
+   },
+   "description": "Queue a reminder for the patient about their appointment."
+  },
+  {
+   "name": "create_schedule_log",
+   "kind": "create",
+   "entity": "schedule_log",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment the log entry is about."
+    },
+    "action": {
+     "type": "enum:rescheduled|approval_requested",
+     "description": "What was done to the appointment."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "action": "args.action",
+    "created": "today"
+   },
+   "description": "Record a change made to an appointment in the schedule log."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment that needs approval."
+    },
+    "reason": {
+     "type": "enum:surgery_move|other",
+     "description": "Why the surgical team must approve it."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Ask the surgical team to approve moving a surgery appointment."
+  }
+ ],
+ "request": {
+  "appointment_id": {
+   "type": "ref:appointment",
+   "description": "the appointment number of the visit you want to move"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the new date you want for the visit"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "appt",
+   "entity": "appointment",
+   "key": "req.appointment_id"
+  },
+  {
+   "name": "pat",
+   "entity": "patient",
+   "key": "appt.patient_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the appointment to the new date, queue a text reminder, and log the change.",
+   "calls": [
+    {
+     "tool": "reschedule_appointment",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "new_date": "req.new_date"
+     }
+    },
+    {
+     "tool": "create_reminder",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "channel": "'sms'"
+     }
+    },
+    {
+     "tool": "create_schedule_log",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "action": "'rescheduled'"
+     }
+    }
+   ]
+  },
+  "surgeon_approval": {
+   "kind": "perform",
+   "description": "The visit is a surgery: do not move it; open an approval request for the surgical team.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "reason": "'surgery_move'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the appointment; explain why the move cannot be made.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pat.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the patient record before any change."
+  },
+  {
+   "id": "R2",
+   "when": "appt.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only booked appointments can be moved."
+  },
+  {
+   "id": "R3",
+   "when": "appt.reschedule_count >= 2",
+   "outcome": "refuse",
+   "explain": "An appointment that has already been moved twice cannot be moved again."
+  },
+  {
+   "id": "R4",
+   "when": "appt.visit_type == 'surgery'",
+   "outcome": "surgeon_approval",
+   "explain": "Surgery appointments are not moved by the front desk; an approval request goes to the surgical team instead."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nPatients can ask to move a dental appointment by phone or chat. Before changing anything, find the appointment and the patient it belongs to, and confirm the caller's identity: the date of birth they give must match the one on the patient record. If it does not match, or they cannot give it, make no change.\n\n## Finding the appointment\nUse the appointment number if the caller has it. If they do not, ask for the phone number on their patient record, find the patient with that number, and list that patient's appointments. If more than one appointment is listed, ask which visit they mean. Names cannot be used to find a patient. If the caller can give neither the appointment number nor the phone number on file, tell them you cannot find the appointment and ask them to call back with one of them.\n\n## Deciding the request\nCheck the following in this order and stop at the first check that fails:\n1. The date of birth must match the patient record. If it does not, make no change.\n2. The appointment must have status booked. Completed or cancelled appointments cannot be moved. Decline the request.\n3. An appointment that has already been moved twice (reschedule count of 2 or more) cannot be moved again. Decline the request.\n4. Surgery appointments (visit type surgery) are not moved at the front desk. Open a surgery approval request with reason surgery_move, leave the appointment date unchanged, and tell the patient the surgical team will contact them to confirm the new date.\n5. Otherwise, move the appointment to the new date the patient asked for.\n\n## What to record when an appointment is moved\nIn this order: set the appointment to the new date (this also adds one to its reschedule count); create a text-message reminder for the patient by sms; add a schedule log entry with action rescheduled.\n\n## When a request is declined or sent for approval\nWhen a request is declined, make no changes at all and explain to the caller, politely and in plain terms, why the appointment cannot be moved. When a surgery request is sent for approval, make only the approval request and do not change the appointment.\n\n## Never\nDo not move an appointment for a caller who failed the identity check. Do not change the clinician, the visit type or the patient's details. Do not move any appointment the caller did not ask about.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "PT-1001",
+    "full_name": "Helen Ruiz",
+    "birth_date": "1972-06-14",
+    "phone": "+1 415 555 0100"
+   }
+  ],
+  "appointment": [
+   {
+    "appointment_id": "AP-1001",
+    "patient_id": "PT-1001",
+    "clinician": "Dr. Chen",
+    "visit_type": "checkup",
+    "appointment_date": "2026-05-27",
+    "status": "booked",
+    "reschedule_count": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-4417",
+      "full_name": "Noor Rahman",
+      "birth_date": "1988-03-07",
+      "phone": "+1 312 555 0187"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-6630",
+      "patient_id": "PT-4417",
+      "clinician": "Dr. Lindqvist",
+      "visit_type": "cleaning",
+      "appointment_date": "2026-06-04",
+      "status": "booked",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-6630",
+    "new_date": "2026-06-11"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-03-07",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Noor, a graduate student who is calling from a new mobile number and is not sure which number the clinic has for her.",
+   "reason_for_call": "She wants to move her cleaning to the second week of June because of exams.",
+   "task_instructions": "Say early that you want to move your cleaning to June 11 and give your date of birth. You do not know the appointment number and cannot remember the phone number on your record. Do not offer other details. Keep answers brief.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-5582",
+      "full_name": "Adaeze Oyelaran",
+      "birth_date": "1979-09-22",
+      "phone": "+1 206 555 0134"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-7741",
+      "patient_id": "PT-5582",
+      "clinician": "Dr. Moreau",
+      "visit_type": "checkup",
+      "appointment_date": "2026-05-29",
+      "status": "booked",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-7741",
+    "new_date": "2026-06-05"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-7741",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-09-22",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Adaeze, a pharmacist with a tight schedule who dislikes small talk.",
+   "reason_for_call": "She needs her checkup moved a week later because of a shift change.",
+   "task_instructions": "In your first message, give the appointment number from your confirmation email, the new date June 5, and your date of birth. Answer questions with one short sentence.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6093",
+      "full_name": "Tomasz Wierzbicki",
+      "birth_date": "1964-12-01",
+      "phone": "+1 503 555 0168"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-8205",
+      "patient_id": "PT-6093",
+      "clinician": "Dr. Halvorsen",
+      "visit_type": "checkup",
+      "appointment_date": "2026-06-02",
+      "status": "cancelled",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-8205",
+    "new_date": "2026-06-09"
+   },
+   "initial_request_values": {
+    "appointment_id": "AP-8205",
+    "new_date": "2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-8205",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1964-12-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.status",
+     "value": "booked",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a retired machinist who is methodical and believes his paperwork is always right.",
+   "reason_for_call": "He wants his June checkup moved, and he is sure the visit is still on the calendar.",
+   "task_instructions": "First ask to move the appointment to June 12. When the agent responds, change your mind and ask for June 9 instead. Say early that the appointment is booked and that your date of birth is 1964-12-01. If the agent says it cannot be moved, accept it politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-7258",
+      "full_name": "Yusuf Demir",
+      "birth_date": "1992-01-30",
+      "phone": "+1 917 555 0121"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-7310",
+      "patient_id": "PT-7258",
+      "clinician": "Dr. Chen",
+      "visit_type": "cleaning",
+      "appointment_date": "2026-06-16",
+      "status": "booked",
+      "reschedule_count": 0
+     },
+     {
+      "appointment_id": "AP-7311",
+      "patient_id": "PT-7258",
+      "clinician": "Dr. Chen",
+      "visit_type": "checkup",
+      "appointment_date": "2026-07-07",
+      "status": "booked",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-7310",
+    "new_date": "2026-06-18"
+   },
+   "customer_facts": [
+    {
+     "fact": "pat.phone",
+     "value": "+1 917 555 0121",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.appointment_date",
+     "value": "2026-06-16",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-18",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-01-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yusuf, a software tester who is always in a hurry and pushes people to speed things up.",
+   "reason_for_call": "He wants his cleaning on June 16 moved two days later because of a work deadline.",
+   "task_instructions": "Start by saying you want your cleaning moved, and give the phone number on your record, +1 917 555 0121. You do not know the appointment number. When asked which appointment, say the one on June 16. Give your date of birth only when asked. Push the agent to hurry, but accept whatever it decides.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-8864",
+      "full_name": "Marisol Vega",
+      "birth_date": "1975-05-18",
+      "phone": "+1 720 555 0199"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-8902",
+      "patient_id": "PT-8864",
+      "clinician": "Dr. Okafor",
+      "visit_type": "surgery",
+      "appointment_date": "2026-06-10",
+      "status": "booked",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-8902",
+    "new_date": "2026-06-24"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-8902",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-24",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-05-18",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.visit_type",
+     "value": "surgery",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It is the wisdom tooth removal I booked with Dr. Okafor through the patient portal in March.",
+     "kind": "helpful"
+    },
+    {
+     "text": "My phone number has not changed since I booked, so the clinic should have the right one on file.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marisol, a calm office manager who is organized and gives full answers.",
+   "reason_for_call": "She needs her wisdom tooth removal moved two weeks later because of a work trip she already planned.",
+   "task_instructions": "Explain the whole situation in your first message: the appointment number from your confirmation, the new date June 24, your date of birth, and that it is the wisdom tooth removal. Answer every question fully and cooperatively. Accept whatever the agent decides.",
+   "expected_outcome": "surgeon_approval"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-9417",
+      "full_name": "Kwame Asante",
+      "birth_date": "1983-08-14",
+      "phone": "+1 602 555 0147"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-9450",
+      "patient_id": "PT-9417",
+      "clinician": "Dr. Halvorsen",
+      "visit_type": "procedure",
+      "appointment_date": "2026-06-12",
+      "status": "booked",
+      "reschedule_count": 1
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-9450",
+    "new_date": "2026-06-19"
+   },
+   "initial_request_values": {
+    "appointment_id": "AP-9450",
+    "new_date": "2026-06-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-9450",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-19",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-08-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a site engineer who is often on the road and reads messages between meetings.",
+   "reason_for_call": "He needs his dental procedure moved to a later date because of a site inspection.",
+   "task_instructions": "First ask to move the procedure to June 15. When the agent responds, switch to June 19 before anything is changed. Give your appointment number in your first message. Give your date of birth only if the agent asks for it. Accept whatever the agent decides.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-1126",
+      "full_name": "Ingrid Solberg",
+      "birth_date": "1990-10-03",
+      "phone": "+1 651 555 0112"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-1180",
+      "patient_id": "PT-1126",
+      "clinician": "Dr. Moreau",
+      "visit_type": "cleaning",
+      "appointment_date": "2026-06-08",
+      "status": "booked",
+      "reschedule_count": 2
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-1180",
+    "new_date": "2026-06-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-1180",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-10-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.reschedule_count",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I already moved this visit twice this spring, once for a work trip, so I know it has been changed a lot.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It is my six-month cleaning with Dr. Moreau, usually on Monday mornings.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ingrid, a polite nurse who is patient and cooperative with staff.",
+   "reason_for_call": "She wants her cleaning moved a week later because of a rotation change at the hospital.",
+   "task_instructions": "Give the appointment number from your confirmation, the new date June 15, your date of birth, and that you have moved it twice already. Answer every question cooperatively. Accept whatever the agent decides.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-2739",
+      "full_name": "Brenna Callahan",
+      "birth_date": "1986-04-25",
+      "phone": "+1 303 555 0173"
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "AP-2801",
+      "patient_id": "PT-2739",
+      "clinician": "Dr. Lindqvist",
+      "visit_type": "checkup",
+      "appointment_date": "2026-05-13",
+      "status": "completed",
+      "reschedule_count": 0
+     },
+     {
+      "appointment_id": "AP-2802",
+      "patient_id": "PT-2739",
+      "clinician": "Dr. Lindqvist",
+      "visit_type": "cleaning",
+      "appointment_date": "2026-06-22",
+      "status": "booked",
+      "reschedule_count": 0
+     },
+     {
+      "appointment_id": "AP-2803",
+      "patient_id": "PT-2739",
+      "clinician": "Dr. Moreau",
+      "visit_type": "cleaning",
+      "appointment_date": "2026-07-29",
+      "status": "booked",
+      "reschedule_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "AP-2801",
+    "new_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "AP-2801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-04-25",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My son also has an appointment with Dr. Lindqvist next week, so please do not confuse us when you look us up.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My insurance changed in April and I still need to update it at the desk.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I would like a fluoride treatment added when I come in, if that is possible.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I had a filling in the other chair at this clinic years ago, before the building was renovated.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Brenna, a busy teacher who is convinced the clinic made a mistake and insists she missed her checkup through no fault of her own.",
+   "reason_for_call": "She wants her May checkup rebooked for June 1, saying she never got a reminder.",
+   "task_instructions": "Give the appointment number from your letter, the new date June 1, and your date of birth in your first message. Insist the visit should be rescheduled and argue with the agent at least twice when it is declined, then accept and end the call. Bring up your insurance, the fluoride treatment and your son during the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,667 @@
+{
+ "procedure_id": "p17_credit",
+ "domain": "credit union",
+ "organization": "Lakeshore Community Credit Union",
+ "title": "Fee reversal requests",
+ "summary": "Reverse a fee charged to a member's account when the fee, its age and the member's reversal history qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Credit union members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "reversals_ytd": "int"
+   }
+  },
+  "account": {
+   "key": "account_id",
+   "description": "Member deposit accounts",
+   "fields": {
+    "account_id": "str",
+    "member_id": "ref:member",
+    "account_type": "enum:checking|savings|money_market"
+   }
+  },
+  "fee": {
+   "key": "fee_id",
+   "description": "Fees charged to member accounts",
+   "fields": {
+    "fee_id": "str",
+    "account_id": "ref:account",
+    "fee_type": "enum:overdraft|nsf|monthly_maintenance|atm",
+    "amount": "number",
+    "charged_date": "date",
+    "status": "enum:charged|reversed",
+    "reversed_date": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by account number."
+  },
+  {
+   "name": "find_accounts_by_member",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all accounts of a member."
+  },
+  {
+   "name": "get_fee",
+   "kind": "get",
+   "entity": "fee",
+   "description": "Look up a fee by its fee number."
+  },
+  {
+   "name": "find_fees_by_account",
+   "kind": "search",
+   "entity": "fee",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all fees charged to an account."
+  },
+  {
+   "name": "reverse_fee",
+   "kind": "update",
+   "entity": "fee",
+   "args": {
+    "fee_id": {
+     "type": "ref:fee",
+     "description": "The fee to reverse."
+    }
+   },
+   "set": {
+    "status": "'reversed'",
+    "reversed_date": "today"
+   },
+   "description": "Reverse a fee: marks it as reversed with today's date."
+  }
+ ],
+ "request": {
+  "fee_id": {
+   "type": "ref:fee",
+   "description": "the fee you want reversed"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "fee",
+   "entity": "fee",
+   "key": "req.fee_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "fee.account_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "acct.member_id"
+  }
+ ],
+ "outcomes": {
+  "reverse": {
+   "kind": "perform",
+   "description": "Reverse the fee.",
+   "calls": [
+    {
+     "tool": "reverse_fee",
+     "args": {
+      "fee_id": "req.fee_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not reverse the fee; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "fee.status != 'charged'",
+   "outcome": "refuse",
+   "explain": "A fee that has already been reversed cannot be reversed again."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(fee.charged_date, today) > 60",
+   "outcome": "refuse",
+   "explain": "Fees charged more than 60 days ago cannot be reversed."
+  },
+  {
+   "id": "R3",
+   "when": "mem.reversals_ytd >= 2",
+   "outcome": "refuse",
+   "explain": "A member may have at most two fee reversals per calendar year."
+  }
+ ],
+ "default_outcome": "reverse",
+ "policy_text": "## Purpose\nMembers may ask us to reverse a fee that was charged to one of their accounts. Always work from the records in our system, not from what the member believes or remembers.\n\n## Finding the fee\nUse the fee number if the member has it. Otherwise, if the member can give the account number, list the fees on that account and ask for details (fee type, date) to pick the right one. If you cannot identify the fee from what the member can tell you, do not guess; explain that you need the fee number or account number and make no change.\n\n## When a reversal is allowed\nCheck the fee, then the account and member it belongs to:\n- The fee must still be in status charged. A fee that was already reversed cannot be reversed again.\n- The fee must have been charged no more than 60 days before today. Older fees are declined.\n- The member may have at most two fee reversals in the calendar year (see reversals_ytd on the member record). A member who already has two or more cannot receive another.\n\nIf none of these stops the request, reverse the fee using the reversal tool. Reverse only the fee the member asked about.\n\n## If the request is declined\nTell the member plainly which rule applies. Do not make exceptions, do not reverse any other fee in its place, and do not promise that a manager or anyone else will override the decision.\n\n## Never\nDo not reverse fees the member did not ask about, do not change reversal counts or dates by any other means, and do not reverse a fee you could not identify with certainty.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1101",
+      "full_name": "Hannah Brooks",
+      "email": "h.brooks@example.org",
+      "reversals_ytd": 0
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3001",
+      "member_id": "M-1101",
+      "account_type": "checking"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5001",
+      "account_id": "A-3001",
+      "fee_type": "overdraft",
+      "amount": 30.0,
+      "charged_date": "2026-05-11",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5001"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.full_name",
+     "value": "Hannah Brooks",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, calling from a borrowed phone after losing her wallet and her phone. Very brief.",
+   "reason_for_call": "She noticed a fee on her checking account and wants it reversed, but she has no statement, account number or other details at hand.",
+   "task_instructions": "Answer in a few words. Give your name only. You do not know the fee number, the account number, or which email is on file. If the agent cannot help without those, accept it and end.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1120",
+      "full_name": "Victor Alvarez",
+      "email": "v.alvarez@example.org",
+      "reversals_ytd": 2
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3012",
+      "member_id": "M-1120",
+      "account_type": "checking"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5012",
+      "account_id": "A-3012",
+      "fee_type": "nsf",
+      "amount": 29.0,
+      "charged_date": "2026-05-06",
+      "status": "charged",
+      "reversed_date": null
+     },
+     {
+      "fee_id": "F-5013",
+      "account_id": "A-3012",
+      "fee_type": "monthly_maintenance",
+      "amount": 8.0,
+      "charged_date": "2026-05-01",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5012"
+   },
+   "customer_facts": [
+    {
+     "fact": "fee.account_id",
+     "value": "A-3012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "fee.fee_type",
+     "value": "nsf",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "fee.charged_date",
+     "value": "2026-05-06",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Victor, a contractor who is impatient and feels the credit union should look after loyal members.",
+   "reason_for_call": "A returned-payment fee hit his checking account and he wants it taken off. He does not have the fee number.",
+   "task_instructions": "Give your account number and say it was a returned-payment (NSF) fee. If the agent declines, argue that you have been a member for years and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1130",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.org",
+      "reversals_ytd": 1
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3021",
+      "member_id": "M-1130",
+      "account_type": "checking"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5021",
+      "account_id": "A-3021",
+      "fee_type": "atm",
+      "amount": 3.5,
+      "charged_date": "2026-05-14",
+      "status": "charged",
+      "reversed_date": null
+     },
+     {
+      "fee_id": "F-5022",
+      "account_id": "A-3021",
+      "fee_type": "overdraft",
+      "amount": 30.0,
+      "charged_date": "2026-05-02",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5022"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5022",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "fee.charged_date",
+     "value": "2026-05-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "fee.fee_type",
+     "value": "overdraft",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The overdraft happened because her paycheck deposit arrived two days late.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The fee appeared on her checking account in early May.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "fee_id": "F-5021"
+   },
+   "persona": "Priya, a dental hygienist. Polite but indecisive.",
+   "reason_for_call": "She wants a fee reversed on her checking account.",
+   "task_instructions": "First ask to have the small ATM fee reversed and give its fee number. Before the agent does anything, change your mind: say the ATM fee is not worth the trouble and you really want the overdraft fee reversed instead, and give that fee's number and charge date. Mention the late paycheck and that it showed up in early May.",
+   "expected_outcome": "reverse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1140",
+      "full_name": "Marcus Webb",
+      "email": "marcus.webb@example.org",
+      "reversals_ytd": 1
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3031",
+      "member_id": "M-1140",
+      "account_type": "checking"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5031",
+      "account_id": "A-3031",
+      "fee_type": "atm",
+      "amount": 4.0,
+      "charged_date": "2026-04-28",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5031"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5031",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.reversals_ytd",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a delivery driver in a hurry who expects bad news.",
+   "reason_for_call": "He was charged an out-of-network ATM fee and wants it reversed, though he thinks he has already used up his allowed reversals this year.",
+   "task_instructions": "Give the fee number and say right away that you believe you already got two fee reversals this year. Be impatient and push the agent to get on with it. Accept whatever the agent decides based on the records.",
+   "expected_outcome": "reverse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1150",
+      "full_name": "Sofia Rossi",
+      "email": "sofia.rossi@example.org",
+      "reversals_ytd": 0
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3041",
+      "member_id": "M-1150",
+      "account_type": "savings"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5041",
+      "account_id": "A-3041",
+      "fee_type": "monthly_maintenance",
+      "amount": 8.0,
+      "charged_date": "2026-04-15",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5041"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5041",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a freelance translator. Friendly and clear.",
+   "reason_for_call": "She was charged a monthly maintenance fee on her savings account even though she thought it was waived, and asks for it to be reversed.",
+   "task_instructions": "State in your first message the fee number and that you want it reversed. Answer any question politely.",
+   "expected_outcome": "reverse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1160",
+      "full_name": "Tomasz Kowalski",
+      "email": "tomasz.k@example.org",
+      "reversals_ytd": 1
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3051",
+      "member_id": "M-1160",
+      "account_type": "checking"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5051",
+      "account_id": "A-3051",
+      "fee_type": "overdraft",
+      "amount": 30.0,
+      "charged_date": "2026-05-09",
+      "status": "charged",
+      "reversed_date": null
+     },
+     {
+      "fee_id": "F-5052",
+      "account_id": "A-3051",
+      "fee_type": "nsf",
+      "amount": 29.0,
+      "charged_date": "2026-04-02",
+      "status": "reversed",
+      "reversed_date": "2026-04-05"
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5051"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5051",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "fee_id": "F-5052"
+   },
+   "persona": "Tomasz, a carpenter with a statement in front of him. Calm and a bit forgetful.",
+   "reason_for_call": "He wants a fee on his checking account reversed.",
+   "task_instructions": "Say you want a fee reversed but do not give a fee number until the agent asks. When asked, first give the number of the returned-payment fee from April. Before anything is done, look at the statement again and say you meant the more recent overdraft fee instead, and give that fee number.",
+   "expected_outcome": "reverse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1170",
+      "full_name": "Aisha Rahman",
+      "email": "aisha.rahman@example.org",
+      "reversals_ytd": 0
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3061",
+      "member_id": "M-1170",
+      "account_type": "checking"
+     },
+     {
+      "account_id": "A-3062",
+      "member_id": "M-1170",
+      "account_type": "savings"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5061",
+      "account_id": "A-3061",
+      "fee_type": "overdraft",
+      "amount": 30.0,
+      "charged_date": "2026-05-10",
+      "status": "reversed",
+      "reversed_date": "2026-05-14"
+     },
+     {
+      "fee_id": "F-5062",
+      "account_id": "A-3062",
+      "fee_type": "monthly_maintenance",
+      "amount": 5.0,
+      "charged_date": "2026-05-01",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5061"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5061",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a savings account she opened last year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking of raising her debit card limit sometime later.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her brother recently joined the credit union too.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Aisha, a pharmacist on a short lunch break. Says as little as possible.",
+   "reason_for_call": "She saw an overdraft fee on her checking statement and wants it reversed.",
+   "task_instructions": "Give the fee number and keep every answer very short. Mention the other details only if briefly relevant. Accept a refusal after one short reply.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-1180",
+      "full_name": "Daniel Okafor",
+      "email": "d.okafor@example.org",
+      "reversals_ytd": 0
+     }
+    ],
+    "account": [
+     {
+      "account_id": "A-3071",
+      "member_id": "M-1180",
+      "account_type": "checking"
+     },
+     {
+      "account_id": "A-3072",
+      "member_id": "M-1180",
+      "account_type": "money_market"
+     }
+    ],
+    "fee": [
+     {
+      "fee_id": "F-5071",
+      "account_id": "A-3071",
+      "fee_type": "monthly_maintenance",
+      "amount": 8.0,
+      "charged_date": "2026-03-02",
+      "status": "charged",
+      "reversed_date": null
+     },
+     {
+      "fee_id": "F-5072",
+      "account_id": "A-3072",
+      "fee_type": "atm",
+      "amount": 3.0,
+      "charged_date": "2026-05-15",
+      "status": "charged",
+      "reversed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "fee_id": "F-5071"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.fee_id",
+     "value": "F-5071",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a money market account that he uses for savings.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is saving up for a car loan next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He recently moved to a new apartment across town.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Daniel, an accountant who just went through his old statements. Cooperative and chatty.",
+   "reason_for_call": "While reviewing his statements he found an old monthly maintenance fee on his checking account and wants it reversed.",
+   "task_instructions": "Give the fee number for the maintenance fee. Answer questions openly and mention your other account, the car loan plan and the move naturally in conversation. Accept the decision politely.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

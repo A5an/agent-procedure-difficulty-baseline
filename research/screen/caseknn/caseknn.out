@@ -1,0 +1,3 @@
+cases 600; within family x agent AUC of nearest-probe prediction 0.556 [0.442, 0.664] over 35 cells
+fam_rate  pooled AUC 0.821  Brier 0.1567
+knn       pooled AUC 0.821  Brier 0.1599

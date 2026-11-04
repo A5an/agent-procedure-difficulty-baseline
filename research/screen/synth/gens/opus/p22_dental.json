@@ -1,0 +1,818 @@
+{
+ "procedure_id": "p22_dental",
+ "domain": "dental clinic",
+ "organization": "Brightwater Family Dental",
+ "title": "Appointment cancellation and deposit refund",
+ "summary": "Cancel a patient's booked dental appointment and refund the booking deposit when the patient and the appointment qualify, or pass it to a treatment coordinator when lab work has already been ordered.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Registered patients of the clinic",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "birth_date": "date",
+    "cancellations_count": "int"
+   }
+  },
+  "appointment": {
+   "key": "appointment_id",
+   "description": "Scheduled, past and cancelled dental appointments",
+   "fields": {
+    "appointment_id": "str",
+    "patient_id": "ref:patient",
+    "appt_date": "date",
+    "treatment": "str",
+    "dentist": "str",
+    "status": "enum:booked|cancelled|completed|no_show",
+    "deposit_paid": "number",
+    "lab_order_placed": "bool",
+    "cancelled_on": "date"
+   }
+  },
+  "deposit_refund": {
+   "key": "refund_id",
+   "description": "Refunds of appointment booking deposits",
+   "fields": {
+    "refund_id": "str",
+    "appointment_id": "ref:appointment",
+    "amount": "number",
+    "method": "enum:card|clinic_credit",
+    "issued": "date"
+   }
+  },
+  "coordinator_review": {
+   "key": "review_id",
+   "description": "Cases handed to a treatment coordinator for review",
+   "fields": {
+    "review_id": "str",
+    "appointment_id": "ref:appointment",
+    "reason": "enum:lab_work_ordered|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient record by patient ID."
+  },
+  {
+   "name": "find_patient_by_phone",
+   "kind": "search",
+   "entity": "patient",
+   "by": [
+    "phone"
+   ],
+   "description": "Find patients by the phone number on file."
+  },
+  {
+   "name": "get_appointment",
+   "kind": "get",
+   "entity": "appointment",
+   "description": "Look up an appointment by its appointment number."
+  },
+  {
+   "name": "find_appointments_by_patient",
+   "kind": "search",
+   "entity": "appointment",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all appointments (past and future) of a patient."
+  },
+  {
+   "name": "cancel_appointment",
+   "kind": "update",
+   "entity": "appointment",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment to cancel."
+    }
+   },
+   "set": {
+    "status": "'cancelled'",
+    "cancelled_on": "today"
+   },
+   "description": "Mark an appointment as cancelled as of today and free the chair time."
+  },
+  {
+   "name": "issue_deposit_refund",
+   "kind": "create",
+   "entity": "deposit_refund",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The cancelled appointment whose deposit is refunded."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Amount to refund; the full deposit paid for the appointment."
+    },
+    "method": {
+     "type": "enum:card|clinic_credit",
+     "description": "How the refund is paid: back to the original card, or as credit on the patient's clinic account."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "amount": "args.amount",
+    "method": "args.method",
+    "issued": "today"
+   },
+   "description": "Issue a refund of an appointment deposit by the chosen method."
+  },
+  {
+   "name": "record_patient_cancellation",
+   "kind": "update",
+   "entity": "patient",
+   "args": {
+    "patient_id": {
+     "type": "ref:patient",
+     "description": "The patient who cancelled."
+    }
+   },
+   "set": {
+    "cancellations_count": "rec.cancellations_count + 1"
+   },
+   "description": "Add one to the patient's count of cancelled appointments."
+  },
+  {
+   "name": "create_coordinator_review",
+   "kind": "create",
+   "entity": "coordinator_review",
+   "args": {
+    "appointment_id": {
+     "type": "ref:appointment",
+     "description": "The appointment the review is about."
+    },
+    "reason": {
+     "type": "enum:lab_work_ordered|other",
+     "description": "Why the coordinator must review the cancellation."
+    }
+   },
+   "fields": {
+    "appointment_id": "args.appointment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Hand a cancellation request to a treatment coordinator, who contacts the patient."
+  }
+ ],
+ "request": {
+  "appointment_id": {
+   "type": "ref:appointment",
+   "description": "the dental appointment you want to cancel"
+  },
+  "refund_method": {
+   "type": "enum:card|clinic_credit",
+   "description": "how you want your deposit back: to your card, or as credit on your clinic account"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "appt",
+   "entity": "appointment",
+   "key": "req.appointment_id"
+  },
+  {
+   "name": "pat",
+   "entity": "patient",
+   "key": "appt.patient_id"
+  }
+ ],
+ "outcomes": {
+  "cancel_refund": {
+   "kind": "perform",
+   "description": "Cancel the appointment, refund the full deposit by the chosen method and record the cancellation on the patient's file.",
+   "calls": [
+    {
+     "tool": "cancel_appointment",
+     "args": {
+      "appointment_id": "req.appointment_id"
+     }
+    },
+    {
+     "tool": "issue_deposit_refund",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "amount": "appt.deposit_paid",
+      "method": "req.refund_method"
+     }
+    },
+    {
+     "tool": "record_patient_cancellation",
+     "args": {
+      "patient_id": "pat.patient_id"
+     }
+    }
+   ]
+  },
+  "coordinator_review": {
+   "kind": "perform",
+   "description": "Lab work has been ordered: do not cancel; open a coordinator review instead.",
+   "calls": [
+    {
+     "tool": "create_coordinator_review",
+     "args": {
+      "appointment_id": "appt.appointment_id",
+      "reason": "'lab_work_ordered'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not cancel or refund; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pat.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the patient's file before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "appt.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only appointments that are currently booked can be cancelled with a deposit refund."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, appt.appt_date) < 2",
+   "outcome": "refuse",
+   "explain": "An appointment must be at least 2 days away to be cancelled with a deposit refund; same-day and next-day appointments are not eligible."
+  },
+  {
+   "id": "R4",
+   "when": "appt.lab_order_placed",
+   "outcome": "coordinator_review",
+   "explain": "If lab work has already been ordered for the appointment, open a coordinator review with reason lab_work_ordered instead of cancelling."
+  }
+ ],
+ "default_outcome": "cancel_refund",
+ "policy_text": "## Purpose\nPatients may contact us by phone or chat to cancel a booked appointment and get their booking deposit back. This document explains when you may do that and exactly how.\n\n## Finding the appointment\nAsk for the appointment number (it is on the booking confirmation text or email). If the patient does not have it, find the patient using the phone number on our file, then list their appointments and ask which one they mean (for example by treatment or date). We cannot search by name. If you cannot find the patient or the appointment, you cannot proceed; tell the patient politely and do not guess.\n\n## Identity check\nBefore changing anything, ask for the patient's date of birth. It must match the date of birth on the patient's file exactly. If it does not match, or the caller cannot give it, make no change.\n\n## Eligibility (check in this order)\n1. Identity: the date of birth must match (see above).\n2. Status: only appointments that are currently booked can be cancelled with a refund. Appointments that are already cancelled, completed, or marked as a no-show are not eligible, and their deposits are not refunded.\n3. Notice: the appointment must be at least 2 days away, counting from today to the appointment date. Appointments today or tomorrow cannot be cancelled with a refund through this service. Always go by the date in our system, not the date the patient remembers.\n4. Lab work: if lab work (for example a crown, bridge, denture or aligner) has already been ordered for the appointment, do not cancel it yourself. Open a coordinator review with reason lab_work_ordered and tell the patient a treatment coordinator will contact them. Do not issue any refund in this case.\n\n## Cancelling and refunding\nIf all checks pass, do these three steps in this order:\n1. Cancel the appointment.\n2. Issue a refund of the full deposit paid for that appointment, by the method the patient chooses: back to their card, or as credit on their clinic account. Ask which they prefer if they have not said; if they change their mind before you act, use their final choice.\n3. Record the cancellation on the patient's file.\n\n## Never\nDo not make exceptions to the rules above, do not refund partial or different amounts, do not cancel or refund an appointment other than the one the patient asked about, and do not make any change for a caller who failed the identity check.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "P-3001",
+    "full_name": "Leonard Ashby",
+    "phone": "555-0100",
+    "birth_date": "1970-04-02",
+    "cancellations_count": 0
+   }
+  ],
+  "appointment": [
+   {
+    "appointment_id": "A-70001",
+    "patient_id": "P-3001",
+    "appt_date": "2026-06-08",
+    "treatment": "Six-month cleaning and exam",
+    "dentist": "Dr. Owen Castillo",
+    "status": "booked",
+    "deposit_paid": 40,
+    "lab_order_placed": false,
+    "cancelled_on": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3101",
+      "full_name": "Gareth Llewellyn",
+      "phone": "555-0142",
+      "birth_date": "1974-03-15",
+      "cancellations_count": 0
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70211",
+      "patient_id": "P-3101",
+      "appt_date": "2026-06-03",
+      "treatment": "Root canal (tooth 19)",
+      "dentist": "Dr. Priya Raman",
+      "status": "booked",
+      "deposit_paid": 150,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70211",
+    "refund_method": "card"
+   },
+   "customer_facts": [
+    {
+     "fact": "pat.full_name",
+     "value": "Gareth Llewellyn",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.treatment",
+     "value": "Root canal (tooth 19)",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1974-03-15",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a long-haul truck driver who just got a new phone and number and deleted his old messages.",
+   "reason_for_call": "He wants to cancel his upcoming root canal and get his deposit back on his card.",
+   "task_instructions": "Answer in as few words as possible. Give your name and say it is the root canal. You do not have the appointment number and you do not remember which phone number the clinic has; say so if asked. Give your date of birth only if asked. If the agent cannot find the appointment, accept it and end the conversation.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3102",
+      "full_name": "Mei Tanaka",
+      "phone": "555-0187",
+      "birth_date": "1992-08-30",
+      "cancellations_count": 1
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70245",
+      "patient_id": "P-3102",
+      "appt_date": "2026-06-10",
+      "treatment": "Six-month cleaning and exam",
+      "dentist": "Dr. Owen Castillo",
+      "status": "booked",
+      "deposit_paid": 40,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70245",
+    "refund_method": "clinic_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70245",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "clinic_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-08-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mei, a graphic designer who is moving across town for a new job and prefers short, efficient exchanges.",
+   "reason_for_call": "She wants to cancel her check-up and keep the deposit as credit on her clinic account.",
+   "task_instructions": "In your first message, give the appointment number, your date of birth and that you want the deposit as clinic credit. Keep every reply very short and never add extra detail.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3103",
+      "full_name": "Samuel Okafor",
+      "phone": "555-0123",
+      "birth_date": "1966-12-04",
+      "cancellations_count": 0
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70288",
+      "patient_id": "P-3103",
+      "appt_date": "2026-05-21",
+      "treatment": "Composite filling (tooth 30)",
+      "dentist": "Dr. Priya Raman",
+      "status": "booked",
+      "deposit_paid": 75,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70288",
+    "refund_method": "clinic_credit"
+   },
+   "initial_request_values": {
+    "appointment_id": "A-70288",
+    "refund_method": "card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70288",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1966-12-04",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.appt_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "clinic_credit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a semi-retired accountant who is sure his filling is next week, on the 28th.",
+   "reason_for_call": "A family trip came up and he wants to cancel his filling appointment and get the deposit back.",
+   "task_instructions": "Give the appointment number and your date of birth, and say the appointment is on May 28. First ask for the deposit back to your card; before the agent does anything, change your mind and ask for clinic credit instead. If the agent says the appointment is actually tomorrow and cannot be refunded, express surprise, then accept it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3104",
+      "full_name": "Isabella Moreno",
+      "phone": "555-0199",
+      "birth_date": "1988-05-11",
+      "cancellations_count": 0
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70301",
+      "patient_id": "P-3104",
+      "appt_date": "2026-06-15",
+      "treatment": "Porcelain crown placement (tooth 14)",
+      "dentist": "Dr. Priya Raman",
+      "status": "booked",
+      "deposit_paid": 250,
+      "lab_order_placed": true,
+      "cancelled_on": null
+     },
+     {
+      "appointment_id": "A-70302",
+      "patient_id": "P-3104",
+      "appt_date": "2026-07-20",
+      "treatment": "Six-month cleaning and exam",
+      "dentist": "Dr. Owen Castillo",
+      "status": "booked",
+      "deposit_paid": 40,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70301",
+    "refund_method": "card"
+   },
+   "customer_facts": [
+    {
+     "fact": "pat.phone",
+     "value": "555-0199",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.treatment",
+     "value": "Porcelain crown placement (tooth 14)",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-05-11",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Isabella, a restaurant manager who is short on time and impatient with phone menus.",
+   "reason_for_call": "She found a cheaper dentist and wants to cancel her crown placement and get her 250 deposit back on her card right away.",
+   "task_instructions": "You do not have the appointment number; give your phone number and say it is the crown appointment. Give your date of birth when asked. If the agent says a coordinator must review it instead of refunding now, push back at least twice and demand the refund immediately, then accept the coordinator review.",
+   "expected_outcome": "coordinator_review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3105",
+      "full_name": "Arjun Pillai",
+      "phone": "555-0164",
+      "birth_date": "1959-01-22",
+      "cancellations_count": 2
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70340",
+      "patient_id": "P-3105",
+      "appt_date": "2026-06-02",
+      "treatment": "Deep cleaning (scaling and root planing), upper left",
+      "dentist": "Dr. Owen Castillo",
+      "status": "booked",
+      "deposit_paid": 120,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70340",
+    "refund_method": "card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70340",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1959-01-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.appt_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The appointment is a deep cleaning on the upper left side with Dr. Castillo.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He paid a 120 deposit by card when he booked it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "No impressions or lab work were done for it; it is only a cleaning.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Arjun, a friendly retired engineer who has to travel to look after his sister after her surgery.",
+   "reason_for_call": "He will be away in early June and wants to cancel his deep cleaning and have the deposit returned to his card.",
+   "task_instructions": "Explain politely in your first message, giving the appointment number, the date (June 2), your date of birth and that you want the money back on your card. Mention the details about the treatment and deposit naturally. Answer any questions helpfully.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3106",
+      "full_name": "Hannah Lindqvist",
+      "phone": "555-0110",
+      "birth_date": "2000-10-09",
+      "cancellations_count": 0
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70377",
+      "patient_id": "P-3106",
+      "appt_date": "2026-06-25",
+      "treatment": "Wisdom tooth extraction consultation",
+      "dentist": "Dr. Priya Raman",
+      "status": "booked",
+      "deposit_paid": 60,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70377",
+    "refund_method": "card"
+   },
+   "initial_request_values": {
+    "appointment_id": "A-70377",
+    "refund_method": "clinic_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70377",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "2000-10-09",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a graduate student whose university health plan now covers wisdom tooth care at a campus clinic.",
+   "reason_for_call": "She wants to cancel her consultation and get her deposit back.",
+   "task_instructions": "Give the appointment number and say you want the deposit kept as clinic credit. Before the agent does anything, change your mind: you probably will not come back, so you want it refunded to your card instead. Give your date of birth only when asked.",
+   "expected_outcome": "cancel_refund"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3107",
+      "full_name": "Tomasz W\u00f3jcik",
+      "phone": "555-0175",
+      "birth_date": "1981-06-17",
+      "cancellations_count": 0
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70402",
+      "patient_id": "P-3107",
+      "appt_date": "2026-05-21",
+      "treatment": "Teeth whitening session",
+      "dentist": "Dr. Owen Castillo",
+      "status": "booked",
+      "deposit_paid": 90,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70402",
+    "refund_method": "clinic_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "clinic_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-06-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "appt.appt_date",
+     "value": "2026-05-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The whitening appointment is tomorrow at 10:30 in the morning.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He booked it three weeks ago and paid a 90 deposit.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tomasz, a polite IT consultant who just learned he has to fly to a client site tomorrow morning.",
+   "reason_for_call": "He cannot make tomorrow's whitening session and hopes to cancel and keep the deposit as clinic credit.",
+   "task_instructions": "In your first message give the appointment number, your date of birth, that the appointment is tomorrow (May 21), and that clinic credit is fine. Mention the time and deposit details naturally. If the agent explains it is too late for a refund, thank them and accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-3108",
+      "full_name": "Chloe Beaumont",
+      "phone": "555-0131",
+      "birth_date": "1995-02-27",
+      "cancellations_count": 1
+     }
+    ],
+    "appointment": [
+     {
+      "appointment_id": "A-70420",
+      "patient_id": "P-3108",
+      "appt_date": "2026-05-14",
+      "treatment": "Orthodontic adjustment",
+      "dentist": "Dr. Priya Raman",
+      "status": "no_show",
+      "deposit_paid": 50,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     },
+     {
+      "appointment_id": "A-70421",
+      "patient_id": "P-3108",
+      "appt_date": "2026-06-11",
+      "treatment": "Orthodontic adjustment",
+      "dentist": "Dr. Priya Raman",
+      "status": "booked",
+      "deposit_paid": 50,
+      "lab_order_placed": false,
+      "cancelled_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "appointment_id": "A-70420",
+    "refund_method": "card"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.appointment_id",
+     "value": "A-70420",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "card",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-02-27",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her car broke down on the highway the morning of the appointment last week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her two children are also patients at the clinic and have check-ups coming up in the summer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She switched dental insurance providers in April.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was curious about whitening prices but decides not to ask about it today.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Chloe, a busy single mother who feels the clinic should be understanding about emergencies.",
+   "reason_for_call": "She missed last week's orthodontic adjustment and wants that appointment cancelled and its 50 deposit refunded to her card; she is keeping her June adjustment.",
+   "task_instructions": "Give the appointment number of last week's missed visit, your date of birth and that you want the refund on your card. Talk about your car trouble, your kids and your insurance along the way. If refused, argue that it was an emergency and ask for an exception at least twice, then accept. Do not ask to change the June appointment.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

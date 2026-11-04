@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools to call and in what order: the policy names no tools for loans, rates, EMI calculation or eligibility, so it is unclear whether to look up the existing loan, then the current new-loan rate, then compute EMI, then check eligibility.",
+  "Where the new-loan rate comes from: a product or scheme lookup, a knowledge base search, or a rate tied to the customer's profile, credit score or loan type. It is also unclear how to pick the right product ID when several loan products exist.",
+  "How to compute the EMI: the formula, rounding, tenure unit, and whether to use the customer's stated amount and tenure, the existing loan's remaining tenure or outstanding principal, or defaults. Fees, processing charges and GST are also unspecified.",
+  "The eligibility and affordability rules: the maximum EMI-to-income or FOIR ratio, which income and obligation figures count, whether the existing loan EMI is included, minimum credit score, age limits, and max loan-to-income multiples. These must come from the knowledge base and the policy does not say how to apply them.",
+  "Where income data comes from: whether to look it up, ask the customer, or treat it as unavailable. If it is missing, it is unclear whether to refuse, estimate, or escalate.",
+  "The final action or output: whether this is only an informational answer (indicative eligibility), or whether it should lead to raising an application or service request, or a transfer. It is also unclear whether to state a firm approve or decline or only an indicative result.",
+  "Edge cases: the customer asks about a loan not linked to them, a closed or overdue loan, a top-up or balance transfer versus a separate new loan, an existing loan in arrears, a requested amount that fails the check, and whether to suggest a lower amount or longer tenure.",
+  "Customer behavior: they may supply partial or ambiguous details (amount, tenure, loan type), change their mind, push for a guarantee of approval, or ask about prepayment or foreclosure charges on the existing loan.",
+  "Bank conventions: the format for presenting rates (p.a., reducing balance versus flat), currency and rounding, the disclaimer wording, and how weak knowledge base hits should be handled when there is no clear answer.",
+  "Time sensitivity: the simulation date of 2026-07-16 may affect rate validity, EMI due dates and remaining tenure, but the policy does not say how."
+ ]
+}

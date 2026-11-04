@@ -1,0 +1,13 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Policy names no tools for balance lookup (e.g., which tool lists the customer's accounts/deposits/cards/loans, or fetches a balance), so the exact steps and order are unspecified.",
+  "Ambiguity about which product the customer means (savings vs. current vs. deposit vs. loan vs. credit card) and whether to ask a clarifying question or list all linked products.",
+  "Balance definitions are unspecified: ledger vs. available balance, holds/uncleared cheques, minimum balance, outstanding vs. due for loans, credit limit vs. available credit for cards.",
+  "Handling of unlinked or other-person account IDs: the policy says to refuse, but not the wording or whether to still offer help with the customer's own accounts.",
+  "Output conventions are unspecified: currency and formatting, masking of account numbers, whether to include as-of date or recent transactions, and how much to volunteer.",
+  "Edge cases are unspecified: tool errors or missing data, closed or dormant accounts, zero or negative balances/overdraft, and discrepancies the customer disputes (whether to escalate or raise a service request).",
+  "Follow-up behavior is unspecified: when the customer pivots to a mini-statement, interest rate, or card or deposit action; when the knowledge base should be used (e.g., minimum balance rules); and when to escalate versus resolve with tools.",
+  "Customer behavior is unspecified: vague requests such as 'how much do I have?', requests for multiple balances, pushing for details beyond their own products, or asking for the balance to be stated by voice or in a different format."
+ ]
+}

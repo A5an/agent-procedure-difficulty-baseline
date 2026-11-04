@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Tool names, parameters and which accounts/tools to call for balance lookup, rate lookup, and RD creation are not specified (e.g., which balance endpoint, which RD product ID, how to fetch the applicable rate/tenure).",
+  "Source of the RD amount, tenure, and funding/debit account is unspecified: does the customer state them, or must the assistant derive them from the balance and prior answers? Is the booked amount fixed or capped by balance?",
+  "Which rate applies: scheme rate by tenure, senior-citizen or other special rates, and whether the customer's choice of tenure changes the rate lookup.",
+  "Maturity calculation details are unspecified: compounding convention (quarterly?), rounding, whether to compute it myself or use a tool/KB quote, and the maturity date relative to simulation date 2026-07-16.",
+  "Penalty policy specifics (premature closure, missed installment penalty, grace period, interest reduction) must come from the knowledge base, and the query wording and score thresholds for re-searching are unspecified.",
+  "Confirmation requirement for creating an RD is not listed among mandatory confirmations (only closures, blocks, mandate cancellations, and cheque stops are), so it is unclear whether to ask for explicit confirmation before booking.",
+  "The final balance check: expected to show the post-booking balance, whether the first installment is debited immediately, and how to report it if the balance did not change or the debit is deferred.",
+  "Edge cases: insufficient balance for the installment, multiple accounts with different balances, minimum or maximum RD amounts and tenures, customer changes mind after learning the penalty, customer asking for an unlinked account.",
+  "Order and conditionality of steps: whether the customer must be informed of the rate, maturity and penalty before booking, and what to do if the customer declines or modifies the plan after hearing the penalty.",
+  "Customer behavior: whether they ask all questions at once or sequentially, whether they supply ambiguous amounts or tenures, and whether they ask for off-policy things such as waiving penalties.",
+  "Bank conventions for communicating amounts and dates (currency format, installment due-date day-of-month) and for presenting the confirmation summary without exposing internal field names."
+ ]
+}

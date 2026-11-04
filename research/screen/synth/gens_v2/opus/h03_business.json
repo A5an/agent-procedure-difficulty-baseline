@@ -1,0 +1,824 @@
+{
+ "procedure_id": "h03_business",
+ "domain": "business mobile accounts",
+ "organization": "Crestline Wireless for Business",
+ "title": "Temporary line holds",
+ "summary": "Place a business mobile line on a temporary hold (suspension) for a set number of days, starting today, when the line, its account and its plan qualify, and charge the reduced hold fee.",
+ "entities": {
+  "business_account": {
+   "key": "account_id",
+   "description": "Company accounts that own one or more mobile lines",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "primary_contact": "str",
+    "contact_email": "str",
+    "status": "enum:active|past_due|closed"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Catalog of business rate plans",
+   "fields": {
+    "plan_code": "str",
+    "plan_name": "str",
+    "monthly_fee": "number",
+    "hold_eligible": "bool"
+   }
+  },
+  "mobile_line": {
+   "key": "line_id",
+   "description": "Individual mobile lines (phone numbers) on a business account",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:business_account",
+    "phone_number": "str",
+    "assigned_user": "str",
+    "plan_code": "ref:plan",
+    "status": "enum:active|suspended|cancelled",
+    "contract_end": "date",
+    "suspended_until": "date",
+    "hold_fee": "number"
+   }
+  },
+  "line_hold": {
+   "key": "hold_id",
+   "description": "History of temporary holds placed on lines",
+   "fields": {
+    "hold_id": "str",
+    "line_id": "ref:mobile_line",
+    "start_date": "date",
+    "end_date": "date",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_mobile_line",
+   "kind": "get",
+   "entity": "mobile_line",
+   "description": "Look up a mobile line by its line ID (format LN-xxxxx)."
+  },
+  {
+   "name": "find_lines_by_phone_number",
+   "kind": "search",
+   "entity": "mobile_line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find lines by phone number, written as NNN-NNN-NNNN (for example 503-555-0147)."
+  },
+  {
+   "name": "find_lines_by_account",
+   "kind": "search",
+   "entity": "mobile_line",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all lines on a business account."
+  },
+  {
+   "name": "get_business_account",
+   "kind": "get",
+   "entity": "business_account",
+   "description": "Look up a business account by account ID, including its standing (active, past_due or closed)."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a rate plan by plan code, including its monthly fee and whether lines on it may be put on hold."
+  },
+  {
+   "name": "find_holds_by_line",
+   "kind": "search",
+   "entity": "line_hold",
+   "by": [
+    "line_id"
+   ],
+   "description": "List every hold ever placed on a line."
+  },
+  {
+   "name": "suspend_line",
+   "kind": "update",
+   "entity": "mobile_line",
+   "args": {
+    "line_id": {
+     "type": "ref:mobile_line",
+     "description": "The line to put on hold."
+    },
+    "resume_date": {
+     "type": "date",
+     "description": "The date the line comes back into service: today plus the number of hold days."
+    },
+    "hold_fee": {
+     "type": "number",
+     "description": "The one-time hold fee: 0.50 per hold day, capped at the plan's monthly fee."
+    }
+   },
+   "set": {
+    "status": "'suspended'",
+    "suspended_until": "args.resume_date",
+    "hold_fee": "args.hold_fee"
+   },
+   "description": "Suspend a line starting today, set the date it automatically resumes service, and set the hold fee to be billed."
+  },
+  {
+   "name": "create_line_hold",
+   "kind": "create",
+   "entity": "line_hold",
+   "args": {
+    "line_id": {
+     "type": "ref:mobile_line",
+     "description": "The line that was put on hold."
+    },
+    "resume_date": {
+     "type": "date",
+     "description": "The resume date set on the line (end of the hold)."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "start_date": "today",
+    "end_date": "args.resume_date",
+    "created": "today"
+   },
+   "description": "Record a hold in the line's hold history. Use right after suspending the line, with the same resume date."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:mobile_line",
+   "description": "the mobile line you want put on hold"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many days you want the line on hold, starting today"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "mobile_line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "business_account",
+   "key": "line.account_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "line.plan_code"
+  }
+ ],
+ "outcomes": {
+  "place_hold": {
+   "kind": "perform",
+   "description": "Suspend the line from today until today plus the requested days with the computed hold fee, then record the hold in the line's history.",
+   "calls": [
+    {
+     "tool": "suspend_line",
+     "args": {
+      "line_id": "req.line_id",
+      "resume_date": "add_days(today, req.days)",
+      "hold_fee": "min(req.days * 0.5, plan.monthly_fee)"
+     }
+    },
+    {
+     "tool": "create_line_hold",
+     "args": {
+      "line_id": "req.line_id",
+      "resume_date": "add_days(today, req.days)"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not place the hold; explain which requirement is not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "line.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only a line that is currently active can be put on hold."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "The business account that owns the line must be in active standing (not past due or closed)."
+  },
+  {
+   "id": "R3",
+   "when": "not plan.hold_eligible",
+   "outcome": "refuse",
+   "explain": "The line's rate plan must allow temporary holds."
+  },
+  {
+   "id": "R4",
+   "when": "req.days < 14 or req.days > 90",
+   "outcome": "refuse",
+   "explain": "A hold must last at least 14 and at most 90 days."
+  },
+  {
+   "id": "R5",
+   "when": "db_count('line_hold', 'line_id', line.line_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A line that already has two or more holds in its history cannot get another one."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(today, line.contract_end) < req.days",
+   "outcome": "refuse",
+   "explain": "The resume date (today plus the hold days) must not fall after the line's contract end date."
+  }
+ ],
+ "default_outcome": "place_hold",
+ "policy_text": "## Purpose\nBusiness customers can put a mobile line on a temporary hold, for example while an employee is on leave or a seasonal worker is away. During a hold the line has no service. A hold always starts today and the line resumes automatically on the resume date. Instead of the normal monthly charge, a one-time hold fee is billed.\n\n## Finding the line\nAsk for the line ID (format LN-xxxxx). If the caller does not have it, find the line by its phone number. Once you have the line, look up the business account that owns it and the line's rate plan yourself; callers usually do not know these details, and you must not rely on what they say about them. Always use the information on file, even if the caller believes something different (for example a different contract end date).\n\nYou also need the number of days the caller wants the hold to last. Ask for it if they have not said.\n\n## Requirements (check all of them, in this order)\n1. The line must be active. Lines that are already suspended or are cancelled cannot be put on hold.\n2. The business account that owns the line must be active. Accounts that are past due or closed cannot place holds.\n3. The line's rate plan must allow holds. Check the plan record; some plans (such as shared data pool member lines and IoT/tablet data plans) do not allow them.\n4. A hold must last at least 14 days and at most 90 days. Requests outside this range are declined; do not change the number of days yourself.\n5. A line can be put on hold at most twice in its lifetime. Look up the line's hold history; if it already has two or more holds on record, of any age, decline.\n6. The hold may not run past the line's contract end date. The resume date must be on or before the contract end date.\n\nIf any requirement is not met, do not make any change. Explain to the caller which requirement is not met. You may tell them the limits, but only place a hold if they ask for one that qualifies.\n\n## Placing the hold\nIf every requirement is met:\n- Compute the resume date: today's date plus the number of hold days the caller asked for (for example, a 30-day hold placed on 2026-05-20 resumes on 2026-06-19).\n- Compute the hold fee: 0.50 for each hold day, but never more than the monthly fee of the line's rate plan (for example, a 30-day hold costs 15.00; a 90-day hold on a plan with a 45.00 monthly fee costs 45.00).\n- Suspend the line with that resume date and hold fee.\n- Then record the hold in the line's hold history with the same resume date.\nTell the caller the resume date and the hold fee.\n\n## Never\nDo not change the line's plan, do not hold a different line than the one the caller asked about, do not lengthen or shorten a hold on your own, do not waive or discount the hold fee, and do not make exceptions to these requirements.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_code": "BIZ-UNL-50",
+    "plan_name": "Business Unlimited 50",
+    "monthly_fee": 45.0,
+    "hold_eligible": true
+   },
+   {
+    "plan_code": "BIZ-ESS-10",
+    "plan_name": "Business Essentials 10GB",
+    "monthly_fee": 30.0,
+    "hold_eligible": true
+   },
+   {
+    "plan_code": "BIZ-SHARE-POOL",
+    "plan_name": "Shared Data Pool Member Line",
+    "monthly_fee": 18.0,
+    "hold_eligible": false
+   },
+   {
+    "plan_code": "BIZ-IOT-1",
+    "plan_name": "IoT / Tablet Data 1GB",
+    "monthly_fee": 12.0,
+    "hold_eligible": false
+   }
+  ],
+  "business_account": [
+   {
+    "account_id": "BA-1000",
+    "company_name": "Atlas Courier Services",
+    "primary_contact": "Renee Albright",
+    "contact_email": "renee@atlascourier.example.com",
+    "status": "active"
+   }
+  ],
+  "mobile_line": [
+   {
+    "line_id": "LN-10001",
+    "account_id": "BA-1000",
+    "phone_number": "404-555-0101",
+    "assigned_user": "Victor Lam",
+    "plan_code": "BIZ-UNL-50",
+    "status": "active",
+    "contract_end": "2027-02-28",
+    "suspended_until": null,
+    "hold_fee": 0.0
+   }
+  ],
+  "line_hold": [
+   {
+    "hold_id": "LH-0900",
+    "line_id": "LN-10001",
+    "start_date": "2025-06-01",
+    "end_date": "2025-07-01",
+    "created": "2025-06-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-5501",
+      "company_name": "Harbor & Pine Landscaping LLC",
+      "primary_contact": "Marisol Vega",
+      "contact_email": "marisol@harborpine.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-20417",
+      "account_id": "BA-5501",
+      "phone_number": "503-555-0147",
+      "assigned_user": "Tomas Reyes",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2027-03-31",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": []
+   },
+   "request_values": {
+    "line_id": "LN-20417",
+    "days": 60
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-20417",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 60,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.contract_end",
+     "value": "2027-03-31",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The line is the work phone of crew lead Tomas Reyes, number 503-555-0147.",
+     "kind": "helpful"
+    },
+    {
+     "text": "This line has never been put on hold before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The company account is in good standing; the last invoice was paid in full on May 5.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marisol Vega, owner of a landscaping company in Portland. Busy, types short messages between job sites.",
+   "reason_for_call": "Her crew lead is starting two months of parental leave and she does not want to pay for his phone while he is away.",
+   "task_instructions": "In your first message, briefly give the line ID, that you want a 60-day hold, the contract end date you know, and the extra details. After that answer only what is asked, in as few words as possible. Accept the result.",
+   "expected_outcome": "place_hold"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-6630",
+      "company_name": "Kestrel Freight Brokers Inc.",
+      "primary_contact": "Priya Natarajan",
+      "contact_email": "priya@kestrelfreight.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-31108",
+      "account_id": "BA-6630",
+      "phone_number": "312-555-0190",
+      "assigned_user": "Dispatch Desk",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2027-06-30",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     },
+     {
+      "line_id": "LN-31109",
+      "account_id": "BA-6630",
+      "phone_number": "312-555-0191",
+      "assigned_user": "Ellis Grant",
+      "plan_code": "BIZ-SHARE-POOL",
+      "status": "active",
+      "contract_end": "2027-06-30",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     },
+     {
+      "line_id": "LN-31110",
+      "account_id": "BA-6630",
+      "phone_number": "312-555-0192",
+      "assigned_user": "Monique Bell",
+      "plan_code": "BIZ-ESS-10",
+      "status": "active",
+      "contract_end": "2027-06-30",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": []
+   },
+   "request_values": {
+    "line_id": "LN-31109",
+    "days": 45
+   },
+   "initial_request_values": {
+    "line_id": "LN-31110",
+    "days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-31109",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 45,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.assigned_user",
+     "value": "Ellis Grant",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Monique has a trip to Toronto next month and the caller thought about adding international roaming for her, but decides to handle that another time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The dispatch desk phone was replaced last month after its screen cracked.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The company moved its office from Wacker Drive to Elston Avenue this spring.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A billing question from January about a duplicate charge was already resolved.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya Natarajan, operations manager at a Chicago freight brokerage. Chatty, juggles several things at once.",
+   "reason_for_call": "One of her sales reps is going on sabbatical and she wants to pause his line for a while.",
+   "task_instructions": "Start by asking for a 30-day hold on Monique Bell's line, saying it is for the rep going on sabbatical. Mention the distractor details along the way. Before the agent places anything, realize you mixed up the lines: the sabbatical is Ellis Grant's, and he will be away 45 days, so ask for a 45-day hold on Ellis Grant's line instead (give its line ID) and drop the first request. If the agent declines, accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-7714",
+      "company_name": "Bluefin Catering Co.",
+      "primary_contact": "Darnell Okafor",
+      "contact_email": "darnell@bluefincatering.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-50822",
+      "account_id": "BA-7714",
+      "phone_number": "619-555-0133",
+      "assigned_user": "Sofia Marquez",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2026-08-31",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": [
+     {
+      "hold_id": "LH-1007",
+      "line_id": "LN-50822",
+      "start_date": "2025-11-03",
+      "end_date": "2025-12-15",
+      "created": "2025-11-03"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-50822",
+    "days": 90
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-50822",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 90,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Darnell Okafor, owner of a San Diego catering company, calling between two events. Impatient and in a hurry.",
+   "reason_for_call": "His sous-chef is leaving for a three-month culinary course and he wants her phone line paused.",
+   "task_instructions": "Give the line ID and say you want the line on hold, but do not say how long until asked; then say 90 days. Be impatient: tell the agent to hurry and complain about the questions and about having to pay a hold fee at all. If the agent were to refuse, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "place_hold"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-8020",
+      "company_name": "Lumen Dental Studio",
+      "primary_contact": "Hana Kobayashi",
+      "contact_email": "hana@lumendental.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-61540",
+      "account_id": "BA-8020",
+      "phone_number": "206-555-0178",
+      "assigned_user": "Rebecca Lindqvist",
+      "plan_code": "BIZ-ESS-10",
+      "status": "active",
+      "contract_end": "2027-01-31",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": []
+   },
+   "request_values": {
+    "line_id": "LN-61540",
+    "days": 7
+   },
+   "initial_request_values": {
+    "line_id": "LN-61540",
+    "days": 60
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-61540",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dr. Hana Kobayashi, who runs a small dental practice in Seattle. Polite and precise.",
+   "reason_for_call": "Her hygienist is having surgery and she wants to pause the hygienist's work phone during the leave.",
+   "task_instructions": "In your first message give the line ID and ask for a 60-day hold. Before the agent places it, say you just got a message that the recovery will only take one week, so you want a 7-day hold instead. If the agent declines, accept it and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-8833",
+      "company_name": "Copperline Electrical Contractors",
+      "primary_contact": "Wade Brennan",
+      "contact_email": "wade@copperline.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-72210",
+      "account_id": "BA-8833",
+      "phone_number": "720-555-0124",
+      "assigned_user": "Jared Holm",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2027-01-31",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": [
+     {
+      "hold_id": "LH-1120",
+      "line_id": "LN-72210",
+      "start_date": "2025-08-01",
+      "end_date": "2025-09-15",
+      "created": "2025-08-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-72210",
+    "days": 90
+   },
+   "initial_request_values": {
+    "line_id": "LN-72210",
+    "days": 120
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-72210",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 90,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.contract_end",
+     "value": "2026-09-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Wade Brennan, owner of an electrical contracting firm in Denver. Practical, likes to bargain.",
+   "reason_for_call": "His apprentice is away for a long out-of-state training program and Wade wants to stop paying for the line in the meantime.",
+   "task_instructions": "Give the line ID and say early that you believe the line's contract ends on 2026-09-30. Ask first for a 120-day hold. If the agent declines it, ask whether 90 days would work instead and go with that. Accept the result.",
+   "expected_outcome": "place_hold"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-9105",
+      "company_name": "Sagebrush Realty Group",
+      "primary_contact": "Lorraine Pike",
+      "contact_email": "lorraine@sagebrushrealty.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-80377",
+      "account_id": "BA-9105",
+      "phone_number": "480-555-0169",
+      "assigned_user": "Kyle Andersen",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2027-04-30",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": [
+     {
+      "hold_id": "LH-0981",
+      "line_id": "LN-80377",
+      "start_date": "2024-12-01",
+      "end_date": "2025-01-31",
+      "created": "2024-12-01"
+     },
+     {
+      "hold_id": "LH-1066",
+      "line_id": "LN-80377",
+      "start_date": "2025-07-01",
+      "end_date": "2025-08-15",
+      "created": "2025-07-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-80377",
+    "days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-80377",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 30,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Lorraine Pike, managing broker at a realty office in Phoenix. Impatient, used to getting her way.",
+   "reason_for_call": "One of her agents is taking a month off for the slow summer season and she wants his line paused.",
+   "task_instructions": "Give the line ID and say you want it on hold; say 30 days only when asked. If the agent refuses, argue that you are a long-time customer and that the earlier holds should not count, and ask for an exception at least twice. Then accept and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-9340",
+      "company_name": "Northgate Physical Therapy",
+      "primary_contact": "Amara Nwosu",
+      "contact_email": "amara@northgatept.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-83015",
+      "account_id": "BA-9340",
+      "phone_number": "617-555-0112",
+      "assigned_user": "Gabriel Souza",
+      "plan_code": "BIZ-ESS-10",
+      "status": "active",
+      "contract_end": "2027-09-30",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": []
+   },
+   "request_values": {
+    "line_id": "LN-83015",
+    "days": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "617-555-0112",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.assigned_user",
+     "value": "Gabriel Souza",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 30,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Amara Nwosu, practice manager at a physical therapy clinic in Boston. Friendly and organized.",
+   "reason_for_call": "A therapist is visiting family abroad for a month and she wants his work line paused while he is gone.",
+   "task_instructions": "Explain that you want a 30-day hold on the work phone of your therapist Gabriel Souza and give the phone number. You do not know the line ID. Answer the agent's questions helpfully.",
+   "expected_outcome": "place_hold"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "BA-9512",
+      "company_name": "Redwood Print & Signs",
+      "primary_contact": "Colin Mahoney",
+      "contact_email": "colin@redwoodprint.example.com",
+      "status": "active"
+     }
+    ],
+    "mobile_line": [
+     {
+      "line_id": "LN-84402",
+      "account_id": "BA-9512",
+      "phone_number": "916-555-0155",
+      "assigned_user": "Tessa Ruiz",
+      "plan_code": "BIZ-UNL-50",
+      "status": "active",
+      "contract_end": "2026-07-10",
+      "suspended_until": null,
+      "hold_fee": 0.0
+     }
+    ],
+    "line_hold": []
+   },
+   "request_values": {
+    "line_id": "LN-84402",
+    "days": 60
+   },
+   "initial_request_values": {
+    "line_id": "LN-84402",
+    "days": 90
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "916-555-0155",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 60,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Colin Mahoney, owner of a print shop in Sacramento. Easygoing but likes to haggle.",
+   "reason_for_call": "His designer is going on an extended trip this summer and he wants her work phone paused for a few months.",
+   "task_instructions": "Give the phone number of the line; you do not know the line ID. Ask first for a 90-day hold. If the agent declines, ask for 60 days instead, since two months is the least you need. If that is declined too, do not propose any other length; accept and end the conversation.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

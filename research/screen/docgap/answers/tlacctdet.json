@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools exist and their names/parameters (e.g., list accounts, get balance, get account details, get statement) are not specified, nor the order in which to call them.",
+  "How the customer identifies the account: by account number, product type, nickname, or ambiguous 'my account'; and how to resolve multiple linked accounts or disambiguate.",
+  "Statement parameters are unspecified: date range, number of transactions, format (summary vs. full list, PDF vs. in-chat), and how to interpret relative phrases like 'last month' or 'recent' against the 2026-07-16 simulation date.",
+  "What 'account details' covers (IFSC/branch, account type, interest rate, nominee, status, limits, etc.) and which fields may be shared.",
+  "Final action ambiguity: whether the task ends with reading out information, emailing/sending a statement, or raising a service request; and what to do if statement delivery isn't supported by tools.",
+  "Handling of unlinked or invalid account IDs beyond 'refuse': exact wording, whether to offer alternatives, and whether to look up linked products first.",
+  "Whether to proactively mention balances/fees/rates, and when to use the knowledge base (e.g., statement charges, retrieval limits, duplicate statement policy) versus tool data.",
+  "Edge cases: closed or dormant accounts, empty statement periods, tool errors, future or very old date ranges, customer changing the request mid-conversation, or asking about balances across multiple products.",
+  "Conventions on currency formatting, masking account numbers, date format, and level of detail in the response.",
+  "Escalation threshold: when a failed lookup or missing statement should trigger a transfer or service request versus retrying with different parameters."
+ ]
+}

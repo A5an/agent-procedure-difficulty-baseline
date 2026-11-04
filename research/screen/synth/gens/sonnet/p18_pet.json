@@ -1,0 +1,595 @@
+{
+ "procedure_id": "p18_pet",
+ "domain": "pet insurance",
+ "organization": "Harbor Paws Pet Insurance",
+ "title": "Claim approval for submitted vet claims",
+ "summary": "Approve a submitted veterinary claim when the policy is active, the treatment is covered, and the claim fits within the remaining annual limit.",
+ "entities": {
+  "policy": {
+   "key": "policy_id",
+   "description": "Pet insurance policies",
+   "fields": {
+    "policy_id": "str",
+    "owner_name": "str",
+    "email": "str",
+    "pet_name": "str",
+    "status": "enum:active|lapsed|cancelled",
+    "annual_limit": "number",
+    "used_amount": "number"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Veterinary claims submitted by policyholders",
+   "fields": {
+    "claim_id": "str",
+    "policy_id": "ref:policy",
+    "treatment_date": "date",
+    "description": "str",
+    "category": "enum:illness|accident|wellness",
+    "amount": "number",
+    "status": "enum:submitted|approved|denied"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a policy by its policy number."
+  },
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by its claim number."
+  },
+  {
+   "name": "find_policies_by_email",
+   "kind": "search",
+   "entity": "policy",
+   "by": [
+    "email"
+   ],
+   "description": "Find policies by the policyholder email address on file."
+  },
+  {
+   "name": "find_claims_by_policy",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "policy_id"
+   ],
+   "description": "List all claims filed under a policy."
+  },
+  {
+   "name": "approve_claim",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to approve."
+    }
+   },
+   "set": {
+    "status": "'approved'"
+   },
+   "description": "Mark a submitted claim as approved for payment."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want approved"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "pol",
+   "entity": "policy",
+   "key": "clm.policy_id"
+  }
+ ],
+ "outcomes": {
+  "approve": {
+   "kind": "perform",
+   "description": "Approve the claim for payment.",
+   "calls": [
+    {
+     "tool": "approve_claim",
+     "args": {
+      "claim_id": "req.claim_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not approve the claim; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "pol.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Claims can only be approved on active policies."
+  },
+  {
+   "id": "R2",
+   "when": "clm.category == 'wellness'",
+   "outcome": "refuse",
+   "explain": "Routine wellness care is not covered."
+  },
+  {
+   "id": "R3",
+   "when": "clm.amount > pol.annual_limit - pol.used_amount",
+   "outcome": "refuse",
+   "explain": "The claim amount must not exceed the remaining annual limit."
+  }
+ ],
+ "default_outcome": "approve",
+ "policy_text": "## Scope\nPolicyholders contact us to have a submitted veterinary claim approved. Find the claim and the policy it belongs to, and decide using the information in our system, not what the caller believes or says.\n\n## Finding the claim\nUse the claim number if the caller has it. Otherwise find the policy by the email address on file, list its claims, and ask the caller which one they mean (for example by treatment date or amount) if there is more than one. If you cannot identify the claim, do not change anything.\n\n## When a claim can be approved\n- The policy must be active. Lapsed or cancelled policies get no approvals.\n- Routine wellness care (checkups, vaccinations and similar, category wellness) is not covered. Only illness and accident claims can be approved.\n- The claim amount must not be more than the remaining annual limit, which is the annual limit minus the amount already used. A claim above the remaining limit is declined, not reduced.\n\nIf all of these are satisfied, approve the claim.\n\n## If the claim cannot be approved\nExplain the reason briefly and make no change. Do not make exceptions.\n\n## Never\nDo not approve claims that fail a rule, do not change policy limits or status, and do not change any claim other than the one the caller asked about.",
+ "db_common": {
+  "policy": [
+   {
+    "policy_id": "P-1000",
+    "owner_name": "Helen Brooks",
+    "email": "helen.brooks@example.com",
+    "pet_name": "Olive",
+    "status": "active",
+    "annual_limit": 5000,
+    "used_amount": 0
+   }
+  ],
+  "claim": [
+   {
+    "claim_id": "CL-9000",
+    "policy_id": "P-1000",
+    "treatment_date": "2026-04-02",
+    "description": "Skin allergy treatment",
+    "category": "illness",
+    "amount": 210,
+    "status": "submitted"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2101",
+      "owner_name": "Marcus Reed",
+      "email": "marcus.reed@example.com",
+      "pet_name": "Biscuit",
+      "status": "active",
+      "annual_limit": 5000,
+      "used_amount": 1200
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3101",
+      "policy_id": "P-2101",
+      "treatment_date": "2026-04-28",
+      "description": "Ear infection treatment",
+      "category": "illness",
+      "amount": 340,
+      "status": "submitted"
+     },
+     {
+      "claim_id": "CL-3102",
+      "policy_id": "P-2101",
+      "treatment_date": "2026-03-10",
+      "description": "Annual vaccination",
+      "category": "wellness",
+      "amount": 95,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3101"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3101",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a cat named Pickles who is on a different plan with another company.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His premium renewal notice arrived last week and he thinks the price went up.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year he had a claim for a torn paw pad that was paid quickly.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marcus, a contractor who is always in a hurry and expects fast service.",
+   "reason_for_call": "His dog had an ear infection and he wants the claim for the vet bill approved.",
+   "task_instructions": "Be impatient and press for speed. Give the claim number early. Mention the side stories naturally while chatting. If anything is slow, complain, but answer questions.",
+   "expected_outcome": "approve"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2102",
+      "owner_name": "Nadia Volkov",
+      "email": "nadia.volkov@example.com",
+      "pet_name": "Pepper",
+      "status": "lapsed",
+      "annual_limit": 4000,
+      "used_amount": 300
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3201",
+      "policy_id": "P-2102",
+      "treatment_date": "2026-05-02",
+      "description": "Fractured leg after a fall",
+      "category": "accident",
+      "amount": 620,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3201"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nadia, a graphic designer who is stressed about vet costs and firmly believes she is covered.",
+   "reason_for_call": "Her cat broke a leg and she wants the claim approved.",
+   "task_instructions": "State early that your policy is active and you always pay on time. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2103",
+      "owner_name": "Tomas Ferreira",
+      "email": "tomas.ferreira@example.com",
+      "pet_name": "Rufus",
+      "status": "active",
+      "annual_limit": 6000,
+      "used_amount": 800
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3301",
+      "policy_id": "P-2103",
+      "treatment_date": "2026-03-14",
+      "description": "Stomach upset treatment",
+      "category": "illness",
+      "amount": 450,
+      "status": "submitted"
+     },
+     {
+      "claim_id": "CL-3302",
+      "policy_id": "P-2103",
+      "treatment_date": "2026-05-06",
+      "description": "Cut from a fence, stitches",
+      "category": "accident",
+      "amount": 780,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3302"
+   },
+   "initial_request_values": {
+    "claim_id": "CL-3301"
+   },
+   "customer_facts": [
+    {
+     "fact": "pol.email",
+     "value": "tomas.ferreira@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.treatment_date",
+     "value": "2026-05-06",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "clm.amount",
+     "value": 780,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a retired bus driver, friendly but a bit forgetful about paperwork.",
+   "reason_for_call": "He wants a vet claim for his dog approved but does not have the claim number.",
+   "task_instructions": "Give your email. First ask about the earlier claim from March for the stomach upset. Before anything is done, say you actually meant the newer claim for the fence cut from early May. Give its date or amount if asked.",
+   "expected_outcome": "approve"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2104",
+      "owner_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "pet_name": "Mochi",
+      "status": "active",
+      "annual_limit": 3000,
+      "used_amount": 500
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3401",
+      "policy_id": "P-2104",
+      "treatment_date": "2026-02-11",
+      "description": "Urinary infection treatment",
+      "category": "illness",
+      "amount": 210,
+      "status": "submitted"
+     },
+     {
+      "claim_id": "CL-3402",
+      "policy_id": "P-2104",
+      "treatment_date": "2026-05-09",
+      "description": "Dental infection and extraction",
+      "category": "illness",
+      "amount": 640,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3402"
+   },
+   "initial_request_values": {
+    "claim_id": "CL-3401"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.status",
+     "value": "active",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.category",
+     "value": "illness",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The treatment was done at Lakeview Animal Clinic on May 9.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The policy is in her name, Priya Nair, for her cat Mochi.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, a software tester who is organized and polite.",
+   "reason_for_call": "She wants the claim for her cat's dental treatment approved.",
+   "task_instructions": "Start by asking about the older February claim, then say you mixed them up and want the May dental claim instead. Mention that the policy is active and the claim is an illness. Share the clinic and policy details when relevant.",
+   "expected_outcome": "approve"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2105",
+      "owner_name": "Greg Alvarez",
+      "email": "greg.alvarez@example.com",
+      "pet_name": "Tank",
+      "status": "active",
+      "annual_limit": 2500,
+      "used_amount": 2100
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3501",
+      "policy_id": "P-2105",
+      "treatment_date": "2026-05-11",
+      "description": "Surgery to remove an intestinal blockage",
+      "category": "illness",
+      "amount": 950,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3501"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.used_amount",
+     "value": 600,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Greg, a warehouse supervisor who is calm and courteous.",
+   "reason_for_call": "His dog needed surgery and he wants the claim approved.",
+   "task_instructions": "Say you think only about 600 of your yearly limit has been used so far. Be cooperative and accept the decision politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2106",
+      "owner_name": "Sofia Lindqvist",
+      "email": "sofia.lindqvist@example.com",
+      "pet_name": "Juniper",
+      "status": "active",
+      "annual_limit": 4000,
+      "used_amount": 0
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3601",
+      "policy_id": "P-2106",
+      "treatment_date": "2026-05-12",
+      "description": "Eye injury from a scratch",
+      "category": "accident",
+      "amount": 410,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3601"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3601",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a primary school teacher, friendly and clear.",
+   "reason_for_call": "She wants her cat's eye injury claim approved.",
+   "task_instructions": "Give the claim number in your first message and answer any question clearly.",
+   "expected_outcome": "approve"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2107",
+      "owner_name": "Daniel Okafor",
+      "email": "daniel.okafor@example.com",
+      "pet_name": "Luna",
+      "status": "active",
+      "annual_limit": 5000,
+      "used_amount": 400
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3701",
+      "policy_id": "P-2107",
+      "treatment_date": "2026-05-08",
+      "description": "Allergy treatment",
+      "category": "illness",
+      "amount": 180,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3701"
+   },
+   "customer_facts": [
+    {
+     "fact": "pol.pet_name",
+     "value": "Luna",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, calling from a new phone number after losing the paperwork; he does not remember which email he signed up with.",
+   "reason_for_call": "He wants a claim for his dog's allergy treatment approved.",
+   "task_instructions": "Keep answers very short. Say only the pet's name is Luna. You do not have the claim number and do not know the email on file. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "policy": [
+     {
+      "policy_id": "P-2108",
+      "owner_name": "Hana Kim",
+      "email": "hana.kim@example.com",
+      "pet_name": "Mango",
+      "status": "active",
+      "annual_limit": 5000,
+      "used_amount": 1000
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CL-3801",
+      "policy_id": "P-2108",
+      "treatment_date": "2026-05-04",
+      "description": "Annual checkup and booster shots",
+      "category": "wellness",
+      "amount": 120,
+      "status": "submitted"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CL-3801"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CL-3801",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a nurse who is short on time and answers briefly.",
+   "reason_for_call": "She wants her dog's checkup claim approved.",
+   "task_instructions": "Give very short answers and only what is asked. Share the claim number only when the agent asks for it. Accept the decision.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

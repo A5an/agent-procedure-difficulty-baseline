@@ -1,0 +1,180 @@
+{"family": "edgbcarddisamb", "attempt": 0, "candidates": ["CUST_2B498AED", "CUST_CDD6D1CE", "CUST_40314531"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_00"}
+{"family": "edgbcarddisamb", "attempt": 1, "candidates": ["CUST_40314531", "CUST_E181D636", "CUST_BBFA7451"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_01"}
+{"family": "edgbcarddisamb", "attempt": 2, "candidates": ["CUST_71266E5D", "CUST_7DD4B301", "CUST_92FEDB5E"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_02"}
+{"family": "edgbcarddisamb", "attempt": 3, "candidates": ["CUST_073C0A07", "CUST_5DA9C637", "CUST_607E8119"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_03"}
+{"family": "edgbcarddisamb", "attempt": 4, "candidates": ["CUST_607E8119", "CUST_F704A0C5", "CUST_52F41F4E"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_04"}
+{"family": "edgbcarddisamb", "attempt": 5, "candidates": ["CUST_47BEFDB7", "CUST_33C48A59", "CUST_1D8B26FA"], "need": {"accounts": 1, "cards": 2}, "kept": "probe_edgbcarddisamb_05"}
+{"family": "edgbmindchange", "attempt": 0, "candidates": ["CUST_AE99FF38", "CUST_F28C1BB2", "CUST_663920E1"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_00"}
+{"family": "edgbmindchange", "attempt": 1, "candidates": ["CUST_B79EA220", "CUST_78A3D01F", "CUST_10AA36E5"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_01"}
+{"family": "edgbmindchange", "attempt": 2, "candidates": ["CUST_A4BA0731", "CUST_3918163A", "CUST_78E647A8"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_02"}
+{"family": "edgbmindchange", "attempt": 3, "candidates": ["CUST_1CF9E131", "CUST_AADD26F6", "CUST_8B778271"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_03"}
+{"family": "edgbmindchange", "attempt": 4, "candidates": ["CUST_02E4F69A", "CUST_5886E0C3", "CUST_ACDA4B81"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_04"}
+{"family": "edgbmindchange", "attempt": 5, "candidates": ["CUST_BE85B587", "CUST_0154EB2E", "CUST_73B98F5E"], "need": {"accounts": 1}, "kept": "probe_edgbmindchange_05"}
+{"family": "edgbmatelig", "attempt": 0, "candidates": ["CUST_6E320845", "CUST_4038BB17", "CUST_6687943D"], "need": {"accounts": 1, "mandates": 2}, "drop": "no fitting candidate"}
+{"family": "edgbmatelig", "attempt": 1, "candidates": ["CUST_1239D7D5", "CUST_F5811AF6", "CUST_7A69C242"], "need": {"accounts": 1, "mandates": 2}, "drop": "no fitting candidate"}
+{"family": "edgbmatelig", "attempt": 2, "candidates": ["CUST_5C21DF85", "CUST_1CF9E131", "CUST_A1287ADD"], "need": {"accounts": 1, "mandates": 2}, "drop": "no fitting candidate"}
+{"family": "edgbmatelig", "attempt": 3, "candidates": ["CUST_F6721FAA", "CUST_5C75E8A0", "CUST_34E78AA0"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_00"}
+{"family": "edgbmatelig", "attempt": 4, "candidates": ["CUST_F22AE5CE", "CUST_63189978", "CUST_90B9455F"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_01"}
+{"family": "edgbmatelig", "attempt": 5, "candidates": ["CUST_3BB5CCD4", "CUST_2400D61E", "CUST_F7FB0C02"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_02"}
+{"family": "edgbmatelig", "attempt": 6, "candidates": ["CUST_60314D77", "CUST_B3B7F46B", "CUST_E5D90980"], "need": {"accounts": 1, "mandates": 2}, "drop": "no fitting candidate"}
+{"family": "edgbmatelig", "attempt": 7, "candidates": ["CUST_F8F90AF2", "CUST_D9C5A53D", "CUST_FBABEE26"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_03"}
+{"family": "edgbmatelig", "attempt": 8, "candidates": ["CUST_E0DB2CD9", "CUST_204FF18C", "CUST_2BEEB046"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_04"}
+{"family": "edgbmatelig", "attempt": 9, "candidates": ["CUST_266ABC53", "CUST_BAB98DC9", "CUST_F704A0C5"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_edgbmatelig_05"}
+{"family": "edgaineligible", "attempt": 0, "candidates": ["CUST_4B21397B", "CUST_DDF6B35D", "CUST_9835A9D2"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_00"}
+{"family": "edgaineligible", "attempt": 1, "candidates": ["CUST_2149C6AB", "CUST_24677204", "CUST_95251ECB"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgaineligible", "attempt": 2, "candidates": ["CUST_1C756DE2", "CUST_108B2562", "CUST_18D87C17"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgaineligible", "attempt": 3, "candidates": ["CUST_B26EEE6F", "CUST_BE85B587", "CUST_1203DFC3"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_01"}
+{"family": "edgaineligible", "attempt": 4, "candidates": ["CUST_2F66C1BE", "CUST_92FEDB5E", "CUST_9A54733A"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgaineligible", "attempt": 5, "candidates": ["CUST_BBFA7451", "CUST_79120352", "CUST_C6B327FD"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgaineligible", "attempt": 6, "candidates": ["CUST_47D70FB0", "CUST_9748C87C", "CUST_A7AC7BD6"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_02"}
+{"family": "edgaineligible", "attempt": 7, "candidates": ["CUST_C730BA0E", "CUST_A69C4448", "CUST_75C37E1A"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_03"}
+{"family": "edgaineligible", "attempt": 8, "candidates": ["CUST_9B7EE88D", "CUST_E5A1BC7C", "CUST_EAE1C00B"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_04"}
+{"family": "edgaineligible", "attempt": 9, "candidates": ["CUST_F28C1BB2", "CUST_7773DB22", "CUST_EB5705D6"], "need": {"accounts": 1}, "kept": "probe_edgaineligible_05"}
+{"family": "edgamandwrong", "attempt": 0, "candidates": ["CUST_035B7070", "CUST_47D70FB0", "CUST_85105921"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 1, "candidates": ["CUST_F28C1BB2", "CUST_56AE960E", "CUST_FC8C7D56"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 2, "candidates": ["CUST_956A0D63", "CUST_4B12E623", "CUST_81B1FBEE"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 3, "candidates": ["CUST_5426933E", "CUST_0CCD95BF", "CUST_57690071"], "need": {"accounts": 1}, "kept": "probe_edgamandwrong_00"}
+{"family": "edgamandwrong", "attempt": 4, "candidates": ["CUST_FE003B63", "CUST_1550607C", "CUST_F1E516C7"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 5, "candidates": ["CUST_FE2AC97C", "CUST_02F45FA0", "CUST_018217FD"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 6, "candidates": ["CUST_1DB292A9", "CUST_3918163A", "CUST_A2146127"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 7, "candidates": ["CUST_F8D508C8", "CUST_850AC2B1", "CUST_223375E7"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgamandwrong", "attempt": 8, "candidates": ["CUST_C0573758", "CUST_F6FA63BE", "CUST_204FF18C"], "need": {"accounts": 1}, "kept": "probe_edgamandwrong_01"}
+{"family": "edgamandwrong", "attempt": 9, "candidates": ["CUST_0A98FB31", "CUST_743FADAF", "CUST_E312514A"], "need": {"accounts": 1}, "kept": "probe_edgamandwrong_02"}
+{"family": "edgbstmtwin", "attempt": 0, "candidates": ["CUST_F65E694C", "CUST_D5BF8A56", "CUST_75C37E1A"], "need": {"accounts": 1}, "kept": "probe_edgbstmtwin_00"}
+{"family": "edgbstmtwin", "attempt": 1, "candidates": ["CUST_598CC7AF", "CUST_90A95F95", "CUST_26D6838D"], "need": {"accounts": 1}, "kept": "probe_edgbstmtwin_01"}
+{"family": "edgbstmtwin", "attempt": 2, "candidates": ["CUST_EFC94A64", "CUST_E84FC978", "CUST_9DD9BA78"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 3, "candidates": ["CUST_80FDF3F9", "CUST_2939F6EB", "CUST_7C1F9486"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 4, "candidates": ["CUST_2AC27212", "CUST_48BF1007", "CUST_FDC897B1"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 5, "candidates": ["CUST_F7FB0C02", "CUST_46C646E2", "CUST_9AB5DDE5"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 6, "candidates": ["CUST_7144DC95", "CUST_7CDBE56C", "CUST_C803E56D"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 7, "candidates": ["CUST_E2825A5F", "CUST_68B3AB03", "CUST_9B56ED33"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "edgbstmtwin", "attempt": 8, "candidates": ["CUST_1A529567", "CUST_2220C864", "CUST_4385241C"], "need": {"accounts": 1}, "kept": "probe_edgbstmtwin_02"}
+{"family": "edgbstmtwin", "attempt": 9, "candidates": ["CUST_BE85B587", "CUST_4C1760CD", "CUST_597595DB"], "need": {"accounts": 1}, "kept": "probe_edgbstmtwin_03"}
+{"family": "sq2fdladder", "attempt": 0, "candidates": ["CUST_301655E4", "CUST_AEE1C321", "CUST_0FA55C71"], "need": {"accounts": 1, "deposits": 1}, "drop": "no fitting candidate"}
+{"family": "sq2fdladder", "attempt": 1, "candidates": ["CUST_44E1EA12", "CUST_9108EC2D", "CUST_3ED7ED0E"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_00"}
+{"family": "sq2fdladder", "attempt": 2, "candidates": ["CUST_6921B931", "CUST_04F2A910", "CUST_1EDC109D"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_01"}
+{"family": "sq2fdladder", "attempt": 3, "candidates": ["CUST_C7D2007C", "CUST_17DA80EF", "CUST_277B3BF4"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_02"}
+{"family": "sq2fdladder", "attempt": 4, "candidates": ["CUST_0D06B73B", "CUST_690E225D", "CUST_7108BB7F"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_03"}
+{"family": "sq2fdladder", "attempt": 5, "candidates": ["CUST_B9682A8C", "CUST_396A537D", "CUST_50F81A22"], "need": {"accounts": 1, "deposits": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2fdladder", "attempt": 6, "candidates": ["CUST_B2CBDE8A", "CUST_BBD654F7", "CUST_AA0FD4F9"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_04"}
+{"family": "sq2fdladder", "attempt": 7, "candidates": ["CUST_DD22C6AA", "CUST_20676B65", "CUST_A435638B"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sq2fdladder_05"}
+{"family": "hpgold", "attempt": 0, "candidates": ["CUST_509E6569", "CUST_8C4633DB", "CUST_5D67601A"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 1, "candidates": ["CUST_4F5E2EFB", "CUST_84374E05", "CUST_5C75E8A0"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 2, "candidates": ["CUST_4346F84D", "CUST_A4025E81", "CUST_F8F90AF2"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 3, "candidates": ["CUST_19DBAF96", "CUST_BFA2FA66", "CUST_72C22A6F"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 4, "candidates": ["CUST_12D12BFC", "CUST_ED868B7B", "CUST_770589F1"], "need": {"accounts": 1}, "kept": "probe_hpgold_00"}
+{"family": "hpgold", "attempt": 5, "candidates": ["CUST_E181D636", "CUST_02F45FA0", "CUST_88FCA97A"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 6, "candidates": ["CUST_68B3AB03", "CUST_8EAB95A2", "CUST_726F28B0"], "need": {"accounts": 1}, "kept": "probe_hpgold_01"}
+{"family": "hpgold", "attempt": 7, "candidates": ["CUST_F704A0C5", "CUST_8DC678DD", "CUST_C7D2007C"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 8, "candidates": ["CUST_F70D3643", "CUST_A02E03CE", "CUST_770589F1"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpgold", "attempt": 9, "candidates": ["CUST_8E91A2E1", "CUST_02F45FA0", "CUST_743FADAF"], "need": {"accounts": 1}, "kept": "probe_hpgold_02"}
+{"family": "hpservice", "attempt": 0, "candidates": ["CUST_AEE2E45B", "CUST_C419FA0D", "CUST_6236296D"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting ',' delimiter: line 19 column 6 (char 1261)"}
+{"family": "hpservice", "attempt": 1, "candidates": ["CUST_88FCA97A", "CUST_3CECEAD4", "CUST_48C9D86D"], "need": {"accounts": 1}, "drop": "no fitting candidate"}
+{"family": "hpservice", "attempt": 2, "candidates": ["CUST_58826F08", "CUST_0FA55C71", "CUST_56AE960E"], "need": {"accounts": 1}, "kept": "probe_hpservice_00"}
+{"family": "hpservice", "attempt": 3, "candidates": ["CUST_5D12E9A3", "CUST_1B5595E7", "CUST_D8C93F30"], "need": {"accounts": 1}, "kept": "probe_hpservice_01"}
+{"family": "hpservice", "attempt": 4, "candidates": ["CUST_956A0D63", "CUST_A3D5AD1E", "CUST_6D11E813"], "need": {"accounts": 1}, "kept": "probe_hpservice_02"}
+{"family": "hpservice", "attempt": 5, "candidates": ["CUST_4876462A", "CUST_8DC678DD", "CUST_0A98FB31"], "need": {"accounts": 1}, "kept": "probe_hpservice_03"}
+{"family": "hpservice", "attempt": 6, "candidates": ["CUST_CC532584", "CUST_9B56ED33", "CUST_9B7EE88D"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Extra data: line 31 column 1 (char 343)"}
+{"family": "hpservice", "attempt": 7, "candidates": ["CUST_073C0A07", "CUST_B27FE48F", "CUST_BC6DAADD"], "need": {"accounts": 1}, "kept": "probe_hpservice_04"}
+{"family": "hpservice", "attempt": 8, "candidates": ["CUST_7144DC95", "CUST_A2146127", "CUST_33BF6CB6"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpservice", "attempt": 9, "candidates": ["CUST_D484FF6D", "CUST_83F06B6A", "CUST_AEE2E45B"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2mandaudit", "attempt": 0, "candidates": ["CUST_5E62C33B", "CUST_C6B327FD", "CUST_204FF18C"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_00"}
+{"family": "sq2mandaudit", "attempt": 1, "candidates": ["CUST_305305F6", "CUST_C9249BCD", "CUST_CC00E497"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_01"}
+{"family": "sq2mandaudit", "attempt": 2, "candidates": ["CUST_04F2A910", "CUST_63D388F4", "CUST_FCAAE139"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_02"}
+{"family": "sq2mandaudit", "attempt": 3, "candidates": ["CUST_CC232594", "CUST_4B21397B", "CUST_3C31C33E"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_03"}
+{"family": "sq2mandaudit", "attempt": 4, "candidates": ["CUST_761783F7", "CUST_5593981A", "CUST_2E3C7A14"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_04"}
+{"family": "sq2mandaudit", "attempt": 5, "candidates": ["CUST_182BB205", "CUST_33218592", "CUST_1378C87E"], "need": {"accounts": 1, "mandates": 2}, "kept": "probe_sq2mandaudit_05"}
+{"family": "sqclose", "attempt": 0, "candidates": ["CUST_98B9F20C", "CUST_54DDF9DD", "CUST_A0EAD40F"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_00"}
+{"family": "sqclose", "attempt": 1, "candidates": ["CUST_C84470C2", "CUST_898B9FA0", "CUST_D3E4B9DE"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_01"}
+{"family": "sqclose", "attempt": 2, "candidates": ["CUST_2BA40DA3", "CUST_9A54733A", "CUST_761783F7"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_02"}
+{"family": "sqclose", "attempt": 3, "candidates": ["CUST_B26F2E6D", "CUST_004C15A5", "CUST_7CAB7AC0"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_03"}
+{"family": "sqclose", "attempt": 4, "candidates": ["CUST_F4EAF911", "CUST_D80DD3F8", "CUST_56F2248E"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_04"}
+{"family": "sqclose", "attempt": 5, "candidates": ["CUST_58EAE119", "CUST_98B9F20C", "CUST_DFFD6519"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_05"}
+{"family": "sq2insur", "attempt": 0, "candidates": ["CUST_7F7025DA", "CUST_A11E2BC5", "CUST_C670CD04"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_00"}
+{"family": "sq2insur", "attempt": 1, "candidates": ["CUST_FBBC497E", "CUST_17DA80EF", "CUST_E2F2B7B3"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_01"}
+{"family": "sq2insur", "attempt": 2, "candidates": ["CUST_1B5595E7", "CUST_266ABC53", "CUST_3ED7ED0E"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_02"}
+{"family": "sq2insur", "attempt": 3, "candidates": ["CUST_046D29AD", "CUST_A9D3EA96", "CUST_8A83D675"], "need": {"accounts": 1, "insurance": 1}, "drop": "generation failed: JSONDecodeError: Expecting ',' delimiter: line 1 column 1428 (char 1427)"}
+{"family": "sq2insur", "attempt": 4, "candidates": ["CUST_3022AE3E", "CUST_CC6347FE", "CUST_9DDDDED0"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_03"}
+{"family": "sq2insur", "attempt": 5, "candidates": ["CUST_05D164A8", "CUST_FAA9450D", "CUST_850AC2B1"], "need": {"accounts": 1, "insurance": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2insur", "attempt": 6, "candidates": ["CUST_40D23E2A", "CUST_1B5595E7", "CUST_336DF95C"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_04"}
+{"family": "sq2insur", "attempt": 7, "candidates": ["CUST_34E78AA0", "CUST_572E71FF", "CUST_258E6EA6"], "need": {"accounts": 1, "insurance": 1}, "kept": "probe_sq2insur_05"}
+{"family": "sqfd", "attempt": 0, "candidates": ["CUST_6DB2C20F", "CUST_B5719A9F", "CUST_C419FA0D"], "need": {"accounts": 1}, "kept": "probe_sqfd_00"}
+{"family": "sqfd", "attempt": 1, "candidates": ["CUST_9835A9D2", "CUST_58EAE119", "CUST_19F46380"], "need": {"accounts": 1}, "kept": "probe_sqfd_01"}
+{"family": "sqfd", "attempt": 2, "candidates": ["CUST_1AF592C4", "CUST_FCAAE139", "CUST_3B6E1835"], "need": {"accounts": 1}, "kept": "probe_sqfd_02"}
+{"family": "sqfd", "attempt": 3, "candidates": ["CUST_89E00F17", "CUST_69D8D475", "CUST_F704A0C5"], "need": {"accounts": 1}, "kept": "probe_sqfd_03"}
+{"family": "sqfd", "attempt": 4, "candidates": ["CUST_47D70FB0", "CUST_05D164A8", "CUST_509E6569"], "need": {"accounts": 1}, "kept": "probe_sqfd_04"}
+{"family": "sqfd", "attempt": 5, "candidates": ["CUST_875A41CD", "CUST_84374E05", "CUST_812F78CF"], "need": {"accounts": 1}, "kept": "probe_sqfd_05"}
+{"family": "sq2gold", "attempt": 0, "candidates": ["CUST_1EA8D8B2", "CUST_DF7C394F", "CUST_850AC2B1"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 1, "candidates": ["CUST_761783F7", "CUST_1CF9E131", "CUST_671C7DCC"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 2, "candidates": ["CUST_4346F84D", "CUST_9DDDDED0", "CUST_E00C8903"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 3, "candidates": ["CUST_B27FE48F", "CUST_8C9D1B50", "CUST_2BDE213D"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 4, "candidates": ["CUST_5E0DE53F", "CUST_7F7025DA", "CUST_68B3AB03"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 5, "candidates": ["CUST_AADD26F6", "CUST_8C9D1B50", "CUST_1B5595E7"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 6, "candidates": ["CUST_12D12BFC", "CUST_DF7C394F", "CUST_3918163A"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 7, "candidates": ["CUST_5A959E8F", "CUST_81EF0EC4", "CUST_32F18A29"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 8, "candidates": ["CUST_5D12E9A3", "CUST_E181D636", "CUST_C27994EF"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2gold", "attempt": 9, "candidates": ["CUST_DF4D7E24", "CUST_2AC27212", "CUST_1DB292A9"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2rdsize", "attempt": 0, "candidates": ["CUST_57690071", "CUST_5B4606D6", "CUST_74FD041E"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2rdsize", "attempt": 1, "candidates": ["CUST_B01FB0EC", "CUST_64016DAC", "CUST_C0573758"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_00"}
+{"family": "sq2rdsize", "attempt": 2, "candidates": ["CUST_B5E565AC", "CUST_0FA55C71", "CUST_2F66C1BE"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_01"}
+{"family": "sq2rdsize", "attempt": 3, "candidates": ["CUST_EC140C9C", "CUST_7FE06574", "CUST_78E647A8"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2rdsize", "attempt": 4, "candidates": ["CUST_A435638B", "CUST_67A45E41", "CUST_6A027944"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_02"}
+{"family": "sq2rdsize", "attempt": 5, "candidates": ["CUST_1603F659", "CUST_B3B7F46B", "CUST_85174C10"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_03"}
+{"family": "sq2rdsize", "attempt": 6, "candidates": ["CUST_B5719A9F", "CUST_04F2A910", "CUST_89E00F17"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_04"}
+{"family": "sq2rdsize", "attempt": 7, "candidates": ["CUST_EC140C9C", "CUST_AA0FD4F9", "CUST_D7C2BFAF"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sq2rdsize", "attempt": 8, "candidates": ["CUST_8F724737", "CUST_8EF9F5EF", "CUST_E1CA547F"], "need": {"accounts": 1}, "kept": "probe_sq2rdsize_05"}
+{"family": "sqrenew", "attempt": 0, "candidates": ["CUST_F8F90AF2", "CUST_6529577A", "CUST_7CDBE56C"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_00"}
+{"family": "sqrenew", "attempt": 1, "candidates": ["CUST_305305F6", "CUST_718C0952", "CUST_6CF45E1D"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_01"}
+{"family": "sqrenew", "attempt": 2, "candidates": ["CUST_0E568C45", "CUST_D80DD3F8", "CUST_C27994EF"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_02"}
+{"family": "sqrenew", "attempt": 3, "candidates": ["CUST_FB2A5CF8", "CUST_718C0952", "CUST_71977CE4"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_03"}
+{"family": "sqrenew", "attempt": 4, "candidates": ["CUST_F0946DD6", "CUST_0FA55C71", "CUST_B8865538"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_04"}
+{"family": "sqrenew", "attempt": 5, "candidates": ["CUST_7CAB7AC0", "CUST_74FD041E", "CUST_DC89EE1D"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqrenew_05"}
+{"family": "tlacctdet", "attempt": 0, "candidates": ["CUST_77B4569E", "CUST_C79521D9", "CUST_4AF7E62A"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_00"}
+{"family": "tlacctdet", "attempt": 1, "candidates": ["CUST_AA0FD4F9", "CUST_414268C4", "CUST_35984E69"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_01"}
+{"family": "tlacctdet", "attempt": 2, "candidates": ["CUST_FA5C5AF0", "CUST_81EF0EC4", "CUST_D81677F9"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_02"}
+{"family": "tlacctdet", "attempt": 3, "candidates": ["CUST_58EAE119", "CUST_B26EEE6F", "CUST_26D6838D"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_03"}
+{"family": "tlacctdet", "attempt": 4, "candidates": ["CUST_1EDC109D", "CUST_223B1351", "CUST_2BEEB046"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_04"}
+{"family": "tlacctdet", "attempt": 5, "candidates": ["CUST_C45CF0BA", "CUST_71266E5D", "CUST_F4EAF911"], "need": {"accounts": 1}, "kept": "probe_tlacctdet_05"}
+{"family": "tlprodoff", "attempt": 0, "candidates": ["CUST_520DB774", "CUST_2ABA6BF3", "CUST_1550607C"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_00"}
+{"family": "tlprodoff", "attempt": 1, "candidates": ["CUST_C89DBE2F", "CUST_40314531", "CUST_ACDA4B81"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_01"}
+{"family": "tlprodoff", "attempt": 2, "candidates": ["CUST_7AAD794A", "CUST_94392A85", "CUST_16784415"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_02"}
+{"family": "tlprodoff", "attempt": 3, "candidates": ["CUST_EAE1C00B", "CUST_9F9EED35", "CUST_BEE2B4AF"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_03"}
+{"family": "tlprodoff", "attempt": 4, "candidates": ["CUST_2BDE213D", "CUST_EC35E2D9", "CUST_AD187DED"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_04"}
+{"family": "tlprodoff", "attempt": 5, "candidates": ["CUST_E84FC978", "CUST_6921B931", "CUST_9835A9D2"], "need": {"accounts": 1, "offers": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "tlprodoff", "attempt": 6, "candidates": ["CUST_598CC7AF", "CUST_B04ADA38", "CUST_6D181B43"], "need": {"accounts": 1, "offers": 1}, "kept": "probe_tlprodoff_05"}
+{"family": "sqreloc", "attempt": 0, "candidates": ["CUST_396A537D", "CUST_7BCD7F0A", "CUST_BA077684"], "need": {"accounts": 1}, "kept": "probe_sqreloc_00"}
+{"family": "sqreloc", "attempt": 1, "candidates": ["CUST_AE0C57EB", "CUST_32F18A29", "CUST_2939F6EB"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sqreloc", "attempt": 2, "candidates": ["CUST_850AC2B1", "CUST_E8C0DE35", "CUST_D128D61B"], "need": {"accounts": 1}, "kept": "probe_sqreloc_01"}
+{"family": "sqreloc", "attempt": 3, "candidates": ["CUST_838C6CA3", "CUST_1378C87E", "CUST_607E8119"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sqreloc", "attempt": 4, "candidates": ["CUST_F74E35C8", "CUST_D8D43FBB", "CUST_CD3A1C80"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sqreloc", "attempt": 5, "candidates": ["CUST_1ED630F6", "CUST_7ECE0BBE", "CUST_C730BA0E"], "need": {"accounts": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sqreloc", "attempt": 6, "candidates": ["CUST_D50E095F", "CUST_B9E2C67C", "CUST_73B98F5E"], "need": {"accounts": 1}, "kept": "probe_sqreloc_02"}
+{"family": "sqreloc", "attempt": 7, "candidates": ["CUST_E91223B9", "CUST_A821D542", "CUST_2BEEB046"], "need": {"accounts": 1}, "kept": "probe_sqreloc_03"}
+{"family": "sqreloc", "attempt": 8, "candidates": ["CUST_E8C0DE35", "CUST_5B4606D6", "CUST_391D8014"], "need": {"accounts": 1}, "kept": "probe_sqreloc_04"}
+{"family": "sqreloc", "attempt": 9, "candidates": ["CUST_7AAD794A", "CUST_391D8014", "CUST_90B9455F"], "need": {"accounts": 1}, "kept": "probe_sqreloc_05"}
+{"family": "tlreqstat", "attempt": 0, "candidates": ["CUST_83D5D91E", "CUST_0E7C159F", "CUST_A430E0EC"], "need": {"accounts": 1, "requests": 1}, "kept": "probe_tlreqstat_00"}
+{"family": "tlreqstat", "attempt": 1, "candidates": ["CUST_4876462A", "CUST_D8E9BABA", "CUST_B74C07A0"], "need": {"accounts": 1, "requests": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "tlreqstat", "attempt": 2, "candidates": ["CUST_57005DBC", "CUST_A11E2BC5", "CUST_ED868B7B"], "need": {"accounts": 1, "requests": 1}, "kept": "probe_tlreqstat_01"}
+{"family": "tlreqstat", "attempt": 3, "candidates": ["CUST_DC7B1B03", "CUST_F5C107C6", "CUST_81EF0EC4"], "need": {"accounts": 1, "requests": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "tlreqstat", "attempt": 4, "candidates": ["CUST_EC29EE4C", "CUST_FCAAE139", "CUST_0E3C35D5"], "need": {"accounts": 1, "requests": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "tlreqstat", "attempt": 5, "candidates": ["CUST_A435638B", "CUST_81EF0EC4", "CUST_2BA40DA3"], "need": {"accounts": 1, "requests": 1}, "kept": "probe_tlreqstat_02"}
+{"family": "tlreqstat", "attempt": 6, "candidates": ["CUST_82E39DFA", "CUST_E5D90980", "CUST_EC35E2D9"], "need": {"accounts": 1, "requests": 1}, "kept": "probe_tlreqstat_03"}
+{"family": "tlreqstat", "attempt": 7, "candidates": ["CUST_F4EAF911", "CUST_D9BF8E6C", "CUST_F8D508C8"], "need": {"accounts": 1, "requests": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "tlreqstat", "attempt": 8, "candidates": ["CUST_1DB292A9", "CUST_9F9EED35", "CUST_2BDE213D"], "need": {"accounts": 1, "requests": 1}, "kept": "probe_tlreqstat_04"}
+{"family": "tlreqstat", "attempt": 9, "candidates": ["CUST_A3B87978", "CUST_F087AAC2", "CUST_C1120AAE"], "need": {"accounts": 1, "requests": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "hpservice", "attempt": 0, "candidates": ["CUST_02E4F69A", "CUST_B26F2E6D", "CUST_E061797B"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_hpservice_05"}
+{"family": "tlreqstat", "attempt": 0, "candidates": ["CUST_9108EC2D", "CUST_598CC7AF", "CUST_8A83D675"], "need": {"accounts": 1, "requests": 1}, "pass": "-topup", "kept": "probe_tlreqstat_05"}
+{"family": "edgbstmtwin", "attempt": 0, "candidates": ["CUST_6D11E813", "CUST_718C0952", "CUST_929C991C"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_edgbstmtwin_04"}
+{"family": "edgbstmtwin", "attempt": 1, "candidates": ["CUST_23FF949E", "CUST_D13D2CAD", "CUST_F8F90AF2"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_edgbstmtwin_05"}
+{"family": "edgamandwrong", "attempt": 0, "candidates": ["CUST_2400D61E", "CUST_B9682A8C", "CUST_A2146127"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_edgamandwrong_03"}
+{"family": "edgamandwrong", "attempt": 1, "candidates": ["CUST_FC8C7D56", "CUST_8BED17C9", "CUST_A676E699"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_edgamandwrong_04"}
+{"family": "edgamandwrong", "attempt": 2, "candidates": ["CUST_3D040786", "CUST_598CC7AF", "CUST_B01FB0EC"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_edgamandwrong_05"}
+{"family": "hpgold", "attempt": 0, "candidates": ["CUST_EA968191", "CUST_C0573758", "CUST_8429B96F"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_hpgold_03"}
+{"family": "hpgold", "attempt": 1, "candidates": ["CUST_B01FB0EC", "CUST_F5C107C6", "CUST_5E0DE53F"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_hpgold_04"}
+{"family": "hpgold", "attempt": 2, "candidates": ["CUST_004C15A5", "CUST_BA9F7D15", "CUST_6738061A"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_hpgold_05"}
+{"family": "sq2gold", "attempt": 0, "candidates": ["CUST_5D170FD5", "CUST_87F68204", "CUST_FA0DD97F"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_00"}
+{"family": "sq2gold", "attempt": 1, "candidates": ["CUST_CC00E497", "CUST_3B8D372C", "CUST_9F9EED35"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_01"}
+{"family": "sq2gold", "attempt": 2, "candidates": ["CUST_89E00F17", "CUST_F406C5BD", "CUST_35359B3E"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_02"}
+{"family": "sq2gold", "attempt": 3, "candidates": ["CUST_3918163A", "CUST_38C07783", "CUST_F7B40D7F"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_03"}
+{"family": "sq2gold", "attempt": 4, "candidates": ["CUST_74505144", "CUST_DD22C6AA", "CUST_B79EA220"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_04"}
+{"family": "sq2gold", "attempt": 5, "candidates": ["CUST_A9166402", "CUST_B3B7F46B", "CUST_1C626DEA"], "need": {"accounts": 1}, "pass": "-topup", "kept": "probe_sq2gold_05"}

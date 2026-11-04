@@ -1,0 +1,683 @@
+{
+ "procedure_id": "p03_health",
+ "domain": "health insurance claims",
+ "organization": "Harbor Mutual Health Plan",
+ "title": "Claim appeals",
+ "summary": "Open an appeal on a denied health insurance claim when the member and the claim qualify.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Health plan members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "date_of_birth": "date",
+    "status": "enum:active|lapsed|terminated",
+    "plan_name": "str"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Medical claims filed against a member's plan",
+   "fields": {
+    "claim_id": "str",
+    "member_id": "ref:member",
+    "provider_name": "str",
+    "service_date": "date",
+    "amount_billed": "number",
+    "status": "enum:paid|denied|pending|closed",
+    "appeal_count": "int"
+   }
+  },
+  "appeal_task": {
+   "key": "task_id",
+   "description": "Work items for the claims team to review an appeal",
+   "fields": {
+    "task_id": "str",
+    "claim_id": "ref:claim",
+    "queue": "enum:appeals|provider_query",
+    "opened": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member ID."
+  },
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by its claim number."
+  },
+  {
+   "name": "find_claims_by_provider",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "provider_name"
+   ],
+   "description": "List all claims billed by a provider, given the provider name."
+  },
+  {
+   "name": "find_claims_by_member",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all claims on a member's account."
+  },
+  {
+   "name": "file_appeal",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to appeal."
+    }
+   },
+   "set": {
+    "status": "'pending'",
+    "appeal_count": "rec.appeal_count + 1"
+   },
+   "description": "Mark a claim as pending appeal and count one appeal against it."
+  },
+  {
+   "name": "create_appeal_task",
+   "kind": "create",
+   "entity": "appeal_task",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim the task is about."
+    },
+    "queue": {
+     "type": "enum:appeals|provider_query",
+     "description": "Which claims team queue receives the task."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "queue": "args.queue",
+    "opened": "today"
+   },
+   "description": "Open a work item for the claims team about a claim."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want to appeal"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "clm.member_id"
+  }
+ ],
+ "outcomes": {
+  "appeal": {
+   "kind": "perform",
+   "description": "File the appeal on the claim and open an appeals task for the claims team.",
+   "calls": [
+    {
+     "tool": "file_appeal",
+     "args": {
+      "claim_id": "req.claim_id"
+     }
+    },
+    {
+     "tool": "create_appeal_task",
+     "args": {
+      "claim_id": "clm.claim_id",
+      "queue": "'appeals'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the claim; explain why it cannot be appealed.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != mem.date_of_birth",
+   "outcome": "refuse",
+   "explain": "The caller must give the member's date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only members with active status can appeal claims."
+  },
+  {
+   "id": "R3",
+   "when": "clm.status != 'denied'",
+   "outcome": "refuse",
+   "explain": "Only claims with status denied can be appealed."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(clm.service_date, today) > 180",
+   "outcome": "refuse",
+   "explain": "An appeal must be requested within 180 days of the service date."
+  },
+  {
+   "id": "R5",
+   "when": "clm.appeal_count >= 1",
+   "outcome": "refuse",
+   "explain": "A claim may be appealed only once."
+  }
+ ],
+ "default_outcome": "appeal",
+ "policy_text": "## Who can ask\nMembers call about their own claims. Before changing anything, find the claim and the member it belongs to, and confirm the caller's identity: the date of birth the caller gives must match the member's date of birth on file. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the claim\nUse the claim number if the caller has it. Otherwise search claims by the provider name the caller gives. If several claims match, use the service date the caller gives to pick the right one. If the caller can give neither a claim number nor a provider name, you cannot find the claim: explain what you need and make no change.\n\n## When an appeal can be filed\n- The member's status must be active. Lapsed or terminated members cannot file appeals.\n- Only a claim with status denied can be appealed. A paid, pending or closed claim cannot.\n- The appeal must be requested within 180 days of the service date. Count the days from the service date to today. If more than 180 days have passed, decline.\n- Each claim may be appealed once. If the claim's appeal count is 1 or higher, decline.\n\nA declined request is not shortened or partly carried out. Tell the caller which condition applies.\n\nIf all of these conditions are met, file the appeal: the claim's status becomes pending and its appeal count goes up by one. Then open an appeals task for the claims team about that claim. Tell the member the claim is now under appeal and that the team will write to them.\n\n## Never\nDo not change a claim's billed amount, do not decide the appeal itself, do not file an appeal for a caller who failed the identity check, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1001",
+    "full_name": "Ruth Okafor",
+    "date_of_birth": "1959-02-11",
+    "status": "active",
+    "plan_name": "Silver PPO"
+   }
+  ],
+  "claim": [
+   {
+    "claim_id": "C-50001",
+    "member_id": "M-1001",
+    "provider_name": "Lakeside Cardiology",
+    "service_date": "2026-04-20",
+    "amount_billed": 220.0,
+    "status": "paid",
+    "appeal_count": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2201",
+      "full_name": "Tomasz Wierzbicki",
+      "date_of_birth": "1984-06-15",
+      "status": "active",
+      "plan_name": "Silver PPO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-71001",
+      "member_id": "M-2201",
+      "provider_name": "Brightwater Physical Therapy",
+      "service_date": "2026-03-10",
+      "amount_billed": 480.0,
+      "status": "denied",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "C-71002",
+      "member_id": "M-2201",
+      "provider_name": "Brightwater Physical Therapy",
+      "service_date": "2026-01-27",
+      "amount_billed": 120.0,
+      "status": "paid",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-71001"
+   },
+   "customer_facts": [
+    {
+     "fact": "clm.provider_name",
+     "value": "Brightwater Physical Therapy",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.service_date",
+     "value": "2026-03-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-06-15",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a warehouse supervisor who is on his feet all day and checks his phone between shifts.",
+   "reason_for_call": "A physical therapy bill for his shoulder was denied and he thinks it should be covered.",
+   "task_instructions": "You do not know the claim number. When asked, give the provider name first. If the agent finds more than one claim, give the service date. Give your date of birth only when asked. Keep every answer short.",
+   "expected_outcome": "appeal"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2310",
+      "full_name": "Hannah Strand",
+      "date_of_birth": "1972-09-30",
+      "status": "active",
+      "plan_name": "Gold HMO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-72002",
+      "member_id": "M-2310",
+      "provider_name": "Lakeshore Imaging Center",
+      "service_date": "2026-04-02",
+      "amount_billed": 1150.0,
+      "status": "paid",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "C-72003",
+      "member_id": "M-2310",
+      "provider_name": "Northgate Orthopedics",
+      "service_date": "2026-04-15",
+      "amount_billed": 640.0,
+      "status": "denied",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-72002"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-72002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.status",
+     "value": "denied",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1972-09-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "claim_id": "C-72003"
+   },
+   "persona": "Hannah, a school librarian who handles her family's insurance paperwork on her lunch break.",
+   "reason_for_call": "She wants to challenge a imaging bill she believes the plan turned down.",
+   "task_instructions": "Start by asking to appeal the orthopedic visit bill from April. Before the agent files anything, realize the imaging scan is the one you meant, and give its claim number. Insist that the imaging bill was denied. Give your date of birth only when asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2455",
+      "full_name": "Oluwaseun Adebayo",
+      "date_of_birth": "1966-01-22",
+      "status": "active",
+      "plan_name": "Bronze EPO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-63310",
+      "member_id": "M-2455",
+      "provider_name": "Ridgeview Radiology",
+      "service_date": "2025-11-04",
+      "amount_billed": 890.0,
+      "status": "denied",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "C-63311",
+      "member_id": "M-2455",
+      "provider_name": "Ridgeview Radiology",
+      "service_date": "2026-02-11",
+      "amount_billed": 150.0,
+      "status": "paid",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-63310"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-63310",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1966-01-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.service_date",
+     "value": "2025-11-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The scan was at Ridgeview Radiology on the east side of town, the same place as my last two X-rays.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The denial letter says it was a coverage question, so the bill was denied and never paid.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Oluwaseun, a home health aide who has a short break at noon and wants things done quickly.",
+   "reason_for_call": "A scan bill from late last year was denied and she wants the plan to look at it again.",
+   "task_instructions": "Say the claim number first, then your date of birth, then the date of the scan. Answer questions in one line. Give the provider name if asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2644",
+      "full_name": "Peter Lindqvist",
+      "date_of_birth": "1994-05-06",
+      "status": "active",
+      "plan_name": "Bronze HSA"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-80455",
+      "member_id": "M-2644",
+      "provider_name": "Harborview Surgical Associates",
+      "service_date": "2026-02-17",
+      "amount_billed": 1875.0,
+      "status": "denied",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-80455"
+   },
+   "customer_facts": [
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-05-06",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Peter, a line cook who lost the explanation-of-benefits letters when he moved apartments last winter.",
+   "reason_for_call": "He got a bill from a surgeon's office and wants the plan to reconsider it.",
+   "task_instructions": "You have lost the letter, so you do not have the claim number, the provider name, or the service date. You can give your date of birth if asked. You do not remember who billed the surgery. Accept it politely if the agent cannot find the claim.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2530",
+      "full_name": "Jun Kowalczyk",
+      "date_of_birth": "1990-12-02",
+      "status": "active",
+      "plan_name": "Gold PPO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-85120",
+      "member_id": "M-2530",
+      "provider_name": "Coastal Wound Care Clinic",
+      "service_date": "2026-04-08",
+      "amount_billed": 310.0,
+      "status": "denied",
+      "appeal_count": 0
+     },
+     {
+      "claim_id": "C-85118",
+      "member_id": "M-2530",
+      "provider_name": "Coastal Wound Care Clinic",
+      "service_date": "2025-12-03",
+      "amount_billed": 205.0,
+      "status": "denied",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-85120"
+   },
+   "customer_facts": [
+    {
+     "fact": "clm.provider_name",
+     "value": "Coastal Wound Care Clinic",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.service_date",
+     "value": "2026-04-08",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-12-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jun, a graphic designer who is polite and well organized and keeps all his bills in a folder.",
+   "reason_for_call": "A wound dressing visit in April was denied and he wants it appealed.",
+   "task_instructions": "Be friendly and answer every question fully. You do not know the claim number, so give the provider name when asked. If there are two claims from that clinic, give the April service date. Give your date of birth when asked.",
+   "expected_outcome": "appeal"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2612",
+      "full_name": "Gloria Fenwick",
+      "date_of_birth": "1958-08-17",
+      "status": "active",
+      "plan_name": "Platinum PPO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-90401",
+      "member_id": "M-2612",
+      "provider_name": "Keystone Diagnostics Lab",
+      "service_date": "2026-03-02",
+      "amount_billed": 95.0,
+      "status": "denied",
+      "appeal_count": 1
+     },
+     {
+      "claim_id": "C-90402",
+      "member_id": "M-2612",
+      "provider_name": "Harbor Hearing Clinic",
+      "service_date": "2026-05-01",
+      "amount_billed": 1400.0,
+      "status": "denied",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-90402"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-90402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1958-08-17",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "claim_id": "C-90401"
+   },
+   "persona": "Gloria, a retired bookkeeper who is patient but likes to be thorough.",
+   "reason_for_call": "She was told a hearing aid fitting was denied and she wants that one reviewed.",
+   "task_instructions": "Start by asking to appeal the lab bill from March. When the agent says it has already been appealed, switch to the hearing clinic claim and give its claim number. Give your date of birth only when asked.",
+   "expected_outcome": "appeal"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2705",
+      "full_name": "Dmitri Kessler",
+      "date_of_birth": "1977-03-14",
+      "status": "active",
+      "plan_name": "Gold PPO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-77305",
+      "member_id": "M-2705",
+      "provider_name": "Summit Neurology Partners",
+      "service_date": "2026-03-30",
+      "amount_billed": 2100.0,
+      "status": "denied",
+      "appeal_count": 1
+     },
+     {
+      "claim_id": "C-77306",
+      "member_id": "M-2705",
+      "provider_name": "Eastgate Emergency Clinic",
+      "service_date": "2026-01-18",
+      "amount_billed": 1340.0,
+      "status": "paid",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-77305"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-77305",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-03-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Back in January I went to the emergency clinic on Eastgate Road, and that bill was paid already.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Years ago I had a Bronze plan before this one, and I never had any trouble with it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My neurologist's office has sent me three letters about this bill, and the letters are all in a pile on my desk.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Dmitri, a carpenter who is convinced the plan is cheating him and gets louder when he feels ignored.",
+   "reason_for_call": "A neurology bill from March was denied, and he wants it reopened.",
+   "task_instructions": "Give the claim number and your date of birth in your first message. When the agent says the claim cannot be appealed again, argue that it was unfair and ask for an exception. Ask for an exception at least twice before you accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2812",
+      "full_name": "Ines Carvalho",
+      "date_of_birth": "1981-10-09",
+      "status": "active",
+      "plan_name": "Silver HMO"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-88412",
+      "member_id": "M-2812",
+      "provider_name": "Maplewood Physiotherapy",
+      "service_date": "2026-05-02",
+      "amount_billed": 260.0,
+      "status": "denied",
+      "appeal_count": 0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-88412"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-88412",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-10-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines, a nurse on a tight schedule who expects things to work the first time.",
+   "reason_for_call": "A physiotherapy bill from earlier this month was denied and she wants an appeal filed today.",
+   "task_instructions": "Say the claim number and your date of birth in your first message. Be impatient: ask the agent to hurry if it takes more than one step. Accept the outcome once the appeal is filed.",
+   "expected_outcome": "appeal"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

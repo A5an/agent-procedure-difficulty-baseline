@@ -1,0 +1,17 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which account's balance is checked (multiple linked accounts?) and whether the customer names it or the agent must pick/ask",
+  "What the KB minimum-balance policy actually says (amount, scheme/account-type specific, penalties) and how the agent should apply it to the customer's balance",
+  "What 'reduced' means for the FD: reduced amount, reduced tenure, or reduced rate; and how the exact amount is determined (e.g., balance minus minimum balance, a customer-stated figure, or a fraction)",
+  "Which tenure, FD type (cumulative/non-cumulative, payout), interest payout and maturity instructions, and nominee choices are used, since the policy does not specify them",
+  "Which rate to select (tenor slab, senior-citizen or special rates, scheme) and how to handle ambiguous or multiple matching rate entries",
+  "Source account for funding the FD and whether the product ID must be looked up versus supplied by the customer",
+  "Whether the agent must get explicit customer confirmation before creating the FD (creating an FD is not in the listed confirm-before list) and what counts as confirmation",
+  "Order and necessity of the final balance check (to verify the deduction) and what to report if the balance does not change as expected",
+  "Edge cases: balance already at or below the minimum, FD amount below the scheme minimum, insufficient funds after reduction, tool errors or rejections, weak KB hits requiring query refinement",
+  "Customer behavior: they may change their mind, ask for a different amount, or request an unlinked account, in which case no mutation should happen",
+  "Bank conventions such as rounding, currency, minimum FD amount and multiples, premature withdrawal terms to disclose, and whether to mention the simulation date (2026-07-16) for maturity dates",
+  "Whether the final state is judged on the database outcome (FD created with exact parameters) or on what the agent communicates, and whether the agent should proactively offer anything further"
+ ]
+}

@@ -1,0 +1,737 @@
+{
+ "procedure_id": "p19_vehicle",
+ "domain": "vehicle registration office",
+ "organization": "Coastal Vehicle Registry Office",
+ "title": "Vehicle registration renewal",
+ "summary": "Renew the registration of a vehicle for the requested number of years when the owner and vehicle qualify, and charge the renewal fee.",
+ "entities": {
+  "owner": {
+   "key": "owner_id",
+   "description": "Registered vehicle owners",
+   "fields": {
+    "owner_id": "str",
+    "full_name": "str",
+    "date_of_birth": "date",
+    "email": "str",
+    "status": "enum:clear|hold"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Vehicles on the register, each with one registered owner",
+   "fields": {
+    "vehicle_id": "str",
+    "owner_id": "ref:owner",
+    "plate": "str",
+    "make": "str",
+    "registration_expiry": "date",
+    "emissions_passed": "bool",
+    "lien_flag": "bool"
+   }
+  },
+  "fee_charge": {
+   "key": "charge_id",
+   "description": "Fees charged to a vehicle's account",
+   "fields": {
+    "charge_id": "str",
+    "vehicle_id": "ref:vehicle",
+    "amount": "number",
+    "kind": "enum:renewal|late",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for office staff to review a vehicle before any change",
+   "fields": {
+    "request_id": "str",
+    "vehicle_id": "ref:vehicle",
+    "reason": "enum:lien_check|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_owner",
+   "kind": "get",
+   "entity": "owner",
+   "description": "Look up a registered owner by owner number."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by vehicle number."
+  },
+  {
+   "name": "find_vehicle_by_plate",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "plate"
+   ],
+   "description": "Find vehicles by their number plate."
+  },
+  {
+   "name": "find_vehicles_by_owner",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "owner_id"
+   ],
+   "description": "List all vehicles registered to an owner."
+  },
+  {
+   "name": "renew_registration",
+   "kind": "update",
+   "entity": "vehicle",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle whose registration is renewed."
+    },
+    "years": {
+     "type": "int",
+     "description": "Number of years to renew for."
+    }
+   },
+   "set": {
+    "registration_expiry": "add_days(rec.registration_expiry, args.years * 365)"
+   },
+   "description": "Extend the registration expiry date of a vehicle by the given number of years."
+  },
+  {
+   "name": "create_fee_charge",
+   "kind": "create",
+   "entity": "fee_charge",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle the fee belongs to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to charge, in dollars."
+    },
+    "kind": {
+     "type": "enum:renewal|late",
+     "description": "What the fee is for."
+    }
+   },
+   "fields": {
+    "vehicle_id": "args.vehicle_id",
+    "amount": "args.amount",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Record a fee charged to a vehicle's account."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle the review is about."
+    },
+    "reason": {
+     "type": "enum:lien_check|other",
+     "description": "Why staff should review the vehicle."
+    }
+   },
+   "fields": {
+    "vehicle_id": "args.vehicle_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for office staff to review a vehicle."
+  }
+ ],
+ "request": {
+  "vehicle_id": {
+   "type": "ref:vehicle",
+   "description": "the vehicle whose registration you want renewed"
+  },
+  "years": {
+   "type": "int",
+   "description": "how many years you want the registration renewed for"
+  }
+ },
+ "claims": {
+  "date_of_birth": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "req.vehicle_id"
+  },
+  {
+   "name": "own",
+   "entity": "owner",
+   "key": "veh.owner_id"
+  }
+ ],
+ "outcomes": {
+  "renew": {
+   "kind": "perform",
+   "description": "Renew the registration for the requested years and charge the renewal fee of 85.00 per year.",
+   "calls": [
+    {
+     "tool": "renew_registration",
+     "args": {
+      "vehicle_id": "veh.vehicle_id",
+      "years": "req.years"
+     }
+    },
+    {
+     "tool": "create_fee_charge",
+     "args": {
+      "vehicle_id": "veh.vehicle_id",
+      "amount": "req.years * 85.0",
+      "kind": "'renewal'"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The vehicle has a finance lien on record: do not renew; open a staff review instead.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "vehicle_id": "veh.vehicle_id",
+      "reason": "'lien_check'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not renew; explain which check was not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.date_of_birth != own.date_of_birth",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file for the owner before any change."
+  },
+  {
+   "id": "R2",
+   "when": "own.status == 'hold'",
+   "outcome": "refuse",
+   "explain": "Owners whose account status is hold cannot renew any vehicle."
+  },
+  {
+   "id": "R3",
+   "when": "veh.emissions_passed == False",
+   "outcome": "refuse",
+   "explain": "A vehicle without a passed emissions test on record cannot be renewed."
+  },
+  {
+   "id": "R4",
+   "when": "veh.lien_flag == True",
+   "outcome": "review",
+   "explain": "If the vehicle has a finance lien on record, open a staff review instead of renewing."
+  },
+  {
+   "id": "R5",
+   "when": "req.years > 2",
+   "outcome": "refuse",
+   "explain": "A renewal can be for at most two years."
+  }
+ ],
+ "default_outcome": "renew",
+ "policy_text": "## Who can ask\nVehicle owners can ask to renew the registration of a vehicle they own, by phone or chat. Before changing anything, find the vehicle and the registered owner it belongs to, then confirm the caller's identity: the date of birth they give must match the owner's date of birth on file. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the vehicle\nUse the vehicle number if the caller has it. Otherwise search by the number plate. If the caller can give neither the vehicle number nor the plate, you cannot find the vehicle: say so, explain that they will need the vehicle number or plate, and do not make any change.\n\n## Checks, in this order\n1. Identity: the date of birth given must match the owner's date of birth on file.\n2. Account status: if the owner's status is hold, renewals are refused for all their vehicles.\n3. Emissions: the vehicle must have a passed emissions test on record. If it does not, the renewal is refused.\n4. Lien: if the vehicle has a finance lien on record, do not renew it, whatever period was asked for. Open a review request with reason lien_check and tell the caller that office staff will contact them.\n5. Length: a renewal can be for one or two years. A request for more than two years is refused, not shortened.\n\n## When the renewal goes ahead\nIf every check above is passed, renew the registration for the number of years the caller asked for. Renewing adds 365 days per year to the registration expiry date. Charge the renewal fee of 85.00 per year requested, so a two-year renewal is charged 170.00.\n\n## Outcomes\n- Refused: explain plainly which check was not met and make no change.\n- Review: make no renewal and no charge; open the lien review request and tell the caller staff will contact them.\n- Renewed: make the renewal and the fee charge, then confirm the new expiry date and the amount charged.\n\n## Never\nDo not waive the renewal fee, do not shorten a request for more than two years, do not renew a vehicle for someone who failed the identity check, do not treat a passed emissions test as present without a record of it, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "owner": [
+   {
+    "owner_id": "O-0101",
+    "full_name": "Helen Brooks",
+    "date_of_birth": "1959-02-08",
+    "email": "helen.brooks@example.org",
+    "status": "clear"
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "V-10101",
+    "owner_id": "O-0101",
+    "plate": "A1010AB",
+    "make": "Skoda",
+    "registration_expiry": "2026-09-30",
+    "emissions_passed": true,
+    "lien_flag": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-4402",
+      "full_name": "Marta Oyelaran",
+      "date_of_birth": "1974-08-15",
+      "email": "marta.oy@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-40821",
+      "owner_id": "O-4402",
+      "plate": "B472KLA",
+      "make": "Honda",
+      "registration_expiry": "2026-06-12",
+      "emissions_passed": false,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-40821",
+    "years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "veh.plate",
+     "value": "B472KLA",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1974-08-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "vehicle_id": "V-40821",
+    "years": 2
+   },
+   "persona": "Marta, a delivery driver who is short on time and keeps her papers in a folder at home.",
+   "reason_for_call": "Her car's registration runs out soon and she wants it renewed before her shifts get busy.",
+   "task_instructions": "In your first message, give your number plate and date of birth, and ask to renew for two years. You do not know the vehicle number. If the agent says anything about the length of the renewal, switch to one year and accept it without further argument.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-7712",
+      "full_name": "Marisol Quintero",
+      "date_of_birth": "1982-03-09",
+      "email": "marisol.q@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-51204",
+      "owner_id": "O-7712",
+      "plate": "C2281LD",
+      "make": "Toyota",
+      "registration_expiry": "2026-06-30",
+      "emissions_passed": true,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-51204",
+    "years": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-51204",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1982-03-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a florist who likes to plan ahead and dislikes repeat paperwork.",
+   "reason_for_call": "She wants the registration renewed for three years at once so she does not have to think about it again.",
+   "task_instructions": "Give the vehicle number, the three years you want, and your date of birth in your first message. Be polite and accept whatever the agent tells you.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3380",
+      "full_name": "Tomasz Wierzbicki",
+      "date_of_birth": "1966-11-21",
+      "email": "tomasz.w@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-62877",
+      "owner_id": "O-3380",
+      "plate": "W8314RT",
+      "make": "Volvo",
+      "registration_expiry": "2026-07-15",
+      "emissions_passed": true,
+      "lien_flag": true
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-62877",
+    "years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-62877",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1966-11-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.lien_flag",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a retired machinist who keeps careful records of everything he owns.",
+   "reason_for_call": "He wants the car renewed for one year and believes the bank loan on it was paid off years ago.",
+   "task_instructions": "In your first message, give the vehicle number, one year, and your date of birth. Say early that you paid off the car loan years ago and that no lien should be on the car. Answer questions politely and accept whatever the agent decides.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-9045",
+      "full_name": "Ayesha Rahman",
+      "date_of_birth": "1990-01-30",
+      "email": "ayesha.r@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70115",
+      "owner_id": "O-9045",
+      "plate": "E4417PZ",
+      "make": "Kia",
+      "registration_expiry": "2026-09-01",
+      "emissions_passed": true,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70115",
+    "years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70115",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1990-01-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ayesha, a nurse who answers in short sentences and wants the call finished quickly.",
+   "reason_for_call": "She wants a one-year renewal before the registration expires.",
+   "task_instructions": "Give the vehicle number, one year, and your date of birth in your first message. Answer briefly and give only what is asked. Do not add details.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-1268",
+      "full_name": "Gregor Lindqvist",
+      "date_of_birth": "1958-06-12",
+      "email": "gregor.l@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-83390",
+      "owner_id": "O-1268",
+      "plate": "H9012MN",
+      "make": "Subaru",
+      "registration_expiry": "2026-05-28",
+      "emissions_passed": true,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-83390",
+    "years": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-83390",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1958-06-12",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gregor, a retired surveyor who is impatient with phone menus and automated replies.",
+   "reason_for_call": "He wants the car renewed for two years because the registration expires in a few days.",
+   "task_instructions": "Mention the vehicle number and two years in your first message. Do not give your date of birth until the agent asks for it. Push for the renewal to be done today. Once the agent asks for your date of birth, answer it.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-5530",
+      "full_name": "Priya Sundaram",
+      "date_of_birth": "1979-10-02",
+      "email": "priya.s@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-29914",
+      "owner_id": "O-5530",
+      "plate": "T3305XK",
+      "make": "Mazda",
+      "registration_expiry": "2026-06-05",
+      "emissions_passed": true,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-29914",
+    "years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1979-10-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, calling from a new phone number after losing both her renewal letter and her old phone.",
+   "reason_for_call": "She wants one more year on the registration of her car.",
+   "task_instructions": "You lost the renewal letter and do not know the vehicle number or the number plate. Say you know your date of birth and that you want one year. If the agent asks for the plate, say you do not have it. Keep answers very short.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-6604",
+      "full_name": "Benedikt Olsen",
+      "date_of_birth": "1971-04-27",
+      "email": "benedikt.o@example.org",
+      "status": "hold"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-44109",
+      "owner_id": "O-6604",
+      "plate": "P6612BS",
+      "make": "Ford",
+      "registration_expiry": "2026-06-10",
+      "emissions_passed": true,
+      "lien_flag": false
+     },
+     {
+      "vehicle_id": "V-44110",
+      "owner_id": "O-6604",
+      "plate": "P6615BS",
+      "make": "Renault",
+      "registration_expiry": "2026-08-01",
+      "emissions_passed": false,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-44109",
+    "years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-44109",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1971-04-27",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His other van has been parked at the depot for months and is not being driven.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is annoyed about an old parking ticket he says was issued by mistake.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His accountant has suggested he sell one of his two vans this summer.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Benedikt, a plumber who runs two vans and gets irritated when asked to wait.",
+   "reason_for_call": "He wants the van he drives renewed for one year before it expires.",
+   "task_instructions": "In your first message, give the vehicle number, one year, and your date of birth. When refused, argue that it is unfair and ask for an exception. Argue at least twice, then accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-2291",
+      "full_name": "Ingrid Solberg",
+      "date_of_birth": "1987-12-14",
+      "email": "ingrid.s@example.org",
+      "status": "clear"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-17702",
+      "owner_id": "O-2291",
+      "plate": "L5520FA",
+      "make": "Peugeot",
+      "registration_expiry": "2026-08-19",
+      "emissions_passed": true,
+      "lien_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-17702",
+    "years": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-17702",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.years",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1987-12-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.emissions_passed",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The emissions certificate was issued at the Northgate test station in February.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The renewal letter printed the expiry date on the front page.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "vehicle_id": "V-17702",
+    "years": 3
+   },
+   "persona": "Ingrid, an architect who plans her paperwork weeks ahead.",
+   "reason_for_call": "She wants her car renewed for two years, but she first asked for three by mistake.",
+   "task_instructions": "In your first message, give the vehicle number, ask for three years, and give your date of birth. When the agent explains the limit, switch to two years before anything is done and accept. Mention early that the car passed its emissions test this year.",
+   "expected_outcome": "renew"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

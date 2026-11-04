@@ -1,0 +1,695 @@
+{
+ "procedure_id": "p21_concert",
+ "domain": "concert and event ticketing",
+ "organization": "Harborlight Live Tickets",
+ "title": "Ticket order refunds",
+ "summary": "Refund a paid ticket order to the original payment method or to store credit when the caller is verified, the order is still paid, and the event is far enough away.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Ticket buyers with an account",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "postal_code": "str"
+   }
+  },
+  "event": {
+   "key": "event_id",
+   "description": "Concerts and live events on sale",
+   "fields": {
+    "event_id": "str",
+    "name": "str",
+    "venue": "str",
+    "event_date": "date"
+   }
+  },
+  "order": {
+   "key": "order_id",
+   "description": "Ticket orders placed by customers",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "event_id": "ref:event",
+    "quantity": "int",
+    "ticket_type": "enum:general|vip|balcony",
+    "total_paid": "number",
+    "status": "enum:paid|refunded|used",
+    "refund_method": "enum:none|original_payment|store_credit"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer account by customer number."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find customer accounts by the email address on the account."
+  },
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up a ticket order by order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all ticket orders of a customer."
+  },
+  {
+   "name": "get_event",
+   "kind": "get",
+   "entity": "event",
+   "description": "Look up an event by event number, including its date."
+  },
+  {
+   "name": "refund_order",
+   "kind": "update",
+   "entity": "order",
+   "args": {
+    "order_id": {
+     "type": "ref:order",
+     "description": "The order to refund."
+    },
+    "method": {
+     "type": "enum:original_payment|store_credit",
+     "description": "Where the money goes."
+    }
+   },
+   "set": {
+    "status": "'refunded'",
+    "refund_method": "args.method"
+   },
+   "description": "Mark an order as refunded and record whether the refund goes to the original payment method or to store credit."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:order",
+   "description": "the ticket order you want refunded"
+  },
+  "refund_method": {
+   "type": "enum:original_payment|store_credit",
+   "description": "whether you want the money back on your original payment method (original_payment) or as store credit (store_credit)"
+  }
+ },
+ "claims": {
+  "postal_code": {
+   "type": "str",
+   "description": "the billing postal code on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "order",
+   "entity": "order",
+   "key": "req.order_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "order.customer_id"
+  },
+  {
+   "name": "ev",
+   "entity": "event",
+   "key": "order.event_id"
+  }
+ ],
+ "outcomes": {
+  "refund": {
+   "kind": "perform",
+   "description": "Refund the order using the method the customer chose.",
+   "calls": [
+    {
+     "tool": "refund_order",
+     "args": {
+      "order_id": "req.order_id",
+      "method": "req.refund_method"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refund; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postal_code != cust.postal_code",
+   "outcome": "refuse",
+   "explain": "The caller must give the billing postal code on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "order.status != 'paid'",
+   "outcome": "refuse",
+   "explain": "Only orders that are still in paid status can be refunded."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, ev.event_date) < 7",
+   "outcome": "refuse",
+   "explain": "Refunds are not available when the event is less than 7 days away."
+  }
+ ],
+ "default_outcome": "refund",
+ "policy_text": "## Who can ask\nAccount holders can request a refund of a ticket order by phone or chat. Before changing anything, find the order and the account it belongs to, and confirm the caller's identity: the billing postal code they give must match the one on the account. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the order\nUse the order number if the customer has it. Otherwise find the account by the email address on it and list the account's orders; if there is more than one, ask which event they mean. If you cannot identify the account or the order, you cannot proceed and should say so.\n\n## When a refund is allowed\n- The order must still be in paid status. Orders already refunded or already used cannot be refunded.\n- The event must be at least 7 days away from today. If the event is less than 7 days away (or has passed), no refund is given. An event exactly 7 days away still qualifies.\n\nThe customer chooses where the money goes: back to the original payment method or as store credit. Refund the whole order, not part of it.\n\nIf everything above is satisfied, refund the order using the method the customer asked for, and tell them what you did. If not, decline and explain the reason plainly.\n\n## Never\nDo not make exceptions to the 7-day limit, do not refund an order for someone who failed the identity check, do not refund an order twice, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "event": [
+   {
+    "event_id": "E-301",
+    "name": "Midnight Harbor Tour",
+    "venue": "Pier 9 Amphitheater",
+    "event_date": "2026-07-18"
+   },
+   {
+    "event_id": "E-302",
+    "name": "Symphony Under the Stars",
+    "venue": "Greenfield Park Bowl",
+    "event_date": "2026-06-14"
+   },
+   {
+    "event_id": "E-303",
+    "name": "Cedar Ridge Jazz Night",
+    "venue": "The Cedar Room",
+    "event_date": "2026-05-24"
+   },
+   {
+    "event_id": "E-304",
+    "name": "Rooftop Comedy Showcase",
+    "venue": "Skyline Terrace",
+    "event_date": "2026-05-26"
+   },
+   {
+    "event_id": "E-305",
+    "name": "Neon Echoes Festival",
+    "venue": "Riverside Fairgrounds",
+    "event_date": "2026-08-09"
+   },
+   {
+    "event_id": "E-306",
+    "name": "Bluegrass Barn Dance",
+    "venue": "Old Mill Barn",
+    "event_date": "2026-05-27"
+   }
+  ],
+  "customer": [
+   {
+    "customer_id": "C-1000",
+    "full_name": "Jordan Ellis",
+    "email": "jordan.ellis@example.com",
+    "postal_code": "02116"
+   }
+  ],
+  "order": [
+   {
+    "order_id": "O-10000",
+    "customer_id": "C-1000",
+    "event_id": "E-302",
+    "quantity": 2,
+    "ticket_type": "general",
+    "total_paid": 110.0,
+    "status": "paid",
+    "refund_method": "none"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4410",
+      "full_name": "Marisol Vega",
+      "email": "marisol.vega@example.com",
+      "postal_code": "78704"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-48110",
+      "customer_id": "C-4410",
+      "event_id": "E-301",
+      "quantity": 2,
+      "ticket_type": "vip",
+      "total_paid": 240.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-48110",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "marisol.vega@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "78704",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol, a restaurant manager with little free time. Impatient and wants things done fast.",
+   "reason_for_call": "Her work schedule changed and she can no longer attend a harbor cruise concert she bought VIP tickets for. She has lost the confirmation email with the order number.",
+   "task_instructions": "Say you want a refund to your original payment method and give your email and postal code. You do not know the order number. Push the agent to hurry, but answer questions.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5202",
+      "full_name": "Tomas Berg",
+      "email": "tomas.berg@example.com",
+      "postal_code": "55407"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-52001",
+      "customer_id": "C-5202",
+      "event_id": "E-302",
+      "quantity": 2,
+      "ticket_type": "general",
+      "total_paid": 118.0,
+      "status": "paid",
+      "refund_method": "none"
+     },
+     {
+      "order_id": "O-52002",
+      "customer_id": "C-5202",
+      "event_id": "E-305",
+      "quantity": 1,
+      "ticket_type": "general",
+      "total_paid": 89.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-52001",
+    "refund_method": "store_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-52001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "store_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "55407",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a ticket to the Neon Echoes Festival in August, which he is keeping.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once had a parking pass refunded two years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His brother is a big fan of the symphony's conductor.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomas, a software tester who writes in very short messages.",
+   "reason_for_call": "He has a family trip that clashes with an outdoor symphony night and wants his money back as store credit.",
+   "task_instructions": "Keep every reply to a few words. Give the order number, the refund choice and the postal code. Mention the other details only briefly if the conversation allows. Do not elaborate.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6003",
+      "full_name": "Grace Liu",
+      "email": "grace.liu@example.com",
+      "postal_code": "98103"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-60030",
+      "customer_id": "C-6003",
+      "event_id": "E-301",
+      "quantity": 3,
+      "ticket_type": "general",
+      "total_paid": 210.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-60030",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.full_name",
+     "value": "Grace Liu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a friendly teacher calling from a new phone number after her old phone broke.",
+   "reason_for_call": "She wants to refund tickets she bought for a harbor concert, but her old phone with the confirmation email is gone.",
+   "task_instructions": "Give your name and say you want the money back on your original payment method. You do not remember the order number and you do not remember which email address you used to buy. Be polite, and accept it if the agent cannot find the order.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6104",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "postal_code": "60614"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-60417",
+      "customer_id": "C-6104",
+      "event_id": "E-303",
+      "quantity": 2,
+      "ticket_type": "balcony",
+      "total_paid": 96.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-60417",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-60417",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "60614",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ev.event_date",
+     "value": "2026-06-25",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graphic designer who is a bit disorganized about dates.",
+   "reason_for_call": "She wants to return two balcony tickets to a jazz night because a friend can no longer come. She believes the show is at the end of June.",
+   "task_instructions": "First ask for a refund as store credit, then say you changed your mind and want the money on your original payment method instead. State that the show is on 2026-06-25, so there is plenty of time. If the agent says it is too close to the event, accept it.",
+   "initial_request_values": {
+    "refund_method": "store_credit"
+   },
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7023",
+      "full_name": "Ken Watanabe",
+      "email": "ken.w@example.com",
+      "postal_code": "94110"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-70233",
+      "customer_id": "C-7023",
+      "event_id": "E-305",
+      "quantity": 4,
+      "ticket_type": "vip",
+      "total_paid": 520.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-70233",
+    "refund_method": "store_credit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-70233",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "store_credit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "94110",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ev.event_date",
+     "value": "2026-08-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The festival is in early August, a couple of months away.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The order is for four VIP tickets and was paid in full.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ken, an organized accountant who plans everything ahead.",
+   "reason_for_call": "His group of friends has dropped out of a summer festival, so he wants to refund the four VIP tickets.",
+   "task_instructions": "First ask to get the refund on your original payment method, then before anything is done say you would rather have store credit. Give the order number, your postal code and the event date up front, and mention the other details naturally.",
+   "initial_request_values": {
+    "refund_method": "original_payment"
+   },
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8109",
+      "full_name": "Lucia Romano",
+      "email": "lucia.romano@example.com",
+      "postal_code": "10027"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-81090",
+      "customer_id": "C-8109",
+      "event_id": "E-306",
+      "quantity": 1,
+      "ticket_type": "general",
+      "total_paid": 45.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-81090",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-81090",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "10027",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Lucia, a nurse typing quickly between shifts.",
+   "reason_for_call": "She has to work on the night of a barn dance and wants a refund for her single ticket.",
+   "task_instructions": "Give the order number and the refund choice. Keep answers very short. Give your postal code only if the agent asks for it.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9137",
+      "full_name": "David Okafor",
+      "email": "david.okafor@example.com",
+      "postal_code": "30309"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-91376",
+      "customer_id": "C-9137",
+      "event_id": "E-302",
+      "quantity": 2,
+      "ticket_type": "general",
+      "total_paid": 110.0,
+      "status": "refunded",
+      "refund_method": "original_payment"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-91376",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "david.okafor@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "30309",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "David, a friendly bus driver who is not good with paperwork.",
+   "reason_for_call": "He wants a refund for symphony tickets and does not have the order number handy. He vaguely thinks he may have asked about this before.",
+   "task_instructions": "Give your email and postal code and say you want a refund on your original payment method. You do not know the order number. Answer questions politely and accept the result.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9288",
+      "full_name": "Hannah Cole",
+      "email": "hannah.cole@example.com",
+      "postal_code": "80205"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-92880",
+      "customer_id": "C-9288",
+      "event_id": "E-304",
+      "quantity": 2,
+      "ticket_type": "vip",
+      "total_paid": 180.0,
+      "status": "paid",
+      "refund_method": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-92880",
+    "refund_method": "original_payment"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-92880",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.refund_method",
+     "value": "original_payment",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "80205",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a sales rep who is used to getting her way and is annoyed about a sudden business trip.",
+   "reason_for_call": "A work trip came up and she cannot go to the comedy show on Tuesday. She wants her VIP tickets refunded.",
+   "task_instructions": "Give the order number, the refund choice and your postal code in your first message. If refused, argue that the trip is unavoidable and ask for an exception at least twice, then accept.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

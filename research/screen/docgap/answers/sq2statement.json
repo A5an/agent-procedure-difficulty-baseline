@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which history tool and filters to use to find the disputed transaction (date range, amount, merchant, account vs card) and how to disambiguate when several transactions match",
+  "How to classify the dispute (unauthorized debit, duplicate charge, wrong amount, merchant dispute, failed ATM withdrawal, etc.) and which category maps to which backend action, without exposing internal codes to the customer",
+  "Whether the final action is raising a dispute/service request, blocking or freezing a card, or transferring to a human, and the order of these (e.g., freeze card before dispute for suspected fraud)",
+  "Whether to block the card permanently vs. toggle a freeze, since the policy only gives rules for lost/stolen cases and not for suspected fraud where the customer has not said the card is stolen",
+  "What documentation means: generating/sending an account statement vs. dispute acknowledgment, the statement period, format, delivery channel, and whether it covers the disputed transaction only or a broader range",
+  "Which details the dispute needs (reason, amount, date, merchant, whether the card is in the customer's possession, prior contact with the merchant) and how many to collect before raising it",
+  "Dispute eligibility windows (e.g., 60/90/120 days from the simulation date 2026-07-16), transaction status (pending vs. posted), and what to do when a transaction is outside the window",
+  "Edge cases: the transaction is not found, belongs to an unlinked account, is already disputed, is legitimate (customer misremembers), or involves a recurring mandate that should be cancelled",
+  "Customer behavior: changing their mind, refusing to confirm a block, being vague about which transaction, asking for provisional credit or timelines, or pressing for a human",
+  "Bank-specific conventions: reference number format, SLAs, provisional credit rules, fees for statements, and what to tell the customer after the dispute is raised, all of which would have to come from the knowledge base and are not in the policy",
+  "How to proceed when knowledge base results are weak, and what to do if the dispute process cannot be completed through tools (raise a service request vs. transfer)"
+ ]
+}

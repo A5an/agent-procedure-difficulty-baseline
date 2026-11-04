@@ -1,0 +1,795 @@
+{
+ "procedure_id": "p07_university",
+ "domain": "university registrar",
+ "organization": "Halvorsen State University \u2013 Office of the Registrar",
+ "title": "Course withdrawals",
+ "summary": "Withdraw a student from a registered course section on or before the section's withdrawal deadline, reduce the student's credit load and record a 50% tuition credit.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Students of the university",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "program": "str",
+    "credits_enrolled": "int"
+   }
+  },
+  "section": {
+   "key": "section_id",
+   "description": "Course sections offered in a term, with their withdrawal deadline and tuition fee",
+   "fields": {
+    "section_id": "str",
+    "course_code": "str",
+    "title": "str",
+    "term": "str",
+    "credits": "int",
+    "tuition_fee": "number",
+    "withdraw_deadline": "date"
+   }
+  },
+  "enrollment": {
+   "key": "enrollment_id",
+   "description": "A student's registration in one course section",
+   "fields": {
+    "enrollment_id": "str",
+    "student_id": "ref:student",
+    "section_id": "ref:section",
+    "course_code": "str",
+    "status": "enum:registered|withdrawn|completed",
+    "withdrawn_on": "date"
+   }
+  },
+  "withdrawal_record": {
+   "key": "record_id",
+   "description": "Official withdrawal records, with the reason category and the tuition credit granted",
+   "fields": {
+    "record_id": "str",
+    "enrollment_id": "ref:enrollment",
+    "reason": "enum:medical|personal|financial|employment|academic",
+    "tuition_credit": "number",
+    "effective_date": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student ID number."
+  },
+  {
+   "name": "find_student_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "email"
+   ],
+   "description": "Find students by the university email address on file."
+  },
+  {
+   "name": "get_section",
+   "kind": "get",
+   "entity": "section",
+   "description": "Look up a course section by section ID, including its credits, tuition fee and withdrawal deadline."
+  },
+  {
+   "name": "get_enrollment",
+   "kind": "get",
+   "entity": "enrollment",
+   "description": "Look up an enrollment by its enrollment number."
+  },
+  {
+   "name": "find_enrollments_by_student",
+   "kind": "search",
+   "entity": "enrollment",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all enrollments (current and past) of a student by student ID."
+  },
+  {
+   "name": "withdraw_enrollment",
+   "kind": "update",
+   "entity": "enrollment",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment to withdraw."
+    }
+   },
+   "set": {
+    "status": "'withdrawn'",
+    "withdrawn_on": "today"
+   },
+   "description": "Mark an enrollment as withdrawn as of today."
+  },
+  {
+   "name": "adjust_credit_load",
+   "kind": "update",
+   "entity": "student",
+   "args": {
+    "student_id": {
+     "type": "ref:student",
+     "description": "The student whose credit load changes."
+    },
+    "credits": {
+     "type": "int",
+     "description": "Number of credits to remove from the student's current credit load."
+    }
+   },
+   "set": {
+    "credits_enrolled": "rec.credits_enrolled - args.credits"
+   },
+   "description": "Reduce a student's enrolled credit load by the given number of credits."
+  },
+  {
+   "name": "create_withdrawal_record",
+   "kind": "create",
+   "entity": "withdrawal_record",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The withdrawn enrollment."
+    },
+    "reason": {
+     "type": "enum:medical|personal|financial|employment|academic",
+     "description": "The student's reason category for withdrawing."
+    },
+    "tuition_credit": {
+     "type": "number",
+     "description": "Tuition credit granted to the student's account."
+    }
+   },
+   "fields": {
+    "enrollment_id": "args.enrollment_id",
+    "reason": "args.reason",
+    "tuition_credit": "args.tuition_credit",
+    "effective_date": "today"
+   },
+   "description": "Create the official withdrawal record with the reason category and the tuition credit, effective today."
+  }
+ ],
+ "request": {
+  "enrollment_id": {
+   "type": "ref:enrollment",
+   "description": "the course enrollment you want to withdraw from"
+  },
+  "withdrawal_reason": {
+   "type": "enum:medical|personal|financial|employment|academic",
+   "description": "the main reason you are withdrawing (medical, personal, financial, employment or academic)"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "enr",
+   "entity": "enrollment",
+   "key": "req.enrollment_id"
+  },
+  {
+   "name": "sec",
+   "entity": "section",
+   "key": "enr.section_id"
+  },
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "enr.student_id"
+  }
+ ],
+ "outcomes": {
+  "withdraw": {
+   "kind": "perform",
+   "description": "Withdraw the student from the section, reduce their credit load by the section's credits, and record the withdrawal with a tuition credit of half the section's tuition fee.",
+   "calls": [
+    {
+     "tool": "withdraw_enrollment",
+     "args": {
+      "enrollment_id": "enr.enrollment_id"
+     }
+    },
+    {
+     "tool": "adjust_credit_load",
+     "args": {
+      "student_id": "stu.student_id",
+      "credits": "sec.credits"
+     }
+    },
+    {
+     "tool": "create_withdrawal_record",
+     "args": {
+      "enrollment_id": "enr.enrollment_id",
+      "reason": "req.withdrawal_reason",
+      "tuition_credit": "sec.tuition_fee * 0.5"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not withdraw; explain why the withdrawal cannot be processed.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "enr.status != 'registered'",
+   "outcome": "refuse",
+   "explain": "Only enrollments that are currently registered can be withdrawn; completed or already withdrawn enrollments cannot."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(sec.withdraw_deadline, today) > 0",
+   "outcome": "refuse",
+   "explain": "A withdrawal can only be processed on or before the section's withdrawal deadline."
+  }
+ ],
+ "default_outcome": "withdraw",
+ "policy_text": "## Purpose\nStudents may contact the Registrar by phone or chat to withdraw from a course section they are registered in. A withdrawal removes the course from the student's current load and grants a partial tuition credit.\n\n## Finding the enrollment\nIf the student has the enrollment number (it appears on their registration confirmation), look it up directly. Otherwise ask for their student ID number, list their enrollments, and use the course code they give (for example \"STAT 210\") to pick the right one. If the student has more than one enrollment, make sure you have the one they mean. If you cannot identify the student and the exact enrollment, you cannot process the withdrawal; explain what they would need (enrollment number or student ID) and make no changes. Then look up the section of the enrollment to check its withdrawal deadline, credits and tuition fee.\n\n## Reason for withdrawal\nEvery withdrawal is recorded with one reason category: medical, personal, financial, employment or academic. Ask the student which one applies if they have not said. Use the reason they settle on.\n\n## When a withdrawal is allowed\n1. The enrollment must currently be in registered status. Enrollments that are already withdrawn or completed (the course is finished) cannot be withdrawn.\n2. Today must be on or before the section's withdrawal deadline as shown in our records. The deadline day itself still counts. After the deadline the withdrawal cannot be processed. Always use the deadline in the section record, even if the student believes a different date applies.\n\n## Processing a withdrawal\nIf both conditions are met, do the following, in this order:\n1. Withdraw the enrollment.\n2. Reduce the student's enrolled credit load by the number of credits of that section.\n3. Create the withdrawal record with the student's reason category and a tuition credit equal to 50% of the section's tuition fee.\nTell the student the withdrawal is complete and the amount of the tuition credit.\n\n## If the withdrawal is not allowed\nExplain the reason politely and make no changes. Agents cannot grant exceptions to the status or deadline requirements.\n\n## Never\nDo not withdraw a student from a course other than the one they confirm, do not change the tuition credit amount, and do not process a withdrawal that fails either condition, no matter how much the student insists.",
+ "db_common": {
+  "section": [
+   {
+    "section_id": "SEC-SU26-STAT210-02",
+    "course_code": "STAT 210",
+    "title": "Introductory Statistical Methods",
+    "term": "Summer 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "section_id": "SEC-SU26-CHEM115-01",
+    "course_code": "CHEM 115",
+    "title": "General Chemistry I",
+    "term": "Summer 2026",
+    "credits": 4,
+    "tuition_fee": 2320.0,
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "section_id": "SEC-SU26-CS150-01",
+    "course_code": "CS 150",
+    "title": "Programming Fundamentals",
+    "term": "Summer 2026",
+    "credits": 4,
+    "tuition_fee": 2320.0,
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "section_id": "SEC-SU26-ART105-01",
+    "course_code": "ART 105",
+    "title": "Drawing I",
+    "term": "Summer 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "section_id": "SEC-SU26-MATH221-01",
+    "course_code": "MATH 221",
+    "title": "Linear Algebra",
+    "term": "Summer 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-06-12"
+   },
+   {
+    "section_id": "SEC-SU1-26-HIST230-01",
+    "course_code": "HIST 230",
+    "title": "Modern Latin America",
+    "term": "Summer Session I 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-05-15"
+   },
+   {
+    "section_id": "SEC-SP26-ECON301-01",
+    "course_code": "ECON 301",
+    "title": "Intermediate Microeconomics",
+    "term": "Spring 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-04-10"
+   },
+   {
+    "section_id": "SEC-SP26-PSYC101-03",
+    "course_code": "PSYC 101",
+    "title": "Introduction to Psychology",
+    "term": "Spring 2026",
+    "credits": 3,
+    "tuition_fee": 1740.0,
+    "withdraw_deadline": "2026-04-10"
+   }
+  ],
+  "student": [
+   {
+    "student_id": "S-2030017",
+    "full_name": "Gabriel Moreau",
+    "email": "gmoreau@halvorsen.edu",
+    "program": "BA History",
+    "credits_enrolled": 3
+   }
+  ],
+  "enrollment": [
+   {
+    "enrollment_id": "ENR-640001",
+    "student_id": "S-2030017",
+    "section_id": "SEC-SU1-26-HIST230-01",
+    "course_code": "HIST 230",
+    "status": "registered",
+    "withdrawn_on": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2041178",
+      "full_name": "Priya Natarajan",
+      "email": "pnatarajan@halvorsen.edu",
+      "program": "BS Nursing",
+      "credits_enrolled": 7
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-660412",
+      "student_id": "S-2041178",
+      "section_id": "SEC-SU26-STAT210-02",
+      "course_code": "STAT 210",
+      "status": "registered",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "ENR-660413",
+      "student_id": "S-2041178",
+      "section_id": "SEC-SU26-CHEM115-01",
+      "course_code": "CHEM 115",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-660412",
+    "withdrawal_reason": "employment"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-660412",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "employment",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a nursing student who just got offered extra hospital shifts this summer. Polite, organized and to the point.",
+   "reason_for_call": "Her new work schedule clashes with her summer statistics class, so she wants to withdraw from it.",
+   "task_instructions": "In your first message say you want to withdraw from your statistics course, give the enrollment number and say the reason is your job (employment). Answer any questions clearly and thank the agent.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2039554",
+      "full_name": "Marcus Bell",
+      "email": "mbell@halvorsen.edu",
+      "program": "BA Economics",
+      "credits_enrolled": 3
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-648830",
+      "student_id": "S-2039554",
+      "section_id": "SEC-SP26-ECON301-01",
+      "course_code": "ECON 301",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-648830",
+    "withdrawal_reason": "medical"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-648830",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "medical",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, an economics junior recovering from knee surgery he had in March. Calm and cooperative.",
+   "reason_for_call": "He fell behind in his spring microeconomics course after his surgery and wants to withdraw from it.",
+   "task_instructions": "Say you want to withdraw from your microeconomics course and give the enrollment number. Only mention that the reason is medical if the agent asks for a reason. If the agent says it cannot be done, accept it politely and ask what you could do instead.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2050019",
+      "full_name": "Tom\u00e1s Ferreira",
+      "email": "tferreira@halvorsen.edu",
+      "program": "BS Biology",
+      "credits_enrolled": 4
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-671205",
+      "student_id": "S-2050019",
+      "section_id": "SEC-SU26-CHEM115-01",
+      "course_code": "CHEM 115",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-671205",
+    "withdrawal_reason": "financial"
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.full_name",
+     "value": "Tom\u00e1s Ferreira",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.course_code",
+     "value": "CHEM 115",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "financial",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a first-year biology student calling from his uncle's phone while visiting family out of state. He lost his wallet with his student ID card and is locked out of his university email after a password reset. Impatient.",
+   "reason_for_call": "He cannot afford the summer chemistry course after all and wants to drop it right away.",
+   "task_instructions": "Give your full name, the course (CHEM 115) and say it's for financial reasons. You do not know your student ID number, your enrollment number, or which email address the university has. If the agent says they cannot find your record, push back, insist they look you up by name, and ask for an exception at least twice before accepting.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2044390",
+      "full_name": "Hannah Okafor",
+      "email": "hokafor@halvorsen.edu",
+      "program": "BA Fine Arts",
+      "credits_enrolled": 6
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-665101",
+      "student_id": "S-2044390",
+      "section_id": "SEC-SU26-ART105-01",
+      "course_code": "ART 105",
+      "status": "registered",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "ENR-665102",
+      "student_id": "S-2044390",
+      "section_id": "SEC-SU1-26-HIST230-01",
+      "course_code": "HIST 230",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-665102",
+    "withdrawal_reason": "personal"
+   },
+   "initial_request_values": {
+    "enrollment_id": "ENR-665101",
+    "withdrawal_reason": "personal"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-665102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "personal",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sec.withdraw_deadline",
+     "value": "2026-05-29",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a fine arts student juggling a family move this summer. A bit scattered but friendly.",
+   "reason_for_call": "She needs to lighten her summer load because of a family move and is deciding which class to drop.",
+   "task_instructions": "First ask to withdraw from your drawing class for personal reasons. Before the agent completes anything, change your mind: you want to keep drawing and instead withdraw from your Latin America history course, and give the enrollment number for that history course. Say early that you're sure the withdrawal deadline for that history course is May 29. If the agent says the deadline has passed, express surprise but accept it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2037712",
+      "full_name": "Wei Zhang",
+      "email": "wzhang@halvorsen.edu",
+      "program": "BS Mathematics",
+      "credits_enrolled": 7
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-662980",
+      "student_id": "S-2037712",
+      "section_id": "SEC-SU26-CS150-01",
+      "course_code": "CS 150",
+      "status": "registered",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "ENR-662981",
+      "student_id": "S-2037712",
+      "section_id": "SEC-SU26-MATH221-01",
+      "course_code": "MATH 221",
+      "status": "registered",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "ENR-641007",
+      "student_id": "S-2037712",
+      "section_id": "SEC-SP26-PSYC101-03",
+      "course_code": "PSYC 101",
+      "status": "completed",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-662980",
+    "withdrawal_reason": "academic"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-662980",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "academic",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He finished Intro to Psychology in the spring and got a B+.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He has been thinking about switching from math to data science next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He got a parking ticket on campus last week and isn't sure who handles that.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He also considered ordering an official transcript but decided it can wait.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Wei, a quiet mathematics student who types in short fragments.",
+   "reason_for_call": "The summer programming course is too much on top of linear algebra, so he wants to drop it.",
+   "task_instructions": "Use very short replies. Give the enrollment number and say you want to withdraw. Only give the reason (academic) if asked. Drop the side remarks (spring psychology grade, maybe switching majors, parking ticket, transcript you decided not to order) briefly in passing. Keep linear algebra.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2046023",
+      "full_name": "Aigerim Seitkali",
+      "email": "aseitkali@halvorsen.edu",
+      "program": "BS Physics",
+      "credits_enrolled": 3
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-667734",
+      "student_id": "S-2046023",
+      "section_id": "SEC-SU26-MATH221-01",
+      "course_code": "MATH 221",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-667734",
+    "withdrawal_reason": "medical"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-667734",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "medical",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sec.withdraw_deadline",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.status",
+     "value": "registered",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It's Linear Algebra, MATH 221, in the regular Summer 2026 term, not Summer Session I.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her student portal still shows her as registered in the course, and the summer academic calendar lists June 12 as the last day to withdraw.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Aigerim, a physics student recovering from a bout of pneumonia. Brief and businesslike.",
+   "reason_for_call": "She is too ill to keep up with her summer linear algebra course and wants to withdraw.",
+   "task_instructions": "Answer in as few words as possible. In your first message give the enrollment number, say it's medical, that you're still registered, and that the deadline is June 12. Mention the course is Linear Algebra in the regular summer term. Do not elaborate further.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2042256",
+      "full_name": "Diego Ram\u00edrez",
+      "email": "dramirez@halvorsen.edu",
+      "program": "BS Chemical Engineering",
+      "credits_enrolled": 7
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-663518",
+      "student_id": "S-2042256",
+      "section_id": "SEC-SU26-CHEM115-01",
+      "course_code": "CHEM 115",
+      "status": "registered",
+      "withdrawn_on": null
+     },
+     {
+      "enrollment_id": "ENR-663519",
+      "student_id": "S-2042256",
+      "section_id": "SEC-SU26-STAT210-02",
+      "course_code": "STAT 210",
+      "status": "registered",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-663518",
+    "withdrawal_reason": "employment"
+   },
+   "initial_request_values": {
+    "enrollment_id": "ENR-663518",
+    "withdrawal_reason": "financial"
+   },
+   "customer_facts": [
+    {
+     "fact": "enr.student_id",
+     "value": "S-2042256",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "enr.course_code",
+     "value": "CHEM 115",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "employment",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Diego, an engineering student who just landed a paid summer internship. Chatty and a little indecisive.",
+   "reason_for_call": "His new internship hours overlap with his summer chemistry lab, so he wants to withdraw from chemistry and keep statistics.",
+   "task_instructions": "You don't have the enrollment number, but give your student ID and say you want to drop CHEM 115. At first say the reason is financial. Before the agent processes anything, correct yourself: the real reason is the internship, so it should be employment. Keep statistics.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "S-2038861",
+      "full_name": "Rebecca Lindqvist",
+      "email": "rlindqvist@halvorsen.edu",
+      "program": "BA Communications",
+      "credits_enrolled": 0
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "ENR-650214",
+      "student_id": "S-2038861",
+      "section_id": "SEC-SP26-PSYC101-03",
+      "course_code": "PSYC 101",
+      "status": "completed",
+      "withdrawn_on": null
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "ENR-650214",
+    "withdrawal_reason": "academic"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "ENR-650214",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.withdrawal_reason",
+     "value": "academic",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rebecca, a communications sophomore worried about her GPA for a scholarship renewal. Impatient and insistent.",
+   "reason_for_call": "She got a poor grade in spring Intro to Psychology and wants to withdraw from it so it doesn't hurt her GPA.",
+   "task_instructions": "In your first message give the enrollment number and say you want to withdraw for academic reasons. If the agent refuses, argue that your scholarship depends on it and ask for an exception at least twice, then reluctantly accept.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

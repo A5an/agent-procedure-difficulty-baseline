@@ -1,0 +1,859 @@
+{
+ "procedure_id": "p02_electricity",
+ "domain": "electricity utility",
+ "organization": "Northvale Power & Light",
+ "title": "Payment arrangements for overdue electricity balances",
+ "summary": "Set up an instalment plan for a residential customer's overdue electricity balance, pause disconnection activity for the length of the plan and send a written confirmation, when the account holder is verified and the account and plan qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Residential electricity supply accounts, one per service address",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "holder_birth_date": "date",
+    "phone": "str",
+    "email": "str",
+    "service_address": "str",
+    "status": "enum:active|disconnected|closed",
+    "overdue_balance": "number",
+    "broken_plans_12m": "int",
+    "collection_status": "enum:none|pending_disconnection|arranged",
+    "disconnection_hold_until": "date"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Instalment plans agreed for overdue balances, current and past",
+   "fields": {
+    "plan_id": "str",
+    "account_id": "ref:account",
+    "installments": "int",
+    "installment_amount": "number",
+    "total_amount": "number",
+    "first_due_date": "date",
+    "status": "enum:active|completed|broken",
+    "created": "date"
+   }
+  },
+  "correspondence": {
+   "key": "letter_id",
+   "description": "Letters and emails sent to account holders",
+   "fields": {
+    "letter_id": "str",
+    "account_id": "ref:account",
+    "letter_type": "enum:payment_plan_confirmation|disconnection_notice",
+    "delivery": "enum:post|email",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an electricity account by its account number. Shows the holder's details, account status, overdue balance, number of payment plans broken in the last 12 months and collections status."
+  },
+  {
+   "name": "find_accounts_by_phone",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "phone"
+   ],
+   "description": "Find all accounts with this contact phone number on file (enter the number exactly as the customer gives it)."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "email"
+   ],
+   "description": "Find all accounts with this email address on file."
+  },
+  {
+   "name": "find_payment_plans_by_account",
+   "kind": "search",
+   "entity": "payment_plan",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all current and past payment plans on an account."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the plan is for."
+    },
+    "installments": {
+     "type": "int",
+     "description": "Number of monthly instalments."
+    },
+    "installment_amount": {
+     "type": "number",
+     "description": "Amount of each monthly instalment: the overdue balance divided by the number of instalments, rounded to the cent."
+    },
+    "total_amount": {
+     "type": "number",
+     "description": "Total amount covered by the plan: the full overdue balance on the account."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "installments": "args.installments",
+    "installment_amount": "args.installment_amount",
+    "total_amount": "args.total_amount",
+    "first_due_date": "add_days(today, 14)",
+    "status": "'active'",
+    "created": "today"
+   },
+   "description": "Create an active instalment plan on an account. The first instalment is due 14 days from today."
+  },
+  {
+   "name": "place_collections_hold",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account to place on hold."
+    },
+    "hold_days": {
+     "type": "int",
+     "description": "How many days from today the disconnection hold lasts."
+    }
+   },
+   "set": {
+    "collection_status": "'arranged'",
+    "disconnection_hold_until": "add_days(today, args.hold_days)"
+   },
+   "description": "Mark the account's collections status as arranged and stop disconnection activity until the given number of days from today."
+  },
+  {
+   "name": "send_customer_letter",
+   "kind": "create",
+   "entity": "correspondence",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the letter is about."
+    },
+    "letter_type": {
+     "type": "enum:payment_plan_confirmation|disconnection_notice",
+     "description": "The kind of letter."
+    },
+    "delivery": {
+     "type": "enum:post|email",
+     "description": "Send by post to the service address or by email to the address on file."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "letter_type": "args.letter_type",
+    "delivery": "args.delivery",
+    "created": "today"
+   },
+   "description": "Send a standard letter to the account holder by post or email."
+  }
+ ],
+ "request": {
+  "account_id": {
+   "type": "ref:account",
+   "description": "the electricity account whose overdue balance you want to pay off in instalments"
+  },
+  "installments": {
+   "type": "int",
+   "description": "how many monthly instalments you want to spread the overdue balance over"
+  },
+  "letter_delivery": {
+   "type": "enum:post|email",
+   "description": "whether you want the written confirmation of the plan by post or by email"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth (as the account holder)"
+  }
+ },
+ "bindings": [
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "req.account_id"
+  }
+ ],
+ "outcomes": {
+  "arrange": {
+   "kind": "perform",
+   "description": "Create the instalment plan for the full overdue balance, put a disconnection hold on the account for the length of the plan, and send the plan confirmation the way the customer chose.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "account_id": "req.account_id",
+      "installments": "req.installments",
+      "installment_amount": "round(acct.overdue_balance / req.installments, 2)",
+      "total_amount": "acct.overdue_balance"
+     }
+    },
+    {
+     "tool": "place_collections_hold",
+     "args": {
+      "account_id": "req.account_id",
+      "hold_days": "req.installments * 30"
+     }
+    },
+    {
+     "tool": "send_customer_letter",
+     "args": {
+      "account_id": "req.account_id",
+      "letter_type": "'payment_plan_confirmation'",
+      "delivery": "req.letter_delivery"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up a plan or change the account; explain why the arrangement cannot be made.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != acct.holder_birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the account holder's date of birth exactly as on file before any arrangement is made."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Payment arrangements can only be set up on accounts whose supply is active, not on disconnected or closed accounts."
+  },
+  {
+   "id": "R3",
+   "when": "acct.broken_plans_12m >= 2",
+   "outcome": "refuse",
+   "explain": "Customers who have broken two or more payment plans in the last 12 months cannot be offered a new plan."
+  },
+  {
+   "id": "R4",
+   "when": "req.installments < 2 or req.installments > 12",
+   "outcome": "refuse",
+   "explain": "A plan must have between 2 and 12 monthly instalments."
+  },
+  {
+   "id": "R5",
+   "when": "acct.overdue_balance < 25 * req.installments",
+   "outcome": "refuse",
+   "explain": "Each instalment must be at least 25.00, so the overdue balance must be at least 25.00 times the number of instalments."
+  }
+ ],
+ "default_outcome": "arrange",
+ "policy_text": "## Purpose\nResidential customers who are behind on their electricity bill can ask to spread the overdue balance over monthly instalments. This keeps them supplied while they catch up. This document explains who qualifies and exactly what to record.\n\n## Finding the account\nAsk for the account number (printed at the top of every bill and on disconnection notices). If the customer does not have it, you can search by the contact phone number or the email address on file. If several accounts come back (for example a home and a second property), ask for the service address to pick the right one. If you cannot identify the account with certainty, do not guess and do not set anything up.\n\n## Verifying the caller\nBefore discussing or changing anything, ask for the account holder's date of birth. It must match the date of birth on file exactly. If it does not match, or the caller cannot give it, do not set up a plan.\n\n## Who qualifies\nCheck all of the following on the account record. If any one fails, decline the arrangement and explain the reason politely:\n- Account status: the supply must be active. Accounts that are disconnected or closed cannot get a payment arrangement through this procedure.\n- Broken plans: if the account shows two or more payment plans broken in the last 12 months, a new plan cannot be offered.\n- Number of instalments: the customer may choose between 2 and 12 monthly instalments. Requests for fewer than 2 or more than 12 are declined; do not substitute a different number yourself.\n- Minimum instalment: every instalment must be at least 25.00. If the overdue balance is less than 25.00 multiplied by the number of instalments the customer asks for, decline that request. The customer may of course ask for a different number of instalments instead before anything is recorded.\n\nAlways use the overdue balance shown on the account record, even if the customer believes the figure is different.\n\n## Setting up the arrangement\nWhen everything above is satisfied, do these three steps, in this order:\n1. Create the payment plan for the account with the number of instalments the customer chose. The total is the full overdue balance on the account, and each instalment is the overdue balance divided by the number of instalments, rounded to the nearest cent. The first instalment falls due 14 days from today.\n2. Place a collections hold on the account for 30 days per instalment (for example, a 6-instalment plan gets a 180-day hold). This marks the account as arranged and stops disconnection activity.\n3. Send the payment plan confirmation letter, by post or by email as the customer prefers.\n\nTell the customer the instalment amount and when the first payment is due.\n\n## Never\n- Do not set up a plan for a caller who failed the date-of-birth check.\n- Do not reduce, waive or write off any part of the balance, or base the plan on a figure other than the overdue balance on file.\n- Do not change the number of instalments the customer asked for without their agreement, and do not make changes to accounts other than the one the request is about.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACC-10000451",
+    "holder_name": "Beatrice Fallowfield",
+    "holder_birth_date": "1957-03-14",
+    "phone": "01632 960221",
+    "email": "b.fallowfield@example.org",
+    "service_address": "3 Mill Lane, Elmsworth",
+    "status": "active",
+    "overdue_balance": 0,
+    "broken_plans_12m": 0,
+    "collection_status": "none",
+    "disconnection_hold_until": null
+   }
+  ],
+  "payment_plan": [
+   {
+    "plan_id": "PP-700112",
+    "account_id": "ACC-10000451",
+    "installments": 4,
+    "installment_amount": 61.25,
+    "total_amount": 245.0,
+    "first_due_date": "2025-09-01",
+    "status": "completed",
+    "created": "2025-08-18"
+   }
+  ],
+  "correspondence": [
+   {
+    "letter_id": "LTR-900031",
+    "account_id": "ACC-10000451",
+    "letter_type": "payment_plan_confirmation",
+    "delivery": "post",
+    "created": "2025-08-18"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-51207734",
+      "holder_name": "Marguerite Okafor",
+      "holder_birth_date": "1974-10-08",
+      "phone": "07700 900533",
+      "email": "m.okafor@example.org",
+      "service_address": "22 Wren Street, Elmsworth",
+      "status": "active",
+      "overdue_balance": 830.0,
+      "broken_plans_12m": 2,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     },
+     {
+      "account_id": "ACC-51207790",
+      "holder_name": "Marguerite Okafor",
+      "holder_birth_date": "1974-10-08",
+      "phone": "07700 900533",
+      "email": "m.okafor@example.org",
+      "service_address": "Flat 2, 9 Quay Road, Elmsworth",
+      "status": "active",
+      "overdue_balance": 0,
+      "broken_plans_12m": 0,
+      "collection_status": "none",
+      "disconnection_hold_until": null
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PP-701845",
+      "account_id": "ACC-51207734",
+      "installments": 6,
+      "installment_amount": 95.5,
+      "total_amount": 573.0,
+      "first_due_date": "2025-07-10",
+      "status": "broken",
+      "created": "2025-06-26"
+     },
+     {
+      "plan_id": "PP-702390",
+      "account_id": "ACC-51207734",
+      "installments": 4,
+      "installment_amount": 110.0,
+      "total_amount": 440.0,
+      "first_due_date": "2026-01-15",
+      "status": "broken",
+      "created": "2026-01-01"
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-51207734",
+    "installments": 6,
+    "letter_delivery": "post"
+   },
+   "initial_request_values": {
+    "account_id": "ACC-51207734",
+    "installments": 4,
+    "letter_delivery": "email"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-51207734",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "post",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1974-10-08",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also rents out a small flat on Quay Road that has its own electricity account with you, but that one is fully paid up.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking about getting solar panels on the house next year and wonders whether you buy back electricity.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last winter there was a long power cut on her street during a storm, which she still complains about.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her son moved back home in the spring and she thinks that is why the bills went up.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Marguerite, a chatty hospital receptionist in her fifties who owns her home and a small rental flat. Warm but tends to wander off topic.",
+   "reason_for_call": "She received a disconnection warning for her house and wants to pay the overdue amount in instalments.",
+   "task_instructions": "Start by giving your account number and asking to pay the overdue balance in 4 monthly instalments with the confirmation by email. Mention the rental flat, the solar panels and the old power cut along the way. Before the agent sets anything up, change your mind: say 4 payments would be too much each month, you would rather have 6 instalments, and you want the confirmation by post instead. Give your date of birth only when asked. If the agent says a plan is not possible, express disappointment, then accept it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-60033115",
+      "holder_name": "Tomasz Wierzbicki",
+      "holder_birth_date": "1988-01-27",
+      "phone": "07700 900118",
+      "email": "t.wierzbicki@example.net",
+      "service_address": "41 Orchard Rise, Lower Brayford",
+      "status": "active",
+      "overdue_balance": 515.6,
+      "broken_plans_12m": 0,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-60033115",
+    "installments": 5,
+    "letter_delivery": "email"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installments",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "email",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-01-27",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "acct.holder_name",
+     "value": "Tomasz Wierzbicki",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.service_address",
+     "value": "41 Orchard Rise, Lower Brayford",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a warehouse supervisor who recently changed phone contract and email provider. Polite and patient.",
+   "reason_for_call": "He is behind on his electricity bill and wants to pay the overdue amount over five months.",
+   "task_instructions": "Give your name and address and say you want 5 monthly instalments with the confirmation by email. You threw away your bills and do not know the account number. You are calling from a new phone number that the company does not have, and you cannot remember which old email address you registered with. Give your date of birth if asked. If the agent cannot find the account, accept that and say you will call back with a bill.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-72290463",
+      "holder_name": "Priya Raman",
+      "holder_birth_date": "1995-06-30",
+      "phone": "07700 900761",
+      "email": "priya.raman@example.org",
+      "service_address": "Flat 7, 18 Canal Walk, Elmsworth",
+      "status": "active",
+      "overdue_balance": 140.0,
+      "broken_plans_12m": 0,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-72290463",
+    "installments": 8,
+    "letter_delivery": "email"
+   },
+   "initial_request_values": {
+    "account_id": "ACC-72290463",
+    "installments": 4,
+    "letter_delivery": "email"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-72290463",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "email",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-06-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a postgraduate student on a tight monthly budget. Clear and organized.",
+   "reason_for_call": "She has a small overdue electricity balance and wants to pay it in instalments.",
+   "task_instructions": "In your first message give your account number and date of birth and ask to pay the overdue balance in 4 monthly instalments with confirmation by email. Before anything is set up, change your mind and ask for 8 instalments instead so each payment is smaller. If the agent says 8 is not possible, accept it politely and end the conversation without choosing another number.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-38815502",
+      "holder_name": "Desmond Achterberg",
+      "holder_birth_date": "1969-12-02",
+      "phone": "07700 900294",
+      "email": "d.achterberg@example.com",
+      "service_address": "5 Heron Close, Elmsworth",
+      "status": "active",
+      "overdue_balance": 612.4,
+      "broken_plans_12m": 1,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PP-702011",
+      "account_id": "ACC-38815502",
+      "installments": 3,
+      "installment_amount": 88.0,
+      "total_amount": 264.0,
+      "first_due_date": "2025-11-20",
+      "status": "broken",
+      "created": "2025-11-06"
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-38815502",
+    "installments": 6,
+    "letter_delivery": "email"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-38815502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "email",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-12-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Desmond, a self-employed builder calling between jobs. Impatient, interrupts, wants things done fast.",
+   "reason_for_call": "He got a disconnection warning and wants to split the overdue bill into six monthly payments right away.",
+   "task_instructions": "Open with your account number and that you want 6 monthly instalments, and complain that you have no time. Give your date of birth and say you want the confirmation by email only when asked. Push the agent to hurry. If the agent refuses for any reason, argue and demand an exception at least twice before accepting.",
+   "expected_outcome": "arrange"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-44706129",
+      "holder_name": "Yuki Halvorsen",
+      "holder_birth_date": "1982-04-17",
+      "phone": "07700 900847",
+      "email": "yuki.h@example.org",
+      "service_address": "12 Birch Avenue, Lower Brayford",
+      "status": "active",
+      "overdue_balance": 455.8,
+      "broken_plans_12m": 0,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-44706129",
+    "installments": 4,
+    "letter_delivery": "post"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-44706129",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "post",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1982-04-17",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "acct.overdue_balance",
+     "value": 380.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yuki, a lab technician who dislikes phone calls and answers in as few words as possible.",
+   "reason_for_call": "Wants to pay an overdue electricity balance over four months; believes it is 380.",
+   "task_instructions": "Say briefly that you owe 380 and want 4 instalments, and give the account number. Answer every question in a few words. Give your date of birth and say 'post' for the confirmation only when asked. If the agent says the balance is higher, accept it without arguing.",
+   "expected_outcome": "arrange"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-29954018",
+      "holder_name": "Rosalind Mbeki-Carter",
+      "holder_birth_date": "1961-08-23",
+      "phone": "07700 900650",
+      "email": "rosalind.mc@example.co.uk",
+      "service_address": "The Old Forge, 2 Church Row, Elmsworth",
+      "status": "active",
+      "overdue_balance": 1248.0,
+      "broken_plans_12m": 0,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     }
+    ],
+    "correspondence": [
+     {
+      "letter_id": "LTR-904417",
+      "account_id": "ACC-29954018",
+      "letter_type": "disconnection_notice",
+      "delivery": "post",
+      "created": "2026-05-12"
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-29954018",
+    "installments": 12,
+    "letter_delivery": "post"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-29954018",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "post",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1961-08-23",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.overdue_balance",
+     "value": 1248.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She received a disconnection notice by post dated 12 May and is reading the account number straight off it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She has never been on a payment plan with the company before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Her power is still on at the moment; nothing has been cut off yet.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Rosalind, a retired headteacher who is stressed after a large winter bill. Brisk, demanding and used to getting her way.",
+   "reason_for_call": "She received a disconnection notice and wants the full overdue balance spread over a year.",
+   "task_instructions": "In your first message give your account number, date of birth, the overdue amount of 1,248.00, that your supply is still on, and that you want 12 monthly instalments with the confirmation by post. Mention the notice dated 12 May and that you have never had a payment plan before. Be impatient and insist it is done today. If the agent refuses anything, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "arrange"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-81130274",
+      "holder_name": "Hamish Doyle",
+      "holder_birth_date": "1978-02-11",
+      "phone": "07700 900412",
+      "email": "hamish.doyle@example.org",
+      "service_address": "14 Larch Crescent, Elmsworth",
+      "status": "active",
+      "overdue_balance": 300.0,
+      "broken_plans_12m": 0,
+      "collection_status": "pending_disconnection",
+      "disconnection_hold_until": null
+     },
+     {
+      "account_id": "ACC-81130281",
+      "holder_name": "Hamish Doyle",
+      "holder_birth_date": "1978-02-11",
+      "phone": "07700 900412",
+      "email": "hamish.doyle@example.org",
+      "service_address": "Fern Cottage, Lower Brayford",
+      "status": "active",
+      "overdue_balance": 0,
+      "broken_plans_12m": 0,
+      "collection_status": "none",
+      "disconnection_hold_until": null
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-81130274",
+    "installments": 3,
+    "letter_delivery": "email"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.phone",
+     "value": "07700 900412",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.service_address",
+     "value": "14 Larch Crescent, Elmsworth",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "email",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1978-02-11",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hamish, a friendly secondary-school music teacher who owns a house in town and a holiday cottage.",
+   "reason_for_call": "He fell behind on the electricity bill for his house and wants to pay it off over three months.",
+   "task_instructions": "Explain that you do not have your account number to hand, but give your phone number and the address of your house on Larch Crescent. Ask for 3 monthly instalments with the confirmation by email. Give your date of birth when asked and answer everything helpfully.",
+   "expected_outcome": "arrange"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-57719936",
+      "holder_name": "Oskar Lindqvist",
+      "holder_birth_date": "1990-09-05",
+      "phone": "07700 900376",
+      "email": "oskar.l@example.net",
+      "service_address": "30 Pike Street, Elmsworth",
+      "status": "disconnected",
+      "overdue_balance": 920.5,
+      "broken_plans_12m": 0,
+      "collection_status": "none",
+      "disconnection_hold_until": null
+     }
+    ]
+   },
+   "request_values": {
+    "account_id": "ACC-57719936",
+    "installments": 10,
+    "letter_delivery": "post"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.account_id",
+     "value": "ACC-57719936",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.letter_delivery",
+     "value": "post",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-09-05",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Oskar, a delivery driver who keeps every answer very short.",
+   "reason_for_call": "Wants to pay his overdue electricity balance over ten months.",
+   "task_instructions": "Give your account number and say you want 10 instalments, nothing more. Give your date of birth and say 'post' only when asked. Reply in a few words. If the agent says it cannot be done, say 'ok' and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

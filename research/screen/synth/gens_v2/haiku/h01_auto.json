@@ -1,0 +1,1034 @@
+{
+ "procedure_id": "h01_auto",
+ "domain": "auto insurance claims",
+ "organization": "Keystone Mutual Auto Insurance",
+ "title": "Rental days on open claims",
+ "summary": "Add rental car days to an insured claim when the policy, the policyholder, the vehicle and the claim all qualify.",
+ "entities": {
+  "policyholder": {
+   "key": "holder_id",
+   "description": "People who hold an auto policy",
+   "fields": {
+    "holder_id": "str",
+    "full_name": "str",
+    "zip_code": "str",
+    "status": "enum:in_good_standing|suspended"
+   }
+  },
+  "policy": {
+   "key": "policy_id",
+   "description": "Auto policies and their rental coverage terms",
+   "fields": {
+    "policy_id": "str",
+    "holder_id": "ref:policyholder",
+    "premium_status": "enum:current|overdue",
+    "rental_coverage_days_max": "int",
+    "daily_rate_cap": "number",
+    "rental_budget": "number"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Insured vehicles",
+   "fields": {
+    "vehicle_id": "str",
+    "policy_id": "ref:policy",
+    "make": "str",
+    "model": "str",
+    "total_loss": "bool"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Claims for damage to an insured vehicle",
+   "fields": {
+    "claim_id": "str",
+    "policy_id": "ref:policy",
+    "vehicle_id": "ref:vehicle",
+    "status": "enum:open|closed|disputed",
+    "loss_date": "date",
+    "rental_daily_rate": "number",
+    "rental_days_authorized": "int",
+    "rental_total_authorized": "number"
+   }
+  },
+  "claim_log": {
+   "key": "log_id",
+   "description": "Log of changes made to claims",
+   "fields": {
+    "log_id": "str",
+    "claim_id": "ref:claim",
+    "action": "enum:rental_extended",
+    "logged": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for staff review of a claim",
+   "fields": {
+    "request_id": "str",
+    "claim_id": "ref:claim",
+    "reason": "enum:total_loss_vehicle|over_budget",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_policyholder",
+   "kind": "get",
+   "entity": "policyholder",
+   "description": "Look up a policyholder by holder ID."
+  },
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a policy by policy number."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up an insured vehicle by vehicle ID."
+  },
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by claim number."
+  },
+  {
+   "name": "find_claims_by_loss_date",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "loss_date"
+   ],
+   "description": "Find claims with a given date of loss."
+  },
+  {
+   "name": "authorize_rental_extension",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to add rental days to."
+    },
+    "added_days": {
+     "type": "int",
+     "description": "Number of rental days being added."
+    },
+    "added_amount": {
+     "type": "number",
+     "description": "Amount added to the rental authorization for those days."
+    }
+   },
+   "set": {
+    "rental_days_authorized": "rec.rental_days_authorized + args.added_days",
+    "rental_total_authorized": "rec.rental_total_authorized + args.added_amount"
+   },
+   "description": "Add rental days and the matching amount to the rental authorization on a claim."
+  },
+  {
+   "name": "create_claim_log",
+   "kind": "create",
+   "entity": "claim_log",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim the log entry is about."
+    },
+    "action": {
+     "type": "enum:rental_extended",
+     "description": "What was done to the claim."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "action": "args.action",
+    "logged": "today"
+   },
+   "description": "Record that a change was made to a claim."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim the review is about."
+    },
+    "reason": {
+     "type": "enum:total_loss_vehicle|over_budget",
+     "description": "Why staff should review the request."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff to review a claim."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want rental days added to"
+  },
+  "added_days": {
+   "type": "int",
+   "description": "how many more rental days you want"
+  }
+ },
+ "claims": {
+  "zip_code": {
+   "type": "str",
+   "description": "the ZIP code of the policyholder you are calling for"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "pol",
+   "entity": "policy",
+   "key": "clm.policy_id"
+  },
+  {
+   "name": "hld",
+   "entity": "policyholder",
+   "key": "pol.holder_id"
+  },
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "clm.vehicle_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Add the requested rental days and the computed amount to the claim, then log the change.",
+   "calls": [
+    {
+     "tool": "authorize_rental_extension",
+     "args": {
+      "claim_id": "req.claim_id",
+      "added_days": "req.added_days",
+      "added_amount": "req.added_days * min(clm.rental_daily_rate, pol.daily_rate_cap)"
+     }
+    },
+    {
+     "tool": "create_claim_log",
+     "args": {
+      "claim_id": "req.claim_id",
+      "action": "'rental_extended'"
+     }
+    }
+   ]
+  },
+  "review_total_loss": {
+   "kind": "perform",
+   "description": "The insured vehicle is a total loss: open a staff review instead of extending.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "claim_id": "req.claim_id",
+      "reason": "'total_loss_vehicle'"
+     }
+    }
+   ]
+  },
+  "review_over_budget": {
+   "kind": "perform",
+   "description": "The extension would exceed the policy rental budget: open a staff review instead of extending.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "claim_id": "req.claim_id",
+      "reason": "'over_budget'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change to the claim.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.zip_code != hld.zip_code",
+   "outcome": "refuse",
+   "explain": "The ZIP code the caller gives must match the policyholder's ZIP code on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "clm.status != 'open'",
+   "outcome": "refuse",
+   "explain": "Only open claims can have rental days added."
+  },
+  {
+   "id": "R3",
+   "when": "pol.premium_status != 'current'",
+   "outcome": "refuse",
+   "explain": "No rental change while the policy premium is overdue, judged by the policy record."
+  },
+  {
+   "id": "R4",
+   "when": "hld.status != 'in_good_standing'",
+   "outcome": "refuse",
+   "explain": "The policyholder must be in good standing."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(clm.loss_date, today) > 120",
+   "outcome": "refuse",
+   "explain": "Rental days cannot be added to a loss more than 120 days old."
+  },
+  {
+   "id": "R6",
+   "when": "veh.total_loss",
+   "outcome": "review_total_loss",
+   "explain": "If the insured vehicle is recorded as a total loss, open a staff review instead of extending."
+  },
+  {
+   "id": "R7",
+   "when": "clm.rental_days_authorized + req.added_days > pol.rental_coverage_days_max",
+   "outcome": "refuse",
+   "explain": "Total rental days on the claim cannot exceed the policy maximum."
+  },
+  {
+   "id": "R8",
+   "when": "req.added_days > 14",
+   "outcome": "refuse",
+   "explain": "A single request may add at most 14 days."
+  },
+  {
+   "id": "R9",
+   "when": "clm.rental_total_authorized + req.added_days * min(clm.rental_daily_rate, pol.daily_rate_cap) > pol.rental_budget",
+   "outcome": "review_over_budget",
+   "explain": "If the extension would take rental spending past the policy budget, open a staff review instead of extending."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who you are helping\nPolicyholders, and people calling for them, ask to add rental car days to an insured claim while the vehicle is still being repaired. Before changing anything, find the claim and confirm the caller's identity.\n\n## Finding the claim\nIf the caller gives a claim number, look up that claim. If they do not have it, search claims by the date of loss they give. If more than one claim matches, ask a question that separates them. Do not change anything until one claim is certain. Once you have the claim, look up its policy, the policyholder on that policy, and the insured vehicle.\n\n## Identity check\nThe ZIP code the caller gives must match the ZIP code on the policyholder's file. If it does not match, or the caller cannot give it, do not change anything. Never tell the caller what the ZIP code on file is.\n\n## Checks, in order\nApply the following checks in this order. The first one that applies decides the outcome.\n1. The caller's ZIP code must match the policyholder's ZIP code on file.\n2. The claim must be open. Closed or disputed claims cannot change.\n3. The policy premium must be current. Judge this from the policy record, not from what the caller believes about their payments. An overdue premium blocks any rental change.\n4. The policyholder must be in good standing. A suspended policyholder cannot change rental coverage.\n5. The date of loss must be no more than 120 days before today. Older losses cannot have rental days added.\n6. If the insured vehicle is recorded as a total loss, do not extend. Open a review request with reason total_loss_vehicle and tell the caller that a staff member will follow up.\n7. The rental days already authorized on the claim plus the days requested must not exceed the policy's maximum rental days. Requests over the limit are declined, not shortened.\n8. A single request may add at most 14 days. Requests for more are declined, not shortened.\n9. Work out the amount to add: requested days multiplied by the lower of the claim's rental daily rate and the policy's daily rate cap. If the rental total already authorized on the claim plus this amount is more than the policy's rental budget, do not extend. Open a review request with reason over_budget and tell the caller that a staff member will follow up.\n\nIf none of these applies, extend the rental. Authorize the extension on the claim with the requested days and the amount you worked out in check 9, then create a claim log with action rental_extended. Tell the caller how many days were added.\n\nIf a check in items 1 to 5 or 7 or 8 applies, make no change and explain to the caller which requirement is not met.\n\n## Never\nDo not change a ZIP code, do not enter an amount you have not calculated as described above, do not shorten a request to make it fit a limit, do not grant exceptions to any limit, and do not change a claim for a caller who failed the identity check.",
+ "db_common": {
+  "policyholder": [
+   {
+    "holder_id": "PH-0100",
+    "full_name": "Lorenzo Tran",
+    "zip_code": "77030",
+    "status": "in_good_standing"
+   }
+  ],
+  "policy": [
+   {
+    "policy_id": "POL-0100",
+    "holder_id": "PH-0100",
+    "premium_status": "current",
+    "rental_coverage_days_max": 30,
+    "daily_rate_cap": 45.0,
+    "rental_budget": 1200.0
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "VEH-0100",
+    "policy_id": "POL-0100",
+    "make": "Mazda",
+    "model": "3",
+    "total_loss": false
+   }
+  ],
+  "claim": [
+   {
+    "claim_id": "CLM-0100",
+    "policy_id": "POL-0100",
+    "vehicle_id": "VEH-0100",
+    "status": "closed",
+    "loss_date": "2025-06-21",
+    "rental_daily_rate": 40.0,
+    "rental_days_authorized": 4,
+    "rental_total_authorized": 160.0
+   }
+  ],
+  "claim_log": [],
+  "review_request": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2101",
+      "full_name": "Tomasz Wielgus",
+      "zip_code": "44106",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3101",
+      "holder_id": "PH-2101",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4101",
+      "policy_id": "POL-3101",
+      "make": "Honda",
+      "model": "CR-V",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5101",
+      "policy_id": "POL-3101",
+      "vehicle_id": "VEH-4101",
+      "status": "open",
+      "loss_date": "2026-03-14",
+      "rental_daily_rate": 52.0,
+      "rental_days_authorized": 10,
+      "rental_total_authorized": 450.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5101",
+    "added_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "44106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.premium_status",
+     "value": "overdue",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a warehouse supervisor who speaks in short sentences.",
+   "reason_for_call": "His car is still at the body shop and he needs five more rental days.",
+   "task_instructions": "Your first message should say you want five more rental days, with the claim number and your ZIP code. Early on, say you think a premium payment bounced last month. Keep every answer to a few words. Do not volunteer anything else.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2202",
+      "full_name": "Gwen Tallis",
+      "zip_code": "98101",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3202",
+      "holder_id": "PH-2202",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4202",
+      "policy_id": "POL-3202",
+      "make": "Subaru",
+      "model": "Outback",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5202",
+      "policy_id": "POL-3202",
+      "vehicle_id": "VEH-4202",
+      "status": "open",
+      "loss_date": "2026-02-27",
+      "rental_daily_rate": 48.0,
+      "rental_days_authorized": 12,
+      "rental_total_authorized": 540.0
+     },
+     {
+      "claim_id": "CLM-5203",
+      "policy_id": "POL-3202",
+      "vehicle_id": "VEH-4202",
+      "status": "closed",
+      "loss_date": "2025-08-14",
+      "rental_daily_rate": 40.0,
+      "rental_days_authorized": 6,
+      "rental_total_authorized": 240.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5202",
+    "added_days": 7
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-5202",
+    "added_days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "98101",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The hailstorm claim from last summer was closed out and paid. I am not asking about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My husband is also on the policy, but he has nothing to do with this car.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The body shop quoted three weeks for the door panel, which is annoying.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Gwen, a high school choir director who is organized and polite.",
+   "reason_for_call": "Her Outback is in repairs and she needs more rental days before her summer schedule.",
+   "task_instructions": "Your first message must ask for 21 more rental days and mention the claim number. When the agent refuses 21, ask for 7 more days instead. Give your ZIP code when asked. Mention the older hailstorm claim only if the agent brings it up.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2303",
+      "full_name": "Ellis Brandt",
+      "zip_code": "30309",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3303",
+      "holder_id": "PH-2303",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1500.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4303",
+      "policy_id": "POL-3303",
+      "make": "Ford",
+      "model": "Escape",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5303",
+      "policy_id": "POL-3303",
+      "vehicle_id": "VEH-4303",
+      "status": "open",
+      "loss_date": "2026-04-02",
+      "rental_daily_rate": 45.0,
+      "rental_days_authorized": 28,
+      "rental_total_authorized": 1260.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5303",
+    "added_days": 6
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-5303",
+    "added_days": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 6,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "30309",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ellis, a roofing contractor who is between jobs and calls from his truck.",
+   "reason_for_call": "His Escape is still at the shop and he wants a few more rental days.",
+   "task_instructions": "Start by asking for 2 more rental days and give the claim number. Give your ZIP code only if asked. Do not mention a number of days other than 2 until the agent asks how many days you need or asks you to confirm the number. Then say you need 6 days because the shop finished later than expected, and switch to 6 before the agent makes any change.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2404",
+      "full_name": "Priyanka Solano",
+      "zip_code": "85004",
+      "status": "suspended"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3404",
+      "holder_id": "PH-2404",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4404",
+      "policy_id": "POL-3404",
+      "make": "Hyundai",
+      "model": "Elantra",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5404",
+      "policy_id": "POL-3404",
+      "vehicle_id": "VEH-4404",
+      "status": "open",
+      "loss_date": "2026-01-28",
+      "rental_daily_rate": 50.0,
+      "rental_days_authorized": 8,
+      "rental_total_authorized": 360.0
+     },
+     {
+      "claim_id": "CLM-5405",
+      "policy_id": "POL-3404",
+      "vehicle_id": "VEH-4404",
+      "status": "closed",
+      "loss_date": "2025-11-09",
+      "rental_daily_rate": 44.0,
+      "rental_days_authorized": 3,
+      "rental_total_authorized": 132.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5404",
+    "added_days": 6
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-5404",
+    "added_days": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "clm.loss_date",
+     "value": "2026-01-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "85004",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priyanka, a dental hygienist who lost her policy folder in a move.",
+   "reason_for_call": "She was in a fender bender in January and needs a few more rental days. She does not have the claim number.",
+   "task_instructions": "You do not have the claim number or the policy number and cannot find them. Give your full name and the date of the accident early on. Your first request is 9 more rental days. Before the agent confirms anything, change it to 6 days. Give your ZIP code when asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2505",
+      "full_name": "Marcus Lindqvist",
+      "zip_code": "55401",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3505",
+      "holder_id": "PH-2505",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4505",
+      "policy_id": "POL-3505",
+      "make": "Toyota",
+      "model": "RAV4",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5505",
+      "policy_id": "POL-3505",
+      "vehicle_id": "VEH-4505",
+      "status": "open",
+      "loss_date": "2026-03-30",
+      "rental_daily_rate": 48.0,
+      "rental_days_authorized": 14,
+      "rental_total_authorized": 630.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5505",
+    "added_days": 9
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-5505",
+    "added_days": 15
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5505",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 9,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "55401",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.total_loss",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My rental contract is with a local agency at 48 dollars a day.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The car is at Northside Collision and they told me it is repairable, not a total loss.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a delivery driver who needs a reliable car for work.",
+   "reason_for_call": "Repairs took longer than the shop said, so he needs more days on the rental.",
+   "task_instructions": "Your first message should ask for 15 more rental days and include the claim number, your ZIP code and the fact that the car is repairable. If the agent says no, ask for 9 days instead. Mention the daily rate and the shop in your first message too.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2606",
+      "full_name": "Ruth Abernathy",
+      "zip_code": "02139",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3606",
+      "holder_id": "PH-2606",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4606",
+      "policy_id": "POL-3606",
+      "make": "Buick",
+      "model": "Verano",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5606",
+      "policy_id": "POL-3606",
+      "vehicle_id": "VEH-4606",
+      "status": "open",
+      "loss_date": "2025-12-04",
+      "rental_daily_rate": 45.0,
+      "rental_days_authorized": 9,
+      "rental_total_authorized": 405.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5606",
+    "added_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5606",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "02139",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.loss_date",
+     "value": "2025-12-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ruth, a retired court stenographer who keeps careful paper records and does not like being told no.",
+   "reason_for_call": "Her Buick was hit in December and she assumed the rental would keep going. She wants five more days.",
+   "task_instructions": "Give the claim number, your ZIP code, the date of loss and the five days in your first message. When refused, argue that the shop was slow and ask for an exception, twice. Then accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2707",
+      "full_name": "Hana Kowalczyk",
+      "zip_code": "19103",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3707",
+      "holder_id": "PH-2707",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 700.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4707",
+      "policy_id": "POL-3707",
+      "make": "Kia",
+      "model": "Forte",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5707",
+      "policy_id": "POL-3707",
+      "vehicle_id": "VEH-4707",
+      "status": "open",
+      "loss_date": "2026-04-18",
+      "rental_daily_rate": 52.0,
+      "rental_days_authorized": 12,
+      "rental_total_authorized": 540.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5707",
+    "added_days": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5707",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "19103",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a pharmacist who is friendly and easy to work with.",
+   "reason_for_call": "She needs four more rental days while the rear bumper is finished.",
+   "task_instructions": "Give the claim number and ask for 4 more rental days in your first message. Give your ZIP code when asked. Thank the agent and accept whatever they say.",
+   "expected_outcome": "review_over_budget"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "PH-2808",
+      "full_name": "Ivan Petrakis",
+      "zip_code": "10003",
+      "status": "in_good_standing"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "POL-3808",
+      "holder_id": "PH-2808",
+      "premium_status": "current",
+      "rental_coverage_days_max": 30,
+      "daily_rate_cap": 45.0,
+      "rental_budget": 1200.0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "VEH-4808",
+      "policy_id": "POL-3808",
+      "make": "Honda",
+      "model": "Civic",
+      "total_loss": false
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-5808",
+      "policy_id": "POL-3808",
+      "vehicle_id": "VEH-4808",
+      "status": "open",
+      "loss_date": "2026-02-09",
+      "rental_daily_rate": 45.0,
+      "rental_days_authorized": 26,
+      "rental_total_authorized": 1170.0
+     },
+     {
+      "claim_id": "CLM-5809",
+      "policy_id": "POL-3808",
+      "vehicle_id": "VEH-4808",
+      "status": "closed",
+      "loss_date": "2025-09-12",
+      "rental_daily_rate": 40.0,
+      "rental_days_authorized": 5,
+      "rental_total_authorized": 200.0
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-5808",
+    "added_days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-5808",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.zip_code",
+     "value": "10003",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The closed claim from last September was a garage door, and it is finished.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am moving to Tampa in the fall, but that is not what I am calling about.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The rental counter clerk was rude last week, and I want that noted.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ivan, a stockbroker who is used to getting his way and keeps checking the clock.",
+   "reason_for_call": "His Civic is still at the shop and he wants six more rental days.",
+   "task_instructions": "Open with the claim number, your ZIP code and the six days. When the agent refuses, argue at least twice that the shop is to blame and ask for an exception to the day limit. Then accept and end the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

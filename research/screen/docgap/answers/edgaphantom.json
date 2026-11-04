@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "The policy lists no tools for accounts, cheque books or statements, so which lookups to call (list accounts, fetch cheque book details, fetch statement) and in what order is unspecified.",
+  "'Unlinked-account correction' is undefined. It could mean the customer gave a wrong or unlinked account ID, and the assistant must find the real linked one. It could also mean a statement was requested for the wrong account. The expected handling is unclear.",
+  "It is unclear whether the final action is read-only (show the statement or cheque book status) or a mutation such as ordering a cheque book, raising a service request, or stopping a cheque.",
+  "When an ID is unlinked, the policy says only to refuse. It does not say whether to offer the customer's real accounts, how to confirm which account they meant, or how much to reveal about the account list.",
+  "Statement parameters are unspecified: date range, number of transactions, format, and how to handle the 2026-07-16 simulation date for relative phrases such as 'last month'.",
+  "Cheque book edge cases are unspecified: no cheque book on the account, a pending or dispatched order, a cheque book not eligible for that account type, and a cheque-leaf range.",
+  "The policy gives no rule for ambiguity, such as several accounts of the same type, a closed or dormant account, or a customer who gives only a partial account number or a nickname.",
+  "The expected order of confirm-account, then cheque book, then statement is not stated. It does not say whether the assistant must verify the account before every step or may fetch both in a single pass.",
+  "Customer behavior is unspecified: insisting on the unlinked account, changing their mind, or pushing for another person's data. So are the escalation triggers: when to transfer or raise a service request versus refusing.",
+  "Bank conventions are missing: masking account numbers, whether to read out balances or transactions, fees or charges for cheque books or statements, and whether to use the knowledge base for cheque book rules."
+ ]
+}

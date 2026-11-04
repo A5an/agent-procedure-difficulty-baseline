@@ -1,0 +1,693 @@
+{
+ "procedure_id": "p10_retail",
+ "domain": "retail pharmacy",
+ "organization": "Harborview Community Pharmacy",
+ "title": "Prescription refill requests",
+ "summary": "Place a refill order for an existing prescription when the patient account and prescription qualify, or route controlled-substance refills to a pharmacist review.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Pharmacy patients",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "birth_date": "date",
+    "account_status": "enum:active|inactive"
+   }
+  },
+  "prescription": {
+   "key": "rx_id",
+   "description": "Prescriptions on file",
+   "fields": {
+    "rx_id": "str",
+    "patient_id": "ref:patient",
+    "drug_name": "str",
+    "refills_remaining": "int",
+    "last_filled": "date",
+    "expires": "date",
+    "controlled": "bool"
+   }
+  },
+  "refill_order": {
+   "key": "order_id",
+   "description": "Refill orders placed for pickup",
+   "fields": {
+    "order_id": "str",
+    "rx_id": "ref:prescription",
+    "days_supply": "int",
+    "created": "date"
+   }
+  },
+  "pharmacist_review": {
+   "key": "review_id",
+   "description": "Requests for a pharmacist to review a refill",
+   "fields": {
+    "review_id": "str",
+    "rx_id": "ref:prescription",
+    "reason": "enum:controlled_substance|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient by patient number."
+  },
+  {
+   "name": "find_patient_by_phone",
+   "kind": "search",
+   "entity": "patient",
+   "by": [
+    "phone"
+   ],
+   "description": "Find patients by the phone number on file."
+  },
+  {
+   "name": "get_prescription",
+   "kind": "get",
+   "entity": "prescription",
+   "description": "Look up a prescription by its Rx number."
+  },
+  {
+   "name": "find_prescriptions_by_patient",
+   "kind": "search",
+   "entity": "prescription",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all prescriptions of a patient."
+  },
+  {
+   "name": "create_refill_order",
+   "kind": "create",
+   "entity": "refill_order",
+   "args": {
+    "rx_id": {
+     "type": "ref:prescription",
+     "description": "The prescription to refill."
+    },
+    "days_supply": {
+     "type": "int",
+     "description": "Number of days of medication to dispense."
+    }
+   },
+   "fields": {
+    "rx_id": "args.rx_id",
+    "days_supply": "args.days_supply",
+    "created": "today"
+   },
+   "description": "Place a refill order for a prescription."
+  },
+  {
+   "name": "create_pharmacist_review",
+   "kind": "create",
+   "entity": "pharmacist_review",
+   "args": {
+    "rx_id": {
+     "type": "ref:prescription",
+     "description": "The prescription to be reviewed."
+    },
+    "reason": {
+     "type": "enum:controlled_substance|other",
+     "description": "Why a pharmacist must review it."
+    }
+   },
+   "fields": {
+    "rx_id": "args.rx_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a pharmacist to review a refill."
+  }
+ ],
+ "request": {
+  "rx_id": {
+   "type": "ref:prescription",
+   "description": "the Rx number of the prescription you want refilled"
+  },
+  "days_supply": {
+   "type": "int",
+   "description": "how many days of medication you want in this refill"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "rx",
+   "entity": "prescription",
+   "key": "req.rx_id"
+  },
+  {
+   "name": "pt",
+   "entity": "patient",
+   "key": "rx.patient_id"
+  }
+ ],
+ "outcomes": {
+  "refill": {
+   "kind": "perform",
+   "description": "Place the refill order for the requested days of supply.",
+   "calls": [
+    {
+     "tool": "create_refill_order",
+     "args": {
+      "rx_id": "req.rx_id",
+      "days_supply": "req.days_supply"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Controlled substance: open a pharmacist review instead of ordering the refill.",
+   "calls": [
+    {
+     "tool": "create_pharmacist_review",
+     "args": {
+      "rx_id": "req.rx_id",
+      "reason": "'controlled_substance'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refill; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "pt.account_status != 'active'",
+   "outcome": "refuse",
+   "explain": "Refills can only be ordered for patients with an active account."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(today, rx.expires) < 0 or rx.refills_remaining <= 0",
+   "outcome": "refuse",
+   "explain": "Expired prescriptions and prescriptions with no refills remaining cannot be refilled."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(rx.last_filled, today) < 21 or req.days_supply > 30",
+   "outcome": "refuse",
+   "explain": "A refill needs at least 21 days since the last fill and may supply at most 30 days."
+  },
+  {
+   "id": "R4",
+   "when": "rx.controlled",
+   "outcome": "review",
+   "explain": "Controlled-substance prescriptions go to a pharmacist review instead of a direct refill."
+  }
+ ],
+ "default_outcome": "refill",
+ "policy_text": "## Who we help\nPatients may ask by phone or chat for a refill of an existing prescription. Find the prescription and the patient it belongs to before changing anything.\n\n## Finding the prescription\nUse the Rx number if the patient has it. Otherwise ask for the patient number, list that patient's prescriptions, and ask which medication they mean if there is more than one. You also need the number of days of medication the patient wants. If you cannot identify the prescription or do not know the days requested, do not change anything and offer to transfer to a human agent.\n\n## When a refill is allowed\n- The patient account must be active. Inactive accounts cannot be refilled.\n- The prescription must not be expired (the expiry date must not be before today) and must have at least one refill remaining.\n- At least 21 days must have passed since the prescription was last filled, and a single refill may supply at most 30 days. Requests for more days are declined, not shortened.\n- If the prescription is a controlled substance and all of the above is fine, do not order the refill. Open a pharmacist review with reason controlled_substance and tell the patient a pharmacist will follow up.\n\nIf all checks pass and the prescription is not controlled, place the refill order for the number of days the patient requested.\n\n## Always rely on our records\nGo by the dates, refill counts and account status in our system, even if the patient remembers them differently.\n\n## Never\nDo not override these limits, do not give medical advice, and do not change anything the patient did not ask for.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "P-1001",
+    "full_name": "Marta Kowalski",
+    "phone": "555-0101",
+    "birth_date": "1962-03-14",
+    "account_status": "active"
+   }
+  ],
+  "prescription": [
+   {
+    "rx_id": "RX-10001",
+    "patient_id": "P-1001",
+    "drug_name": "Atorvastatin",
+    "refills_remaining": 4,
+    "last_filled": "2026-04-01",
+    "expires": "2027-02-01",
+    "controlled": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1101",
+      "full_name": "Greg Almeida",
+      "phone": "555-0111",
+      "birth_date": "1975-08-22",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30011",
+      "patient_id": "P-1101",
+      "drug_name": "Amlodipine",
+      "refills_remaining": 3,
+      "last_filled": "2026-04-10",
+      "expires": "2027-01-15",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30011",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-30011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Greg, a delivery driver who is always in a hurry and short on patience.",
+   "reason_for_call": "He is running low on his blood pressure pills and wants a 30-day refill ready quickly.",
+   "task_instructions": "State the Rx number and 30 days in your first message. Be impatient and urge the agent to hurry. Answer questions briefly.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1150",
+      "full_name": "Sofia Reyes",
+      "phone": "555-0115",
+      "birth_date": "1988-12-05",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30150",
+      "patient_id": "P-1150",
+      "drug_name": "Levothyroxine",
+      "refills_remaining": 5,
+      "last_filled": "2026-05-12",
+      "expires": "2027-03-10",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30150",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-30150",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.last_filled",
+     "value": "2026-05-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.drug_name",
+     "value": "Levothyroxine",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The pharmacy bag says the prescription was picked up on May 12.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She is traveling next week and wants to bring extra medication with her.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Sofia, a friendly teacher who plans ahead.",
+   "reason_for_call": "She is going on a trip and wants to refill her thyroid medication early.",
+   "task_instructions": "Give the Rx number, 30 days and mention the last fill date of May 12 early on. Mention the trip and the bag. Accept a refusal politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1202",
+      "full_name": "Hamid Rahimi",
+      "phone": "555-0122",
+      "birth_date": "1969-06-30",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30201",
+      "patient_id": "P-1202",
+      "drug_name": "Lisinopril",
+      "refills_remaining": 2,
+      "last_filled": "2026-04-18",
+      "expires": "2026-12-01",
+      "controlled": false
+     },
+     {
+      "rx_id": "RX-30202",
+      "patient_id": "P-1202",
+      "drug_name": "Metformin",
+      "refills_remaining": 6,
+      "last_filled": "2026-05-15",
+      "expires": "2027-04-01",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30201",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "rx.patient_id",
+     "value": "P-1202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.drug_name",
+     "value": "Lisinopril",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days_supply": 60
+   },
+   "persona": "Hamid, a retired bus driver who is easygoing but a bit forgetful.",
+   "reason_for_call": "He needs a refill of his blood pressure tablets but cannot find the bottle with the Rx number.",
+   "task_instructions": "Say you do not have the Rx number but give your patient number. First ask for a 60-day supply. Before anything is done, change your mind and ask for 30 days instead. Name the medication, lisinopril, when asked which one.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1260",
+      "full_name": "Dana Whitfield",
+      "phone": "555-0126",
+      "birth_date": "1991-04-12",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30260",
+      "patient_id": "P-1260",
+      "drug_name": "Alprazolam",
+      "refills_remaining": 1,
+      "last_filled": "2026-04-12",
+      "expires": "2026-09-30",
+      "controlled": true
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30260",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-30260",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.controlled",
+     "value": true,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.last_filled",
+     "value": "2026-04-12",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The prescription was written by Dr. Alvarez in March.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She mentions the pharmacist told her last time that it is a controlled medication.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Dana, a calm and organized accountant.",
+   "reason_for_call": "She needs her anxiety medication refilled for the next month.",
+   "task_instructions": "Give the Rx number and 30 days, and mention that it is a controlled medication. Share the extra details naturally. Accept that a pharmacist will follow up.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1305",
+      "full_name": "Ines Carvalho",
+      "phone": "555-0130",
+      "birth_date": "1983-09-09",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-50021",
+      "patient_id": "P-1305",
+      "drug_name": "Sertraline",
+      "refills_remaining": 2,
+      "last_filled": "2026-04-05",
+      "expires": "2027-01-20",
+      "controlled": false
+     },
+     {
+      "rx_id": "RX-50022",
+      "patient_id": "P-1305",
+      "drug_name": "Ibuprofen 600mg",
+      "refills_remaining": 0,
+      "last_filled": "2026-02-02",
+      "expires": "2026-03-01",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-50021",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-50021",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also had an old ibuprofen prescription that she no longer needs.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her insurance card changed last month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking about buying a vitamin supplement but will do it another day.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Parking in front of the store was difficult last time.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "days_supply": 60
+   },
+   "persona": "Ines, a chatty graphic designer who tends to wander off topic.",
+   "reason_for_call": "She wants to refill her daily medication.",
+   "task_instructions": "Give the Rx number, first ask for 60 days, then change your mind to 30 days before anything is done. Mention the side stories casually but do not ask for anything about them.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1340",
+      "full_name": "Tomas Berg",
+      "phone": "555-0134",
+      "birth_date": "1957-01-27",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30340",
+      "patient_id": "P-1340",
+      "drug_name": "Warfarin",
+      "refills_remaining": 3,
+      "last_filled": "2026-04-02",
+      "expires": "2027-01-05",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30340",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, an older man calling from a neighbor's phone, who speaks very little.",
+   "reason_for_call": "He wants a refill of his blood thinner but lost the paper bag with all the numbers on it.",
+   "task_instructions": "Keep answers to a few words. You do not know the Rx number or your patient number. Say you lost the bag. You only know you want 30 days. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1388",
+      "full_name": "Yuki Tanaka",
+      "phone": "555-0138",
+      "birth_date": "1994-10-18",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30388",
+      "patient_id": "P-1388",
+      "drug_name": "Omeprazole",
+      "refills_remaining": 2,
+      "last_filled": "2026-04-01",
+      "expires": "2027-02-14",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30388",
+    "days_supply": 90
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-30388",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 90,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yuki, a software developer who writes minimal messages.",
+   "reason_for_call": "She wants a refill of her stomach medication.",
+   "task_instructions": "Give only the Rx number at first. Say how many days you want (90) only when asked. Keep answers very short. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-1420",
+      "full_name": "Walter Hughes",
+      "phone": "555-0142",
+      "birth_date": "1950-05-03",
+      "account_status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-30420",
+      "patient_id": "P-1420",
+      "drug_name": "Metoprolol",
+      "refills_remaining": 0,
+      "last_filled": "2026-03-30",
+      "expires": "2026-12-31",
+      "controlled": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-30420",
+    "days_supply": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-30420",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days_supply",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.refills_remaining",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Walter, a retired machinist who is stubborn and sure he knows his own prescriptions.",
+   "reason_for_call": "He wants a refill and insists he has two refills left.",
+   "task_instructions": "Give the Rx number and 30 days, and insist you have two refills remaining. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,739 @@
+{
+ "procedure_id": "p05_hotel",
+ "domain": "hotel chain",
+ "organization": "Calloway Hotels & Resorts",
+ "title": "Points-redeemed room upgrades",
+ "summary": "Upgrade the room type on an upcoming Calloway Rewards reservation in exchange for the member's loyalty points when the reservation and balance qualify.",
+ "entities": {
+  "guest_member": {
+   "key": "member_id",
+   "description": "Calloway Rewards loyalty members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tier": "enum:blue|silver|gold|platinum",
+    "points_balance": "int"
+   }
+  },
+  "reservation": {
+   "key": "reservation_id",
+   "description": "Room reservations at Calloway properties",
+   "fields": {
+    "reservation_id": "str",
+    "member_id": "ref:guest_member",
+    "hotel_name": "str",
+    "check_in": "date",
+    "check_out": "date",
+    "room_type": "enum:standard|deluxe|suite",
+    "status": "enum:confirmed|checked_in|completed|cancelled"
+   }
+  },
+  "points_transaction": {
+   "key": "transaction_id",
+   "description": "Ledger of Calloway Rewards points earned and spent",
+   "fields": {
+    "transaction_id": "str",
+    "member_id": "ref:guest_member",
+    "reservation_id": "ref:reservation",
+    "points": "int",
+    "kind": "enum:upgrade_redemption|stay_earning|adjustment",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "guest_member",
+   "description": "Look up a Calloway Rewards member by member number. Returns name, email on file, tier and current points balance."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "guest_member",
+   "by": [
+    "email"
+   ],
+   "description": "Find Calloway Rewards members by the email address on file."
+  },
+  {
+   "name": "get_reservation",
+   "kind": "get",
+   "entity": "reservation",
+   "description": "Look up a reservation by its confirmation number. Returns hotel, dates, room type and status."
+  },
+  {
+   "name": "find_reservations_by_member",
+   "kind": "search",
+   "entity": "reservation",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all reservations belonging to a Calloway Rewards member."
+  },
+  {
+   "name": "change_room_type",
+   "kind": "update",
+   "entity": "reservation",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation to upgrade."
+    },
+    "room_type": {
+     "type": "enum:standard|deluxe|suite",
+     "description": "The new room type for the whole stay."
+    }
+   },
+   "set": {
+    "room_type": "args.room_type"
+   },
+   "description": "Change the room type booked on a reservation for the whole stay."
+  },
+  {
+   "name": "deduct_points",
+   "kind": "update",
+   "entity": "guest_member",
+   "args": {
+    "member_id": {
+     "type": "ref:guest_member",
+     "description": "The member whose points are spent."
+    },
+    "points": {
+     "type": "int",
+     "description": "Number of points to take from the balance (a positive number)."
+    }
+   },
+   "set": {
+    "points_balance": "rec.points_balance - args.points"
+   },
+   "description": "Subtract a number of points from a member's Calloway Rewards balance."
+  },
+  {
+   "name": "record_points_transaction",
+   "kind": "create",
+   "entity": "points_transaction",
+   "args": {
+    "member_id": {
+     "type": "ref:guest_member",
+     "description": "The member who redeemed the points."
+    },
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation the points were redeemed on."
+    },
+    "points": {
+     "type": "int",
+     "description": "Number of points redeemed (a positive number)."
+    }
+   },
+   "fields": {
+    "member_id": "args.member_id",
+    "reservation_id": "args.reservation_id",
+    "points": "args.points",
+    "kind": "'upgrade_redemption'",
+    "created": "today"
+   },
+   "description": "Write an upgrade-redemption entry to the member's points ledger."
+  }
+ ],
+ "request": {
+  "reservation_id": {
+   "type": "ref:reservation",
+   "description": "the reservation you want upgraded"
+  },
+  "target_room_type": {
+   "type": "enum:deluxe|suite",
+   "description": "the room type you want to upgrade to (deluxe or suite)"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "res",
+   "entity": "reservation",
+   "key": "req.reservation_id"
+  },
+  {
+   "name": "mem",
+   "entity": "guest_member",
+   "key": "res.member_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Change the room type, deduct the points, and record the redemption in the ledger.",
+   "calls": [
+    {
+     "tool": "change_room_type",
+     "args": {
+      "reservation_id": "req.reservation_id",
+      "room_type": "req.target_room_type"
+     }
+    },
+    {
+     "tool": "deduct_points",
+     "args": {
+      "member_id": "mem.member_id",
+      "points": "(5000 if req.target_room_type == 'deluxe' else 12000) * days_between(res.check_in, res.check_out)"
+     }
+    },
+    {
+     "tool": "record_points_transaction",
+     "args": {
+      "member_id": "mem.member_id",
+      "reservation_id": "res.reservation_id",
+      "points": "(5000 if req.target_room_type == 'deluxe' else 12000) * days_between(res.check_in, res.check_out)"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not upgrade; explain to the member why the request does not qualify.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "res.status != 'confirmed'",
+   "outcome": "refuse",
+   "explain": "Only confirmed reservations where the guest has not yet arrived can be upgraded with points."
+  },
+  {
+   "id": "R2",
+   "when": "days_between(today, res.check_in) < 2",
+   "outcome": "refuse",
+   "explain": "Points upgrades must be requested at least 2 days before the check-in date."
+  },
+  {
+   "id": "R3",
+   "when": "res.room_type == 'suite' or res.room_type == req.target_room_type",
+   "outcome": "refuse",
+   "explain": "The requested room type must be higher than the room type already booked (standard < deluxe < suite)."
+  },
+  {
+   "id": "R4",
+   "when": "mem.points_balance < (5000 if req.target_room_type == 'deluxe' else 12000) * days_between(res.check_in, res.check_out)",
+   "outcome": "refuse",
+   "explain": "The member must have enough points to cover the full upgrade cost: 5,000 points per night for deluxe or 12,000 points per night for a suite, for every night of the stay."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Purpose\nCalloway Rewards members can spend points to upgrade the room type on an upcoming reservation. This document explains how to handle these requests by chat or phone.\n\n## Finding the reservation\nAsk for the reservation confirmation number. If the member does not have it, ask for the email address on their Calloway Rewards account, find the member with it, and list their reservations. If they have more than one, ask which hotel or which dates they mean. If you cannot find the member's account or cannot tell which reservation they mean, you cannot process the upgrade; do not guess. The member the points come from is always the member who owns the reservation.\n\nAlso confirm which room type the member wants: deluxe or suite.\n\n## When an upgrade is allowed\nCheck these in order, using what is in our system, not what the member believes:\n1. The reservation must be confirmed and the guest must not have arrived yet. Reservations that are checked in, completed or cancelled cannot be upgraded with points. Guests already staying with us should ask the front desk.\n2. The request must be made at least 2 days before the check-in date. If check-in is tomorrow or today, decline.\n3. The new room type must be higher than the one already booked. The order is standard, then deluxe, then suite. A reservation already in a suite cannot be upgraded, and asking for the same room type already booked is not an upgrade.\n4. The member must have enough points for the whole stay. The cost is 5,000 points per night for a deluxe room or 12,000 points per night for a suite, whatever room is booked now, multiplied by the number of nights on the reservation (check-out date minus check-in date). Upgrades cannot cover only part of a stay, and we do not combine points with cash. If the balance is too low, decline.\n\n## Making the upgrade\nIf everything above is fine, do these three steps in this order:\n1. Change the room type on the reservation to the requested type.\n2. Deduct the full points cost from the member's balance.\n3. Record the redemption in the points ledger for that member and reservation, with the same number of points.\nThen tell the member the new room type and how many points were used.\n\n## Never\nDo not make exceptions to these rules, do not give partial-stay or discounted upgrades, do not upgrade a reservation you have not clearly identified, and do not change anything the member did not ask for.",
+ "db_common": {
+  "guest_member": [
+   {
+    "member_id": "HM-10001",
+    "full_name": "Gabriel Ferreira",
+    "email": "g.ferreira@example.com",
+    "tier": "gold",
+    "points_balance": 44000
+   }
+  ],
+  "reservation": [
+   {
+    "reservation_id": "RSV-30001",
+    "member_id": "HM-10001",
+    "hotel_name": "Calloway Madrid Gran Via",
+    "check_in": "2026-07-08",
+    "check_out": "2026-07-11",
+    "room_type": "standard",
+    "status": "confirmed"
+   }
+  ],
+  "points_transaction": [
+   {
+    "transaction_id": "PT-90001",
+    "member_id": "HM-10001",
+    "reservation_id": "RSV-30001",
+    "points": 2400,
+    "kind": "stay_earning",
+    "created": "2026-03-02"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20301",
+      "full_name": "Kenji Watanabe",
+      "email": "kenji.watanabe@example.jp",
+      "tier": "gold",
+      "points_balance": 40000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-31007",
+      "member_id": "HM-20301",
+      "hotel_name": "Calloway Lisbon Riverside",
+      "check_in": "2026-06-10",
+      "check_out": "2026-06-13",
+      "room_type": "standard",
+      "status": "confirmed"
+     },
+     {
+      "reservation_id": "RSV-31022",
+      "member_id": "HM-20301",
+      "hotel_name": "Calloway Porto Ribeira",
+      "check_in": "2026-08-02",
+      "check_out": "2026-08-04",
+      "room_type": "standard",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-31007",
+    "target_room_type": "deluxe"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "kenji.watanabe@example.jp",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.hotel_name",
+     "value": "Calloway Lisbon Riverside",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "deluxe",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kenji, a software consultant who travels often and writes in clipped sentences.",
+   "reason_for_call": "He wants to use his points to move his upcoming Lisbon stay into a deluxe room, but he does not have the confirmation number to hand.",
+   "task_instructions": "Say in very few words that you want a deluxe upgrade for your Lisbon stay and give your email. You do not have the confirmation number. Answer only what is asked, briefly. Accept the result.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20418",
+      "full_name": "Amara Okafor",
+      "email": "amara.okafor@example.co.uk",
+      "tier": "gold",
+      "points_balance": 18000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-40551",
+      "member_id": "HM-20418",
+      "hotel_name": "Calloway Edinburgh Old Town",
+      "check_in": "2026-07-01",
+      "check_out": "2026-07-05",
+      "room_type": "standard",
+      "status": "confirmed"
+     },
+     {
+      "reservation_id": "RSV-40590",
+      "member_id": "HM-20418",
+      "hotel_name": "Calloway Glasgow Merchant City",
+      "check_in": "2026-09-12",
+      "check_out": "2026-09-14",
+      "room_type": "standard",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-40551",
+    "target_room_type": "suite"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-40551",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "suite",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a stay booked in Glasgow in September and briefly wonders whether breakfast is included there, then says she will sort that out later.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She mentions she left an umbrella at a Calloway hotel in Paris years ago and never got it back.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She asks whether the Edinburgh hotel has parking, then says never mind, she is taking the train.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The Edinburgh trip is for her daughter's university graduation.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Amara, a warm and chatty secondary-school headteacher from Manchester.",
+   "reason_for_call": "She would like a suite for her Edinburgh trip using her Rewards points.",
+   "task_instructions": "Give your confirmation number and say you want a suite. Chat a little about the other things on your mind. If the agent explains you do not have enough points, accept it politely and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20533",
+      "full_name": "Tomasz Nowak",
+      "email": "t.nowak@example.pl",
+      "tier": "silver",
+      "points_balance": 70000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-41207",
+      "member_id": "HM-20533",
+      "hotel_name": "Calloway Krakow Old Town",
+      "check_in": "2026-05-21",
+      "check_out": "2026-05-23",
+      "room_type": "standard",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-41207",
+    "target_room_type": "deluxe"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-41207",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "deluxe",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a sales manager in a hurry who answers in a word or two.",
+   "reason_for_call": "He wants a better room with his points for a short Krakow stay starting tomorrow.",
+   "task_instructions": "Say only that you want to upgrade with points and give the confirmation number. Say deluxe only if asked which room type. Keep every reply very short. Accept a refusal without arguing.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20677",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.sg",
+      "tier": "platinum",
+      "points_balance": 90000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-41880",
+      "member_id": "HM-20677",
+      "hotel_name": "Calloway Singapore Marina",
+      "check_in": "2026-05-18",
+      "check_out": "2026-05-24",
+      "room_type": "deluxe",
+      "status": "checked_in"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-41880",
+    "target_room_type": "suite"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-41880",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "suite",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a polite and organized pharmaceutical executive staying at the hotel for a conference.",
+   "reason_for_call": "She is already staying at the Singapore hotel and would like to move into a suite with her points for the rest of her stay.",
+   "task_instructions": "In your first message give your confirmation number and say you want a suite upgrade using points. Answer questions politely. If declined, thank the agent and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20712",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "tier": "gold",
+      "points_balance": 60000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-42015",
+      "member_id": "HM-20712",
+      "hotel_name": "Calloway Chicago Lakeshore",
+      "check_in": "2026-06-05",
+      "check_out": "2026-06-07",
+      "room_type": "deluxe",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-42015",
+    "target_room_type": "suite"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-42015",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "suite",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.points_balance",
+     "value": 60000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.check_in",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He booked a deluxe king room for two nights, checking in June 5 and out June 7.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His Calloway app shows a balance of 60,000 points, and he has not used any since his last stay was posted.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a restless sports agent who hates waiting and wants things done immediately.",
+   "reason_for_call": "He is bringing a client to Chicago and wants a suite instead of his deluxe room, paid with points.",
+   "task_instructions": "Give your confirmation number, that you want a suite, your check-in date and your 60,000-point balance right away. Be impatient and push the agent to hurry. If anything is refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20844",
+      "full_name": "Sofia Marchetti",
+      "email": "sofia.marchetti@example.it",
+      "tier": "silver",
+      "points_balance": 30000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-42230",
+      "member_id": "HM-20844",
+      "hotel_name": "Calloway Rome Trastevere",
+      "check_in": "2026-06-20",
+      "check_out": "2026-06-23",
+      "room_type": "standard",
+      "status": "confirmed"
+     },
+     {
+      "reservation_id": "RSV-42231",
+      "member_id": "HM-20844",
+      "hotel_name": "Calloway Florence Duomo",
+      "check_in": "2026-06-23",
+      "check_out": "2026-06-25",
+      "room_type": "standard",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-42230",
+    "target_room_type": "deluxe"
+   },
+   "initial_request_values": {
+    "reservation_id": "RSV-42230",
+    "target_room_type": "suite"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-42230",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "deluxe",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She goes on to Florence after Rome but is happy with the room she booked there.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She asks whether the Rome hotel can book a restaurant table for her, then says she will do it herself.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She mentions she spent her honeymoon at a Calloway in Venice fifteen years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She has arranged for her neighbour to look after her dog while she travels.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Sofia, a friendly architect planning a trip through Italy with her sister.",
+   "reason_for_call": "She wants to spend points on a nicer room for the Rome part of her trip.",
+   "task_instructions": "Give your confirmation number and first ask for a suite for the Rome stay. Before anything is changed, decide that a deluxe room is enough and ask for deluxe instead. Mention the other trip details in passing. Be cooperative.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-20901",
+      "full_name": "Daniel Fischer",
+      "email": "d.fischer.office@example.de",
+      "tier": "blue",
+      "points_balance": 52000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-43002",
+      "member_id": "HM-20901",
+      "hotel_name": "Calloway Vienna Ringstrasse",
+      "check_in": "2026-06-12",
+      "check_out": "2026-06-15",
+      "room_type": "standard",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-43002",
+    "target_room_type": "deluxe"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.full_name",
+     "value": "Daniel Fischer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.hotel_name",
+     "value": "Calloway Vienna Ringstrasse",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "deluxe",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, an impatient engineer whose company travel desk made the booking for him.",
+   "reason_for_call": "He wants to upgrade his Vienna stay to deluxe with his points, but has no confirmation email and does not know which address the account uses.",
+   "task_instructions": "Give your name, the hotel and that you want deluxe. You do not have the confirmation number or member number and cannot say which email is on the account. Insist the agent should find it by your name and ask for an exception at least twice, then accept that they cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "guest_member": [
+     {
+      "member_id": "HM-21015",
+      "full_name": "Hannah Lindqvist",
+      "email": "hannah.lindqvist@example.se",
+      "tier": "silver",
+      "points_balance": 30000
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "RSV-43310",
+      "member_id": "HM-21015",
+      "hotel_name": "Calloway Stockholm Gamla Stan",
+      "check_in": "2026-06-14",
+      "check_out": "2026-06-16",
+      "room_type": "deluxe",
+      "status": "confirmed"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "RSV-43310",
+    "target_room_type": "suite"
+   },
+   "initial_request_values": {
+    "reservation_id": "RSV-43310",
+    "target_room_type": "deluxe"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "RSV-43310",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_room_type",
+     "value": "suite",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.room_type",
+     "value": "standard",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a cheerful museum curator who booked her trip months ago and has forgotten the details.",
+   "reason_for_call": "She wants to spend points on a better room for an anniversary weekend in Stockholm.",
+   "task_instructions": "Give your confirmation number and say you booked a standard room and want to upgrade it to deluxe. Before anything is changed, decide you would rather have a suite and ask for that instead. If told what room you actually booked, accept it.",
+   "expected_outcome": "upgrade"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

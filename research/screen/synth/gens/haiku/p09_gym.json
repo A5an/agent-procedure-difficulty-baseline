@@ -1,0 +1,849 @@
+{
+ "procedure_id": "p09_gym",
+ "domain": "gym and fitness club",
+ "organization": "Northline Fitness Clubs",
+ "title": "Membership freezes",
+ "summary": "Freeze a gym membership for a set number of days when the membership qualifies, or send medical freezes to club staff for approval.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Members of the club, with their account balance and next billing date",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "balance_due": "number",
+    "next_billing_date": "date"
+   }
+  },
+  "membership": {
+   "key": "membership_id",
+   "description": "Memberships held by a member, one per club and period",
+   "fields": {
+    "membership_id": "str",
+    "member_id": "ref:member",
+    "plan": "enum:basic|plus|premium",
+    "club": "str",
+    "status": "enum:active|frozen|cancelled",
+    "start_date": "date",
+    "freeze_days_used": "int",
+    "freeze_end": "date"
+   }
+  },
+  "freeze_record": {
+   "key": "freeze_id",
+   "description": "A record of each freeze granted",
+   "fields": {
+    "freeze_id": "str",
+    "membership_id": "ref:membership",
+    "days": "int",
+    "reason": "enum:travel|medical|work|other",
+    "start_date": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for staff to review a medical freeze before it is granted",
+   "fields": {
+    "request_id": "str",
+    "membership_id": "ref:membership",
+    "reason": "enum:medical_note|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "get_membership",
+   "kind": "get",
+   "entity": "membership",
+   "description": "Look up a membership by its membership number."
+  },
+  {
+   "name": "find_memberships_by_club",
+   "kind": "search",
+   "entity": "membership",
+   "by": [
+    "club"
+   ],
+   "description": "List the memberships held at one club, by club name, including cancelled ones."
+  },
+  {
+   "name": "freeze_membership",
+   "kind": "update",
+   "entity": "membership",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership to freeze."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to freeze the membership."
+    }
+   },
+   "set": {
+    "status": "'frozen'",
+    "freeze_days_used": "rec.freeze_days_used + args.days",
+    "freeze_end": "add_days(today, args.days)"
+   },
+   "description": "Set the membership to frozen, add the freeze days to the days used, and set the freeze end date."
+  },
+  {
+   "name": "create_freeze_record",
+   "kind": "create",
+   "entity": "freeze_record",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership the freeze is for."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days frozen."
+    },
+    "reason": {
+     "type": "enum:travel|medical|work|other",
+     "description": "Why the member is freezing."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "days": "args.days",
+    "reason": "args.reason",
+    "start_date": "today"
+   },
+   "description": "Record a freeze granted on a membership."
+  },
+  {
+   "name": "shift_billing_date",
+   "kind": "update",
+   "entity": "member",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The member whose billing date moves."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to move the next billing date later."
+    }
+   },
+   "set": {
+    "next_billing_date": "add_days(rec.next_billing_date, args.days)"
+   },
+   "description": "Move the member's next billing date later by the number of frozen days."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "membership_id": {
+     "type": "ref:membership",
+     "description": "The membership the request is about."
+    },
+    "reason": {
+     "type": "enum:medical_note|other",
+     "description": "Why staff should review the freeze."
+    }
+   },
+   "fields": {
+    "membership_id": "args.membership_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for club staff to review a medical freeze before it is granted."
+  }
+ ],
+ "request": {
+  "membership_id": {
+   "type": "ref:membership",
+   "description": "the membership you want to freeze"
+  },
+  "freeze_days": {
+   "type": "int",
+   "description": "how many days you want the freeze to last"
+  },
+  "reason": {
+   "type": "enum:travel|medical|work|other",
+   "description": "why you are freezing it"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "membership",
+   "entity": "membership",
+   "key": "req.membership_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "membership.member_id"
+  }
+ ],
+ "outcomes": {
+  "freeze": {
+   "kind": "perform",
+   "description": "Freeze the membership for the requested days, record the freeze, and move the billing date later by the same number of days.",
+   "calls": [
+    {
+     "tool": "freeze_membership",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.freeze_days"
+     }
+    },
+    {
+     "tool": "create_freeze_record",
+     "args": {
+      "membership_id": "req.membership_id",
+      "days": "req.freeze_days",
+      "reason": "req.reason"
+     }
+    },
+    {
+     "tool": "shift_billing_date",
+     "args": {
+      "member_id": "mem.member_id",
+      "days": "req.freeze_days"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "A medical freeze is not granted directly: open a staff approval request instead.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "membership_id": "membership.membership_id",
+      "reason": "'medical_note'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not freeze the membership; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "membership.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active memberships can be frozen."
+  },
+  {
+   "id": "R2",
+   "when": "mem.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "A member with any balance due cannot freeze a membership until it is paid."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(membership.start_date, today) < 30",
+   "outcome": "refuse",
+   "explain": "A membership that started fewer than 30 days ago cannot be frozen."
+  },
+  {
+   "id": "R4",
+   "when": "req.freeze_days < 1 or req.freeze_days > 30",
+   "outcome": "refuse",
+   "explain": "A single freeze must be between 1 and 30 days."
+  },
+  {
+   "id": "R5",
+   "when": "membership.freeze_days_used + req.freeze_days > 60",
+   "outcome": "refuse",
+   "explain": "A membership can have at most 60 freeze days in total, counting days already used."
+  },
+  {
+   "id": "R6",
+   "when": "req.reason == 'medical'",
+   "outcome": "approval",
+   "explain": "A freeze for medical reasons is sent to staff for approval instead of being granted directly."
+  }
+ ],
+ "default_outcome": "freeze",
+ "policy_text": "## Who can ask\nMembers can ask to freeze their membership by phone or at the front desk. Before changing anything, find the membership and the member it belongs to.\n\n## Finding the membership\nUse the membership number if the member gives it. Otherwise, ask which club the membership is held at and search the memberships at that club. If more than one membership comes up, use the plan and the start date the member gives to pick the right one. If you still cannot tell which membership they mean, ask. If you cannot identify the membership, make no change and tell the member you cannot find it.\n\n## Checks before a freeze\nCheck the request in this order. The first check that fails decides the outcome.\n1. The membership must be active. Frozen or cancelled memberships cannot be frozen.\n2. The member must have no balance due. If the balance due is more than 0.00, decline the freeze until the balance is paid.\n3. A membership that started fewer than 30 days before today cannot be frozen. Count the days from the start date to today.\n4. A single freeze must be between 1 and 30 days. Requests outside that range are declined, not shortened.\n5. A membership can have at most 60 freeze days in total, counting freeze days already used on it. If the requested days would take the total over 60, decline.\n6. A freeze for medical reasons is not granted directly. Open an approval request with reason medical_note and tell the member that club staff will contact them. Do not freeze the membership.\n\n## When a freeze is granted\nIf every check passes and the reason is not medical, freeze the membership for the number of days the member asked for:\n- set the membership to frozen, add the days to its freeze days used, and set the freeze end to that many days from today;\n- record the freeze with its reason;\n- move the member's next billing date later by the same number of days.\n\n## When a freeze is declined\nTell the member which check failed, in plain words. Do not change anything for a declined request.\n\n## Never\nDo not waive a balance due, do not freeze a membership you have not identified, do not shorten a request to make it fit the limits, and do not change anything the member did not ask for.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1001",
+    "full_name": "Jordan Kim",
+    "email": "jordan.kim@example.com",
+    "balance_due": 0.0,
+    "next_billing_date": "2026-06-02"
+   },
+   {
+    "member_id": "M-1002",
+    "full_name": "Sofia Reyes",
+    "email": "sofia.reyes@example.com",
+    "balance_due": 12.5,
+    "next_billing_date": "2026-06-10"
+   },
+   {
+    "member_id": "M-1003",
+    "full_name": "Ben Okafor",
+    "email": "ben.okafor@example.com",
+    "balance_due": 0.0,
+    "next_billing_date": "2026-06-18"
+   }
+  ],
+  "membership": [
+   {
+    "membership_id": "MS-1001",
+    "member_id": "M-1001",
+    "plan": "plus",
+    "club": "Lakeview",
+    "status": "active",
+    "start_date": "2024-01-08",
+    "freeze_days_used": 10,
+    "freeze_end": null
+   },
+   {
+    "membership_id": "MS-1002",
+    "member_id": "M-1002",
+    "plan": "basic",
+    "club": "Cedar Point",
+    "status": "active",
+    "start_date": "2025-05-05",
+    "freeze_days_used": 0,
+    "freeze_end": null
+   },
+   {
+    "membership_id": "MS-1003",
+    "member_id": "M-1003",
+    "plan": "premium",
+    "club": "Westfield",
+    "status": "frozen",
+    "start_date": "2024-11-01",
+    "freeze_days_used": 30,
+    "freeze_end": "2026-06-14"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-7741",
+      "full_name": "Priya Natarajan",
+      "email": "priya.n@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-01"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-3301",
+      "member_id": "M-7741",
+      "plan": "basic",
+      "club": "Harbor Street",
+      "status": "cancelled",
+      "start_date": "2023-01-10",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     },
+     {
+      "membership_id": "MS-3302",
+      "member_id": "M-7741",
+      "plan": "plus",
+      "club": "Eastgate",
+      "status": "active",
+      "start_date": "2024-03-02",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     },
+     {
+      "membership_id": "MS-3303",
+      "member_id": "M-7741",
+      "plan": "basic",
+      "club": "Eastgate",
+      "status": "cancelled",
+      "start_date": "2022-05-01",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-3302",
+    "freeze_days": 14,
+    "reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.freeze_days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "travel",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.club",
+     "value": "Eastgate",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.plan",
+     "value": "plus",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.email",
+     "value": "priya.n@example.com",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a management consultant who flies out on Monday and is in a hurry between client meetings.",
+   "reason_for_call": "She is flying to Denver for three weeks and wants her gym membership frozen for two weeks while she is away.",
+   "task_instructions": "Ask for the freeze in your first message, with the two weeks and the travel reason. You do not know the membership number. When asked, name the Eastgate club and the plus plan. You are impatient: if the agent takes a while to check, ask them to hurry up. Give the email address on your account only if asked.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8803",
+      "full_name": "Hannah Ruiz",
+      "email": "hannah.ruiz@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-05"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-8806",
+      "member_id": "M-8803",
+      "plan": "basic",
+      "club": "Riverside",
+      "status": "active",
+      "start_date": "2025-02-11",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-8806",
+    "freeze_days": 21,
+    "reason": "work"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.freeze_days",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "work",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.full_name",
+     "value": "Hannah Ruiz",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "freeze_days": 45,
+    "reason": "travel"
+   },
+   "persona": "Hannah, a nurse on a new phone number who lost the welcome letter from the club.",
+   "reason_for_call": "She wants to pause her membership while she takes a temporary posting at a hospital across town.",
+   "task_instructions": "First ask for a 45-day freeze for travel. After the agent responds, switch to 21 days for work and accept that. You do not have the membership number. You do not know which club you joined or which plan you have, and you cannot remember which email address you signed up with. If the agent asks for those, say you cannot find them.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-6612",
+      "full_name": "Sana Qureshi",
+      "email": "sana.q@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-07"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-6620",
+      "member_id": "M-6612",
+      "plan": "plus",
+      "club": "Northgate",
+      "status": "active",
+      "start_date": "2025-01-15",
+      "freeze_days_used": 20,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-6620",
+    "freeze_days": 10,
+    "reason": "medical"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.freeze_days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "medical",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.club",
+     "value": "Northgate",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sana, a warehouse supervisor who is recovering from a shoulder operation.",
+   "reason_for_call": "Her physiotherapist has told her to rest the shoulder for ten days and she wants the membership paused until then.",
+   "task_instructions": "Be very brief. State the ten days and that the reason is medical in your first message. You do not know the membership number. Name the club only when asked. Do not volunteer anything else.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-4402",
+      "full_name": "Chloe Nguyen",
+      "email": "chloe.nguyen@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-12"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-4410",
+      "member_id": "M-4402",
+      "plan": "premium",
+      "club": "Eastgate",
+      "status": "active",
+      "start_date": "2023-08-21",
+      "freeze_days_used": 30,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-4410",
+    "freeze_days": 30,
+    "reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-4410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 30,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "travel",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Chloe, a regional sales director who is always on the road and short on patience.",
+   "reason_for_call": "She is on a work trip for a full month and wants the membership frozen for all of it.",
+   "task_instructions": "State your membership number, the 30 days and the reason in your first message. You are in a rush: if the agent asks a question you have already answered, repeat the answer impatiently. Accept the result once the agent confirms it.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-5140",
+      "full_name": "Ibrahim Darwish",
+      "email": "ibrahim.d@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-03"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-5150",
+      "member_id": "M-5140",
+      "plan": "basic",
+      "club": "Northgate",
+      "status": "active",
+      "start_date": "2022-10-10",
+      "freeze_days_used": 20,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-5150",
+    "freeze_days": 25,
+    "reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-5150",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 25,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "travel",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "membership.freeze_days_used",
+     "value": 40,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ibrahim, a quiet accountant who keeps careful notes about his membership.",
+   "reason_for_call": "He is travelling to his family's home for most of the summer and wants a 25-day freeze.",
+   "task_instructions": "Answer in a few words. Say upfront that you have already used 40 freeze days this year, because that is what your notes say. Do not argue if the agent says something different; just answer what is asked.",
+   "expected_outcome": "freeze"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-6690",
+      "full_name": "Owen Fitzgerald",
+      "email": "owen.fitz@example.com",
+      "balance_due": 35.0,
+      "next_billing_date": "2026-06-09"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-6691",
+      "member_id": "M-6690",
+      "plan": "premium",
+      "club": "Eastgate",
+      "status": "active",
+      "start_date": "2024-09-01",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-6691",
+    "freeze_days": 14,
+    "reason": "work"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-6691",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "work",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.balance_due",
+     "value": 35.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "A billing email last Tuesday said the personal training add-on from March is still unpaid, 35 dollars.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I have had the premium Eastgate membership since September 2024, so that is the one I am calling about.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Owen, a site engineer who is polite and organised and reads every statement he receives.",
+   "reason_for_call": "He has a three-week project abroad starting next week and wants the membership frozen for two weeks.",
+   "task_instructions": "Give your membership number, the 14 days and the work reason in your first message. Mention the 35 dollar balance early on, and the two details about the statement and the Eastgate membership if it helps. Be cooperative: accept whatever the agent says and thank them.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-7705",
+      "full_name": "Nadia Brandt",
+      "email": "nadia.b@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-15"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-7702",
+      "member_id": "M-7705",
+      "plan": "basic",
+      "club": "Harbor Street",
+      "status": "cancelled",
+      "start_date": "2022-06-03",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     },
+     {
+      "membership_id": "MS-7709",
+      "member_id": "M-7705",
+      "plan": "plus",
+      "club": "Eastgate",
+      "status": "active",
+      "start_date": "2024-06-03",
+      "freeze_days_used": 50,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-7709",
+    "freeze_days": 15,
+    "reason": "other"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-7709",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 15,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "other",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My partner used to be on the old Harbor Street plan and cancelled it back in 2022.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am thinking about moving up to the premium plan in the autumn, but that is a separate question for another day.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The squat rack at Eastgate was out of order last week and somebody should fix it.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "freeze_days": 45,
+    "reason": "travel"
+   },
+   "persona": "Nadia, a freelance designer who is chatty and easily distracted.",
+   "reason_for_call": "She wants to pause her Eastgate membership for a few weeks while she sorts out a house move.",
+   "task_instructions": "First ask for a 45-day freeze for travel. After the agent responds, change your mind to 15 days for a house move, which you will describe as other. Give your membership number when asked. Mention the distractor details in passing. Do not ask for anything beyond the freeze.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-8811",
+      "full_name": "Tariq Mansour",
+      "email": "tariq.m@example.com",
+      "balance_due": 0.0,
+      "next_billing_date": "2026-06-20"
+     }
+    ],
+    "membership": [
+     {
+      "membership_id": "MS-8815",
+      "member_id": "M-8811",
+      "plan": "plus",
+      "club": "Eastgate",
+      "status": "active",
+      "start_date": "2026-04-28",
+      "freeze_days_used": 0,
+      "freeze_end": null
+     }
+    ]
+   },
+   "request_values": {
+    "membership_id": "MS-8815",
+    "freeze_days": 10,
+    "reason": "travel"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.membership_id",
+     "value": "MS-8815",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.freeze_days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "travel",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tariq, a friendly teacher who has just joined the club after the spring term.",
+   "reason_for_call": "He is going to visit family abroad for ten days and would like the membership paused while he is away.",
+   "task_instructions": "State your membership number and the 10 days in your first message. Do not mention the reason for the freeze unless the agent asks why you want it; if asked, say you are travelling to visit family abroad. Be cooperative and polite, and accept the agent's answer.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

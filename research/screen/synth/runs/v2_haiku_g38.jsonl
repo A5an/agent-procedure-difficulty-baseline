@@ -1,0 +1,96 @@
+{"task_id": "v2_haiku__h01_auto__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 17.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h01_auto__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 20.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h01_auto__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 32.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h01_auto__c3", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 35.1, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h01_auto__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 37.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h01_auto__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 22.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h02_mortgage__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 17.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h02_mortgage__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 20.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h02_mortgage__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 38.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h02_mortgage__c4", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 34.4, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h02_mortgage__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 33.4, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h02_mortgage__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 28.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_haiku__h01_auto__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 90.2, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h01_auto__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 73.7, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_haiku__h03_business__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 14.6, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h02_mortgage__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 29.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h03_business__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 22.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h03_business__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 25.5, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h03_business__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 19.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h03_business__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 42.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h03_business__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 34.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h02_mortgage__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 59.7, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_haiku__h03_business__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 25.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h04_airline__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 14.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h04_airline__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 37.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h03_business__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 49.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h04_airline__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 42.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h04_airline__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 36.2, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h04_airline__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 38.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h04_airline__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 31.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 21.4, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h04_airline__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 27, "sec": 38.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h04_airline__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 77.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 19.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c2", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 53.6, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 22.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 26.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 74.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h06_city__c1", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 32.9, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h05_hospital__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 78.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h06_city__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 27.5, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h05_hospital__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 87.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h06_city__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 35.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h06_city__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 12.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h06_city__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 62.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h06_city__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 43.6, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h07_school__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 17.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h07_school__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 22.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h06_city__c7", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 45.3, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h06_city__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 60.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h07_school__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 46.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h07_school__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 17.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h07_school__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 39.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h07_school__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 42.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h08_car__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 26.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h07_school__c7", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 44.6, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h07_school__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 32.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h08_car__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 33.0, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h08_car__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 22.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h08_car__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 33.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h08_car__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 20.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h08_car__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 22.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h08_car__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 31.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h09_bike__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 22.3, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h09_bike__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 24.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h09_bike__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 30.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h09_bike__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 20.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h09_bike__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 34.3, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h09_bike__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 25.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h09_bike__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 9.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h10_cloud__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 10.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h08_car__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 64.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h10_cloud__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 21.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h10_cloud__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 22.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h09_bike__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 56.4, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h10_cloud__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 21, "sec": 32.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h10_cloud__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 34.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h10_cloud__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 37.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h10_cloud__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 24.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h11_freight__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 17.8, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_haiku__h11_freight__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 24.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h11_freight__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 30.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h11_freight__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 29.7, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h11_freight__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 12.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h11_freight__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 15.2, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h11_freight__c5", "gen": "haiku", "agent": "g38", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 35.5, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_haiku__h10_cloud__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 30, "sec": 61.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h12_university__c4", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 13.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h12_university__c1", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 24.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h12_university__c3", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 24.4, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h12_university__c2", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 27.5, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h11_freight__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 49.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_haiku__h12_university__c6", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 15.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h12_university__c7", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 11.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_haiku__h12_university__c5", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 29.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_haiku__h12_university__c8", "gen": "haiku", "agent": "g38", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 16.7, "db_ok": true, "actions_ok": []}

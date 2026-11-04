@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which loan the customer means (multiple loans possible) and how to identify it from the 'loan details' lookup; which loan fields matter (tenure, rate, EMI, outstanding) and how they feed into the RD.",
+  "How the 'RD rate' is determined: which tenure/amount/customer category (e.g., senior citizen) applies, whether to use the knowledge base or a rates tool, and what to do if the KB hit is weak or rates are tiered.",
+  "What the 'penalty policy' refers to (RD premature closure, missed installment penalty, or loan prepayment) and which KB query/category to use; how to handle ambiguous or conflicting results.",
+  "RD parameters not given in the description: monthly installment amount, tenure, source/funding account, nominee, auto-renewal/maturity instructions; whether the agent should ask or derive them from the loan (e.g., installment equal to EMI).",
+  "Why balance is checked twice: which account(s) to check, whether the first balance check gates RD creation (sufficient funds, minimum balance requirements), and what to do if balance is insufficient.",
+  "Whether creating the RD requires explicit customer confirmation (policy lists confirmation only for closures/blocks/cancels, not for creating deposits), and what counts as confirmation.",
+  "Final action expectation: the RD created with exact parameters and the post-creation balance reported, vs. customer changing mind or declining after hearing the penalty policy; no-mutation path.",
+  "Customer behavior: may supply a loan ID not linked to them (must refuse), change amounts/tenure mid-conversation, ask follow-ups, or push for off-policy waivers of penalty.",
+  "Order sensitivity: whether the rate/penalty must be disclosed before creation, and whether the sequence in the description is mandatory or just illustrative.",
+  "Bank conventions: minimum/maximum RD amount and tenure, rounding of rates and amounts, date handling relative to simulation date 2026-07-16, currency formatting, and product ID lookup for the RD scheme."
+ ]
+}

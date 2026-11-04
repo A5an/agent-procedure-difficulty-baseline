@@ -1,0 +1,5 @@
+{"task_id": "rl_hprate_0025", "agent": "g38", "set": "pilot", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 8, "sec": 16.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "rl_sqfrz_0071", "agent": "g38", "set": "pilot", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 57.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "rl_tlrdmat_0152", "agent": "g38", "set": "pilot", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 27, "sec": 69.7, "db_ok": true, "actions_ok": [true, true, true, true, true]}
+{"task_id": "rl_edgablk2x_0140", "agent": "g38", "set": "pilot", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 46, "sec": 77.1, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "rl_edgbtwocards_0489", "agent": "g38", "set": "pilot", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 48, "sec": 136.9, "db_ok": false, "actions_ok": [false, false, false, true, false]}
