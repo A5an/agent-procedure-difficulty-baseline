@@ -1,0 +1,878 @@
+{
+ "procedure_id": "h11_freight",
+ "domain": "freight shipping",
+ "organization": "Meridian Freight Lines",
+ "title": "Pickup rescheduling",
+ "summary": "Postpone the scheduled pickup date of a booked freight shipment when the account, shipment and depot allow it, charging a reschedule fee, or send special cases for approval.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Shipper accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "contact_email": "str",
+    "billing_postcode": "str",
+    "status": "enum:active|credit_hold|closed"
+   }
+  },
+  "depot": {
+   "key": "depot_id",
+   "description": "Pickup depots",
+   "fields": {
+    "depot_id": "str",
+    "name": "str",
+    "status": "enum:open|congested|closed"
+   }
+  },
+  "shipment": {
+   "key": "shipment_id",
+   "description": "Booked freight shipments",
+   "fields": {
+    "shipment_id": "str",
+    "account_id": "ref:account",
+    "depot_id": "ref:depot",
+    "po_number": "str",
+    "origin_city": "str",
+    "destination_city": "str",
+    "pickup_date": "date",
+    "freight_charge": "number",
+    "service_level": "enum:standard|express|hazmat",
+    "status": "enum:booked|picked_up|delivered|cancelled"
+   }
+  },
+  "fee_charge": {
+   "key": "fee_id",
+   "description": "Reschedule fees already charged on shipments",
+   "fields": {
+    "fee_id": "str",
+    "shipment_id": "ref:shipment",
+    "amount": "number",
+    "charged_on": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for operations manager approval",
+   "fields": {
+    "request_id": "str",
+    "shipment_id": "ref:shipment",
+    "reason": "enum:hazmat|depot_congestion",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a shipper account by account number."
+  },
+  {
+   "name": "get_depot",
+   "kind": "get",
+   "entity": "depot",
+   "description": "Look up a pickup depot by depot id."
+  },
+  {
+   "name": "get_shipment",
+   "kind": "get",
+   "entity": "shipment",
+   "description": "Look up a shipment by shipment number."
+  },
+  {
+   "name": "find_shipments_by_po",
+   "kind": "search",
+   "entity": "shipment",
+   "by": [
+    "po_number"
+   ],
+   "description": "List shipments with a given customer purchase order (PO) number."
+  },
+  {
+   "name": "find_fee_charges_by_shipment",
+   "kind": "search",
+   "entity": "fee_charge",
+   "by": [
+    "shipment_id"
+   ],
+   "description": "List the reschedule fees already charged on a shipment."
+  },
+  {
+   "name": "reschedule_pickup",
+   "kind": "update",
+   "entity": "shipment",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment to reschedule."
+    },
+    "new_pickup_date": {
+     "type": "date",
+     "description": "The new pickup date."
+    }
+   },
+   "set": {
+    "pickup_date": "args.new_pickup_date"
+   },
+   "description": "Set a new pickup date on a shipment."
+  },
+  {
+   "name": "create_reschedule_fee",
+   "kind": "create",
+   "entity": "fee_charge",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment being charged."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The fee amount."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "amount": "args.amount",
+    "charged_on": "today"
+   },
+   "description": "Record a reschedule fee against a shipment."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "shipment_id": {
+     "type": "ref:shipment",
+     "description": "The shipment the request is about."
+    },
+    "reason": {
+     "type": "enum:hazmat|depot_congestion",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "shipment_id": "args.shipment_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for an operations manager to approve or decline a reschedule."
+  }
+ ],
+ "request": {
+  "shipment_id": {
+   "type": "ref:shipment",
+   "description": "the shipment whose pickup you want to postpone"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many days later you want the pickup"
+  }
+ },
+ "claims": {
+  "billing_postcode": {
+   "type": "str",
+   "description": "the billing postcode on your shipper account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "ship",
+   "entity": "shipment",
+   "key": "req.shipment_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "ship.account_id"
+  },
+  {
+   "name": "depot",
+   "entity": "depot",
+   "key": "ship.depot_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Move the pickup later by the requested days and record the reschedule fee.",
+   "calls": [
+    {
+     "tool": "reschedule_pickup",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "new_pickup_date": "add_days(ship.pickup_date, req.days)"
+     }
+    },
+    {
+     "tool": "create_reschedule_fee",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "amount": "min(150, max(25, round(ship.freight_charge * 0.04, 2)))"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "Open an approval request for an operations manager instead of rescheduling.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "shipment_id": "req.shipment_id",
+      "reason": "'hazmat' if ship.service_level == 'hazmat' else 'depot_congestion'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not reschedule; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.billing_postcode != acct.billing_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the billing postcode on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only shipments of active accounts can be rescheduled."
+  },
+  {
+   "id": "R3",
+   "when": "ship.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only shipments still in booked status can be rescheduled."
+  },
+  {
+   "id": "R4",
+   "when": "req.days < 1 or req.days > 14",
+   "outcome": "refuse",
+   "explain": "A pickup can be postponed by 1 to 14 days."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, ship.pickup_date) < 2",
+   "outcome": "refuse",
+   "explain": "A pickup less than 2 days away cannot be rescheduled."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('fee_charge', 'shipment_id', req.shipment_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A shipment can be rescheduled at most twice."
+  },
+  {
+   "id": "R7",
+   "when": "depot.status == 'closed'",
+   "outcome": "refuse",
+   "explain": "A closed depot accepts no rescheduling."
+  },
+  {
+   "id": "R8",
+   "when": "ship.service_level == 'hazmat' or depot.status == 'congested'",
+   "outcome": "approval",
+   "explain": "Hazmat shipments and shipments from congested depots need manager approval instead of direct rescheduling."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nShippers can ask by phone or chat to postpone the pickup of a booked shipment. Before changing anything, find the shipment and confirm the caller's identity: the billing postcode they give must match the postcode on the shipper account that owns the shipment. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the shipment\nUse the shipment number if the caller has it. Otherwise ask for the purchase order (PO) number and search shipments by PO number; if several shipments share it, ask for details such as the origin city to pick the right one. If you cannot identify the shipment, do not guess and make no change.\n\n## When a pickup can be postponed\nCheck the shipment, its account and its pickup depot yourself; the caller will not know all of this.\n- The account must be active. Accounts on credit hold or closed cannot reschedule.\n- The shipment must still be in booked status.\n- The postponement must be between 1 and 14 days. Requests outside this range are declined, not shortened.\n- The current pickup date must be at least 2 days after today. Pickups today or tomorrow cannot be moved.\n- A shipment can be rescheduled at most twice. List the reschedule fees already charged on the shipment; if there are two or more, decline.\n- If the pickup depot is closed, decline.\n- If the shipment is hazmat, or the pickup depot is congested, do not reschedule. Open an approval request (reason hazmat if the shipment is hazmat, otherwise depot_congestion) and tell the caller an operations manager will contact them.\n\nThe checks apply in the order above; the first one that applies decides.\n\n## Doing the reschedule\nIf everything is fine, do two things in this order: (1) set the new pickup date, which is the current pickup date plus the requested number of days; (2) record a reschedule fee of 4% of the shipment's freight charge, rounded to cents, but never less than 25.00 and never more than 150.00.\n\n## Never\nDo not waive or change the fee, do not reschedule for a caller who failed the identity check, do not make exceptions to the limits above, and do not change anything the caller did not ask for. Trust the records over what the caller believes.",
+ "db_common": {
+  "depot": [
+   {
+    "depot_id": "D-01",
+    "name": "Memphis Hub",
+    "status": "open"
+   },
+   {
+    "depot_id": "D-02",
+    "name": "Newark Gateway",
+    "status": "congested"
+   },
+   {
+    "depot_id": "D-03",
+    "name": "Dallas Cross-Dock",
+    "status": "closed"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3101",
+      "company_name": "Brightwater Produce Co",
+      "contact_email": "ops@brightwaterproduce.example.com",
+      "billing_postcode": "97204",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-41001",
+      "account_id": "A-3101",
+      "depot_id": "D-03",
+      "po_number": "BW-7731",
+      "origin_city": "Portland",
+      "destination_city": "Phoenix",
+      "pickup_date": "2026-06-02",
+      "freight_charge": 1800,
+      "service_level": "standard",
+      "status": "booked"
+     },
+     {
+      "shipment_id": "S-41002",
+      "account_id": "A-3101",
+      "depot_id": "D-01",
+      "po_number": "BW-7745",
+      "origin_city": "Portland",
+      "destination_city": "Boise",
+      "pickup_date": "2026-05-27",
+      "freight_charge": 900,
+      "service_level": "express",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-41001",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-41001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "97204",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The company also has an express shipment to Boise going out next week that does not need to change.",
+     "kind": "distractor"
+    },
+    {
+     "text": "One of their drivers had a flat tire on a delivery last month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "They recently switched to new billing software and invoices look different.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "days": 21
+   },
+   "persona": "Marta, the logistics coordinator at a produce wholesaler. Talkative, businesslike, and likes to bargain.",
+   "reason_for_call": "A buyer's warehouse is not ready, so she wants the Phoenix pickup moved later.",
+   "task_instructions": "First ask to postpone the pickup by 21 days. If the agent refuses, ask for 7 days instead. Mention the side stories naturally during the conversation. Accept the agent's final answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3205",
+      "company_name": "Harlow Tooling",
+      "contact_email": "shipping@harlowtooling.example.com",
+      "billing_postcode": "60607",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-42017",
+      "account_id": "A-3205",
+      "depot_id": "D-01",
+      "po_number": "HT-2290",
+      "origin_city": "Chicago",
+      "destination_city": "Detroit",
+      "pickup_date": "2026-06-05",
+      "freight_charge": 2400,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ],
+    "fee_charge": [
+     {
+      "fee_id": "F-7001",
+      "shipment_id": "S-42017",
+      "amount": 96,
+      "charged_on": "2026-04-28"
+     },
+     {
+      "fee_id": "F-7002",
+      "shipment_id": "S-42017",
+      "amount": 96,
+      "charged_on": "2026-05-08"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-42017",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-42017",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "60607",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.pickup_date",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.status",
+     "value": "booked",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "This pickup has already been moved twice before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The booking is under the Harlow Tooling account.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "days": 5
+   },
+   "persona": "Devon, a plant manager at a tooling manufacturer. Direct and a bit hurried.",
+   "reason_for_call": "A machine run is late and he needs the pickup pushed back.",
+   "task_instructions": "Start by asking for 5 more days, then before the agent does anything, say you actually need 7 days instead. Give the details in your first messages, including the current pickup date and that the shipment is still booked. Accept the result.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3318",
+      "company_name": "Kestrel Outdoor Gear",
+      "contact_email": "orders@kestrelgear.example.com",
+      "billing_postcode": "84101",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-43010",
+      "account_id": "A-3318",
+      "depot_id": "D-01",
+      "po_number": "KO-5512",
+      "origin_city": "Salt Lake City",
+      "destination_city": "Denver",
+      "pickup_date": "2026-06-03",
+      "freight_charge": 1000,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-43010",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-43010",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "84101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.pickup_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sam, a warehouse lead who types very short messages.",
+   "reason_for_call": "Stock for an outdoor gear order arrives late, so he wants the pickup moved by five days.",
+   "task_instructions": "Keep answers very short. Say the pickup is on June 2 (you believe this). If the agent says the system shows a different date, accept the system's date. Answer only what is asked.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3420",
+      "company_name": "Delmar Furniture",
+      "contact_email": "dispatch@delmarfurniture.example.com",
+      "billing_postcode": "73102",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-44021",
+      "account_id": "A-3420",
+      "depot_id": "D-01",
+      "po_number": "DF-1180",
+      "origin_city": "Tulsa",
+      "destination_city": "Dallas",
+      "pickup_date": "2026-05-29",
+      "freight_charge": 500,
+      "service_level": "standard",
+      "status": "booked"
+     },
+     {
+      "shipment_id": "S-44022",
+      "account_id": "A-3420",
+      "depot_id": "D-01",
+      "po_number": "DF-1180",
+      "origin_city": "Wichita",
+      "destination_city": "Dallas",
+      "pickup_date": "2026-05-30",
+      "freight_charge": 1500,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-44021",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "ship.po_number",
+     "value": "DF-1180",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.origin_city",
+     "value": "Tulsa",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "73102",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Greg, a dispatcher at a furniture maker. Impatient and in a hurry.",
+   "reason_for_call": "A showroom delivery was delayed and he wants the Tulsa pickup moved 10 days later. He does not have the shipment number, only the PO number.",
+   "task_instructions": "Say you only have the PO number. Be impatient and complain if the agent asks too many questions, but answer them. Give the origin city only when asked which shipment you mean.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3507",
+      "company_name": "Ridgeway Pet Supply",
+      "contact_email": "ship@ridgewaypet.example.com",
+      "billing_postcode": "55401",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-45003",
+      "account_id": "A-3507",
+      "depot_id": "D-01",
+      "po_number": "RP-0418",
+      "origin_city": "Minneapolis",
+      "destination_city": "Omaha",
+      "pickup_date": "2026-05-21",
+      "freight_charge": 700,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-45003",
+    "days": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-45003",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.days",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "55401",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, owner of a small pet food business. Pushy and stressed.",
+   "reason_for_call": "Her supplier is late and she wants tomorrow's pickup moved three days.",
+   "task_instructions": "Say you want tomorrow's pickup moved 3 days. Give the shipment number and your billing postcode only when the agent asks for them. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3612",
+      "company_name": "Seabright Pool Supply",
+      "contact_email": "office@seabrightpool.example.com",
+      "billing_postcode": "33101",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-46030",
+      "account_id": "A-3612",
+      "depot_id": "D-01",
+      "po_number": "SP-2207",
+      "origin_city": "Miami",
+      "destination_city": "Atlanta",
+      "pickup_date": "2026-06-08",
+      "freight_charge": 3000,
+      "service_level": "hazmat",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-46030",
+    "days": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-46030",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "33101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ship.service_level",
+     "value": "standard",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days": 3
+   },
+   "persona": "Luis, a sales manager at a pool supply company who thinks of his freight as ordinary.",
+   "reason_for_call": "A customer's pool is not finished, so he wants the pickup moved later.",
+   "task_instructions": "First ask for 3 days later, then before anything is done change to 6 days. Say the shipment is standard freight. If the agent says it goes to a manager for approval, accept that.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3704",
+      "company_name": "Northfield Bakery Supply",
+      "contact_email": "logistics@northfieldbakery.example.com",
+      "billing_postcode": "55902",
+      "status": "active"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-47005",
+      "account_id": "A-3704",
+      "depot_id": "D-01",
+      "po_number": "NB-3301",
+      "origin_city": "Rochester",
+      "destination_city": "Chicago",
+      "pickup_date": "2026-06-10",
+      "freight_charge": 5000,
+      "service_level": "standard",
+      "status": "booked"
+     },
+     {
+      "shipment_id": "S-47006",
+      "account_id": "A-3704",
+      "depot_id": "D-01",
+      "po_number": "NB-3310",
+      "origin_city": "Rochester",
+      "destination_city": "Madison",
+      "pickup_date": "2026-06-15",
+      "freight_charge": 1200,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ],
+    "fee_charge": [
+     {
+      "fee_id": "F-7101",
+      "shipment_id": "S-47005",
+      "amount": 150,
+      "charged_on": "2026-05-02"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-47005",
+    "days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-47005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "55902",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "They also have a smaller Madison shipment that should stay as scheduled.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Their oven supplier gave them a discount last quarter.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A forklift at their dock was repaired last week.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannah, operations lead at a bakery ingredient supplier. Friendly and organized.",
+   "reason_for_call": "A big order is delayed and she wants the Chicago pickup moved two weeks later.",
+   "task_instructions": "Explain clearly what you want with the shipment number, days and postcode. Mention the side details casually. Answer questions politely and accept the fee.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3809",
+      "company_name": "Quarry Lane Stone",
+      "contact_email": "accounts@quarrylane.example.com",
+      "billing_postcode": "05401",
+      "status": "credit_hold"
+     }
+    ],
+    "shipment": [
+     {
+      "shipment_id": "S-48012",
+      "account_id": "A-3809",
+      "depot_id": "D-01",
+      "po_number": "QL-9004",
+      "origin_city": "Burlington",
+      "destination_city": "Boston",
+      "pickup_date": "2026-06-04",
+      "freight_charge": 2000,
+      "service_level": "standard",
+      "status": "booked"
+     }
+    ]
+   },
+   "request_values": {
+    "shipment_id": "S-48012",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.shipment_id",
+     "value": "S-48012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "05401",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days": 25
+   },
+   "persona": "Walt, owner of a stone quarry. Practical and willing to haggle.",
+   "reason_for_call": "A job site is not ready for the stone delivery and he wants the pickup postponed.",
+   "task_instructions": "Give the shipment number, days and postcode in your first message. First ask for 25 days. If refused, ask for 10 days instead. Accept the final answer.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

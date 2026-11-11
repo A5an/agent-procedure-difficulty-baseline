@@ -1,0 +1,834 @@
+{
+ "procedure_id": "p12_online",
+ "domain": "online clothing store",
+ "organization": "Fernlane Apparel",
+ "title": "Item returns and refunds",
+ "summary": "Accept the return of a delivered clothing item and refund it to the customer when the customer and the item qualify.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Registered shoppers",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "postal_code": "str"
+   }
+  },
+  "order": {
+   "key": "order_id",
+   "description": "Customer orders",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "order_date": "date",
+    "delivered_date": "date"
+   }
+  },
+  "order_item": {
+   "key": "item_id",
+   "description": "Individual items within an order",
+   "fields": {
+    "item_id": "str",
+    "order_id": "ref:order",
+    "product_name": "str",
+    "price": "number",
+    "final_sale": "bool",
+    "status": "enum:delivered|returned"
+   }
+  },
+  "return_request": {
+   "key": "return_id",
+   "description": "Accepted returns",
+   "fields": {
+    "return_id": "str",
+    "item_id": "ref:order_item",
+    "reason": "enum:wrong_size|defective|changed_mind",
+    "created": "date"
+   }
+  },
+  "refund": {
+   "key": "refund_id",
+   "description": "Refunds issued to the original payment method",
+   "fields": {
+    "refund_id": "str",
+    "item_id": "ref:order_item",
+    "amount": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer by customer number."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find customers by the email address on the account."
+  },
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up an order by order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all orders of a customer."
+  },
+  {
+   "name": "get_order_item",
+   "kind": "get",
+   "entity": "order_item",
+   "description": "Look up an order item by item number."
+  },
+  {
+   "name": "find_items_by_order",
+   "kind": "search",
+   "entity": "order_item",
+   "by": [
+    "order_id"
+   ],
+   "description": "List all items in an order."
+  },
+  {
+   "name": "create_return_request",
+   "kind": "create",
+   "entity": "return_request",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item being returned."
+    },
+    "reason": {
+     "type": "enum:wrong_size|defective|changed_mind",
+     "description": "The customer's reason for the return."
+    }
+   },
+   "fields": {
+    "item_id": "args.item_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Record an accepted return for an item."
+  },
+  {
+   "name": "mark_item_returned",
+   "kind": "update",
+   "entity": "order_item",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item to mark as returned."
+    }
+   },
+   "set": {
+    "status": "'returned'"
+   },
+   "description": "Set the status of an order item to returned."
+  },
+  {
+   "name": "create_refund",
+   "kind": "create",
+   "entity": "refund",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item being refunded."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The refund amount."
+    }
+   },
+   "fields": {
+    "item_id": "args.item_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Issue a refund for a returned item to the original payment method."
+  }
+ ],
+ "request": {
+  "item_id": {
+   "type": "ref:order_item",
+   "description": "the item you want to return"
+  },
+  "reason": {
+   "type": "enum:wrong_size|defective|changed_mind",
+   "description": "why you are returning it: it is the wrong size, it is defective, or you changed your mind"
+  }
+ },
+ "claims": {
+  "postal_code": {
+   "type": "str",
+   "description": "the billing postal code on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "item",
+   "entity": "order_item",
+   "key": "req.item_id"
+  },
+  {
+   "name": "ord",
+   "entity": "order",
+   "key": "item.order_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "ord.customer_id"
+  }
+ ],
+ "outcomes": {
+  "approve_return": {
+   "kind": "perform",
+   "description": "Accept the return, mark the item returned and refund its price.",
+   "calls": [
+    {
+     "tool": "create_return_request",
+     "args": {
+      "item_id": "req.item_id",
+      "reason": "req.reason"
+     }
+    },
+    {
+     "tool": "mark_item_returned",
+     "args": {
+      "item_id": "req.item_id"
+     }
+    },
+    {
+     "tool": "create_refund",
+     "args": {
+      "item_id": "req.item_id",
+      "amount": "item.price"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not accept the return; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postal_code != cust.postal_code",
+   "outcome": "refuse",
+   "explain": "The caller must give the billing postal code on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "item.status != 'delivered'",
+   "outcome": "refuse",
+   "explain": "Only items still in delivered status can be returned; an item already returned cannot be returned again."
+  },
+  {
+   "id": "R3",
+   "when": "item.final_sale",
+   "outcome": "refuse",
+   "explain": "Final-sale items cannot be returned."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(ord.delivered_date, today) > 30",
+   "outcome": "refuse",
+   "explain": "Returns must be requested within 30 days of delivery."
+  },
+  {
+   "id": "R5",
+   "when": "req.reason == 'changed_mind' and days_between(ord.delivered_date, today) > 14",
+   "outcome": "refuse",
+   "explain": "Changed-mind returns must be requested within 14 days of delivery."
+  }
+ ],
+ "default_outcome": "approve_return",
+ "policy_text": "## Who can ask\nCustomers contact us to return an item they received. Before changing anything, find the item, its order and the customer who owns the order, and confirm identity: the billing postal code the customer gives must match the one on the account. If it does not match, or the customer cannot give it, make no change.\n\n## Finding the item\nUse the item number if the customer has it. Otherwise ask for the order number, list the items in that order, and ask which product they mean if there is more than one. You can also find the customer by the email on the account and list their orders. If you cannot identify the item, do not guess and make no change.\n\n## When a return is allowed\nCheck these in order; the first one that applies decides.\n- The postal code must match the account (see above).\n- The item must still be in delivered status. An item already returned cannot be returned again.\n- Final-sale items cannot be returned.\n- Returns must be requested within 30 days of the delivery date of the order. Count from the delivery date, not the order date.\n- If the reason is changed mind, the return must be requested within 14 days of delivery. Wrong-size and defective returns may use the full 30 days.\n\nGo by our records, not by what the customer remembers about delivery dates or final-sale status.\n\n## What to do\nIf the return is allowed, do these three things in this order: record the return with the customer's reason, mark the item as returned, and issue a refund for the full price of the item. Then tell the customer the refund goes to the original payment method.\nIf it is not allowed, explain the reason briefly and do not make any change.\n\n## Never\nDo not make exceptions to the time limits or the final-sale rule, do not refund an amount other than the item price, do not return an item for someone who failed the identity check, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1000",
+    "full_name": "Hana Berg",
+    "email": "hana.berg@example.com",
+    "postal_code": "0150"
+   }
+  ],
+  "order": [
+   {
+    "order_id": "O-5000",
+    "customer_id": "C-1000",
+    "order_date": "2026-05-01",
+    "delivered_date": "2026-05-05"
+   }
+  ],
+  "order_item": [
+   {
+    "item_id": "I-50001",
+    "order_id": "O-5000",
+    "product_name": "Fleece hoodie, grey",
+    "price": 54.0,
+    "final_sale": false,
+    "status": "delivered"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "postal_code": "560034"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7101",
+      "customer_id": "C-2101",
+      "order_date": "2026-05-09",
+      "delivered_date": "2026-05-14"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71011",
+      "order_id": "O-7101",
+      "product_name": "Linen shirt, navy",
+      "price": 49.9,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71011",
+    "reason": "wrong_size"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "wrong_size",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "560034",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "reason": "changed_mind"
+   },
+   "persona": "Priya, a software tester who shops online often. Polite but a little indecisive.",
+   "reason_for_call": "She wants to send back a linen shirt she received last week.",
+   "task_instructions": "In your first message give the item number and your postal code, and say you are returning the shirt because you changed your mind. Before the agent does anything, correct yourself: say actually the real reason is that it is the wrong size. Answer questions politely.",
+   "expected_outcome": "approve_return"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2102",
+      "full_name": "Tom Becker",
+      "email": "tom.becker@example.com",
+      "postal_code": "10115"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7102",
+      "customer_id": "C-2102",
+      "order_date": "2026-05-06",
+      "delivered_date": "2026-05-10"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71021",
+      "order_id": "O-7102",
+      "product_name": "Wool scarf, grey",
+      "price": 35.0,
+      "final_sale": true,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71021",
+    "reason": "changed_mind"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71021",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "changed_mind",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "10115",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.final_sale",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom, a bank clerk who dislikes long chats. Sure he never bought anything marked final sale.",
+   "reason_for_call": "He wants to return a scarf he does not like.",
+   "task_instructions": "Keep every answer to a few words. State the item number, reason and postal code, and say the scarf was not final sale. If the agent refuses, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2103",
+      "full_name": "Maria Costa",
+      "email": "maria.costa@example.com",
+      "postal_code": "1250-096"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7103",
+      "customer_id": "C-2103",
+      "order_date": "2026-04-26",
+      "delivered_date": "2026-04-30"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71031",
+      "order_id": "O-7103",
+      "product_name": "Denim jacket, blue",
+      "price": 89.0,
+      "final_sale": false,
+      "status": "delivered"
+     },
+     {
+      "item_id": "I-71032",
+      "order_id": "O-7103",
+      "product_name": "Cotton tee, white",
+      "price": 19.0,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71031",
+    "reason": "defective"
+   },
+   "customer_facts": [
+    {
+     "fact": "item.order_id",
+     "value": "O-7103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.product_name",
+     "value": "Denim jacket, blue",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "defective",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "1250-096",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "reason": "changed_mind"
+   },
+   "persona": "Maria, a primary school teacher in Lisbon. Friendly and chatty, does not keep item numbers.",
+   "reason_for_call": "She wants to return a blue denim jacket from her recent order.",
+   "task_instructions": "You do not know the item number. Give your order number, the product name and your postal code. At first say you are returning the jacket because you changed your mind. After the agent starts, say you just noticed the zipper is broken, so the real reason is that it is defective. Answer questions politely.",
+   "expected_outcome": "approve_return"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2104",
+      "full_name": "Derek Owens",
+      "email": "derek.owens@example.com",
+      "postal_code": "M5V 2T6"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7104",
+      "customer_id": "C-2104",
+      "order_date": "2026-03-30",
+      "delivered_date": "2026-04-05"
+     },
+     {
+      "order_id": "O-7114",
+      "customer_id": "C-2104",
+      "order_date": "2026-05-12",
+      "delivered_date": "2026-05-16"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71041",
+      "order_id": "O-7104",
+      "product_name": "Rain jacket, olive",
+      "price": 120.0,
+      "final_sale": false,
+      "status": "delivered"
+     },
+     {
+      "item_id": "I-71042",
+      "order_id": "O-7104",
+      "product_name": "Cargo pants, black",
+      "price": 65.0,
+      "final_sale": false,
+      "status": "delivered"
+     },
+     {
+      "item_id": "I-71141",
+      "order_id": "O-7114",
+      "product_name": "Running socks, 3 pack",
+      "price": 18.0,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71041",
+    "reason": "wrong_size"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71041",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "wrong_size",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "M5V 2T6",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also bought cargo pants in the same order and they fit perfectly, so he is keeping those.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He placed a separate order for running socks last week and it arrived fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He has been a customer for years and recommended the store to his brother.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He once had a delayed delivery and got a discount code for it.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Derek, a contractor who is used to getting his way with suppliers. Impatient and blunt.",
+   "reason_for_call": "He wants to return a rain jacket that turned out too small, which he only tried on properly recently.",
+   "task_instructions": "Give the item number, reason and postal code right away and mention the side stories naturally. If the agent refuses, argue that you are a loyal customer and ask for an exception at least twice before accepting and ending.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2105",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@example.com",
+      "postal_code": "150-0001"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7105",
+      "customer_id": "C-2105",
+      "order_date": "2026-04-28",
+      "delivered_date": "2026-05-01"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71051",
+      "order_id": "O-7105",
+      "product_name": "Silk blouse, ivory",
+      "price": 78.5,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71051",
+    "reason": "changed_mind"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71051",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "changed_mind",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "150-0001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.delivered_date",
+     "value": "2026-05-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The blouse is unworn and still has its tags attached.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The delivery confirmation email says it arrived on May 1st.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Aiko, a graphic designer who writes short, to-the-point messages.",
+   "reason_for_call": "She wants to return a silk blouse she decided she does not want.",
+   "task_instructions": "Be very brief. State the item number, reason, postal code and the delivery date, and mention the tags and the confirmation email in a few words. If refused, accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2106",
+      "full_name": "Samuel Adeyemi",
+      "email": "sam.adeyemi@example.com",
+      "postal_code": "M1 4BT"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7106",
+      "customer_id": "C-2106",
+      "order_date": "2026-05-10",
+      "delivered_date": "2026-05-14"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71061",
+      "order_id": "O-7106",
+      "product_name": "Chino shorts, khaki",
+      "price": 42.0,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71061",
+    "reason": "defective"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71061",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "defective",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "M1 4BT",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a physiotherapist from Manchester. Calm, cooperative and clear.",
+   "reason_for_call": "The stitching on a pair of chino shorts came apart, and he wants to return them.",
+   "task_instructions": "Give the item number and the reason in your first message. Provide your postal code only when the agent asks for it. Answer all questions clearly.",
+   "expected_outcome": "approve_return"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2107",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@example.com",
+      "postal_code": "20121"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7107",
+      "customer_id": "C-2107",
+      "order_date": "2026-05-08",
+      "delivered_date": "2026-05-12"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71071",
+      "order_id": "O-7107",
+      "product_name": "Cashmere sweater, camel",
+      "price": 140.0,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71071",
+    "reason": "wrong_size"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reason",
+     "value": "wrong_size",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "20121",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a translator who recently got a new phone and deleted old emails. Helpful but has no records at hand.",
+   "reason_for_call": "She wants to return a sweater that is too big, but she has lost the order confirmation.",
+   "task_instructions": "Say you want to return a sweater because it is the wrong size, and give your postal code. You do not have the order number or item number, and you cannot remember which email address you used. Cooperate with any question you can answer, and accept it if the agent cannot find the item.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2108",
+      "full_name": "Jonas Weber",
+      "email": "jonas.weber@example.com",
+      "postal_code": "80331"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-7108",
+      "customer_id": "C-2108",
+      "order_date": "2026-05-05",
+      "delivered_date": "2026-05-09"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-71081",
+      "order_id": "O-7108",
+      "product_name": "Puffer vest, black",
+      "price": 95.0,
+      "final_sale": false,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-71081",
+    "reason": "wrong_size"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-71081",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.reason",
+     "value": "wrong_size",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postal_code",
+     "value": "80331",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.delivered_date",
+     "value": "2026-03-28",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jonas, a sales rep who is always in a hurry and expects fast answers.",
+   "reason_for_call": "He wants to return a puffer vest that is too small, and thinks it arrived a long time ago.",
+   "task_instructions": "Give the item number, reason and postal code at once, and say you believe the vest arrived at the end of March, so you expect trouble. Be impatient and urge the agent to just check quickly. If the agent goes ahead with the return, accept it and end.",
+   "expected_outcome": "approve_return"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

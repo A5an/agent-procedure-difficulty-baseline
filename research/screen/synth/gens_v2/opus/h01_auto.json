@@ -1,0 +1,1215 @@
+{
+ "procedure_id": "h01_auto",
+ "domain": "auto insurance claims",
+ "organization": "Keystone Mutual Auto Insurance",
+ "title": "Repair claim payouts",
+ "summary": "Issue the payment on an approved auto physical-damage claim, net of the deductible, to the payout method the policyholder chooses, after verifying the caller and checking that the policy, vehicle and claim qualify.",
+ "entities": {
+  "policyholder": {
+   "key": "holder_id",
+   "description": "Named insureds who hold auto policies with Keystone Mutual.",
+   "fields": {
+    "holder_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "phone": "str",
+    "birth_date": "date"
+   }
+  },
+  "policy": {
+   "key": "policy_id",
+   "description": "Auto insurance policies, their coverage period, physical-damage coverages, deductibles and any unpaid premium.",
+   "fields": {
+    "policy_id": "str",
+    "holder_id": "ref:policyholder",
+    "effective_date": "date",
+    "expiry_date": "date",
+    "collision_coverage": "bool",
+    "comprehensive_coverage": "bool",
+    "collision_deductible": "number",
+    "comprehensive_deductible": "number",
+    "balance_due": "number"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Vehicles listed on a policy, including whether a lender holds a lien on the vehicle.",
+   "fields": {
+    "vehicle_id": "str",
+    "policy_id": "ref:policy",
+    "year": "int",
+    "make": "str",
+    "model": "str",
+    "vin": "str",
+    "financed": "bool",
+    "lienholder": "str"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Physical-damage claims filed under a policy for a listed vehicle.",
+   "fields": {
+    "claim_id": "str",
+    "policy_id": "ref:policy",
+    "vehicle_id": "ref:vehicle",
+    "loss_date": "date",
+    "loss_type": "enum:collision|comprehensive",
+    "description": "str",
+    "approved_estimate": "number",
+    "repair_shop": "str",
+    "status": "enum:open|approved|paid|denied|closed",
+    "total_loss": "bool",
+    "closed_date": "date"
+   }
+  },
+  "payment": {
+   "key": "payment_id",
+   "description": "Claim payments issued by Keystone Mutual.",
+   "fields": {
+    "payment_id": "str",
+    "claim_id": "ref:claim",
+    "amount": "number",
+    "method": "enum:direct_deposit|check|repair_shop",
+    "issued_date": "date"
+   }
+  },
+  "adjuster_review": {
+   "key": "review_id",
+   "description": "Requests for a senior adjuster to review and release a claim payment.",
+   "fields": {
+    "review_id": "str",
+    "claim_id": "ref:claim",
+    "payout_method": "enum:direct_deposit|check|repair_shop",
+    "reason": "enum:high_value|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by its claim number (for example CLM-260318)."
+  },
+  {
+   "name": "find_claims_by_policy",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "policy_id"
+   ],
+   "description": "List all claims filed under a policy number. Use the date of loss to tell claims apart."
+  },
+  {
+   "name": "get_policy",
+   "kind": "get",
+   "entity": "policy",
+   "description": "Look up a policy by its policy number: coverage period, coverages, deductibles and premium balance due."
+  },
+  {
+   "name": "find_policies_by_holder",
+   "kind": "search",
+   "entity": "policy",
+   "by": [
+    "holder_id"
+   ],
+   "description": "List all policies held by a policyholder."
+  },
+  {
+   "name": "get_policyholder",
+   "kind": "get",
+   "entity": "policyholder",
+   "description": "Look up a policyholder by holder ID, including the date of birth on file."
+  },
+  {
+   "name": "find_policyholder_by_email",
+   "kind": "search",
+   "entity": "policyholder",
+   "by": [
+    "email"
+   ],
+   "description": "Find policyholders by the email address on file."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by vehicle ID, including whether it is financed and who the lienholder is."
+  },
+  {
+   "name": "find_vehicles_by_policy",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "policy_id"
+   ],
+   "description": "List all vehicles on a policy."
+  },
+  {
+   "name": "issue_claim_payment",
+   "kind": "create",
+   "entity": "payment",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim being paid."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The payout amount: the approved estimate minus the deductible that applies to the claim's loss type."
+    },
+    "method": {
+     "type": "enum:direct_deposit|check|repair_shop",
+     "description": "How the payment is sent."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "amount": "args.amount",
+    "method": "args.method",
+    "issued_date": "today"
+   },
+   "description": "Issue a payment on a claim for the given amount by the given method. Issued today."
+  },
+  {
+   "name": "mark_claim_paid",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim that has just been paid."
+    }
+   },
+   "set": {
+    "status": "'paid'",
+    "closed_date": "today"
+   },
+   "description": "Set a claim's status to paid and record today as its closed date. Use only right after issuing its payment."
+  },
+  {
+   "name": "create_adjuster_review",
+   "kind": "create",
+   "entity": "adjuster_review",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim whose payment needs senior adjuster review."
+    },
+    "payout_method": {
+     "type": "enum:direct_deposit|check|repair_shop",
+     "description": "The payout method the policyholder asked for."
+    },
+    "reason": {
+     "type": "enum:high_value|other",
+     "description": "Why the payment needs review."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "payout_method": "args.payout_method",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a claim payment to a senior adjuster for review and release instead of paying it now."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want paid out"
+  },
+  "payout_method": {
+   "type": "enum:direct_deposit|check|repair_shop",
+   "description": "how you want the money sent: direct deposit to your bank, a mailed check, or paid straight to the repair shop"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "pol",
+   "entity": "policy",
+   "key": "clm.policy_id"
+  },
+  {
+   "name": "holder",
+   "entity": "policyholder",
+   "key": "pol.holder_id"
+  },
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "clm.vehicle_id"
+  }
+ ],
+ "outcomes": {
+  "pay": {
+   "kind": "perform",
+   "description": "Issue the net payout (approved estimate minus the applicable deductible) by the requested method, then mark the claim paid.",
+   "calls": [
+    {
+     "tool": "issue_claim_payment",
+     "args": {
+      "claim_id": "req.claim_id",
+      "amount": "clm.approved_estimate - (pol.collision_deductible if clm.loss_type == 'collision' else pol.comprehensive_deductible)",
+      "method": "req.payout_method"
+     }
+    },
+    {
+     "tool": "mark_claim_paid",
+     "args": {
+      "claim_id": "req.claim_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The net payout is over 7,500.00: send the payment to a senior adjuster for review instead of paying now.",
+   "calls": [
+    {
+     "tool": "create_adjuster_review",
+     "args": {
+      "claim_id": "req.claim_id",
+      "payout_method": "req.payout_method",
+      "reason": "'high_value'"
+     }
+    }
+   ]
+  },
+  "identity_failed": {
+   "kind": "refuse",
+   "description": "The caller could not confirm the policyholder's date of birth: make no payment and discuss no payment details.",
+   "calls": []
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not pay; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != holder.birth_date",
+   "outcome": "identity_failed",
+   "explain": "The caller must give the policyholder's date of birth exactly as on file before any payment is discussed or made."
+  },
+  {
+   "id": "R2",
+   "when": "clm.status != 'approved'",
+   "outcome": "refuse",
+   "explain": "Only claims in approved status can be paid; open, paid, denied or closed claims cannot."
+  },
+  {
+   "id": "R3",
+   "when": "clm.loss_date < pol.effective_date or clm.loss_date > pol.expiry_date",
+   "outcome": "refuse",
+   "explain": "The date of loss must fall within the policy's coverage period (effective date through expiry date, inclusive)."
+  },
+  {
+   "id": "R4",
+   "when": "pol.balance_due > 0",
+   "outcome": "refuse",
+   "explain": "No claim payment is issued while the policy has any unpaid premium balance."
+  },
+  {
+   "id": "R5",
+   "when": "(clm.loss_type == 'collision' and not pol.collision_coverage) or (clm.loss_type == 'comprehensive' and not pol.comprehensive_coverage)",
+   "outcome": "refuse",
+   "explain": "The policy must carry the coverage matching the claim's loss type (collision or comprehensive)."
+  },
+  {
+   "id": "R6",
+   "when": "clm.total_loss",
+   "outcome": "refuse",
+   "explain": "Total-loss claims are settled by the Total Loss Unit, not through this payout procedure."
+  },
+  {
+   "id": "R7",
+   "when": "clm.approved_estimate - (pol.collision_deductible if clm.loss_type == 'collision' else pol.comprehensive_deductible) <= 0",
+   "outcome": "refuse",
+   "explain": "If the approved estimate does not exceed the applicable deductible there is nothing to pay."
+  },
+  {
+   "id": "R8",
+   "when": "veh.financed and req.payout_method == 'direct_deposit'",
+   "outcome": "refuse",
+   "explain": "Payouts on a financed vehicle cannot be sent by direct deposit; only a check or payment to the repair shop is allowed."
+  },
+  {
+   "id": "R9",
+   "when": "clm.approved_estimate - (pol.collision_deductible if clm.loss_type == 'collision' else pol.comprehensive_deductible) > 7500",
+   "outcome": "review",
+   "explain": "Net payouts over 7,500.00 are sent to a senior adjuster for review with reason high_value instead of being paid."
+  }
+ ],
+ "default_outcome": "pay",
+ "policy_text": "## Purpose\nThis procedure covers paying out an approved physical-damage claim (collision or comprehensive) to the policyholder. Payouts can be sent by direct deposit, by mailed check, or directly to the repair shop.\n\n## Finding the claim\nIf the caller has the claim number, look it up directly. If not, ask for the policy number and list the claims filed under it; use the date of loss to pick the right claim, and ask the caller to confirm which one they mean if there is any doubt. If you cannot identify the claim, do not guess and do not pay anything.\n\nFrom the claim, look up the policy it was filed under, the policyholder on that policy, and the vehicle on the claim. You must check the policy and the vehicle yourself; callers usually do not know these details.\n\n## Identity check\nBefore discussing payment details or making any change, ask for the policyholder's date of birth. It must match the date of birth on file exactly. If it does not match, or the caller cannot give it, do not issue any payment and do not discuss the claim's eligibility or amounts.\n\n## Eligibility (check in this order)\n1. Claim status: the claim must be in approved status. Claims that are still open, already paid, denied or closed cannot be paid through this procedure.\n2. Coverage period: the date of loss must fall within the policy's coverage period, from the effective date through the expiry date (both days included). Losses outside that period cannot be paid, even if the policy was renewed or bought shortly afterwards.\n3. Premium balance: if the policy shows any unpaid premium balance (more than 0.00), no claim payment can be issued until it is paid in full.\n4. Coverage type: the policy must carry collision coverage for a collision claim and comprehensive coverage for a comprehensive claim.\n5. Total loss: if the claim is marked as a total loss, do not pay it here; tell the caller the Total Loss Unit handles the settlement.\n6. Amount due: compute the payout (see below). If it is zero or less, there is nothing to pay.\n7. Financed vehicles: if the vehicle on the claim is financed (a lender holds a lien), the payout may not go by direct deposit. Only a mailed check or payment directly to the repair shop is allowed. If the caller asked for direct deposit, decline that request; if they then choose a check or repair-shop payment instead, handle that new request.\n8. High-value payouts: if the payout is more than 7,500.00, do not pay it yourself. Create a senior adjuster review for the claim with reason high_value and the payout method the caller asked for, and tell the caller an adjuster will release the payment after review.\n\n## Computing the payout\nPayout = approved estimate minus the deductible that applies to the claim's loss type: the policy's collision deductible for collision claims, or its comprehensive deductible for comprehensive claims. Always use the amounts on file, not amounts the caller quotes.\n\n## Making the payment\nIf every check passes and the payout is 7,500.00 or less:\n1. Issue the claim payment for the computed payout, by the method the caller chose.\n2. Then mark the claim as paid.\nDo both steps, in that order.\n\n## Never\nDo not pay a caller who failed the identity check. Do not change the deductible, waive a premium balance, split or reduce a payout to get under a limit, or pay by a method the caller did not choose. Do not pay a different claim than the one the caller asked about.",
+ "db_common": {
+  "policyholder": [
+   {
+    "holder_id": "H-10001",
+    "full_name": "Evelyn Hart",
+    "email": "evelyn.hart@example.com",
+    "phone": "555-0142",
+    "birth_date": "1972-03-18"
+   }
+  ],
+  "policy": [
+   {
+    "policy_id": "PA-1000001",
+    "holder_id": "H-10001",
+    "effective_date": "2025-08-01",
+    "expiry_date": "2026-07-31",
+    "collision_coverage": true,
+    "comprehensive_coverage": true,
+    "collision_deductible": 500,
+    "comprehensive_deductible": 250,
+    "balance_due": 0
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "V-10001",
+    "policy_id": "PA-1000001",
+    "year": 2020,
+    "make": "Volkswagen",
+    "model": "Jetta",
+    "vin": "3VWC57BU0LM004512",
+    "financed": false,
+    "lienholder": null
+   }
+  ],
+  "claim": [
+   {
+    "claim_id": "CLM-250001",
+    "policy_id": "PA-1000001",
+    "vehicle_id": "V-10001",
+    "loss_date": "2026-01-08",
+    "loss_type": "collision",
+    "description": "Slid into a snowbank and cracked the front bumper",
+    "approved_estimate": 1640.0,
+    "repair_shop": "Harbor Auto Body",
+    "status": "paid",
+    "total_loss": false,
+    "closed_date": "2026-02-03"
+   }
+  ],
+  "payment": [
+   {
+    "payment_id": "PMT-250001",
+    "claim_id": "CLM-250001",
+    "amount": 1140.0,
+    "method": "repair_shop",
+    "issued_date": "2026-02-03"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-31187",
+      "full_name": "Marcus Ellery",
+      "email": "marcus.ellery@fastmail.com",
+      "phone": "555-0187",
+      "birth_date": "1977-06-14"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-4410927",
+      "holder_id": "H-31187",
+      "effective_date": "2025-11-01",
+      "expiry_date": "2026-10-31",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 500,
+      "comprehensive_deductible": 250,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-71023",
+      "policy_id": "PA-4410927",
+      "year": 2019,
+      "make": "Honda",
+      "model": "Accord",
+      "vin": "1HGCV1F34KA051877",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-260318",
+      "policy_id": "PA-4410927",
+      "vehicle_id": "V-71023",
+      "loss_date": "2026-04-22",
+      "loss_type": "collision",
+      "description": "Backed into a concrete pillar in a parking garage, rear bumper and tailgate damaged",
+      "approved_estimate": 3420.0,
+      "repair_shop": "Brookline Auto Body",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-260318",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-260318",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.collision_deductible",
+     "value": 1000,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-06-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus Ellery, a warehouse supervisor who answers in as few words as possible.",
+   "reason_for_call": "His garage fender-bender claim was approved and he wants the money mailed to him as a check. He believes his collision deductible is $1,000.",
+   "task_instructions": "In your first message give the claim number, say you want a check, and mention your deductible is $1,000. Keep every reply to a few words. Give your date of birth only if asked. If the agent says the deductible on file is different, just say 'ok'. Accept the result.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-40562",
+      "full_name": "Sofia Ramirez",
+      "email": "sofia.ramirez@outlook.com",
+      "phone": "555-0233",
+      "birth_date": "1988-02-03"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-5093318",
+      "holder_id": "H-40562",
+      "effective_date": "2026-01-15",
+      "expiry_date": "2027-01-14",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 1000,
+      "comprehensive_deductible": 500,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-82210",
+      "policy_id": "PA-5093318",
+      "year": 2023,
+      "make": "Toyota",
+      "model": "RAV4",
+      "vin": "2T3P1RFV8PW361204",
+      "financed": true,
+      "lienholder": "Summit Credit Union"
+     },
+     {
+      "vehicle_id": "V-82211",
+      "policy_id": "PA-5093318",
+      "year": 2015,
+      "make": "Mazda",
+      "model": "3",
+      "vin": "JM1BM1V79F1245563",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261044",
+      "policy_id": "PA-5093318",
+      "vehicle_id": "V-82210",
+      "loss_date": "2026-04-30",
+      "loss_type": "collision",
+      "description": "Swerved to avoid a cyclist and hit a curb and a light pole, front passenger side damaged",
+      "approved_estimate": 5180.75,
+      "repair_shop": "Northgate Collision Center",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     },
+     {
+      "claim_id": "CLM-260512",
+      "policy_id": "PA-5093318",
+      "vehicle_id": "V-82211",
+      "loss_date": "2026-02-11",
+      "loss_type": "comprehensive",
+      "description": "Windshield and hood damaged by debris from a gravel truck",
+      "approved_estimate": 1312.0,
+      "repair_shop": "ClearView Glass & Body",
+      "status": "paid",
+      "total_loss": false,
+      "closed_date": "2026-03-02"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261044",
+    "payout_method": "repair_shop"
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-261044",
+    "payout_method": "direct_deposit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-261044",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "repair_shop",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-02-03",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Back in February the gravel-truck damage on her old Mazda was paid without any trouble.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was thinking of adding her 16-year-old son to the policy next month but has decided to wait until fall.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is moving to a new apartment across town in June and will update her address later.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Sofia Ramirez, a dental hygienist and busy mom; chatty and friendly, but likes to get her way.",
+   "reason_for_call": "Her RAV4 claim from the cyclist incident was approved and she wants the payout.",
+   "task_instructions": "Give the claim number and first ask for the money to be direct-deposited to your bank account. Chat a bit about the side topics. If the agent declines direct deposit, ask why once, then say fine, just pay Northgate Collision Center directly. Give your date of birth if asked.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-52290",
+      "full_name": "Derek Thibodeaux",
+      "email": "dthibodeaux@bellsouth.net",
+      "phone": "555-0319",
+      "birth_date": "1969-10-27"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-6127745",
+      "holder_id": "H-52290",
+      "effective_date": "2025-07-01",
+      "expiry_date": "2026-06-30",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 500,
+      "comprehensive_deductible": 250,
+      "balance_due": 186.4
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-90314",
+      "policy_id": "PA-6127745",
+      "year": 2017,
+      "make": "Ford",
+      "model": "F-150",
+      "vin": "1FTEW1EF5HFB44718",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-260877",
+      "policy_id": "PA-6127745",
+      "vehicle_id": "V-90314",
+      "loss_date": "2026-03-28",
+      "loss_type": "comprehensive",
+      "description": "Oak limb fell on the hood and windshield during a thunderstorm",
+      "approved_estimate": 2875.0,
+      "repair_shop": "Bayou Truck & Auto",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-260877",
+    "payout_method": "direct_deposit"
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-260877",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-260877",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "direct_deposit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-10-27",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Derek Thibodeaux, a semi-retired fishing guide from Louisiana; easygoing and polite.",
+   "reason_for_call": "His truck claim for the storm damage was approved and he wants to get paid.",
+   "task_instructions": "Give the claim number and ask for a check in the mail. Before the agent does anything, change your mind: direct deposit would be quicker, so ask for that instead. Give your date of birth only when asked. If the agent explains why it cannot pay, accept it politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-60418",
+      "full_name": "Grace Nakamura",
+      "email": "grace.nakamura@gmail.com",
+      "phone": "555-0458",
+      "birth_date": "1995-12-09"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-7284401",
+      "holder_id": "H-60418",
+      "effective_date": "2025-12-01",
+      "expiry_date": "2026-11-30",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 750,
+      "comprehensive_deductible": 250,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-93120",
+      "policy_id": "PA-7284401",
+      "year": 2012,
+      "make": "Subaru",
+      "model": "Outback",
+      "vin": "4S4BRBCC2C3247781",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261203",
+      "policy_id": "PA-7284401",
+      "vehicle_id": "V-93120",
+      "loss_date": "2026-05-02",
+      "loss_type": "collision",
+      "description": "Front-end collision on Highway 26, airbags deployed",
+      "approved_estimate": 8900.0,
+      "repair_shop": "Cascade Auto Repair",
+      "status": "approved",
+      "total_loss": true,
+      "closed_date": null
+     },
+     {
+      "claim_id": "CLM-260244",
+      "policy_id": "PA-7284401",
+      "vehicle_id": "V-93120",
+      "loss_date": "2026-01-19",
+      "loss_type": "comprehensive",
+      "description": "Catalytic converter stolen overnight",
+      "approved_estimate": 1450.0,
+      "repair_shop": "Cascade Auto Repair",
+      "status": "paid",
+      "total_loss": false,
+      "closed_date": "2026-02-06"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261203",
+    "payout_method": "check"
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-261203",
+    "payout_method": "repair_shop"
+   },
+   "customer_facts": [
+    {
+     "fact": "clm.policy_id",
+     "value": "PA-7284401",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.loss_date",
+     "value": "2026-05-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-12-09",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace Nakamura, a graduate student in Portland, a little anxious after her first serious accident.",
+   "reason_for_call": "She was in a highway crash on May 2 and was told the claim was approved; she wants the money. She lost the claim letter but has her policy card.",
+   "task_instructions": "Say you don't have the claim number but give your policy number and the accident date. First ask for the money to go straight to the repair shop. Before anything is done, change your mind: the shop hinted the car might not be worth fixing, so ask for a check mailed to you instead. Give your date of birth when asked. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-71155",
+      "full_name": "Anthony Brennan",
+      "email": "abrennan@brennanhvac.com",
+      "phone": "555-0521",
+      "birth_date": "1983-04-21"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-8350062",
+      "holder_id": "H-71155",
+      "effective_date": "2026-02-01",
+      "expiry_date": "2027-01-31",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 500,
+      "comprehensive_deductible": 500,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-94401",
+      "policy_id": "PA-8350062",
+      "year": 2021,
+      "make": "Chevrolet",
+      "model": "Tahoe",
+      "vin": "1GNSKBKD4MR192036",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261150",
+      "policy_id": "PA-8350062",
+      "vehicle_id": "V-94401",
+      "loss_date": "2026-03-14",
+      "loss_type": "collision",
+      "description": "Collided with a delivery van on a parking garage ramp, driver side and front end damaged",
+      "approved_estimate": 11240.0,
+      "repair_shop": "Lakeside Collision",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     },
+     {
+      "claim_id": "CLM-261388",
+      "policy_id": "PA-8350062",
+      "vehicle_id": "V-94401",
+      "loss_date": "2026-05-11",
+      "loss_type": "comprehensive",
+      "description": "Hail damage to roof and hood",
+      "approved_estimate": 0,
+      "repair_shop": "Lakeside Collision",
+      "status": "open",
+      "total_loss": false,
+      "closed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261150",
+    "payout_method": "direct_deposit"
+   },
+   "initial_request_values": {
+    "claim_id": "CLM-261388",
+    "payout_method": "direct_deposit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-261150",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "direct_deposit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-04-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pol.collision_deductible",
+     "value": 500,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.approved_estimate",
+     "value": 11240.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The adjuster on the delivery-van collision approved the Lakeside Collision estimate of $11,240 last week.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The Tahoe is fully paid off; there is no car loan on it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The van collision happened on March 14 on a parking garage ramp downtown.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Anthony Brennan, owner of a small HVAC company; organized, businesslike, and used to negotiating.",
+   "reason_for_call": "He has two claims on his Tahoe: a recent hail claim and an earlier collision with a delivery van. He wants money moving on at least one of them.",
+   "task_instructions": "Open with your date of birth and your $500 collision deductible. First ask for the hail claim (the initial claim number you have) to be paid by direct deposit. If the agent declines it, accept and ask instead for the van collision claim to be paid by direct deposit, giving its claim number and the $11,240 approved estimate. If the agent says a senior adjuster must review it, accept that.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-80237",
+      "full_name": "Latoya Simmons",
+      "email": "latoya.simmons@yahoo.com",
+      "phone": "555-0674",
+      "birth_date": "1991-08-30"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-9014476",
+      "holder_id": "H-80237",
+      "effective_date": "2025-10-15",
+      "expiry_date": "2026-10-14",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 1000,
+      "comprehensive_deductible": 500,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-95562",
+      "policy_id": "PA-9014476",
+      "year": 2018,
+      "make": "Hyundai",
+      "model": "Elantra",
+      "vin": "5NPD84LF6JH318840",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261077",
+      "policy_id": "PA-9014476",
+      "vehicle_id": "V-95562",
+      "loss_date": "2026-04-18",
+      "loss_type": "collision",
+      "description": "Scraped a bollard in a drive-through lane, passenger doors scratched and dented",
+      "approved_estimate": 740.0,
+      "repair_shop": "Midtown Auto Body",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261077",
+    "payout_method": "direct_deposit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-261077",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "direct_deposit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1991-08-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Latoya Simmons, a paralegal who is short on time and patience.",
+   "reason_for_call": "Her drive-through scrape claim was approved and she wants the money in her bank account today.",
+   "task_instructions": "In your first message give the claim number, your date of birth and ask for direct deposit. If the agent says nothing is payable, argue that you pay premiums every month and the claim was approved, and ask for an exception at least twice. Then accept and end the chat.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-90641",
+      "full_name": "Bernard Kowalczyk",
+      "email": "b.kowalczyk@comcast.net",
+      "phone": "555-0790",
+      "birth_date": "1958-01-05"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-9277310",
+      "holder_id": "H-90641",
+      "effective_date": "2026-03-01",
+      "expiry_date": "2027-02-28",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 500,
+      "comprehensive_deductible": 250,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-96018",
+      "policy_id": "PA-9277310",
+      "year": 2020,
+      "make": "Subaru",
+      "model": "Forester",
+      "vin": "JF2SKAJC9LH512094",
+      "financed": false,
+      "lienholder": null
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261290",
+      "policy_id": "PA-9277310",
+      "vehicle_id": "V-96018",
+      "loss_date": "2026-04-09",
+      "loss_type": "comprehensive",
+      "description": "Hail damage to roof, hood and trunk lid",
+      "approved_estimate": 2315.6,
+      "repair_shop": "Prairie Paintless Dent Repair",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261290",
+    "payout_method": "direct_deposit"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-261290",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "direct_deposit",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1958-01-05",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bernard Kowalczyk, a retired high-school shop teacher; courteous and patient.",
+   "reason_for_call": "His hail damage claim was approved and he would like the payment deposited into his bank account.",
+   "task_instructions": "Give the claim number and ask for direct deposit. Answer the agent's questions clearly, including your date of birth when asked. Thank the agent at the end.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "policyholder": [
+     {
+      "holder_id": "H-91873",
+      "full_name": "Ravi Chandrasekar",
+      "email": "ravi.chandrasekar@protonmail.com",
+      "phone": "555-0816",
+      "birth_date": "1979-09-16"
+     }
+    ],
+    "policy": [
+     {
+      "policy_id": "PA-9530184",
+      "holder_id": "H-91873",
+      "effective_date": "2025-04-01",
+      "expiry_date": "2026-03-31",
+      "collision_coverage": true,
+      "comprehensive_coverage": true,
+      "collision_deductible": 500,
+      "comprehensive_deductible": 250,
+      "balance_due": 0
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-97211",
+      "policy_id": "PA-9530184",
+      "year": 2016,
+      "make": "BMW",
+      "model": "328i",
+      "vin": "WBA8E9G51GNT40318",
+      "financed": false,
+      "lienholder": null
+     },
+     {
+      "vehicle_id": "V-97212",
+      "policy_id": "PA-9530184",
+      "year": 2022,
+      "make": "Kia",
+      "model": "Telluride",
+      "vin": "5XYP5DHC1NG274603",
+      "financed": true,
+      "lienholder": "Kia Motors Finance"
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "CLM-261015",
+      "policy_id": "PA-9530184",
+      "vehicle_id": "V-97211",
+      "loss_date": "2026-04-02",
+      "loss_type": "collision",
+      "description": "Backed into a loading dock post, rear bumper and trunk lid damaged",
+      "approved_estimate": 1980.0,
+      "repair_shop": "Eastside Euro Auto",
+      "status": "approved",
+      "total_loss": false,
+      "closed_date": null
+     },
+     {
+      "claim_id": "CLM-259880",
+      "policy_id": "PA-9530184",
+      "vehicle_id": "V-97212",
+      "loss_date": "2025-11-20",
+      "loss_type": "comprehensive",
+      "description": "Side mirror and driver window smashed by vandals",
+      "approved_estimate": 980.0,
+      "repair_shop": "Eastside Euro Auto",
+      "status": "paid",
+      "total_loss": false,
+      "closed_date": "2025-12-04"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "CLM-261015",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "CLM-261015",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-09-16",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Last November vandals smashed the mirror and window on his Telluride and that claim was paid.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He wanted to ask whether roadside assistance can be added, but says he will look into it another time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His daughter just got her learner's permit and he is nervous about teaching her to drive.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ravi Chandrasekar, a logistics manager who has been a customer for years and expects quick service.",
+   "reason_for_call": "His BMW was damaged at a loading dock in early April; he was told the repair estimate was approved and wants a check.",
+   "task_instructions": "Give the claim number and ask for a check. Mention the side topics along the way. Give your date of birth when asked. If the agent refuses, push back: you've been a loyal customer for years and the estimate was approved, so ask for an exception at least twice. Then accept and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,9 @@
+{"family": "sqclose", "attempt": 0, "candidates": ["CUST_98B9F20C", "CUST_54DDF9DD", "CUST_A0EAD40F"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_00"}
+{"family": "sqclose", "attempt": 1, "candidates": ["CUST_C84470C2", "CUST_898B9FA0", "CUST_D3E4B9DE"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_01"}
+{"family": "sqclose", "attempt": 2, "candidates": ["CUST_2BA40DA3", "CUST_9A54733A", "CUST_761783F7"], "need": {"accounts": 1, "deposits": 1}, "drop": "generation failed: JSONDecodeError: Expecting value: line 1 column 1 (char 0)"}
+{"family": "sqclose", "attempt": 3, "candidates": ["CUST_B26F2E6D", "CUST_004C15A5", "CUST_7CAB7AC0"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_02"}
+{"family": "sqclose", "attempt": 4, "candidates": ["CUST_F4EAF911", "CUST_D80DD3F8", "CUST_56F2248E"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_03"}
+{"family": "sqclose", "attempt": 5, "candidates": ["CUST_58EAE119", "CUST_98B9F20C", "CUST_DFFD6519"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_04"}
+{"family": "sqclose", "attempt": 6, "candidates": ["CUST_44E1EA12", "CUST_311C7FCB", "CUST_77440081"], "need": {"accounts": 1, "deposits": 1}, "drop": "no fitting candidate"}
+{"family": "sqclose", "attempt": 7, "candidates": ["CUST_FDC897B1", "CUST_9E944F04", "CUST_2A9607E9"], "need": {"accounts": 1, "deposits": 1}, "drop": "no fitting candidate"}
+{"family": "sqclose", "attempt": 8, "candidates": ["CUST_7F7025DA", "CUST_98B9F20C", "CUST_277B3BF4"], "need": {"accounts": 1, "deposits": 1}, "kept": "probe_sqclose_05"}

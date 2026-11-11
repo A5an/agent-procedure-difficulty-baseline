@@ -1,0 +1,721 @@
+{
+ "procedure_id": "p04_airline",
+ "domain": "airline",
+ "organization": "Northreach Airlines",
+ "title": "Departure date changes",
+ "summary": "Move the departure date of a passenger's booking when the passenger is verified and the booking is eligible.",
+ "entities": {
+  "passenger": {
+   "key": "passenger_id",
+   "description": "Passengers with a profile on file",
+   "fields": {
+    "passenger_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "loyalty_tier": "enum:none|silver|gold|platinum"
+   }
+  },
+  "booking": {
+   "key": "booking_ref",
+   "description": "Reservations, one per trip, identified by a six-character booking reference",
+   "fields": {
+    "booking_ref": "str",
+    "passenger_id": "ref:passenger",
+    "flight_number": "str",
+    "departure_date": "date",
+    "fare_class": "enum:basic|standard|flex",
+    "status": "enum:ticketed|checked_in|flown|cancelled",
+    "change_count": "int",
+    "group_size": "int"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for the group desk or staff to handle a booking",
+   "fields": {
+    "request_id": "str",
+    "booking_ref": "ref:booking",
+    "reason": "enum:group_booking|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_passenger",
+   "kind": "get",
+   "entity": "passenger",
+   "description": "Look up a passenger profile by passenger ID."
+  },
+  {
+   "name": "find_passenger_by_email",
+   "kind": "search",
+   "entity": "passenger",
+   "by": [
+    "email"
+   ],
+   "description": "Find passenger profiles by the email address on the profile."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a booking by its six-character booking reference."
+  },
+  {
+   "name": "find_bookings_by_passenger",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "passenger_id"
+   ],
+   "description": "List all bookings held by a passenger."
+  },
+  {
+   "name": "change_booking_date",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_ref": {
+     "type": "ref:booking",
+     "description": "The booking whose departure date is changed."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new departure date."
+    }
+   },
+   "set": {
+    "departure_date": "args.new_date",
+    "change_count": "rec.change_count + 1"
+   },
+   "description": "Move the departure date of a booking to the new date and count one change."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "booking_ref": {
+     "type": "ref:booking",
+     "description": "The booking the review is about."
+    },
+    "reason": {
+     "type": "enum:group_booking|other",
+     "description": "Why the group desk should handle it."
+    }
+   },
+   "fields": {
+    "booking_ref": "args.booking_ref",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for the group desk or staff to handle a booking."
+  }
+ ],
+ "request": {
+  "booking_ref": {
+   "type": "ref:booking",
+   "description": "the six-character booking reference for the trip you want to change"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the new departure date you want for that trip"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_ref"
+  },
+  {
+   "name": "pax",
+   "entity": "passenger",
+   "key": "booking.passenger_id"
+  }
+ ],
+ "outcomes": {
+  "change": {
+   "kind": "perform",
+   "description": "Move the booking's departure date to the requested date.",
+   "calls": [
+    {
+     "tool": "change_booking_date",
+     "args": {
+      "booking_ref": "req.booking_ref",
+      "new_date": "req.new_date"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The booking is for a large group: open a group desk review instead of changing the date.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "booking_ref": "booking.booking_ref",
+      "reason": "'group_booking'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the booking; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pax.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the passenger profile before any change."
+  },
+  {
+   "id": "R2",
+   "when": "booking.status != 'ticketed' or booking.change_count >= 2",
+   "outcome": "refuse",
+   "explain": "Only ticketed bookings that have been changed fewer than two times can have their date changed."
+  },
+  {
+   "id": "R3",
+   "when": "booking.group_size >= 9",
+   "outcome": "review",
+   "explain": "Bookings for nine or more passengers are sent to the group desk for review instead of being changed."
+  }
+ ],
+ "default_outcome": "change",
+ "policy_text": "## Who can ask\nPassengers can ask to change the departure date of a booking they hold, by phone or chat. Check in this order: first the identity of the caller, then the booking, then the group size. Before changing anything, find the booking and the passenger it belongs to, and confirm the caller's identity: the date of birth they give must match the one on the passenger profile. If it does not match, or they cannot give it, do not make any change.\n\n## Finding the booking\nUse the six-character booking reference if the passenger has it. Otherwise find the passenger by the email address on their profile, list their bookings, and use the flight number and departure date the passenger gives to pick the right one. Do not guess. If you still cannot tell which booking it is, ask for more detail.\n\n## When a date change is allowed\n- The booking must be ticketed. Bookings that are checked in, flown, or cancelled cannot be changed.\n- A booking can be changed at most two times. A booking that has already been changed twice is declined.\n- Bookings for nine or more passengers are not changed by the agent. Open a staff review request with reason group_booking and tell the passenger the group desk will contact them.\n\nIf the request passes these checks, change the booking to the new departure date the passenger asked for. Each change adds one to the booking's change count.\n\n## Never\nDo not change a booking for a caller who failed the identity check. Do not change any field other than the departure date. Do not accept a passenger's belief about the status or change history of a booking in place of what the booking record shows: always go by the record. If the booking is not ticketed or has been changed twice, explain that the date cannot be changed.",
+ "db_common": {
+  "passenger": [
+   {
+    "passenger_id": "P-300118",
+    "full_name": "Mateo Valdes",
+    "email": "mateo.valdes@example.net",
+    "birth_date": "1984-06-02",
+    "loyalty_tier": "silver"
+   }
+  ],
+  "booking": [
+   {
+    "booking_ref": "QXN4TB",
+    "passenger_id": "P-300118",
+    "flight_number": "NR218",
+    "departure_date": "2026-07-03",
+    "fare_class": "standard",
+    "status": "ticketed",
+    "change_count": 0,
+    "group_size": 1
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-412086",
+      "full_name": "Ingrid Solberg",
+      "email": "ingrid.solberg@example.com",
+      "birth_date": "1977-09-14",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "HLM8WD",
+      "passenger_id": "P-412086",
+      "flight_number": "NR402",
+      "departure_date": "2026-06-18",
+      "fare_class": "flex",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "HLM8WD",
+    "new_date": "2026-06-25"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "HLM8WD",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-09-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.status",
+     "value": "ticketed",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It is only me on this booking, nobody else is travelling on it.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I have not changed this trip before, so this would be the first change.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "booking_ref": "HLM8WD",
+    "new_date": "2026-06-20"
+   },
+   "persona": "Ingrid, a marine biologist who is attending a research conference and keeps her travel plans in a notebook. Polite and organized.",
+   "reason_for_call": "Her conference has run longer than planned, so she needs her return flight to leave later in June.",
+   "task_instructions": "In your first message, give your booking reference and say you want to move the return flight to 20 June. Before the agent confirms anything, say you actually need 25 June instead and keep to that. Give your date of birth and confirm the booking is still ticketed when the agent asks about it. Answer any question politely.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-508731",
+      "full_name": "Tomasz Brandt",
+      "email": "tbrandt@example.org",
+      "birth_date": "1990-01-30",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "RTK5GZ",
+      "passenger_id": "P-508731",
+      "flight_number": "NR771",
+      "departure_date": "2026-08-09",
+      "fare_class": "standard",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "RTK5GZ",
+    "new_date": "2026-08-16"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "RTK5GZ",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-08-16",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-01-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "booking_ref": "RTK5GZ",
+    "new_date": "2026-08-02"
+   },
+   "persona": "Tomasz, a site engineer on a construction project who writes short messages between meetings.",
+   "reason_for_call": "His project start has slipped, so he wants his outbound flight a week later than booked.",
+   "task_instructions": "In your first message, give your booking reference and ask to move the flight to 2 August. Before the agent confirms anything, change your mind and say 16 August is the date you need. Only give your date of birth if the agent asks for it.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-615204",
+      "full_name": "Adaeze Okafor",
+      "email": "adaeze.okafor@example.co.uk",
+      "birth_date": "1981-04-08",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "KVD2PQ",
+      "passenger_id": "P-615204",
+      "flight_number": "NR215",
+      "departure_date": "2026-07-11",
+      "fare_class": "basic",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     },
+     {
+      "booking_ref": "MBW9RL",
+      "passenger_id": "P-615204",
+      "flight_number": "NR640",
+      "departure_date": "2026-09-27",
+      "fare_class": "flex",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "KVD2PQ",
+    "new_date": "2026-07-18"
+   },
+   "customer_facts": [
+    {
+     "fact": "pax.email",
+     "value": "adaeze.okafor@example.co.uk",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.flight_number",
+     "value": "NR215",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-07-18",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-04-08",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Adaeze, a logistics planner who is juggling several deadlines and is short on patience.",
+   "reason_for_call": "Her July trip has to start a week later because a client visit moved.",
+   "task_instructions": "Do not give a booking reference; you do not have it. In your first message, give your email address, your date of birth, and ask to move the flight that leaves in July to 18 July. If the agent lists several trips, say the one that leaves in July and give the flight number when asked. Be impatient but cooperative.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-720955",
+      "full_name": "Harriet Quaye",
+      "email": "hquaye@example.net",
+      "birth_date": "1969-12-22",
+      "loyalty_tier": "platinum"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "WDN6TA",
+      "passenger_id": "P-720955",
+      "flight_number": "NR118",
+      "departure_date": "2026-05-27",
+      "fare_class": "flex",
+      "status": "checked_in",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "WDN6TA",
+    "new_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "WDN6TA",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-12-22",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Harriet, a conference speaker who is always rushing between airports.",
+   "reason_for_call": "Her talk has moved, so she wants to push her departure back about a week.",
+   "task_instructions": "Answer in as few words as possible. In your first message, give your booking reference, your date of birth, and the new date you want. Give only what is asked and never elaborate. If the agent refuses, say okay and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-833540",
+      "full_name": "Sipho Ndlovu",
+      "email": "sipho.ndlovu@example.org",
+      "birth_date": "1975-10-05",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "TZP3LM",
+      "passenger_id": "P-833540",
+      "flight_number": "NR902",
+      "departure_date": "2026-06-27",
+      "fare_class": "standard",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 11
+     },
+     {
+      "booking_ref": "GHC8YK",
+      "passenger_id": "P-833540",
+      "flight_number": "NR330",
+      "departure_date": "2026-07-30",
+      "fare_class": "flex",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "TZP3LM",
+    "new_date": "2026-06-29"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "TZP3LM",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-10-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I also have a solo trip in late July on my own ticket, which has nothing to do with this one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last spring I flew with my daughter's school for a fundraiser, that is long over.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I got a loyalty newsletter from you yesterday with a sale on seat upgrades.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Sipho, a cheerful retired engineer who is organizing a family reunion trip for eleven relatives.",
+   "reason_for_call": "The family wedding has moved, so the whole group needs to leave two days later.",
+   "task_instructions": "Be cooperative and clear. In your first message, give your booking reference, your date of birth, and the new date. Answer the agent's questions helpfully. If the agent says the group desk will handle the change, accept it and thank the agent.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-944102",
+      "full_name": "Marisol Vega",
+      "email": "marisol.vega@example.com",
+      "birth_date": "1992-03-17",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "PZ2NHC",
+      "passenger_id": "P-944102",
+      "flight_number": "NR560",
+      "departure_date": "2026-06-09",
+      "fare_class": "standard",
+      "status": "ticketed",
+      "change_count": 2,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "PZ2NHC",
+    "new_date": "2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "PZ2NHC",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-03-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.change_count",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I already moved this trip twice, the last time was last month when my shift changed.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Nobody else is on this booking, it is only me travelling.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marisol, a physiotherapist on a locum contract who is friendly and organized.",
+   "reason_for_call": "Her shift start has changed again, so she wants to move the flight three days later.",
+   "task_instructions": "Be helpful and polite. In your first message, give your booking reference, your date of birth, and tell the agent this trip has already been changed twice. Give the new date you need. Accept the agent's answer and thank them.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-257661",
+      "full_name": "Nikolai Petrenko",
+      "email": "npetrenko@example.net",
+      "birth_date": "1983-07-29",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "UC4KLR",
+      "passenger_id": "P-257661",
+      "flight_number": "NR305",
+      "departure_date": "2026-06-30",
+      "fare_class": "standard",
+      "status": "cancelled",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "UC4KLR",
+    "new_date": "2026-07-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "UC4KLR",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-07-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-07-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.status",
+     "value": "ticketed",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nikolai, a sales manager who is always between meetings and types very little.",
+   "reason_for_call": "He wants his June flight moved a week later and believes the booking is still valid.",
+   "task_instructions": "Answer in very few words. In your first message, give the booking reference, your date of birth, and say the booking is still ticketed. Give only what is asked. If the agent says it cannot be changed, say okay and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-690283",
+      "full_name": "Gwen Achterberg",
+      "email": "gwen.achterberg@example.org",
+      "birth_date": "1979-05-14",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "NMZ7AQ",
+      "passenger_id": "P-690283",
+      "flight_number": "NR927",
+      "departure_date": "2026-08-21",
+      "fare_class": "standard",
+      "status": "ticketed",
+      "change_count": 0,
+      "group_size": 1
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "NMZ7AQ",
+    "new_date": "2026-08-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_date",
+     "value": "2026-08-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-05-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gwen, calling from a new phone number after her old phone was lost. Impatient and sure the agent can find her trip.",
+   "reason_for_call": "She wants her late-August flight moved by one week.",
+   "task_instructions": "In your first message, give your date of birth and the new date you want. You do not have the booking reference and cannot remember which email address is on your profile. If the agent asks for either, say you do not know. Argue and ask for an exception at least twice before accepting that the agent cannot help and ending the conversation.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,550 @@
+{
+ "procedure_id": "p13_food",
+ "domain": "food delivery app",
+ "organization": "Harbor Eats",
+ "title": "Order refunds",
+ "summary": "Refund part of a delivered food order, or route large refund requests to staff review.",
+ "entities": {
+  "order": {
+   "key": "order_id",
+   "description": "Food orders placed through the app",
+   "fields": {
+    "order_id": "str",
+    "customer_phone": "str",
+    "restaurant_name": "str",
+    "placed_on": "date",
+    "total": "number",
+    "refunded_total": "number",
+    "status": "enum:preparing|delivered|cancelled"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for support staff to review an order before any money moves",
+   "fields": {
+    "request_id": "str",
+    "order_id": "ref:order",
+    "reason": "enum:high_value|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up an order by its order number."
+  },
+  {
+   "name": "find_orders_by_phone",
+   "kind": "search",
+   "entity": "order",
+   "by": [
+    "customer_phone"
+   ],
+   "description": "List all orders placed with the phone number given. Returns every match, so use the restaurant name or other facts the customer gives to pick the right one."
+  },
+  {
+   "name": "issue_refund",
+   "kind": "update",
+   "entity": "order",
+   "args": {
+    "order_id": {
+     "type": "ref:order",
+     "description": "The order to refund."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to refund, in dollars."
+    }
+   },
+   "set": {
+    "refunded_total": "rec.refunded_total + args.amount"
+   },
+   "description": "Refund money on an order and add the amount to the order's refunded total."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "order_id": {
+     "type": "ref:order",
+     "description": "The order the review is about."
+    },
+    "reason": {
+     "type": "enum:high_value|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "order_id": "args.order_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for support staff to review an order instead of refunding it."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:order",
+   "description": "the order you want a refund on"
+  },
+  "amount": {
+   "type": "number",
+   "description": "how many dollars you want back"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "order",
+   "entity": "order",
+   "key": "req.order_id"
+  }
+ ],
+ "outcomes": {
+  "refund": {
+   "kind": "perform",
+   "description": "Refund the requested amount on the order.",
+   "calls": [
+    {
+     "tool": "issue_refund",
+     "args": {
+      "order_id": "req.order_id",
+      "amount": "req.amount"
+     }
+    }
+   ]
+  },
+  "escalate": {
+   "kind": "perform",
+   "description": "The refund is too large to pay automatically: open a high-value review request instead.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "order_id": "order.order_id",
+      "reason": "'high_value'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refund any part of the request; explain the limit.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "req.amount > 30",
+   "outcome": "escalate",
+   "explain": "Refund requests above 30.00 are sent to staff review instead of being paid automatically."
+  },
+  {
+   "id": "R2",
+   "when": "order.refunded_total + req.amount > order.total",
+   "outcome": "refuse",
+   "explain": "Refunds on an order, including this one, may not add up to more than the order total."
+  }
+ ],
+ "default_outcome": "refund",
+ "policy_text": "## Who you are helping\nCustomers contact Harbor Eats support by chat or phone to ask for a refund on an order they placed. There is no separate identity check on this line, so work from the order itself.\n\n## Finding the order\nIf the customer gives an order number, use it. If they do not, ask for the phone number the order was placed with and search for orders on that number. If more than one order matches, ask which restaurant it was from and use the order that matches. If you cannot find exactly one order, make no change and explain that you could not locate the order.\n\n## Refund amounts\nAn order's total is what was charged for it. Its refunded total is what has already been refunded on it, and each refund adds to that figure. Use the figures on the order record, not figures the customer remembers. If the customer's figures differ from the record, tell them what the order shows and go by the record.\n\nBefore you make any change, the customer must have told you how much they want back. If they have not, ask them. Do not guess an amount.\n\nOnce you have the amount, check these two conditions in this order:\n\n1. If the amount requested is more than 30.00, do not refund it automatically. Open a high-value review request for that order (reason high_value) and tell the customer the support team will contact them. Make no refund.\n2. If the amount requested, added to the refunded total already on the order, is more than the order total, refuse. Do not refund any part of the request. Tell the customer how much can still be refunded on this order, which is the order total minus the refunded total.\n\nIf neither condition applies, refund the amount the customer asked for on that order and confirm the amount to the customer.\n\n## Never\nDo not refund more than the order total allows, do not refund a different order from the one the customer means, do not change the amount the customer asked for, and do not open a review request for any order other than the one under discussion.",
+ "db_common": {
+  "order": [
+   {
+    "order_id": "O-1001",
+    "customer_phone": "555-0100",
+    "restaurant_name": "Corner Pizza",
+    "placed_on": "2026-05-01",
+    "total": 21.0,
+    "refunded_total": 0.0,
+    "status": "delivered"
+   },
+   {
+    "order_id": "O-1002",
+    "customer_phone": "555-0101",
+    "restaurant_name": "Dumpling Den",
+    "placed_on": "2026-05-03",
+    "total": 17.5,
+    "refunded_total": 5.0,
+    "status": "delivered"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-7741",
+      "customer_phone": "555-0182",
+      "restaurant_name": "Basil & Brine",
+      "placed_on": "2026-05-08",
+      "total": 24.5,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-7741",
+    "amount": 20.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-7741",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 20.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.total",
+     "value": 26.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a software tester who orders lunch for his team and keeps careful notes.",
+   "reason_for_call": "The team lunch was short two dishes and the portions were tiny, so he wants part of the money back.",
+   "task_instructions": "In your first message, give the order number and the refund amount you want. Say you paid 26.00 for the order. Be polite and cooperative, and answer questions directly.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-3316",
+      "customer_phone": "555-0233",
+      "restaurant_name": "Taco Harbor",
+      "placed_on": "2026-05-14",
+      "total": 18.0,
+      "refunded_total": 12.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-3316",
+    "amount": 10.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-3316",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 10.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.restaurant_name",
+     "value": "Taco Harbor",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Denise, a warehouse supervisor who is short on time and used to getting her way with customer service.",
+   "reason_for_call": "Her burrito arrived cold, and she wants 10.00 back on top of the refund she already received.",
+   "task_instructions": "Give the order number and the amount in your first message. If told no, argue and demand an exception at least twice before you accept. Accept in the end and say goodbye.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-5058",
+      "customer_phone": "555-0391",
+      "restaurant_name": "Pho Lotus",
+      "placed_on": "2026-05-17",
+      "total": 31.0,
+      "refunded_total": 25.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-5058",
+    "amount": 9.0
+   },
+   "initial_request_values": {
+    "order_id": "O-5058",
+    "amount": 4.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-5058",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 9.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.total",
+     "value": 31.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The receipt in my email shows the order came to 31.00.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Earlier this month I got a refund on this same order, I think it was 25 dollars.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Priya, a nurse on a split shift who orders dinner on her breaks.",
+   "reason_for_call": "Her soup was lukewarm. She first wanted 4.00 back, then decided the whole bowl was wrong and wants 9.00.",
+   "task_instructions": "Give the order number and ask for a 4.00 refund in your first message. Before the agent does anything, change your mind and ask for 9.00 instead. Mention the receipt total and the earlier refund if they are relevant.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-8829",
+      "customer_phone": "555-0476",
+      "restaurant_name": "Sakura Bowl",
+      "placed_on": "2026-05-12",
+      "total": 22.0,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     },
+     {
+      "order_id": "O-8830",
+      "customer_phone": "555-0476",
+      "restaurant_name": "Green Fork",
+      "placed_on": "2026-05-12",
+      "total": 15.0,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-8829",
+    "amount": 8.0
+   },
+   "customer_facts": [
+    {
+     "fact": "order.customer_phone",
+     "value": "555-0476",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.restaurant_name",
+     "value": "Sakura Bowl",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 8.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a terse man who orders from his phone while working at a construction site.",
+   "reason_for_call": "A bowl he ordered was missing the sauce, and he wants 8.00 back.",
+   "task_instructions": "In your first message, give your phone number, the restaurant name, and the 8.00 amount. You do not know the order number and cannot look it up. Answer in a few words.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-4417",
+      "customer_phone": "555-0908",
+      "restaurant_name": "Mama Ruth's Kitchen",
+      "placed_on": "2026-05-11",
+      "total": 16.5,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-4417",
+    "amount": 6.5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.amount",
+     "value": 6.5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.restaurant_name",
+     "value": "Mama Ruth's Kitchen",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a retiree who recently switched to a new mobile phone.",
+   "reason_for_call": "A tray of dumplings arrived broken, and she wants 6.50 back.",
+   "task_instructions": "Tell the agent the restaurant name and the amount. You do not know the order number. You cannot remember the phone number you ordered with, because you changed phones last month and the old number no longer works. Be cooperative, and accept it if the agent cannot find the order.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-6602",
+      "customer_phone": "555-0614",
+      "restaurant_name": "Noodle Yard",
+      "placed_on": "2026-05-12",
+      "total": 29.0,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-6602",
+    "amount": 12.0
+   },
+   "initial_request_values": {
+    "order_id": "O-6602",
+    "amount": 40.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-6602",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 12.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ellen, an accountant who checks every receipt carefully.",
+   "reason_for_call": "Her noodles were overcooked. She first asked for 40.00 back, then decided to ask only for the part that was wrong.",
+   "task_instructions": "Give the order number and ask for 40.00 back in your first message. Before the agent changes anything, say you have thought about it and want 12.00 instead.",
+   "expected_outcome": "refund"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-9013",
+      "customer_phone": "555-0730",
+      "restaurant_name": "Pad Thai Corner",
+      "placed_on": "2026-05-06",
+      "total": 40.0,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     },
+     {
+      "order_id": "O-9014",
+      "customer_phone": "555-0730",
+      "restaurant_name": "Burger Shed",
+      "placed_on": "2026-05-15",
+      "total": 42.0,
+      "refunded_total": 0.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-9013",
+    "amount": 32.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-9013",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 32.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I also ordered a burger last Friday and that one was perfectly fine.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The app crashed on me twice while I was checking out last month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister sometimes uses this account to order groceries.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ruben, a restless freelance photographer who has never liked waiting on hold.",
+   "reason_for_call": "The pad thai came with the wrong noodles for a large group, and he wants a big part of the cost back.",
+   "task_instructions": "In your first message, give the order number and the 32.00 amount. Be impatient: ask how long it will take and push for an answer. Answer staff questions briefly, and mention the other orders or the app problems only if the agent asks about them.",
+   "expected_outcome": "escalate"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "order": [
+     {
+      "order_id": "O-2285",
+      "customer_phone": "555-0852",
+      "restaurant_name": "Curry House",
+      "placed_on": "2026-05-16",
+      "total": 14.0,
+      "refunded_total": 10.0,
+      "status": "delivered"
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "O-2285",
+    "amount": 6.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "O-2285",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 6.0,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hal, a delivery courier who places orders during his shift breaks.",
+   "reason_for_call": "His curry arrived cold and he wants some of the money back.",
+   "task_instructions": "In your first message, give the order number and say the curry was cold. Keep every answer very short. Do not say how much you want back unless the agent asks; if asked, say 6.00.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

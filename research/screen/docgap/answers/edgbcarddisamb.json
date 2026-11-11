@@ -1,0 +1,14 @@
+{
+ "gap_score": 6,
+ "gaps": [
+  "Which tools/endpoints to call for listing cards and for verifying (e.g., list cards vs. get card details/status) are not named; the 'verify both' step could mean re-listing or fetching each card's status.",
+  "How the customer identifies 'the named one' is unspecified: by last four digits, card type (debit/credit), nickname, or network; ambiguity or no-match cases are not covered.",
+  "Whether a confirmation is needed before freezing: the policy requires confirmation only for irreversible actions (block_card, etc.), and freeze via toggle_card_freeze is not listed, so it's unclear whether to ask first or act immediately when the customer has already named the card.",
+  "Freeze vs. permanent block: the customer's wording (lost, stolen, temporary) determines the action, but the description doesn't say which; an escalation to block_card requires explicit permanent confirmation.",
+  "Toggle semantics: toggle_card_freeze may flip state, so if the named card is already frozen, calling it would unfreeze it; the handling of an already-frozen card is unspecified.",
+  "What 'verify both' should report: that the named card is frozen and the other card is unchanged (still active), and how to respond if the post-check shows an unexpected state or the tool call failed.",
+  "Edge cases: customer has only one card, more than two cards, an already blocked/expired card, or a card not linked to the customer (must refuse unlinked IDs).",
+  "Customer behavior: may change their mind mid-flow, ask follow-up questions (e.g., unfreezing, replacement, fees) that require knowledge-base searches, or supply a card ID not in the list.",
+  "Communication conventions: how to present card details (masking numbers, plain language, no tool or field names) and the final summary format are not specified."
+ ]
+}

@@ -1,0 +1,794 @@
+{
+ "procedure_id": "p19_vehicle",
+ "domain": "vehicle registration office",
+ "organization": "Cascade Valley Department of Motor Vehicles",
+ "title": "Vehicle registration renewals",
+ "summary": "Renew a vehicle's registration for one or two years and record the renewal fee. Registrations with an outdated emissions test go to a compliance review instead.",
+ "entities": {
+  "owner": {
+   "key": "owner_id",
+   "description": "Registered owners of vehicles",
+   "fields": {
+    "owner_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "address_city": "str"
+   }
+  },
+  "registration": {
+   "key": "registration_id",
+   "description": "Vehicle registrations held by owners",
+   "fields": {
+    "registration_id": "str",
+    "owner_id": "ref:owner",
+    "plate_number": "str",
+    "vin": "str",
+    "make_model": "str",
+    "vehicle_class": "enum:passenger|motorcycle|light_truck",
+    "expiry_date": "date",
+    "status": "enum:active|expired|cancelled",
+    "unpaid_fines": "number",
+    "emissions_test_date": "date"
+   }
+  },
+  "renewal_payment": {
+   "key": "payment_id",
+   "description": "Renewal fees recorded against registrations",
+   "fields": {
+    "payment_id": "str",
+    "registration_id": "ref:registration",
+    "term_years": "int",
+    "amount": "number",
+    "paid_on": "date"
+   }
+  },
+  "compliance_review": {
+   "key": "review_id",
+   "description": "Requests for compliance staff to review a registration before renewal",
+   "fields": {
+    "review_id": "str",
+    "registration_id": "ref:registration",
+    "reason": "enum:emissions_overdue|other",
+    "opened_on": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_owner",
+   "kind": "get",
+   "entity": "owner",
+   "description": "Look up a registered owner by owner ID."
+  },
+  {
+   "name": "find_owner_by_email",
+   "kind": "search",
+   "entity": "owner",
+   "by": [
+    "email"
+   ],
+   "description": "Find owners by the email address on file."
+  },
+  {
+   "name": "get_registration",
+   "kind": "get",
+   "entity": "registration",
+   "description": "Look up a vehicle registration by registration number."
+  },
+  {
+   "name": "find_registrations_by_plate",
+   "kind": "search",
+   "entity": "registration",
+   "by": [
+    "plate_number"
+   ],
+   "description": "Find registrations by licence plate number."
+  },
+  {
+   "name": "find_registrations_by_owner",
+   "kind": "search",
+   "entity": "registration",
+   "by": [
+    "owner_id"
+   ],
+   "description": "List all registrations held by an owner."
+  },
+  {
+   "name": "renew_registration",
+   "kind": "update",
+   "entity": "registration",
+   "args": {
+    "registration_id": {
+     "type": "ref:registration",
+     "description": "The registration to renew."
+    },
+    "term_years": {
+     "type": "int",
+     "description": "Number of years to renew for (1 or 2)."
+    }
+   },
+   "set": {
+    "expiry_date": "add_days(rec.expiry_date, args.term_years * 365)",
+    "status": "'active'"
+   },
+   "description": "Extend the registration's expiry date by 365 days per year of the term, counted from the current expiry date, and set the registration to active."
+  },
+  {
+   "name": "record_renewal_payment",
+   "kind": "create",
+   "entity": "renewal_payment",
+   "args": {
+    "registration_id": {
+     "type": "ref:registration",
+     "description": "The registration that was renewed."
+    },
+    "term_years": {
+     "type": "int",
+     "description": "Number of years the registration was renewed for."
+    }
+   },
+   "fields": {
+    "registration_id": "args.registration_id",
+    "term_years": "args.term_years",
+    "amount": "args.term_years * 89.0",
+    "paid_on": "today"
+   },
+   "description": "Record the renewal fee of 89.00 per year for a renewed registration."
+  },
+  {
+   "name": "create_compliance_review",
+   "kind": "create",
+   "entity": "compliance_review",
+   "args": {
+    "registration_id": {
+     "type": "ref:registration",
+     "description": "The registration that needs review."
+    },
+    "reason": {
+     "type": "enum:emissions_overdue|other",
+     "description": "Why compliance staff should review it."
+    }
+   },
+   "fields": {
+    "registration_id": "args.registration_id",
+    "reason": "args.reason",
+    "opened_on": "today"
+   },
+   "description": "Open a request for compliance staff to review a registration before it can be renewed."
+  }
+ ],
+ "request": {
+  "registration_id": {
+   "type": "ref:registration",
+   "description": "the vehicle registration you want to renew"
+  },
+  "term_years": {
+   "type": "int",
+   "description": "how many years you want to renew the registration for"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "reg",
+   "entity": "registration",
+   "key": "req.registration_id"
+  },
+  {
+   "name": "own",
+   "entity": "owner",
+   "key": "reg.owner_id"
+  }
+ ],
+ "outcomes": {
+  "renew": {
+   "kind": "perform",
+   "description": "Renew the registration for the requested term and record the renewal fee.",
+   "calls": [
+    {
+     "tool": "renew_registration",
+     "args": {
+      "registration_id": "req.registration_id",
+      "term_years": "req.term_years"
+     }
+    },
+    {
+     "tool": "record_renewal_payment",
+     "args": {
+      "registration_id": "req.registration_id",
+      "term_years": "req.term_years"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The emissions test is too old. Open a compliance review instead of renewing.",
+   "calls": [
+    {
+     "tool": "create_compliance_review",
+     "args": {
+      "registration_id": "reg.registration_id",
+      "reason": "'emissions_overdue'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not renew, and explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != own.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the registered owner's date of birth on file before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "reg.status == 'cancelled'",
+   "outcome": "refuse",
+   "explain": "A cancelled registration cannot be renewed."
+  },
+  {
+   "id": "R3",
+   "when": "reg.unpaid_fines > 50",
+   "outcome": "refuse",
+   "explain": "Registrations with more than 50.00 in unpaid fines cannot be renewed until the fines are paid."
+  },
+  {
+   "id": "R4",
+   "when": "req.term_years not in [1, 2]",
+   "outcome": "refuse",
+   "explain": "Renewals are offered only for a term of 1 or 2 years."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(reg.emissions_test_date, today) > 730",
+   "outcome": "review",
+   "explain": "If the last emissions test was more than 730 days ago, open a compliance review with reason emissions_overdue instead of renewing."
+  }
+ ],
+ "default_outcome": "renew",
+ "policy_text": "## Purpose\nOwners can renew a vehicle registration by phone or chat. This procedure covers renewals only. It does not cover new registrations, transfers or plate changes.\n\n## Finding the registration\nIf the caller has the registration number from their renewal notice, look it up directly. If they do not have it, search by the licence plate number. You can also find the owner by the email address on file and list their registrations. If the owner has more than one registration, confirm which vehicle the caller means. If you cannot identify the registration, do not guess. Explain what the caller needs to provide, and do not make any change.\n\n## Identity check\nBefore changing anything, find the owner of the registration. Ask the caller for their date of birth. It must match the date of birth on file for that owner. If it does not match, or the caller cannot give it, do not renew and do not open any request.\n\n## Eligibility checks (apply in this order)\n1. **Cancelled registrations.** A registration with status cancelled cannot be renewed by phone or chat. The owner must apply for a new registration at a service centre. Registrations that are active or expired may be renewed.\n2. **Unpaid fines.** If the registration has more than 50.00 in unpaid fines, decline the renewal. The fines must be paid first. Amounts of 50.00 or less do not block renewal. Always go by the amount in our records, not what the caller believes.\n3. **Term.** Renewals are available for 1 year or 2 years only. If the caller asks for any other term, decline. Do not substitute a different term yourself. If the caller changes their own request to 1 or 2 years, continue with that.\n4. **Emissions test.** If the last emissions test on record was more than 730 days before today, do not renew. Instead, open a compliance review with reason emissions_overdue. Tell the caller that compliance staff will contact them. Always use the test date in our records, even if the caller remembers a different date.\n\n## Renewing\nIf all checks pass, take these two steps in this order:\n1. Renew the registration for the requested number of years. The new expiry date is counted from the current expiry date on record, 365 days per year, even if the registration has already expired. The registration becomes active.\n2. Record the renewal payment for the same term. The fee is 89.00 per year.\n\n## Never\n- Do not waive or reduce fines.\n- Do not renew a cancelled registration.\n- Do not renew for someone who failed the identity check.\n- Do not renew when a compliance review is required, and do not do both.\n- Do not change any registration the caller did not ask about.",
+ "db_common": {
+  "owner": [
+   {
+    "owner_id": "O-30001",
+    "full_name": "Adaeze Nwosu",
+    "email": "adaeze.nwosu@example.net",
+    "birth_date": "1980-01-15",
+    "address_city": "Rivermouth"
+   }
+  ],
+  "registration": [
+   {
+    "registration_id": "REG-1000001",
+    "owner_id": "O-30001",
+    "plate_number": "0ABC111",
+    "vin": "1HGCM82633A004352",
+    "make_model": "Honda Accord",
+    "vehicle_class": "passenger",
+    "expiry_date": "2026-09-01",
+    "status": "active",
+    "unpaid_fines": 0,
+    "emissions_test_date": "2025-07-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-41207",
+      "full_name": "Marisol Fuentes",
+      "email": "marisol.fuentes@example.org",
+      "birth_date": "1983-06-22",
+      "address_city": "Pinecrest"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-2207731",
+      "owner_id": "O-41207",
+      "plate_number": "7KXR193",
+      "vin": "2HKRW2H54KH612340",
+      "make_model": "Honda CR-V",
+      "vehicle_class": "passenger",
+      "expiry_date": "2026-06-15",
+      "status": "active",
+      "unpaid_fines": 120.0,
+      "emissions_test_date": "2025-08-03"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-2207731",
+    "term_years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "reg.plate_number",
+     "value": "7KXR193",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-06-22",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "registration_id": "REG-2207731",
+    "term_years": 2
+   },
+   "persona": "Marisol, a dental hygienist who is organized but a bit rushed. She is calling on her lunch break.",
+   "reason_for_call": "Her SUV's registration expires next month. She threw away the renewal notice but knows her plate number.",
+   "task_instructions": "Start by asking to renew your SUV's registration for two years and give your plate number. Before the agent completes anything, change your mind and say one year is enough because you may sell the car next year. Give your date of birth when asked. If the agent declines, accept the explanation politely and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-52018",
+      "full_name": "Desmond Achterberg",
+      "email": "d.achterberg@example.com",
+      "birth_date": "1971-12-09",
+      "address_city": "Harlow Springs"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-3310458",
+      "owner_id": "O-52018",
+      "plate_number": "4MBT822",
+      "vin": "5TFCZ5AN3HX078211",
+      "make_model": "Toyota Tacoma",
+      "vehicle_class": "light_truck",
+      "expiry_date": "2026-05-31",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2025-11-20"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-3310458",
+    "term_years": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-3310458",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1971-12-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Desmond, a friendly contractor who uses his pickup for work every day.",
+   "reason_for_call": "He wants to renew his pickup's registration for three years so he does not have to think about it.",
+   "task_instructions": "In your first message, give your registration number and date of birth, and ask to renew for three years. Answer politely. If the agent says three years is not possible, thank them, say you will think about it, and end without choosing another term.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-60334",
+      "full_name": "Priya Raghunathan",
+      "email": "priya.r@example.org",
+      "birth_date": "1990-02-17",
+      "address_city": "Lakeview"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-4418902",
+      "owner_id": "O-60334",
+      "plate_number": "8DLW507",
+      "vin": "4S4BSANC7G3214587",
+      "make_model": "Subaru Outback",
+      "vehicle_class": "passenger",
+      "expiry_date": "2026-06-04",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2024-02-14"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-4418902",
+    "term_years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-4418902",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-02-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "reg.emissions_test_date",
+     "value": "2025-02-14",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a software tester who is calm and polite and believes she keeps good records.",
+   "reason_for_call": "She wants a one-year renewal for her station wagon, and she is sure its emissions test was done last February.",
+   "task_instructions": "Give your registration number, your date of birth and the one-year request in your first message. Mention that you had the emissions test on 14 February last year. If the agent says the records show an older test and opens a review, accept it cooperatively.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-71590",
+      "full_name": "Gareth Okonjo",
+      "email": "gokonjo@example.net",
+      "birth_date": "1965-09-30",
+      "address_city": "Millbrook"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-5520117",
+      "owner_id": "O-71590",
+      "plate_number": "2HNP640",
+      "vin": "JYARM32E0LA004521",
+      "make_model": "Yamaha MT-07",
+      "vehicle_class": "motorcycle",
+      "expiry_date": "2026-07-01",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2025-04-18"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-5520117",
+    "term_years": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-5520117",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1965-09-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a retired machinist and motorcycle enthusiast. He is a man of few words.",
+   "reason_for_call": "He wants to renew his motorcycle registration for two years before riding season.",
+   "task_instructions": "Give your registration number, date of birth and the two-year request in one short message. Keep every reply to a few words. Confirm when asked.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-80215",
+      "full_name": "Luc\u00eda Bertrand",
+      "email": "lucia.bertrand@example.com",
+      "birth_date": "1998-11-05",
+      "address_city": "Rivermouth"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-6631540",
+      "owner_id": "O-80215",
+      "plate_number": "9FZC218",
+      "vin": "1FADP3F28EL332190",
+      "make_model": "Ford Focus",
+      "vehicle_class": "passenger",
+      "expiry_date": "2026-05-10",
+      "status": "expired",
+      "unpaid_fines": 15.5,
+      "emissions_test_date": "2023-12-02"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-6631540",
+    "term_years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-6631540",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1998-11-05",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Luc\u00eda, a graduate student who commutes to campus. She is impatient because she just noticed her registration lapsed.",
+   "reason_for_call": "Her hatchback's registration expired ten days ago, and she wants it renewed for one year right away.",
+   "task_instructions": "Give your registration number and ask for a one-year renewal. Give your date of birth only when asked. If the agent says it cannot renew now and must open a review, push back. Say you need to drive tomorrow, and ask for an exception at least twice. After that, accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-90477",
+      "full_name": "Bruno Castellanos",
+      "email": "bruno.castellanos@example.org",
+      "birth_date": "1977-04-14",
+      "address_city": "Harlow Springs"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-7740036",
+      "owner_id": "O-90477",
+      "plate_number": "5RTA931",
+      "vin": "3GCUKREC4JG201877",
+      "make_model": "Chevrolet Silverado",
+      "vehicle_class": "light_truck",
+      "expiry_date": "2026-06-20",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2025-09-05"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-7740036",
+    "term_years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "own.full_name",
+     "value": "Bruno Castellanos",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "reg.make_model",
+     "value": "Chevrolet Silverado",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-04-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bruno, a long-haul driver calling from a truck stop. Short on words.",
+   "reason_for_call": "He wants to renew the registration on his pickup for a year. He lost the renewal notice, the pickup is parked at home so he cannot read the plate, and he does not remember which email the office has.",
+   "task_instructions": "Give your name, the pickup model and the one-year request. Give your date of birth if asked. Say you do not have the registration number or the plate, and you do not know which email is on file. Keep answers very short. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-10928",
+      "full_name": "Hannelore Weiss",
+      "email": "h.weiss@example.net",
+      "birth_date": "1959-08-01",
+      "address_city": "Pinecrest"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-8851203",
+      "owner_id": "O-10928",
+      "plate_number": "3JKV774",
+      "vin": "WVWZZZ1KZ9W123456",
+      "make_model": "Volkswagen Golf",
+      "vehicle_class": "passenger",
+      "expiry_date": "2025-09-30",
+      "status": "cancelled",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2025-01-10"
+     },
+     {
+      "registration_id": "REG-8851204",
+      "owner_id": "O-10928",
+      "plate_number": "6PQS102",
+      "vin": "YV4A22RK6L1567890",
+      "make_model": "Volvo XC60",
+      "vehicle_class": "passenger",
+      "expiry_date": "2026-08-14",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2025-06-20"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-8851203",
+    "term_years": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-8851203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1959-08-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also owns a Volvo, but its registration is not due until August, so she is not asking about it today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking of moving to her daughter's town next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her grandson wants to get a learner permit, but she says she will ask about that another time.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She sold an old camper trailer years ago and still gets mail about it sometimes.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hannelore, a retired librarian who is chatty and determined. She stored her small hatchback over the winter.",
+   "reason_for_call": "She wants a one-year renewal for her hatchback so she can drive it again this summer.",
+   "task_instructions": "Give the hatchback's registration number, your date of birth and the one-year request early. Chat about your other vehicle, a possible move, your grandson and the old camper. If the agent refuses, insist that it is your car and ask for an exception at least twice. Then accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-23561",
+      "full_name": "Tomasz Wieczorek",
+      "email": "t.wieczorek@example.com",
+      "birth_date": "1986-03-28",
+      "address_city": "Lakeview"
+     }
+    ],
+    "registration": [
+     {
+      "registration_id": "REG-9962075",
+      "owner_id": "O-23561",
+      "plate_number": "1WXE385",
+      "vin": "3MZBPACL2LM145678",
+      "make_model": "Mazda 3",
+      "vehicle_class": "passenger",
+      "expiry_date": "2026-06-02",
+      "status": "active",
+      "unpaid_fines": 0,
+      "emissions_test_date": "2026-03-12"
+     }
+    ]
+   },
+   "request_values": {
+    "registration_id": "REG-9962075",
+    "term_years": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "req.registration_id",
+     "value": "REG-9962075",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.term_years",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-03-28",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "reg.unpaid_fines",
+     "value": 0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "reg.emissions_test_date",
+     "value": "2026-03-12",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He paid off a parking ticket from a stadium event last month, so he has nothing outstanding.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He had the car's emissions test at the Greenway inspection station on 12 March this year.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "registration_id": "REG-9962075",
+    "term_years": 1
+   },
+   "persona": "Tomasz, an accountant who likes to have everything in order and explains things clearly.",
+   "reason_for_call": "His sedan's registration expires in early June, and he wants to renew it.",
+   "task_instructions": "Start by giving your registration number and date of birth and asking for a one-year renewal. Mention that you paid your parking ticket last month and had the emissions test in March. Before anything is done, change your mind and ask for two years, since the fee per year is the same and it saves you a trip. Confirm when asked.",
+   "expected_outcome": "renew"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

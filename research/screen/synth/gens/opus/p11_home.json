@@ -1,0 +1,819 @@
+{
+ "procedure_id": "p11_home",
+ "domain": "home internet provider",
+ "organization": "Brightline Fiber & Broadband",
+ "title": "Outage bill credits",
+ "summary": "Give customers a pro-rated bill credit for a service outage when the account and the outage ticket qualify, and send long outages to a supervisor for approval.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Residential internet service accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "email": "str",
+    "phone": "str",
+    "service_address": "str",
+    "plan": "enum:basic_100|plus_500|gig_1000",
+    "status": "enum:active|suspended|closed",
+    "monthly_fee": "number"
+   }
+  },
+  "outage_ticket": {
+   "key": "ticket_id",
+   "description": "Outage tickets opened when a customer's service went down",
+   "fields": {
+    "ticket_id": "str",
+    "account_id": "ref:account",
+    "start_date": "date",
+    "end_date": "date",
+    "days_out": "int",
+    "cause": "enum:network|weather|customer_equipment|scheduled_maintenance",
+    "status": "enum:open|resolved",
+    "credited": "bool"
+   }
+  },
+  "bill_credit": {
+   "key": "credit_id",
+   "description": "Credits applied to customer bills",
+   "fields": {
+    "credit_id": "str",
+    "account_id": "ref:account",
+    "ticket_id": "ref:outage_ticket",
+    "amount": "number",
+    "applied_to": "enum:next_bill|current_balance",
+    "created": "date"
+   }
+  },
+  "credit_review": {
+   "key": "review_id",
+   "description": "Outage credit requests waiting for supervisor approval",
+   "fields": {
+    "review_id": "str",
+    "ticket_id": "ref:outage_ticket",
+    "reason": "enum:extended_outage|other",
+    "applied_to": "enum:next_bill|current_balance",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a service account by its account number."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "email"
+   ],
+   "description": "Find accounts by the email address on file."
+  },
+  {
+   "name": "find_accounts_by_phone",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "phone"
+   ],
+   "description": "Find accounts by the phone number on file."
+  },
+  {
+   "name": "get_outage_ticket",
+   "kind": "get",
+   "entity": "outage_ticket",
+   "description": "Look up an outage ticket by its ticket number."
+  },
+  {
+   "name": "find_tickets_by_account",
+   "kind": "search",
+   "entity": "outage_ticket",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all outage tickets of an account."
+  },
+  {
+   "name": "create_bill_credit",
+   "kind": "create",
+   "entity": "bill_credit",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account receiving the credit."
+    },
+    "ticket_id": {
+     "type": "ref:outage_ticket",
+     "description": "The outage ticket the credit is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in dollars, rounded to the cent."
+    },
+    "applied_to": {
+     "type": "enum:next_bill|current_balance",
+     "description": "Where the customer wants the credit applied."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "ticket_id": "args.ticket_id",
+    "amount": "args.amount",
+    "applied_to": "args.applied_to",
+    "created": "today"
+   },
+   "description": "Post an outage credit to a customer's account."
+  },
+  {
+   "name": "mark_ticket_credited",
+   "kind": "update",
+   "entity": "outage_ticket",
+   "args": {
+    "ticket_id": {
+     "type": "ref:outage_ticket",
+     "description": "The outage ticket that has been credited."
+    }
+   },
+   "set": {
+    "credited": "True"
+   },
+   "description": "Mark an outage ticket as credited so it cannot be credited twice."
+  },
+  {
+   "name": "create_credit_review",
+   "kind": "create",
+   "entity": "credit_review",
+   "args": {
+    "ticket_id": {
+     "type": "ref:outage_ticket",
+     "description": "The outage ticket the request is about."
+    },
+    "reason": {
+     "type": "enum:extended_outage|other",
+     "description": "Why a supervisor must approve the credit."
+    },
+    "applied_to": {
+     "type": "enum:next_bill|current_balance",
+     "description": "Where the customer wants the credit applied once approved."
+    }
+   },
+   "fields": {
+    "ticket_id": "args.ticket_id",
+    "reason": "args.reason",
+    "applied_to": "args.applied_to",
+    "created": "today"
+   },
+   "description": "Send an outage credit request to a supervisor for approval."
+  }
+ ],
+ "request": {
+  "ticket_id": {
+   "type": "ref:outage_ticket",
+   "description": "the outage you want a credit for"
+  },
+  "apply_to": {
+   "type": "enum:next_bill|current_balance",
+   "description": "whether you want the credit on your next bill or taken off your current open balance"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "ticket",
+   "entity": "outage_ticket",
+   "key": "req.ticket_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "ticket.account_id"
+  }
+ ],
+ "outcomes": {
+  "credit": {
+   "kind": "perform",
+   "description": "Post a pro-rated credit for the outage and mark the ticket as credited.",
+   "calls": [
+    {
+     "tool": "create_bill_credit",
+     "args": {
+      "account_id": "acct.account_id",
+      "ticket_id": "ticket.ticket_id",
+      "amount": "round(acct.monthly_fee * ticket.days_out / 30, 2)",
+      "applied_to": "req.apply_to"
+     }
+    },
+    {
+     "tool": "mark_ticket_credited",
+     "args": {
+      "ticket_id": "ticket.ticket_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The outage lasted 5 or more days: send the credit to a supervisor for approval instead of posting it.",
+   "calls": [
+    {
+     "tool": "create_credit_review",
+     "args": {
+      "ticket_id": "ticket.ticket_id",
+      "reason": "'extended_outage'",
+      "applied_to": "req.apply_to"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "No credit is given; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active accounts can receive outage credits."
+  },
+  {
+   "id": "R2",
+   "when": "ticket.status != 'resolved'",
+   "outcome": "refuse",
+   "explain": "A credit can only be given once the outage ticket is resolved."
+  },
+  {
+   "id": "R3",
+   "when": "ticket.credited",
+   "outcome": "refuse",
+   "explain": "An outage that has already been credited cannot be credited again."
+  },
+  {
+   "id": "R4",
+   "when": "ticket.cause in ['customer_equipment', 'scheduled_maintenance']",
+   "outcome": "refuse",
+   "explain": "Outages caused by customer-owned equipment or by announced scheduled maintenance are not credited."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(ticket.end_date, today) > 60",
+   "outcome": "refuse",
+   "explain": "Credits must be requested within 60 days after service was restored."
+  },
+  {
+   "id": "R6",
+   "when": "ticket.days_out >= 5",
+   "outcome": "review",
+   "explain": "Outages of 5 or more days need supervisor approval, so a review request is opened instead of posting the credit."
+  }
+ ],
+ "default_outcome": "credit",
+ "policy_text": "## Purpose\nWhen a customer's internet service was down, we give a pro-rated credit for the days they were without service. This procedure covers how to find the outage, decide whether it qualifies, and post the credit.\n\n## Finding the outage\nIf the customer has the outage ticket number, look it up directly. If not, find their account by the email address or phone number on file, list the account's outage tickets, and ask which outage they mean (for example, the date it started) if there is more than one. If you cannot find the account or cannot tell which outage the customer means, do not post anything; explain what you would need. No further identity check is required for this procedure.\n\nAlso ask the customer where they want the credit applied: on their next bill, or taken off their current open balance.\n\n## When a credit is allowed\nCheck these in order. Always go by what our records show, not by what the customer remembers.\n1. The account must be active. Suspended or closed accounts do not receive outage credits.\n2. The outage ticket must be resolved. If the outage is still open, no credit can be given yet; the customer can call back once service is restored.\n3. An outage can be credited only once. If the ticket is already marked as credited, do not credit it again.\n4. Outages caused by customer-owned equipment (their own router, wiring inside the home, etc.) or by announced scheduled maintenance are not credited.\n5. The credit must be requested within 60 days after service was restored (the ticket's end date). Older outages are not credited.\n6. If the ticket shows 5 or more days out of service, do not post the credit yourself. Open a supervisor review request with reason extended_outage, recording where the customer wants the credit applied, and tell the customer a supervisor will approve it.\n\n## Posting the credit\nIf none of the above stops the request, post the credit and then mark the ticket as credited, in that order. The amount is the account's monthly fee divided by 30, times the number of days out recorded on the ticket, rounded to the cent. Apply it where the customer chose.\n\n## Never\nDo not change the number of days on the ticket, do not credit more or less than the formula gives, do not credit the same outage twice, and do not make exceptions to the rules above, however strongly the customer asks.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-10002",
+    "holder_name": "Beatrice Nwosu",
+    "email": "b.nwosu@mailbox.org",
+    "phone": "555-201-4471",
+    "service_address": "18 Alder Court, Fairhaven",
+    "plan": "plus_500",
+    "status": "active",
+    "monthly_fee": 70.0
+   }
+  ],
+  "outage_ticket": [
+   {
+    "ticket_id": "OT-55010",
+    "account_id": "A-10002",
+    "start_date": "2026-04-14",
+    "end_date": "2026-04-15",
+    "days_out": 1,
+    "cause": "network",
+    "status": "resolved",
+    "credited": true
+   }
+  ],
+  "bill_credit": [],
+  "credit_review": []
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30417",
+      "holder_name": "Priya Raman",
+      "email": "priya.raman@fastmail.com",
+      "phone": "555-318-0927",
+      "service_address": "402 Larkspur Lane, Fairhaven",
+      "plan": "plus_500",
+      "status": "active",
+      "monthly_fee": 75.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-71102",
+      "account_id": "A-30417",
+      "start_date": "2026-04-02",
+      "end_date": "2026-04-03",
+      "days_out": 1,
+      "cause": "network",
+      "status": "resolved",
+      "credited": true
+     },
+     {
+      "ticket_id": "OT-71388",
+      "account_id": "A-30417",
+      "start_date": "2026-05-11",
+      "end_date": "2026-05-13",
+      "days_out": 2,
+      "cause": "network",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-71388",
+    "apply_to": "current_balance"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.email",
+     "value": "priya.raman@fastmail.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ticket.start_date",
+     "value": "2026-05-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "current_balance",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "ticket_id": "OT-71388",
+    "apply_to": "next_bill"
+   },
+   "persona": "Priya, a freelance translator who works from home and lost two days of work when her internet went down this month.",
+   "reason_for_call": "She wants a credit for the outage that started on May 11 but does not have the ticket number.",
+   "task_instructions": "Give your email and say the outage started on May 11. At first ask for the credit to go on your next bill. Before the agent posts anything, change your mind: you just remembered you have an unpaid balance right now, so you want the credit taken off your current balance instead. Be friendly and confirm when done.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-28855",
+      "holder_name": "Marcus Delacroix",
+      "email": "mdelacroix@outlook.com",
+      "phone": "555-442-7810",
+      "service_address": "77 Quarry Road, Millbrook",
+      "plan": "gig_1000",
+      "status": "active",
+      "monthly_fee": 90.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-72540",
+      "account_id": "A-28855",
+      "start_date": "2026-05-02",
+      "end_date": "2026-05-08",
+      "days_out": 6,
+      "cause": "network",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-72540",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-72540",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ticket.days_out",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ticket.cause",
+     "value": "network",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The technician who came out said a fiber line was cut on the street by a construction crew, nothing to do with his own equipment.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His service came back on the evening of May 8 after being down since May 2.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He already got a text from the company saying the outage ticket was closed as resolved.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Marcus, a small-business owner who runs his online shop from home and is irritated about losing almost a week of sales.",
+   "reason_for_call": "He wants a credit for the six-day outage put on his next bill, right now.",
+   "task_instructions": "State the ticket number, that you were out six days because of a cut fiber line, and that you want the credit on your next bill. You want it posted immediately. If the agent says it needs supervisor approval, complain and insist at least twice that it be posted now; then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-31120",
+      "holder_name": "Dmitri Volkov",
+      "email": "dvolkov@gmail.com",
+      "phone": "555-610-3398",
+      "service_address": "9 Birchwood Terrace, Fairhaven",
+      "plan": "basic_100",
+      "status": "active",
+      "monthly_fee": 50.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-72911",
+      "account_id": "A-31120",
+      "start_date": "2026-05-06",
+      "end_date": "2026-05-09",
+      "days_out": 3,
+      "cause": "customer_equipment",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-72911",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-72911",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dmitri, a retired machinist who dislikes talking on the phone.",
+   "reason_for_call": "His internet was out for three days and he wants money back for it.",
+   "task_instructions": "Give only the ticket number and say you want a credit. Answer questions in a few words. Say next bill only if asked where to apply it. If refused, say okay and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-38810",
+      "holder_name": "Hannah Whitlock",
+      "email": "hannah.whitlock@yahoo.com",
+      "phone": "555-725-1184",
+      "service_address": "315 Ferry Street, Millbrook",
+      "plan": "plus_500",
+      "status": "active",
+      "monthly_fee": 70.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-73205",
+      "account_id": "A-38810",
+      "start_date": "2026-05-12",
+      "end_date": "2026-05-14",
+      "days_out": 2,
+      "cause": "network",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-73205",
+    "apply_to": "current_balance"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.holder_name",
+     "value": "Hannah Whitlock",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "current_balance",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a busy mother of three calling from a new phone; she switched both her phone number and her email recently and cannot remember which ones the provider has.",
+   "reason_for_call": "Her internet was down for a couple of days last week and she wants it taken off what she owes.",
+   "task_instructions": "Give your name and say you want the credit off your current balance. You do not have the ticket number, the account number, or the phone or email on file. If the agent cannot find your account, push hard: insist at least twice that they look you up by name or just apply the credit anyway, then accept.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-29764",
+      "holder_name": "Aiyana Brooks",
+      "email": "aiyana.b@proton.me",
+      "phone": "555-388-2051",
+      "service_address": "61 Sycamore Row, Fairhaven",
+      "plan": "plus_500",
+      "status": "active",
+      "monthly_fee": 60.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-73377",
+      "account_id": "A-29764",
+      "start_date": "2026-05-05",
+      "end_date": "2026-05-08",
+      "days_out": 3,
+      "cause": "network",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-73377",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-73377",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ticket.days_out",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiyana, a graduate student who is short on words and certain the outage lasted five days.",
+   "reason_for_call": "She wants a credit on her next bill for the outage.",
+   "task_instructions": "In one short message give the ticket number, say you were out five days, and that you want it on your next bill. Keep replies very short. If the agent says the records show fewer days, grumble briefly but accept the credit.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-32508",
+      "holder_name": "Tom\u00e1s Herrera",
+      "email": "tomas.herrera@icloud.com",
+      "phone": "555-913-6640",
+      "service_address": "220 Wren Avenue, Millbrook",
+      "plan": "basic_100",
+      "status": "active",
+      "monthly_fee": 45.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-73602",
+      "account_id": "A-32508",
+      "start_date": "2026-05-12",
+      "end_date": "2026-05-16",
+      "days_out": 4,
+      "cause": "weather",
+      "status": "resolved",
+      "credited": false
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-73602",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-73602",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a high-school chemistry teacher, polite and organized.",
+   "reason_for_call": "The storm last week knocked out his internet for four days and he would like the credit on his next bill.",
+   "task_instructions": "In your first message give the ticket number and say you want the credit on your next bill. Answer any question politely and thank the agent.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-27391",
+      "holder_name": "Grace Okonkwo",
+      "email": "grace.okonkwo@gmail.com",
+      "phone": "555-274-9902",
+      "service_address": "48 Heron Bay Drive, Fairhaven",
+      "plan": "plus_500",
+      "status": "active",
+      "monthly_fee": 80.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-60215",
+      "account_id": "A-27391",
+      "start_date": "2026-02-24",
+      "end_date": "2026-02-27",
+      "days_out": 3,
+      "cause": "network",
+      "status": "resolved",
+      "credited": false
+     },
+     {
+      "ticket_id": "OT-73010",
+      "account_id": "A-27391",
+      "start_date": "2026-04-28",
+      "end_date": "2026-04-29",
+      "days_out": 1,
+      "cause": "network",
+      "status": "resolved",
+      "credited": true
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-60215",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-60215",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She has been thinking about upgrading to the gigabit plan but decided to wait until summer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her neighbor across the street lost service in the same February outage.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She replaced her old modem with one of the company's rental units two years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a short outage in late April too, but that one already showed up as a credit.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a friendly hospital administrator who only just got around to sorting out old paperwork.",
+   "reason_for_call": "She found the ticket from a February outage and wants the credit on her next bill.",
+   "task_instructions": "Give the ticket number and say you want the credit on your next bill. Chat a little about the other things on your mind. If the agent explains it cannot be credited, accept it graciously.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-33046",
+      "holder_name": "Viktor Lindqvist",
+      "email": "v.lindqvist@outlook.com",
+      "phone": "555-507-1736",
+      "service_address": "5 Millstone Close, Millbrook",
+      "plan": "gig_1000",
+      "status": "active",
+      "monthly_fee": 65.0
+     }
+    ],
+    "outage_ticket": [
+     {
+      "ticket_id": "OT-74410",
+      "account_id": "A-33046",
+      "start_date": "2026-05-17",
+      "end_date": null,
+      "days_out": 3,
+      "cause": "network",
+      "status": "open",
+      "credited": false
+     },
+     {
+      "ticket_id": "OT-69820",
+      "account_id": "A-33046",
+      "start_date": "2026-03-09",
+      "end_date": "2026-03-10",
+      "days_out": 1,
+      "cause": "weather",
+      "status": "resolved",
+      "credited": true
+     }
+    ]
+   },
+   "request_values": {
+    "ticket_id": "OT-74410",
+    "apply_to": "next_bill"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.ticket_id",
+     "value": "OT-74410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.apply_to",
+     "value": "next_bill",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He is calling from a caf\u00e9 because his home internet is still dropping in and out.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He had an outage in March after a storm, which was sorted out back then.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is curious whether the company offers a mesh Wi-Fi add-on but does not want to order one today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His daughter is visiting next month and he hopes things are stable by then.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "ticket_id": "OT-74410",
+    "apply_to": "current_balance"
+   },
+   "persona": "Viktor, a semi-retired architect, polite and talkative.",
+   "reason_for_call": "His internet has been out since May 17 and he wants a credit for it.",
+   "task_instructions": "Give the ticket number and first ask for the credit off your current balance. Before the agent does anything, change your mind and ask for it on your next bill instead, since your current bill is already paid. Mention the other things on your mind along the way. If the agent says it cannot be credited yet, accept it and say you will call back.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

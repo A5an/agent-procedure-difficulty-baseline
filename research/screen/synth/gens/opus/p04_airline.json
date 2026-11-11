@@ -1,0 +1,853 @@
+{
+ "procedure_id": "p04_airline",
+ "domain": "airline",
+ "organization": "Corvina Air",
+ "title": "Voluntary flight date changes",
+ "summary": "Move a passenger's booking to another flight on the same route when the passenger, the fare and the new flight qualify, or send large fare differences to the revenue desk for approval.",
+ "entities": {
+  "passenger": {
+   "key": "passenger_id",
+   "description": "Corvina Air passenger profiles",
+   "fields": {
+    "passenger_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "loyalty_tier": "enum:none|silver|gold"
+   }
+  },
+  "flight": {
+   "key": "flight_id",
+   "description": "Scheduled flights, one record per flight number and departure date",
+   "fields": {
+    "flight_id": "str",
+    "flight_number": "str",
+    "origin": "str",
+    "destination": "str",
+    "departure_date": "date",
+    "seats_available": "int",
+    "fare": "number"
+   }
+  },
+  "booking": {
+   "key": "booking_ref",
+   "description": "Passenger bookings, each on one flight",
+   "fields": {
+    "booking_ref": "str",
+    "passenger_id": "ref:passenger",
+    "flight_id": "ref:flight",
+    "fare_type": "enum:basic|standard|flex",
+    "changes_made": "int",
+    "last_changed": "date"
+   }
+  },
+  "change_review": {
+   "key": "review_id",
+   "description": "Flight change requests waiting for revenue desk approval",
+   "fields": {
+    "review_id": "str",
+    "booking_ref": "ref:booking",
+    "requested_flight_id": "ref:flight",
+    "reason": "enum:fare_difference|other",
+    "status": "enum:pending|approved|declined",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_passenger",
+   "kind": "get",
+   "entity": "passenger",
+   "description": "Look up a passenger profile by passenger ID."
+  },
+  {
+   "name": "find_passenger_by_email",
+   "kind": "search",
+   "entity": "passenger",
+   "by": [
+    "email"
+   ],
+   "description": "Find passenger profiles by the email address on file."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a booking by its booking reference."
+  },
+  {
+   "name": "find_bookings_by_passenger",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "passenger_id"
+   ],
+   "description": "List all bookings that belong to a passenger ID."
+  },
+  {
+   "name": "get_flight",
+   "kind": "get",
+   "entity": "flight",
+   "description": "Look up a flight by its flight ID (the flight number, a hyphen, then the departure date as YYYYMMDD). Shows route, departure date, seats available and current fare."
+  },
+  {
+   "name": "change_booking_flight",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_ref": {
+     "type": "ref:booking",
+     "description": "The booking to move."
+    },
+    "new_flight_id": {
+     "type": "ref:flight",
+     "description": "The flight to move the booking to."
+    }
+   },
+   "set": {
+    "flight_id": "args.new_flight_id",
+    "changes_made": "rec.changes_made + 1",
+    "last_changed": "today"
+   },
+   "description": "Move a booking to a different flight, count one change and record today's date as the change date."
+  },
+  {
+   "name": "create_change_review",
+   "kind": "create",
+   "entity": "change_review",
+   "args": {
+    "booking_ref": {
+     "type": "ref:booking",
+     "description": "The booking the change request is about."
+    },
+    "requested_flight_id": {
+     "type": "ref:flight",
+     "description": "The flight the passenger wants to move to."
+    },
+    "reason": {
+     "type": "enum:fare_difference|other",
+     "description": "Why the revenue desk must review the change."
+    }
+   },
+   "fields": {
+    "booking_ref": "args.booking_ref",
+    "requested_flight_id": "args.requested_flight_id",
+    "reason": "args.reason",
+    "status": "'pending'",
+    "created": "today"
+   },
+   "description": "Open a pending request for the revenue desk to approve a flight change."
+  }
+ ],
+ "request": {
+  "booking_ref": {
+   "type": "ref:booking",
+   "description": "the booking you want to move to another flight"
+  },
+  "new_flight_id": {
+   "type": "ref:flight",
+   "description": "the flight (flight number and date) you want to move to"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_ref"
+  },
+  {
+   "name": "pax",
+   "entity": "passenger",
+   "key": "booking.passenger_id"
+  },
+  {
+   "name": "cur_flight",
+   "entity": "flight",
+   "key": "booking.flight_id"
+  },
+  {
+   "name": "new_flight",
+   "entity": "flight",
+   "key": "req.new_flight_id"
+  }
+ ],
+ "outcomes": {
+  "change": {
+   "kind": "perform",
+   "description": "Move the booking to the requested flight.",
+   "calls": [
+    {
+     "tool": "change_booking_flight",
+     "args": {
+      "booking_ref": "req.booking_ref",
+      "new_flight_id": "req.new_flight_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The new flight costs more than 150.00 above the current one: open a revenue desk review instead of changing the booking.",
+   "calls": [
+    {
+     "tool": "create_change_review",
+     "args": {
+      "booking_ref": "booking.booking_ref",
+      "requested_flight_id": "req.new_flight_id",
+      "reason": "'fare_difference'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the booking; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pax.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the passenger profile before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "booking.fare_type == 'basic' or new_flight.origin != cur_flight.origin or new_flight.destination != cur_flight.destination or new_flight.seats_available < 1",
+   "outcome": "refuse",
+   "explain": "Basic fares cannot be changed, and the new flight must fly the same origin and destination as the current one and have at least one seat available."
+  },
+  {
+   "id": "R3",
+   "when": "new_flight.fare - cur_flight.fare > 150",
+   "outcome": "review",
+   "explain": "If the new flight's fare is more than 150.00 above the current flight's fare, open a revenue desk review with reason fare_difference instead of changing the booking."
+  }
+ ],
+ "default_outcome": "change",
+ "policy_text": "## Purpose\nPassengers may ask to move their booking to a different date or flight on the same route. This document explains when the agent may make the change directly, when the change must go to the revenue desk, and when it must be declined.\n\n## Identifying the booking and the caller\nAsk for the booking reference. If the passenger does not have it, find their profile with the email address on file and list their bookings; if there is more than one, ask which trip they mean. There is no lookup by name alone; if you cannot find the booking, you cannot proceed.\n\nBefore any change, verify identity: the date of birth the caller gives must match the date of birth on the passenger profile linked to the booking. If it does not match, or the caller cannot give it, make no change.\n\nAsk for the flight the passenger wants to move to (flight number and date) and look it up. Flight IDs are the flight number, a hyphen, and the departure date written as YYYYMMDD.\n\n## When a change cannot be made\nDecline the change if any of the following is true:\n- The booking is on a Basic fare. Basic fares are not changeable.\n- The new flight does not fly the same origin and the same destination as the current flight on the booking. Route changes are not handled under this procedure.\n- The new flight has no seats available (seats available is 0).\n\n## Fare differences\nCompare the current fare of the new flight with the fare of the flight currently on the booking.\n- If the new flight's fare is more than 150.00 higher than the current flight's fare, do not change the booking. Instead open a change review for the revenue desk with reason fare_difference, naming the booking and the requested flight, and tell the passenger the desk will contact them about the decision.\n- If the difference is 150.00 or less (or the new flight is cheaper), move the booking to the requested flight.\n\n## Making the change\nWhen everything above is satisfied, change the booking to the flight the passenger finally asks for. If the passenger changes their mind about which flight they want, act only on their final choice and do it once.\n\n## Never\nDo not change a booking for a caller who failed the date of birth check. Do not make exceptions to the Basic fare, route or seat rules, do not move the booking to a different flight than the one asked for, do not move a booking yourself when the fare difference requires review, and do not change any other booking the passenger mentions.",
+ "db_common": {
+  "flight": [
+   {
+    "flight_id": "CV214-20260610",
+    "flight_number": "CV214",
+    "origin": "BOS",
+    "destination": "LIS",
+    "departure_date": "2026-06-10",
+    "seats_available": 12,
+    "fare": 420.0
+   },
+   {
+    "flight_id": "CV214-20260612",
+    "flight_number": "CV214",
+    "origin": "BOS",
+    "destination": "LIS",
+    "departure_date": "2026-06-12",
+    "seats_available": 4,
+    "fare": 455.0
+   },
+   {
+    "flight_id": "CV214-20260614",
+    "flight_number": "CV214",
+    "origin": "BOS",
+    "destination": "LIS",
+    "departure_date": "2026-06-14",
+    "seats_available": 9,
+    "fare": 640.0
+   },
+   {
+    "flight_id": "CV216-20260611",
+    "flight_number": "CV216",
+    "origin": "BOS",
+    "destination": "LIS",
+    "departure_date": "2026-06-11",
+    "seats_available": 0,
+    "fare": 410.0
+   },
+   {
+    "flight_id": "CV330-20260605",
+    "flight_number": "CV330",
+    "origin": "ORD",
+    "destination": "DUB",
+    "departure_date": "2026-06-05",
+    "seats_available": 20,
+    "fare": 380.0
+   },
+   {
+    "flight_id": "CV330-20260607",
+    "flight_number": "CV330",
+    "origin": "ORD",
+    "destination": "DUB",
+    "departure_date": "2026-06-07",
+    "seats_available": 3,
+    "fare": 395.0
+   },
+   {
+    "flight_id": "CV332-20260606",
+    "flight_number": "CV332",
+    "origin": "ORD",
+    "destination": "DUB",
+    "departure_date": "2026-06-06",
+    "seats_available": 7,
+    "fare": 600.0
+   },
+   {
+    "flight_id": "CV120-20260618",
+    "flight_number": "CV120",
+    "origin": "JFK",
+    "destination": "MAD",
+    "departure_date": "2026-06-18",
+    "seats_available": 6,
+    "fare": 510.0
+   },
+   {
+    "flight_id": "CV122-20260619",
+    "flight_number": "CV122",
+    "origin": "JFK",
+    "destination": "MAD",
+    "departure_date": "2026-06-19",
+    "seats_available": 5,
+    "fare": 720.0
+   },
+   {
+    "flight_id": "CV124-20260620",
+    "flight_number": "CV124",
+    "origin": "JFK",
+    "destination": "BCN",
+    "departure_date": "2026-06-20",
+    "seats_available": 15,
+    "fare": 500.0
+   },
+   {
+    "flight_id": "CV402-20260625",
+    "flight_number": "CV402",
+    "origin": "SEA",
+    "destination": "KEF",
+    "departure_date": "2026-06-25",
+    "seats_available": 11,
+    "fare": 450.0
+   },
+   {
+    "flight_id": "CV402-20260627",
+    "flight_number": "CV402",
+    "origin": "SEA",
+    "destination": "KEF",
+    "departure_date": "2026-06-27",
+    "seats_available": 2,
+    "fare": 470.0
+   }
+  ],
+  "passenger": [
+   {
+    "passenger_id": "P-10001",
+    "full_name": "Walter Brandt",
+    "email": "w.brandt@example.com",
+    "birth_date": "1959-03-14",
+    "loyalty_tier": "gold"
+   }
+  ],
+  "booking": [
+   {
+    "booking_ref": "CVB-0AA1B1",
+    "passenger_id": "P-10001",
+    "flight_id": "CV214-20260610",
+    "fare_type": "flex",
+    "changes_made": 0,
+    "last_changed": null
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-20431",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.com",
+      "birth_date": "1988-07-22",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-7Q2K91",
+      "passenger_id": "P-20431",
+      "flight_id": "CV214-20260610",
+      "fare_type": "standard",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-7Q2K91",
+    "new_flight_id": "CV214-20260612"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-7Q2K91",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV214-20260612",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-07-22",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_type",
+     "value": "standard",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I'm flying Boston to Lisbon, and I want to stay on that same route, just a couple of days later.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I bought the Standard fare, not Basic Economy, so I believe it can be changed.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The flight I finally want is the same flight number as my current one, just on a later day.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "new_flight_id": "CV214-20260614"
+   },
+   "persona": "Priya, a conference organizer from Cambridge who plans carefully and speaks in complete, friendly sentences.",
+   "reason_for_call": "Her Lisbon conference was pushed back, so she wants to fly out a little later than her current Boston to Lisbon flight.",
+   "task_instructions": "In your first message give your booking reference, your date of birth, that you hold a Standard fare, and say you want the same flight number on 14 June. Before the agent makes any change, say you just realized the 12th of June works better and ask for that flight instead. Mention the Boston to Lisbon route and the fare details naturally. Accept the outcome politely.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-31877",
+      "full_name": "Marcus Oyelaran",
+      "email": "m.oyelaran@example.net",
+      "birth_date": "1975-12-03",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-3MX5D8",
+      "passenger_id": "P-31877",
+      "flight_id": "CV330-20260605",
+      "fare_type": "flex",
+      "changes_made": 1,
+      "last_changed": "2026-04-28"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-3MX5D8",
+    "new_flight_id": "CV330-20260607"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-3MX5D8",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV330-20260607",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-12-03",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_flight_id": "CV332-20260606"
+   },
+   "persona": "Marcus, a sales director in Chicago who travels to Dublin often and is calm but busy.",
+   "reason_for_call": "A client meeting in Dublin moved, so he wants to leave Chicago a bit later than planned.",
+   "task_instructions": "Start by giving your booking reference and asking to move to the evening flight to Dublin on 6 June. Give your date of birth only when asked. Before anything is changed, say that actually your usual flight on 7 June suits you better and ask for that one instead. Accept the result.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-44210",
+      "full_name": "Hannah Kowalczyk",
+      "email": "hannah.kowalczyk@fastmail.com",
+      "birth_date": "1993-02-09",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-8TR4L2",
+      "passenger_id": "P-44210",
+      "flight_id": "CV120-20260618",
+      "fare_type": "standard",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-8TR4L2",
+    "new_flight_id": "CV122-20260619"
+   },
+   "customer_facts": [
+    {
+     "fact": "pax.email",
+     "value": "hannah.kowalczyk@fastmail.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV122-20260619",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1993-02-09",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a graduate student in a hurry who gets impatient with process and wants things done immediately.",
+   "reason_for_call": "Her thesis defence in New York was moved, so she wants to fly to Madrid one day later, but she has deleted her confirmation email and does not have the booking reference.",
+   "task_instructions": "Say you lost the booking reference but give the email on your profile and the flight you want. Give your date of birth when asked. If the agent says the change must go to a review instead of being done now, complain and insist at least twice that they just change it right away, then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-50962",
+      "full_name": "Tom\u00e1s Ferreira",
+      "email": "tferreira@example.org",
+      "birth_date": "1981-05-30",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-5KJ0P3",
+      "passenger_id": "P-50962",
+      "flight_id": "CV214-20260610",
+      "fare_type": "standard",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-5KJ0P3",
+    "new_flight_id": "CV216-20260611"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-5KJ0P3",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV216-20260611",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-05-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a contractor who types short messages from a job site.",
+   "reason_for_call": "He wants to fly home to Lisbon one day later than booked.",
+   "task_instructions": "Give your booking reference, date of birth and the flight you want in your first message. Keep every reply to a few words. If the agent declines, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-61388",
+      "full_name": "Aiko Brennan",
+      "email": "aiko.brennan@example.com",
+      "birth_date": "1990-10-17",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-2WN6H7",
+      "passenger_id": "P-61388",
+      "flight_id": "CV402-20260625",
+      "fare_type": "standard",
+      "changes_made": 0,
+      "last_changed": null
+     },
+     {
+      "booking_ref": "CVB-9FD1C4",
+      "passenger_id": "P-61388",
+      "flight_id": "CV330-20260605",
+      "fare_type": "flex",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-2WN6H7",
+    "new_flight_id": "CV402-20260627"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-2WN6H7",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV402-20260627",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-10-17",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I also have a trip from Chicago to Dublin in early June, but that one is fine as it is.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year your airline lost my suitcase for three days on a trip to Reykjavik, though it all got sorted out.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was going to ask about bringing my cat on board, but I've decided to leave her with my sister.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I might use my miles for a seat upgrade someday, but not today.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Aiko, a chatty landscape photographer from Seattle who likes to share stories.",
+   "reason_for_call": "Her Iceland photo tour starts two days later than she thought, so she wants to move her Seattle to Reykjavik flight.",
+   "task_instructions": "Give the booking reference for your Iceland trip and the flight you want. Give your date of birth when asked. Mention your other trip, the lost suitcase story, the cat and the miles along the way, but make clear only the Iceland flight should change. Be friendly and cooperative.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-72045",
+      "full_name": "Elif Demir",
+      "email": "elif.demir@example.net",
+      "birth_date": "1986-01-25",
+      "loyalty_tier": "gold"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-6HV3N9",
+      "passenger_id": "P-72045",
+      "flight_id": "CV120-20260618",
+      "fare_type": "flex",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-6HV3N9",
+    "new_flight_id": "CV124-20260620"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-6HV3N9",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV124-20260620",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1986-01-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_type",
+     "value": "flex",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cur_flight.destination",
+     "value": "MAD",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My current booking is New York JFK to Madrid on the 18th of June.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I paid for the Flex fare specifically so I could make changes.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The flight I want on the 20th goes to Barcelona instead, because my cousin's wedding moved there.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Elif, an architect based in Brooklyn, polite and precise.",
+   "reason_for_call": "A family wedding moved from Madrid to Barcelona and two days later, so she wants to switch her flight to the Barcelona one on the 20th.",
+   "task_instructions": "In your first message give your booking reference, date of birth, that you hold a Flex fare, that you currently fly JFK to Madrid, and the flight you want. Explain the wedding move. If the agent declines, ask briefly if anything else can be done, then accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-83519",
+      "full_name": "Gareth Llewellyn",
+      "email": "gareth.ll@example.co.uk",
+      "birth_date": "1969-08-11",
+      "loyalty_tier": "none"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-4PL7Z2",
+      "passenger_id": "P-83519",
+      "flight_id": "CV330-20260605",
+      "fare_type": "basic",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-4PL7Z2",
+    "new_flight_id": "CV330-20260607"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_ref",
+     "value": "CVB-4PL7Z2",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV330-20260607",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-08-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_type",
+     "value": "standard",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a retired engineer of few words who is sure he bought a Standard ticket.",
+   "reason_for_call": "He wants to fly from Chicago to Dublin two days later than booked.",
+   "task_instructions": "In your first message give your booking reference, date of birth, the flight you want, and say your ticket is a Standard fare. Answer in very few words. If the agent says it is a Basic fare and declines, accept it and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-94706",
+      "full_name": "Rosa Villanueva",
+      "email": "rosa.villanueva@example.com",
+      "birth_date": "1978-04-02",
+      "loyalty_tier": "silver"
+     }
+    ],
+    "booking": [
+     {
+      "booking_ref": "CVB-1QA8S5",
+      "passenger_id": "P-94706",
+      "flight_id": "CV402-20260625",
+      "fare_type": "standard",
+      "changes_made": 0,
+      "last_changed": null
+     }
+    ]
+   },
+   "request_values": {
+    "booking_ref": "CVB-1QA8S5",
+    "new_flight_id": "CV402-20260627"
+   },
+   "customer_facts": [
+    {
+     "fact": "pax.full_name",
+     "value": "Rosa Villanueva",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "CV402-20260627",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1978-04-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a restaurant owner who is stressed and short on time.",
+   "reason_for_call": "She wants to push her Seattle to Reykjavik trip back two days, but her travel agency booked it, she has no confirmation, and she does not know which email address the airline has.",
+   "task_instructions": "Give your full name and the flight you want. Give your date of birth if asked. You do not have the booking reference and cannot say which email is on file. If the agent cannot find the booking, insist at least twice that they search by your name or just make the change anyway, then accept that you need to contact your travel agency.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

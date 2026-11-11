@@ -1,0 +1,920 @@
+{
+ "procedure_id": "h06_city",
+ "domain": "city tax office",
+ "organization": "City of Brookhaven Department of Revenue",
+ "title": "Property tax installment plan enrollment",
+ "summary": "Enroll a property owner's unpaid property tax bill in a monthly installment plan when the taxpayer, the bill and the property qualify.",
+ "entities": {
+  "taxpayer": {
+   "key": "taxpayer_id",
+   "description": "Registered property taxpayers and their account details",
+   "fields": {
+    "taxpayer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tin_last4": "str",
+    "last_plan_default": "date"
+   }
+  },
+  "parcel": {
+   "key": "parcel_id",
+   "description": "Real property parcels on the city tax roll",
+   "fields": {
+    "parcel_id": "str",
+    "street_address": "str",
+    "assessed_value": "number",
+    "tax_sale_status": "enum:none|warning_notice|scheduled"
+   }
+  },
+  "tax_bill": {
+   "key": "bill_id",
+   "description": "Annual property tax bills issued to taxpayers for a parcel",
+   "fields": {
+    "bill_id": "str",
+    "taxpayer_id": "ref:taxpayer",
+    "parcel_id": "ref:parcel",
+    "tax_year": "int",
+    "due_date": "date",
+    "amount_billed": "number",
+    "balance_due": "number",
+    "status": "enum:unpaid|paid|payment_plan|appeal_pending",
+    "penalty_accrual": "bool"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Installment plans set up for property tax bills",
+   "fields": {
+    "plan_id": "str",
+    "bill_id": "ref:tax_bill",
+    "installments": "int",
+    "installment_amount": "number",
+    "first_due_date": "date",
+    "created": "date"
+   }
+  },
+  "notice": {
+   "key": "notice_id",
+   "description": "Letters mailed to taxpayers",
+   "fields": {
+    "notice_id": "str",
+    "taxpayer_id": "ref:taxpayer",
+    "bill_id": "ref:tax_bill",
+    "notice_type": "enum:plan_confirmation|payment_reminder",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_taxpayer",
+   "kind": "get",
+   "entity": "taxpayer",
+   "description": "Look up a taxpayer account by taxpayer ID. Shows name, email, the last four digits of the taxpayer identification number on file, and the date of any past installment plan default."
+  },
+  {
+   "name": "find_taxpayer_by_email",
+   "kind": "search",
+   "entity": "taxpayer",
+   "by": [
+    "email"
+   ],
+   "description": "Find taxpayer accounts by the email address on file."
+  },
+  {
+   "name": "get_tax_bill",
+   "kind": "get",
+   "entity": "tax_bill",
+   "description": "Look up a property tax bill by bill number. Shows the taxpayer, the parcel, the tax year, due date, amount billed, remaining balance and status."
+  },
+  {
+   "name": "find_bills_by_taxpayer",
+   "kind": "search",
+   "entity": "tax_bill",
+   "by": [
+    "taxpayer_id"
+   ],
+   "description": "List all property tax bills of a taxpayer account."
+  },
+  {
+   "name": "get_parcel",
+   "kind": "get",
+   "entity": "parcel",
+   "description": "Look up a parcel by parcel ID. Shows the address, assessed value and tax sale status."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill to put on the plan."
+    },
+    "installments": {
+     "type": "int",
+     "description": "Number of monthly installments."
+    },
+    "installment_amount": {
+     "type": "number",
+     "description": "Amount of each monthly installment: the bill's remaining balance divided by the number of installments, rounded to the nearest cent."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "installments": "args.installments",
+    "installment_amount": "args.installment_amount",
+    "first_due_date": "add_days(today, 30)",
+    "created": "today"
+   },
+   "description": "Create an installment plan for a bill. The first installment is due 30 days from today."
+  },
+  {
+   "name": "set_bill_on_plan",
+   "kind": "update",
+   "entity": "tax_bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill that was put on a plan."
+    }
+   },
+   "set": {
+    "status": "'payment_plan'",
+    "penalty_accrual": "False"
+   },
+   "description": "Mark a bill as being on an installment plan and stop further late penalties from accruing on it."
+  },
+  {
+   "name": "send_notice",
+   "kind": "create",
+   "entity": "notice",
+   "args": {
+    "taxpayer_id": {
+     "type": "ref:taxpayer",
+     "description": "The taxpayer to mail the letter to."
+    },
+    "bill_id": {
+     "type": "ref:tax_bill",
+     "description": "The bill the letter is about."
+    },
+    "notice_type": {
+     "type": "enum:plan_confirmation|payment_reminder",
+     "description": "Type of letter."
+    }
+   },
+   "fields": {
+    "taxpayer_id": "args.taxpayer_id",
+    "bill_id": "args.bill_id",
+    "notice_type": "args.notice_type",
+    "created": "today"
+   },
+   "description": "Queue a letter to be mailed to the taxpayer about a bill."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:tax_bill",
+   "description": "the property tax bill you want to pay in installments"
+  },
+  "installments": {
+   "type": "int",
+   "description": "how many monthly payments you want to split the balance into"
+  }
+ },
+ "claims": {
+  "tin_last4": {
+   "type": "str",
+   "description": "the last four digits of your Social Security or taxpayer identification number"
+  }
+ },
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "tax_bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "tp",
+   "entity": "taxpayer",
+   "key": "bill.taxpayer_id"
+  },
+  {
+   "name": "parcel",
+   "entity": "parcel",
+   "key": "bill.parcel_id"
+  }
+ ],
+ "outcomes": {
+  "enroll": {
+   "kind": "perform",
+   "description": "Create the installment plan, mark the bill as on a plan, and mail a plan confirmation letter.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "bill_id": "bill.bill_id",
+      "installments": "req.installments",
+      "installment_amount": "round(bill.balance_due / req.installments, 2)"
+     }
+    },
+    {
+     "tool": "set_bill_on_plan",
+     "args": {
+      "bill_id": "bill.bill_id"
+     }
+    },
+    {
+     "tool": "send_notice",
+     "args": {
+      "taxpayer_id": "tp.taxpayer_id",
+      "bill_id": "bill.bill_id",
+      "notice_type": "'plan_confirmation'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up a plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.tin_last4 != tp.tin_last4",
+   "outcome": "refuse",
+   "explain": "The caller must give the last four digits of the taxpayer identification number on the account that owns the bill."
+  },
+  {
+   "id": "R2",
+   "when": "bill.status != 'unpaid'",
+   "outcome": "refuse",
+   "explain": "Only bills with status unpaid can be put on a plan; paid bills, bills already on a plan and bills under appeal cannot."
+  },
+  {
+   "id": "R3",
+   "when": "parcel.tax_sale_status == 'scheduled'",
+   "outcome": "refuse",
+   "explain": "No plan can be set up for a bill on a parcel that is scheduled for tax sale."
+  },
+  {
+   "id": "R4",
+   "when": "tp.last_plan_default != None and days_between(tp.last_plan_default, today) <= 1095",
+   "outcome": "refuse",
+   "explain": "A taxpayer who defaulted on an installment plan within the last 1,095 days is not eligible for a new plan."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(bill.due_date, today) > 365",
+   "outcome": "refuse",
+   "explain": "Bills more than 365 days past their due date are with collections and cannot be put on a plan."
+  },
+  {
+   "id": "R6",
+   "when": "bill.balance_due < 200",
+   "outcome": "refuse",
+   "explain": "Balances under 200.00 must be paid in full."
+  },
+  {
+   "id": "R7",
+   "when": "req.installments < 2 or req.installments > (12 if bill.balance_due >= 3000 else 6)",
+   "outcome": "refuse",
+   "explain": "A plan has 2 to 6 installments when the balance is under 3,000.00, and 2 to 12 installments when it is 3,000.00 or more."
+  }
+ ],
+ "default_outcome": "enroll",
+ "policy_text": "## Purpose\nProperty owners who cannot pay an annual property tax bill at once may ask to pay the remaining balance in monthly installments. This procedure explains who qualifies and exactly what to record.\n\n## Finding the bill\nIf the caller has the bill number (printed at the top of the tax statement), look the bill up directly. If not, find the taxpayer account by the email address on file and list the account's bills; ask which tax year they mean if there is more than one. Then open the taxpayer account that owns the bill and the parcel the bill is for. You must check both of these records yourself, even if the caller does not mention them. If the caller has not said how many monthly payments they want, ask them.\n\n## Identity check\nBefore anything else, ask for the last four digits of the caller's Social Security or taxpayer identification number. They must match the last four digits on the taxpayer account that owns the bill. If they do not match, or the caller cannot give them, do not set up a plan and do not discuss account details.\n\n## Eligibility\nDecline the request if any of the following applies:\n- The bill's status is not unpaid. Bills already paid, already on a plan, or under assessment appeal cannot be put on a plan.\n- The parcel is scheduled for tax sale. (A tax sale warning notice alone does not block a plan; only a scheduled sale does.)\n- The taxpayer defaulted on an earlier installment plan within the last 1,095 days (three years), counted from the default date on the account to today.\n- The bill is more than 365 days past its due date. Such bills are with collections.\n- The remaining balance is under 200.00. Small balances must be paid in full.\n- The number of installments asked for is not allowed. A plan must have at least 2 installments. If the remaining balance is under 3,000.00 the maximum is 6 installments; if it is 3,000.00 or more the maximum is 12.\n\nAlways go by the balance and status shown in our records, not by what the caller remembers. If the number of installments asked for is not allowed, decline it and explain the limit; do not pick a different number yourself. If the caller then asks for an allowed number, you may set up the plan with that number.\n\n## Setting up the plan\nWhen everything above is in order:\n1. Create the payment plan for the bill with the number of installments the caller asked for. The installment amount is the bill's remaining balance (not the original amount billed) divided by the number of installments, rounded to the nearest cent. The first installment is due 30 days from today; the system sets this date.\n2. Mark the bill as on a plan. This also stops further late penalties on the bill.\n3. Send the taxpayer a plan confirmation letter for the bill.\nTell the caller the installment amount and that the first payment is due in 30 days.\n\n## Never\nDo not waive or reduce penalties or balances, do not change the number of installments the caller asked for, do not set up a plan for anyone who failed the identity check, and do not change any bill other than the one the caller asked about.",
+ "db_common": {
+  "taxpayer": [
+   {
+    "taxpayer_id": "TP-100231",
+    "full_name": "Harold Benning",
+    "email": "h.benning@example.net",
+    "tin_last4": "7720",
+    "last_plan_default": null
+   }
+  ],
+  "parcel": [
+   {
+    "parcel_id": "PCL-0412-07",
+    "street_address": "88 Quarry Road",
+    "assessed_value": 312000,
+    "tax_sale_status": "none"
+   }
+  ],
+  "tax_bill": [
+   {
+    "bill_id": "TB-25-041207",
+    "taxpayer_id": "TP-100231",
+    "parcel_id": "PCL-0412-07",
+    "tax_year": 2025,
+    "due_date": "2025-11-30",
+    "amount_billed": 3120,
+    "balance_due": 0,
+    "status": "paid",
+    "penalty_accrual": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-204418",
+      "full_name": "Mariela Casta\u00f1eda",
+      "email": "mariela.castaneda@example.com",
+      "tin_last4": "4417",
+      "last_plan_default": "2024-09-15"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-1187-22",
+      "street_address": "14 Larkspur Lane",
+      "assessed_value": 386000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-118722",
+      "taxpayer_id": "TP-204418",
+      "parcel_id": "PCL-1187-22",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 4800,
+      "balance_due": 4800,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-118722",
+    "installments": 6
+   },
+   "initial_request_values": {
+    "installments": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-118722",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "4417",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.balance_due",
+     "value": 4800,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bill is the 2025 property tax bill for her house on Larkspur Lane.",
+     "kind": "helpful"
+    },
+    {
+     "text": "About two years ago she had a payment plan with the city and fell behind on it until it was cancelled.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Mariela, a self-employed hairdresser whose income dipped over the winter. Warm, chatty and organized; she has her tax statement in front of her.",
+   "reason_for_call": "She cannot pay her 4,800 property tax balance at once and wants to spread it out.",
+   "task_instructions": "In your first message give the bill number, the last four digits of your SSN and your balance of 4,800, and ask to split it into 10 monthly payments. Before the agent sets anything up, change your mind and say 6 payments would be better because you'd rather finish sooner. Mention that the bill is for your house on Larkspur Lane and that you had a city payment plan a couple of years ago that you fell behind on. If the agent declines, ask once why, then accept politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-310957",
+      "full_name": "Desmond Achterberg",
+      "email": "desmond.a@example.org",
+      "tin_last4": "0583",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-2290-05",
+      "street_address": "402 Willow Bend Court",
+      "assessed_value": 248000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-229005",
+      "taxpayer_id": "TP-310957",
+      "parcel_id": "PCL-2290-05",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 2400,
+      "balance_due": 2400,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-229005",
+    "installments": 6
+   },
+   "initial_request_values": {
+    "installments": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-229005",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "0583",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.balance_due",
+     "value": 3200,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Desmond, a retired bus mechanic who keeps his paperwork in a shoebox and is sure he owes a little over three thousand.",
+   "reason_for_call": "He wants to stretch his property tax bill over a full year of monthly payments.",
+   "task_instructions": "In your first message give the bill number and the last four digits of your SSN, say you owe about 3,200, and ask for 12 monthly payments. If the agent says 12 is not allowed, insist briefly that you owe over three thousand; when the agent explains the balance on file, accept it and ask for 6 monthly payments instead. Accept the plan the agent sets up.",
+   "expected_outcome": "enroll"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-418830",
+      "full_name": "Priya Ramaswamy",
+      "email": "priya.ramaswamy@example.com",
+      "tin_last4": "9061",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-3304-41",
+      "street_address": "7 Copperbeech Avenue",
+      "assessed_value": 540000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-330441",
+      "taxpayer_id": "TP-418830",
+      "parcel_id": "PCL-3304-41",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 5400,
+      "balance_due": 5400,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-330441",
+    "installments": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-330441",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "9061",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a hospital administrator calling between meetings. Impatient, clipped and annoyed that penalties keep growing.",
+   "reason_for_call": "She wants her property tax bill split into 12 monthly payments so the penalties stop.",
+   "task_instructions": "Give the bill number, the last four digits of your SSN and ask for 12 monthly payments in your first message. Push the agent to hurry and complain about the penalties. If the agent ever refuses, argue and ask for an exception at least twice before accepting. Accept once the plan is set up.",
+   "expected_outcome": "enroll"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-522106",
+      "full_name": "Walter Okonkwo-Reyes",
+      "email": "w.okonkwo@example.net",
+      "tin_last4": "3348",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-4471-18",
+      "street_address": "1290 Harbor View Drive",
+      "assessed_value": 295000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-24-447118",
+      "taxpayer_id": "TP-522106",
+      "parcel_id": "PCL-4471-18",
+      "tax_year": 2024,
+      "due_date": "2024-11-30",
+      "amount_billed": 2950,
+      "balance_due": 2950,
+      "status": "unpaid",
+      "penalty_accrual": true
+     },
+     {
+      "bill_id": "TB-25-447118",
+      "taxpayer_id": "TP-522106",
+      "parcel_id": "PCL-4471-18",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 3010,
+      "balance_due": 0,
+      "status": "paid",
+      "penalty_accrual": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-24-447118",
+    "installments": 6
+   },
+   "initial_request_values": {
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-24-447118",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "3348",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He paid this past November's property tax bill on time and in full.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He also wanted to ask about renewing his dog's license but decides it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His neighbor's assessment went up a lot this year and he is curious whether his will too.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is planning a kitchen remodel this summer.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Walter, a friendly ferry deck officer who likes to talk and drifts between topics.",
+   "reason_for_call": "He found an older property tax bill he forgot to pay while working away at sea and wants to pay it off in installments.",
+   "task_instructions": "Give the bill number and the last four digits of your SSN early, and first ask for 3 monthly payments. Before anything is done, change your mind and ask for 6 payments instead because money is tight. Chat about your on-time payment last November, your dog's license (say it can wait), your neighbor's assessment and your kitchen remodel. If the agent declines, accept it and ask what you should do next.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-630774",
+      "full_name": "Hana Lindqvist",
+      "email": "hana.lindqvist@example.org",
+      "tin_last4": "5502",
+      "last_plan_default": "2021-06-10"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-5502-09",
+      "street_address": "63 Orchard Hill Road",
+      "assessed_value": 210000,
+      "tax_sale_status": "warning_notice"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-550209",
+      "taxpayer_id": "TP-630774",
+      "parcel_id": "PCL-5502-09",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 2520,
+      "balance_due": 1260,
+      "status": "unpaid",
+      "penalty_accrual": true
+     },
+     {
+      "bill_id": "TB-24-550209",
+      "taxpayer_id": "TP-630774",
+      "parcel_id": "PCL-5502-09",
+      "tax_year": 2024,
+      "due_date": "2024-11-30",
+      "amount_billed": 2460,
+      "balance_due": 0,
+      "status": "paid",
+      "penalty_accrual": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-550209",
+    "installments": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-550209",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "5502",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her recycling bin was cracked by the collection truck and she wonders who to call about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She paid the previous year's tax bill in full.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her brother just opened a bakery and asked her how business licenses work in the city.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is selling her old car to help cover expenses.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Hana, a part-time music teacher, polite and clear, who already paid half of her bill and wants to finish the rest.",
+   "reason_for_call": "She wants to pay the rest of her property tax bill in six monthly payments.",
+   "task_instructions": "Give the bill number and ask for 6 monthly payments. Give the last four digits of your SSN when asked. Along the way mention your cracked recycling bin, that last year's bill is paid, your brother's bakery and the car you are selling, but do not pursue any of them. Answer questions helpfully and accept the plan.",
+   "expected_outcome": "enroll"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-741265",
+      "full_name": "Bartholomew Szymanski",
+      "email": "bart.szymanski@example.com",
+      "tin_last4": "2219",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-6618-30",
+      "street_address": "2215 Millrace Street",
+      "assessed_value": 360000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-24-661830",
+      "taxpayer_id": "TP-741265",
+      "parcel_id": "PCL-6618-30",
+      "tax_year": 2024,
+      "due_date": "2024-11-30",
+      "amount_billed": 3480,
+      "balance_due": 0,
+      "status": "paid",
+      "penalty_accrual": false
+     },
+     {
+      "bill_id": "TB-25-661830",
+      "taxpayer_id": "TP-741265",
+      "parcel_id": "PCL-6618-30",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 3600,
+      "balance_due": 3600,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-661830",
+    "installments": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "tp.email",
+     "value": "bart.szymanski@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.tax_year",
+     "value": 2025,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 9,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "2219",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bart, a restaurant owner calling from a noisy kitchen. Brusque and in a hurry; he threw out the paper statement.",
+   "reason_for_call": "He wants his 2025 property tax bill split into nine monthly payments.",
+   "task_instructions": "Say you do not have the bill number but give your email and say it is the 2025 property tax bill; ask for 9 monthly payments. Give the last four digits of your SSN only when asked. Be impatient and tell the agent to hurry. If the agent ever refuses, argue and ask for an exception at least twice before accepting. Accept once the plan is set up.",
+   "expected_outcome": "enroll"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-852390",
+      "full_name": "Ines Vald\u00e9s-Moreau",
+      "email": "ines.valdes@example.org",
+      "tin_last4": "6674",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-7740-12",
+      "street_address": "519 Tannery Row",
+      "assessed_value": 178000,
+      "tax_sale_status": "scheduled"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-774012",
+      "taxpayer_id": "TP-852390",
+      "parcel_id": "PCL-7740-12",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 1980,
+      "balance_due": 1980,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-774012",
+    "installments": 6
+   },
+   "initial_request_values": {
+    "installments": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-774012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "6674",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines, a graduate student who inherited a small rowhouse from her aunt and is still learning how property taxes work. Earnest and a bit anxious.",
+   "reason_for_call": "She wants to pay the property tax bill on the rowhouse over time.",
+   "task_instructions": "Give the bill number and say you would like to pay it in monthly installments, but do not say how many until the agent asks. When asked how many, say 12. Give the last four digits of your SSN only when asked. If the agent refuses, ask whether 6 monthly payments would work instead. If that is refused too, ask what your options are and then accept.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "taxpayer": [
+     {
+      "taxpayer_id": "TP-963041",
+      "full_name": "Kofi Mensah-Hart",
+      "email": "kofi.mh@example.com",
+      "tin_last4": "8125",
+      "last_plan_default": null
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PCL-8823-03",
+      "street_address": "31 Gristmill Lane",
+      "assessed_value": 154000,
+      "tax_sale_status": "none"
+     }
+    ],
+    "tax_bill": [
+     {
+      "bill_id": "TB-25-882303",
+      "taxpayer_id": "TP-963041",
+      "parcel_id": "PCL-8823-03",
+      "tax_year": 2025,
+      "due_date": "2025-11-30",
+      "amount_billed": 1545.5,
+      "balance_due": 145.5,
+      "status": "unpaid",
+      "penalty_accrual": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "TB-25-882303",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "TB-25-882303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.tin_last4",
+     "value": "8125",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kofi, a warehouse supervisor who answers in as few words as possible.",
+   "reason_for_call": "He has a small amount left on his property tax bill and wants to pay it in parts.",
+   "task_instructions": "Give only the bill number and say you want to pay in parts. Say how many payments (3) only when the agent asks. Give the last four digits of your SSN only when asked. Keep every answer to a few words and never elaborate. If the agent declines, say okay and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

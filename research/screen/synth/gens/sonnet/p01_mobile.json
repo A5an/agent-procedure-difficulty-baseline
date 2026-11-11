@@ -1,0 +1,788 @@
+{
+ "procedure_id": "p01_mobile",
+ "domain": "mobile phone carrier",
+ "organization": "Northwind Mobile",
+ "title": "Plan changes on a mobile line",
+ "summary": "Change the rate plan of a mobile line when the account holder is verified and the line and account qualify, or send early downgrades to an approval request.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer billing accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "email": "str",
+    "security_pin": "str",
+    "balance_due": "number"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Rate plan catalog",
+   "fields": {
+    "plan_code": "str",
+    "name": "str",
+    "monthly_price": "number",
+    "data_gb": "int"
+   }
+  },
+  "line": {
+   "key": "line_id",
+   "description": "Mobile lines attached to accounts",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:account",
+    "phone_number": "str",
+    "plan_code": "ref:plan",
+    "status": "enum:active|suspended",
+    "contract_end": "date"
+   }
+  },
+  "plan_change_log": {
+   "key": "log_id",
+   "description": "Record of completed plan changes",
+   "fields": {
+    "log_id": "str",
+    "line_id": "ref:line",
+    "old_plan_code": "ref:plan",
+    "new_plan_code": "ref:plan",
+    "changed_on": "date"
+   }
+  },
+  "change_request": {
+   "key": "request_id",
+   "description": "Requests for retention team approval",
+   "fields": {
+    "request_id": "str",
+    "line_id": "ref:line",
+    "plan_code": "ref:plan",
+    "reason": "enum:early_downgrade|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by account number."
+  },
+  {
+   "name": "find_accounts_by_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "email"
+   ],
+   "description": "Find accounts by the email address on file."
+  },
+  {
+   "name": "get_line",
+   "kind": "get",
+   "entity": "line",
+   "description": "Look up a mobile line by its line number."
+  },
+  {
+   "name": "find_lines_by_phone",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find a line by its phone number."
+  },
+  {
+   "name": "find_lines_by_account",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all lines on an account."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a rate plan by plan code."
+  },
+  {
+   "name": "set_line_plan",
+   "kind": "update",
+   "entity": "line",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line whose plan changes."
+    },
+    "plan_code": {
+     "type": "ref:plan",
+     "description": "The new plan for the line."
+    }
+   },
+   "set": {
+    "plan_code": "args.plan_code"
+   },
+   "description": "Switch a line to a different rate plan."
+  },
+  {
+   "name": "create_plan_change_log",
+   "kind": "create",
+   "entity": "plan_change_log",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line that was changed."
+    },
+    "old_plan_code": {
+     "type": "ref:plan",
+     "description": "The plan the line was on before."
+    },
+    "new_plan_code": {
+     "type": "ref:plan",
+     "description": "The plan the line moved to."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "old_plan_code": "args.old_plan_code",
+    "new_plan_code": "args.new_plan_code",
+    "changed_on": "today"
+   },
+   "description": "Record a completed plan change in the change log."
+  },
+  {
+   "name": "create_change_request",
+   "kind": "create",
+   "entity": "change_request",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the request is about."
+    },
+    "plan_code": {
+     "type": "ref:plan",
+     "description": "The plan the customer asked for."
+    },
+    "reason": {
+     "type": "enum:early_downgrade|other",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "plan_code": "args.plan_code",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for the retention team to approve a plan change."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:line",
+   "description": "the mobile line you want to change the plan on"
+  },
+  "plan_code": {
+   "type": "ref:plan",
+   "description": "the code of the plan you want to move to"
+  }
+ },
+ "claims": {
+  "pin": {
+   "type": "str",
+   "description": "your account security PIN"
+  }
+ },
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "line.account_id"
+  },
+  {
+   "name": "curplan",
+   "entity": "plan",
+   "key": "line.plan_code"
+  },
+  {
+   "name": "newplan",
+   "entity": "plan",
+   "key": "req.plan_code"
+  }
+ ],
+ "outcomes": {
+  "change_plan": {
+   "kind": "perform",
+   "description": "Switch the line to the requested plan and log the change.",
+   "calls": [
+    {
+     "tool": "set_line_plan",
+     "args": {
+      "line_id": "req.line_id",
+      "plan_code": "req.plan_code"
+     }
+    },
+    {
+     "tool": "create_plan_change_log",
+     "args": {
+      "line_id": "line.line_id",
+      "old_plan_code": "line.plan_code",
+      "new_plan_code": "req.plan_code"
+     }
+    }
+   ]
+  },
+  "request_approval": {
+   "kind": "perform",
+   "description": "Open a retention approval request instead of changing the plan.",
+   "calls": [
+    {
+     "tool": "create_change_request",
+     "args": {
+      "line_id": "line.line_id",
+      "plan_code": "req.plan_code",
+      "reason": "'early_downgrade'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.pin != acct.security_pin or line.status != 'active' or acct.balance_due > 100",
+   "outcome": "refuse",
+   "explain": "The caller must give the account PIN on file, the line must be active, and the account balance due must not exceed 100.00."
+  },
+  {
+   "id": "R2",
+   "when": "newplan.monthly_price < curplan.monthly_price and days_between(today, line.contract_end) > 0",
+   "outcome": "request_approval",
+   "explain": "A move to a cheaper plan while the line is still under contract needs retention approval instead of an immediate change."
+  }
+ ],
+ "default_outcome": "change_plan",
+ "policy_text": "## Who can ask\nAccount holders can ask to change the rate plan of one of their lines by phone or chat. Before changing anything, find the line and the account it belongs to, and verify the caller: the security PIN they give must match the PIN on file. If it does not match, or they cannot give it, make no change.\n\n## Finding the line\nUse the line number if the customer has it. Otherwise find the line by its phone number, or find the account by the email on file and list its lines; ask which line they mean if there are several. The customer must tell you which plan they want (by plan code). If you cannot identify the line or the account, you cannot proceed.\n\n## When a plan change is allowed\n- The PIN must match, as described above.\n- The line must be active. Suspended lines cannot change plan.\n- The account must not owe more than 100.00. Customers with a higher balance due must pay first; do not change the plan.\nIf any of these fails, decline and explain the reason.\n\n## Early downgrades\nIf the requested plan has a lower monthly price than the current plan and the line's contract end date is still in the future (after today), do not change the plan. Instead open a change request with reason early_downgrade and tell the customer the retention team will contact them. Upgrades, same-price moves, and downgrades after the contract end date are not escalated.\n\n## Doing the change\nIf everything is fine, switch the line to the requested plan, then record the change in the plan change log with the old and new plan codes.\n\n## Never\nDo not waive or reduce balances, do not make exceptions to the PIN check, do not change a line for a caller who failed verification, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_code": "BASIC-5",
+    "name": "Basic 5GB",
+    "monthly_price": 20,
+    "data_gb": 5
+   },
+   {
+    "plan_code": "STD-15",
+    "name": "Standard 15GB",
+    "monthly_price": 35,
+    "data_gb": 15
+   },
+   {
+    "plan_code": "UNL-PLUS",
+    "name": "Unlimited Plus",
+    "monthly_price": 55,
+    "data_gb": 999
+   },
+   {
+    "plan_code": "UNL-MAX",
+    "name": "Unlimited Max",
+    "monthly_price": 70,
+    "data_gb": 999
+   }
+  ],
+  "account": [
+   {
+    "account_id": "ACC-1000",
+    "holder_name": "Samuel Okafor",
+    "email": "s.okafor@example.com",
+    "security_pin": "4410",
+    "balance_due": 0
+   }
+  ],
+  "line": [
+   {
+    "line_id": "LN-1000",
+    "account_id": "ACC-1000",
+    "phone_number": "555-0100",
+    "plan_code": "STD-15",
+    "status": "active",
+    "contract_end": "2026-08-01"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1101",
+      "holder_name": "Mei Tanaka",
+      "email": "mei.tanaka@example.com",
+      "security_pin": "7316",
+      "balance_due": 142.1
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1101",
+      "account_id": "ACC-1101",
+      "phone_number": "555-0171",
+      "plan_code": "STD-15",
+      "status": "active",
+      "contract_end": "2025-12-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1101",
+    "plan_code": "UNL-MAX"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "555-0171",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "UNL-MAX",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "7316",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "plan_code": "UNL-PLUS"
+   },
+   "persona": "Mei, a freelance photographer who streams a lot of video and is not sure of her paperwork.",
+   "reason_for_call": "She wants more data for her phone but does not have her line number handy.",
+   "task_instructions": "First ask to move to the Unlimited Plus plan. Before the agent makes any change, change your mind and ask for the Unlimited Max plan instead (give its plan code from your facts if asked). Give your phone number when asked to identify the line, and your PIN only if asked. Accept the outcome politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1202",
+      "holder_name": "Gareth Owens",
+      "email": "gareth.owens@example.com",
+      "security_pin": "2049",
+      "balance_due": 0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1202",
+      "account_id": "ACC-1202",
+      "phone_number": "555-0233",
+      "plan_code": "UNL-PLUS",
+      "status": "suspended",
+      "contract_end": "2026-09-30"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1202",
+    "plan_code": "BASIC-5"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "BASIC-5",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "2049",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "plan_code": "STD-15"
+   },
+   "persona": "Gareth, a retiree trying to cut his monthly costs after traveling.",
+   "reason_for_call": "He wants a cheaper plan for his phone line.",
+   "task_instructions": "Give your line number up front. First say you want the Standard 15GB plan by name, without a code. Before anything is done, say you would rather take the Basic 5GB plan instead. Give the plan code and your PIN only when asked. Accept the result without arguing.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1303",
+      "holder_name": "Tomas Reyes",
+      "email": "t.reyes.old@example.com",
+      "security_pin": "5528",
+      "balance_due": 10
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1303",
+      "account_id": "ACC-1303",
+      "phone_number": "555-0388",
+      "plan_code": "BASIC-5",
+      "status": "active",
+      "contract_end": "2026-02-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1303",
+    "plan_code": "STD-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.plan_code",
+     "value": "STD-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.holder_name",
+     "value": "Tomas Reyes",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "5528",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, who just got a new SIM card and is calling from a friend's phone.",
+   "reason_for_call": "He wants to move to a bigger data plan but does not know his own number or line number and no longer uses the email he signed up with.",
+   "task_instructions": "Keep answers very short. Give your name and the plan you want. You do not know your phone number, line number, account number, or which email is on file. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1404",
+      "holder_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "security_pin": "9072",
+      "balance_due": 35.4
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1404",
+      "account_id": "ACC-1404",
+      "phone_number": "555-0441",
+      "plan_code": "BASIC-5",
+      "status": "active",
+      "contract_end": "2026-02-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1404",
+    "plan_code": "UNL-PLUS"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1404",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "UNL-PLUS",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "9072",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graduate student who is friendly and believes she is fully paid up.",
+   "reason_for_call": "She keeps running out of data and wants an unlimited plan.",
+   "task_instructions": "In your first message give your line number, the plan code you want, and your PIN. Say you believe your balance is zero and you have nothing owing. If the agent says otherwise, accept what the system shows and continue.",
+   "expected_outcome": "change_plan"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1505",
+      "holder_name": "Hector Alvarez",
+      "email": "hector.alvarez@example.com",
+      "security_pin": "3381",
+      "balance_due": 0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1505",
+      "account_id": "ACC-1505",
+      "phone_number": "555-0552",
+      "plan_code": "UNL-MAX",
+      "status": "active",
+      "contract_end": "2027-02-14"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1505",
+    "plan_code": "STD-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1505",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "STD-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "3381",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.contract_end",
+     "value": "2027-02-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He signed a 24-month contract in February 2025.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His account is paid up and he has never missed a payment.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hector, a small-shop owner in a hurry who wants things done immediately.",
+   "reason_for_call": "His bill is too high and he wants to drop to a cheaper plan right now.",
+   "task_instructions": "State your line number, the plan code you want, your PIN, and that the contract ends in February 2027. Be impatient and complain about being kept waiting. If the agent says the retention team must approve it, grumble but accept that a request is opened.",
+   "expected_outcome": "request_approval"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1606",
+      "holder_name": "Fiona Gallagher",
+      "email": "fiona.g@example.com",
+      "security_pin": "6140",
+      "balance_due": 12
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1606",
+      "account_id": "ACC-1606",
+      "phone_number": "555-0616",
+      "plan_code": "BASIC-5",
+      "status": "active",
+      "contract_end": "2026-01-10"
+     },
+     {
+      "line_id": "LN-1607",
+      "account_id": "ACC-1606",
+      "phone_number": "555-0617",
+      "plan_code": "STD-15",
+      "status": "active",
+      "contract_end": "2027-06-30"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1606",
+    "plan_code": "STD-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1606",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "STD-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "6140",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her daughter's phone is on the same account, but she does not want that one touched.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a long outage at home in March and was annoyed about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking of buying a new phone next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She traveled abroad last summer and used roaming once.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Fiona, a talkative bookkeeper who likes to share side stories but answers clearly.",
+   "reason_for_call": "She wants more monthly data on her own phone line.",
+   "task_instructions": "Give your line number, the plan code you want, and your PIN. Mention the side stories naturally during the conversation, but keep the request about your own line only.",
+   "expected_outcome": "change_plan"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1707",
+      "holder_name": "Dmitri Volkov",
+      "email": "d.volkov@example.com",
+      "security_pin": "8450",
+      "balance_due": 215
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1707",
+      "account_id": "ACC-1707",
+      "phone_number": "555-0707",
+      "plan_code": "STD-15",
+      "status": "active",
+      "contract_end": "2026-03-15"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1707",
+    "plan_code": "UNL-PLUS"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1707",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "UNL-PLUS",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "8450",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dmitri, a truck driver who speaks in short sentences.",
+   "reason_for_call": "He wants an unlimited plan for the road.",
+   "task_instructions": "Keep every answer to a few words. Give your line number, the plan code, and your PIN in the first message. Do not elaborate or argue. Accept a refusal and end the chat.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-1808",
+      "holder_name": "Naomi Brooks",
+      "email": "naomi.brooks@example.com",
+      "security_pin": "1927",
+      "balance_due": 8.5
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-1808",
+      "account_id": "ACC-1808",
+      "phone_number": "555-0808",
+      "plan_code": "UNL-PLUS",
+      "status": "active",
+      "contract_end": "2026-03-01"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-1808",
+    "plan_code": "STD-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-1808",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.plan_code",
+     "value": "STD-15",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.pin",
+     "value": "1927",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Naomi, a marketing manager who is short on time and expects fast service.",
+   "reason_for_call": "She barely uses her data and wants a cheaper plan.",
+   "task_instructions": "In your first message give your line number, the plan code you want, and your PIN. Be impatient and push the agent to hurry. If the agent hesitates or asks for more than needed, insist politely but firmly that you have already given everything.",
+   "expected_outcome": "change_plan"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

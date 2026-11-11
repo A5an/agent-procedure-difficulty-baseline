@@ -1,0 +1,78 @@
+              size   mean
+src    agent             
+doc    flash   120  0.458
+       g38     120  0.308
+real   flash   120  0.392
+       g38     120  0.442
+seeded flash   120  0.292
+       g38     120  0.342
+M1 real logs of other families: AUC on real episodes 0.673, within agent 0.668
+M2 probe episodes only: AUC on real episodes 0.874, within agent 0.876
+
+== F=20 h=5 q=0.99  (best constant: always human 5.20, oracle per family 2.83)
+  probes only [seeded]                                  3.64  vs best -1.56 [-2.99, +0.10]  human share 0.25 residual fail 0.12
+  combined [seeded | M1]                                3.25  vs best -1.95 [-3.31, -0.44] | vs probes only -0.40 [-1.08, +0.02]  human share 0.33 residual fail 0.07
+  combined [seeded | M2]                                3.17  vs best -2.03 [-3.38, -0.48] | vs probes only -0.48 [-1.17, +0.05]  human share 0.32 residual fail 0.07
+  probes only [seeded+cal]                              3.92  vs best -1.28 [-2.79, +0.39]  human share 0.40 residual fail 0.09
+  combined [seeded+cal | M1]                            3.64  vs best -1.56 [-2.95, +0.00] | vs probes only -0.28 [-0.71, +0.11]  human share 0.41 residual fail 0.07
+  combined [seeded+cal | M2]                            2.88  vs best -2.32 [-3.60, -0.84] | vs probes only -1.04 [-1.97, -0.24]  human share 0.36 residual fail 0.05
+  probes only [doc]                                     5.59  vs best +0.39 [-1.83, +3.03]  human share 0.40 residual fail 0.17
+  combined [doc | M1]                                   5.19  vs best -0.01 [-1.95, +2.32] | vs probes only -0.40 [-1.97, +0.86]  human share 0.45 residual fail 0.14
+  combined [doc | M2]                                   4.94  vs best -0.26 [-2.15, +2.14] | vs probes only -0.65 [-2.34, +0.69]  human share 0.40 residual fail 0.14
+  probes only [doc+cal]                                 5.46  vs best +0.26 [-1.52, +2.41]  human share 0.60 residual fail 0.12
+  combined [doc+cal | M1]                               4.40  vs best -0.80 [-2.26, +0.94] | vs probes only -1.06 [-2.90, +0.56]  human share 0.49 residual fail 0.09
+  combined [doc+cal | M2]                               4.27  vs best -0.93 [-2.49, +0.85] | vs probes only -1.19 [-2.61, +0.27]  human share 0.43 residual fail 0.10
+  probes only [no probes]                               5.20  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.00
+  combined [no probes | M1]                             5.20  vs best -0.00 [-1.16, +1.21] | vs probes only -0.00 [-1.19, +1.20]  human share 0.71 residual fail 0.07
+  combined [no probes | M2]                             4.43  vs best -0.77 [-1.73, +0.13] | vs probes only -0.77 [-1.74, +0.18]  human share 0.68 residual fail 0.04
+
+== F=20 h=2 q=0.95  (best constant: always human 3.00, oracle per family 1.96)
+  probes only [seeded]                                  2.71  vs best -0.29 [-1.44, +1.15]  human share 0.40 residual fail 0.07
+  combined [seeded | M1]                                2.74  vs best -0.26 [-1.47, +1.23] | vs probes only +0.03 [-0.53, +0.76]  human share 0.41 residual fail 0.07
+  combined [seeded | M2]                                2.14  vs best -0.86 [-1.89, +0.60] | vs probes only -0.57 [-1.27, -0.04]  human share 0.38 residual fail 0.05
+  probes only [seeded+cal]                              3.34  vs best +0.34 [-0.96, +1.84]  human share 0.50 residual fail 0.09
+  combined [seeded+cal | M1]                            2.88  vs best -0.12 [-0.90, +0.80] | vs probes only -0.46 [-1.43, +0.41]  human share 0.73 residual fail 0.03
+  combined [seeded+cal | M2]                            2.18  vs best -0.82 [-1.84, +0.67] | vs probes only -1.16 [-2.19, -0.30]  human share 0.44 residual fail 0.04
+  probes only [doc]                                     4.29  vs best +1.29 [-0.51, +3.66]  human share 0.65 residual fail 0.12
+  combined [doc | M1]                                   3.29  vs best +0.29 [-0.83, +1.72] | vs probes only -1.00 [-3.02, +0.39]  human share 0.70 residual fail 0.06
+  combined [doc | M2]                                   3.22  vs best +0.22 [-1.01, +1.59] | vs probes only -1.07 [-2.41, +0.17]  human share 0.57 residual fail 0.07
+  probes only [doc+cal]                                 4.14  vs best +1.14 [-0.68, +3.53]  human share 0.60 residual fail 0.12
+  combined [doc+cal | M1]                               3.30  vs best +0.30 [-0.57, +1.67] | vs probes only -0.84 [-2.69, +0.31]  human share 0.71 residual fail 0.06
+  combined [doc+cal | M2]                               3.31  vs best +0.31 [-0.86, +1.59] | vs probes only -0.83 [-2.10, +0.24]  human share 0.54 residual fail 0.08
+  probes only [no probes]                               3.00  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.00
+  combined [no probes | M1]                             3.14  vs best +0.14 [+0.00, +0.43] | vs probes only +0.14 [+0.00, +0.43]  human share 0.99 residual fail 0.01
+  combined [no probes | M2]                             2.92  vs best -0.08 [-0.83, +0.77] | vs probes only -0.08 [-0.84, +0.78]  human share 0.68 residual fail 0.04
+
+== F=50 h=5 q=0.99  (best constant: always human 5.50, oracle per family 3.58)
+  probes only [seeded]                                  5.96  vs best +0.46 [-2.32, +4.21]  human share 0.40 residual fail 0.07
+  combined [seeded | M1]                                5.04  vs best -0.46 [-2.52, +1.85] | vs probes only -0.92 [-3.52, +1.26]  human share 0.46 residual fail 0.05
+  combined [seeded | M2]                                4.72  vs best -0.78 [-3.19, +2.83] | vs probes only -1.24 [-2.96, -0.04]  human share 0.40 residual fail 0.05
+  probes only [seeded+cal]                              5.50  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.00
+  combined [seeded+cal | M1]                            5.07  vs best -0.43 [-1.81, +0.95] | vs probes only -0.43 [-1.72, +0.96]  human share 0.77 residual fail 0.02
+  combined [seeded+cal | M2]                            5.87  vs best +0.37 [-2.37, +4.17] | vs probes only +0.37 [-2.35, +4.07]  human share 0.53 residual fail 0.06
+  probes only [doc]                                     9.42  vs best +3.92 [-0.53, +10.04]  human share 0.65 residual fail 0.12
+  combined [doc | M1]                                   6.97  vs best +1.47 [-1.36, +5.13] | vs probes only -2.44 [-7.72, +1.08]  human share 0.73 residual fail 0.06
+  combined [doc | M2]                                   7.07  vs best +1.57 [-1.26, +5.10] | vs probes only -2.34 [-5.96, +0.86]  human share 0.60 residual fail 0.07
+  probes only [doc+cal]                                 5.65  vs best +0.15 [-0.55, +0.85]  human share 0.80 residual fail 0.03
+  combined [doc+cal | M1]                               6.45  vs best +0.95 [-0.82, +3.63] | vs probes only +0.80 [-0.82, +3.21]  human share 0.72 residual fail 0.05
+  combined [doc+cal | M2]                               6.46  vs best +0.96 [-0.71, +2.95] | vs probes only +0.81 [-0.76, +2.71]  human share 0.64 residual fail 0.06
+  probes only [no probes]                               5.50  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.00
+  combined [no probes | M1]                             5.87  vs best +0.37 [+0.00, +1.11] | vs probes only +0.37 [+0.00, +1.11]  human share 0.99 residual fail 0.01
+  combined [no probes | M2]                             5.96  vs best +0.46 [-0.79, +2.27] | vs probes only +0.46 [-0.79, +2.18]  human share 0.85 residual fail 0.03
+
+== F=10 h=5 q=0.99  (best constant: always flash 3.92, oracle per family 2.28)
+  probes only [seeded]                                  2.94  vs best -0.98 [-2.31, +0.10]  human share 0.15 residual fail 0.22
+  combined [seeded | M1]                                2.63  vs best -1.30 [-2.63, -0.14] | vs probes only -0.32 [-1.22, +0.35]  human share 0.27 residual fail 0.12
+  combined [seeded | M2]                                2.58  vs best -1.34 [-2.59, -0.31] | vs probes only -0.36 [-0.78, -0.04]  human share 0.23 residual fail 0.14
+  probes only [seeded+cal]                              2.79  vs best -1.13 [-2.55, +0.04]  human share 0.25 residual fail 0.15
+  combined [seeded+cal | M1]                            2.92  vs best -1.00 [-2.49, +0.28] | vs probes only +0.13 [-0.12, +0.52]  human share 0.28 residual fail 0.15
+  combined [seeded+cal | M2]                            2.63  vs best -1.30 [-2.56, -0.17] | vs probes only -0.16 [-0.75, +0.25]  human share 0.25 residual fail 0.13
+  probes only [doc]                                     3.46  vs best -0.46 [-1.69, +0.69]  human share 0.25 residual fail 0.22
+  combined [doc | M1]                                   4.14  vs best +0.22 [-1.07, +1.46] | vs probes only +0.68 [+0.04, +1.47]  human share 0.28 residual fail 0.27
+  combined [doc | M2]                                   3.13  vs best -0.79 [-2.02, +0.32] | vs probes only -0.33 [-0.70, -0.03]  human share 0.23 residual fail 0.19
+  probes only [doc+cal]                                 3.63  vs best -0.30 [-1.54, +0.87]  human share 0.30 residual fail 0.21
+  combined [doc+cal | M1]                               3.67  vs best -0.25 [-1.25, +0.69] | vs probes only +0.04 [-0.53, +0.70]  human share 0.28 residual fail 0.23
+  combined [doc+cal | M2]                               3.46  vs best -0.46 [-1.53, +0.51] | vs probes only -0.17 [-0.50, +0.21]  human share 0.27 residual fail 0.21
+  probes only [no probes]                               3.92  vs best +0.00 [+0.00, +0.00]  human share 0.00 residual fail 0.39
+  combined [no probes | M1]                             5.11  vs best +1.18 [+0.18, +2.23] | vs probes only +1.18 [+0.16, +2.21]  human share 0.39 residual fail 0.31
+  combined [no probes | M2]                             2.98  vs best -0.94 [-1.67, -0.33] | vs probes only -0.94 [-1.67, -0.33]  human share 0.19 residual fail 0.20

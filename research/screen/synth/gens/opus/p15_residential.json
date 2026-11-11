@@ -1,0 +1,708 @@
+{
+ "procedure_id": "p15_residential",
+ "domain": "residential property management",
+ "organization": "Harborview Residential Management",
+ "title": "Rent due-date deferrals",
+ "summary": "Move back the due date of an open monthly rent charge for a verified resident, or send the request to the property manager for review when it needs approval.",
+ "entities": {
+  "resident": {
+   "key": "resident_id",
+   "description": "Residents who hold a lease in a Harborview-managed community",
+   "fields": {
+    "resident_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "unit": "str",
+    "date_of_birth": "date",
+    "late_payments_12m": "int"
+   }
+  },
+  "rent_charge": {
+   "key": "charge_id",
+   "description": "Monthly rent charges billed to a resident's ledger",
+   "fields": {
+    "charge_id": "str",
+    "resident_id": "ref:resident",
+    "billing_month": "str",
+    "amount": "number",
+    "due_date": "date",
+    "status": "enum:open|deferred|paid"
+   }
+  },
+  "deferral_review": {
+   "key": "review_id",
+   "description": "Deferral requests waiting for a property manager's decision",
+   "fields": {
+    "review_id": "str",
+    "charge_id": "ref:rent_charge",
+    "requested_days": "int",
+    "reason": "enum:long_deferral|payment_history",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_resident",
+   "kind": "get",
+   "entity": "resident",
+   "description": "Look up a resident by resident ID."
+  },
+  {
+   "name": "find_resident_by_email",
+   "kind": "search",
+   "entity": "resident",
+   "by": [
+    "email"
+   ],
+   "description": "Find residents by the email address on file for their account."
+  },
+  {
+   "name": "get_rent_charge",
+   "kind": "get",
+   "entity": "rent_charge",
+   "description": "Look up a rent charge by its charge ID."
+  },
+  {
+   "name": "find_charges_by_resident",
+   "kind": "search",
+   "entity": "rent_charge",
+   "by": [
+    "resident_id"
+   ],
+   "description": "List all rent charges on a resident's ledger."
+  },
+  {
+   "name": "defer_rent_charge",
+   "kind": "update",
+   "entity": "rent_charge",
+   "args": {
+    "charge_id": {
+     "type": "ref:rent_charge",
+     "description": "The rent charge to defer."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to move the due date back."
+    }
+   },
+   "set": {
+    "due_date": "add_days(rec.due_date, args.days)",
+    "status": "'deferred'"
+   },
+   "description": "Move the due date of a rent charge back by a number of days and mark the charge as deferred."
+  },
+  {
+   "name": "create_deferral_review",
+   "kind": "create",
+   "entity": "deferral_review",
+   "args": {
+    "charge_id": {
+     "type": "ref:rent_charge",
+     "description": "The rent charge the deferral request is about."
+    },
+    "requested_days": {
+     "type": "int",
+     "description": "How many days of deferral the resident asked for."
+    },
+    "reason": {
+     "type": "enum:long_deferral|payment_history",
+     "description": "Why the request needs a property manager's approval."
+    }
+   },
+   "fields": {
+    "charge_id": "args.charge_id",
+    "requested_days": "args.requested_days",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a deferral request to the property manager for approval instead of deferring the charge directly."
+  }
+ ],
+ "request": {
+  "charge_id": {
+   "type": "ref:rent_charge",
+   "description": "the rent charge (month's rent) you want to pay later"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many days later than the current due date you want to pay"
+  }
+ },
+ "claims": {
+  "date_of_birth": {
+   "type": "date",
+   "description": "the date of birth of the resident whose name is on the account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "charge",
+   "entity": "rent_charge",
+   "key": "req.charge_id"
+  },
+  {
+   "name": "res",
+   "entity": "resident",
+   "key": "charge.resident_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Move the rent charge's due date back by the requested number of days.",
+   "calls": [
+    {
+     "tool": "defer_rent_charge",
+     "args": {
+      "charge_id": "req.charge_id",
+      "days": "req.days"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Send the request to the property manager for approval instead of deferring the charge.",
+   "calls": [
+    {
+     "tool": "create_deferral_review",
+     "args": {
+      "charge_id": "charge.charge_id",
+      "requested_days": "req.days",
+      "reason": "'long_deferral' if req.days > 10 else 'payment_history'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Identity could not be verified; make no change and explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.date_of_birth != res.date_of_birth",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file for the resident on the account before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "req.days > 10 or res.late_payments_12m >= 2",
+   "outcome": "review",
+   "explain": "Deferrals of more than 10 days, or for residents with two or more late payments in the last 12 months, go to the property manager for approval instead of being applied."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Purpose\nResidents sometimes need to pay a month's rent a few days after the due date, for example when a payday moves. This procedure explains when you can move the due date of a rent charge back yourself and when the request must go to the property manager.\n\n## Finding the rent charge\nIf the caller has the charge ID (shown on the rent statement and in the resident portal), look it up directly. Otherwise, find the resident by the email address on file and list the charges on their ledger. If there is more than one charge, ask which billing month they mean. Then look up the resident the charge belongs to. Searching by name or unit number is not possible; if the caller cannot give a charge ID or the email address on file, you cannot locate the account and must not guess.\n\n## Identity check\nBefore changing anything, ask for the date of birth of the resident whose name is on the account and compare it with the date on file. If the caller cannot or will not give it, or it does not match, do not defer the charge and do not open a review. This applies even if the caller is a family member or roommate, and you may not accept other details (name, unit, email) in its place.\n\n## When a manager must approve\nSend the request to the property manager with a deferral review instead of deferring the charge yourself when either of these applies:\n- The caller wants to move the due date back by more than 10 days. Use reason long_deferral.\n- The resident has two or more late payments in the last 12 months according to our records. Use reason payment_history. (If both apply, use long_deferral.)\nRecord the number of days the resident asked for. Tell the resident the property manager will contact them with a decision. Requests of more than 10 days are sent for review as requested; do not shorten them.\n\n## Deferring the charge\nIf the identity check passes and no manager approval is needed (10 days or fewer and fewer than two late payments in the last 12 months), defer the charge by exactly the number of days the resident asked for. The charge will show as deferred with its new due date.\n\n## Never\n- Do not change anything for a caller who has not passed the identity check.\n- Do not rely on what the caller says about their payment history; go by our records.\n- Do not waive late fees, change the rent amount, or change charges the caller did not ask about.\n- Do not apply a deferral that needs manager approval yourself.",
+ "db_common": {
+  "resident": [
+   {
+    "resident_id": "R-1001",
+    "full_name": "Ingrid Solberg",
+    "email": "ingrid.solberg@example.org",
+    "unit": "Linden Court, Apt 2A",
+    "date_of_birth": "1969-12-11",
+    "late_payments_12m": 0
+   }
+  ],
+  "rent_charge": [
+   {
+    "charge_id": "RC-50001",
+    "resident_id": "R-1001",
+    "billing_month": "2026-06",
+    "amount": 1690.0,
+    "due_date": "2026-06-01",
+    "status": "open"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2140",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.net",
+      "unit": "Building C, Apt 312",
+      "date_of_birth": "1982-08-09",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-61201",
+      "resident_id": "R-2140",
+      "billing_month": "2026-06",
+      "amount": 1975.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     },
+     {
+      "charge_id": "RC-61188",
+      "resident_id": "R-2140",
+      "billing_month": "2026-05",
+      "amount": 1975.0,
+      "due_date": "2026-05-01",
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-61201",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.charge_id",
+     "value": "RC-61201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "May's rent was paid on time at the start of the month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She wanted to ask when the community pool opens for the summer, but decides it can wait.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The kitchen faucet dripped last month and maintenance already fixed it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A neighbor's dog barks a lot in the evenings, though she is not filing a complaint.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tamsin Bell, a friendly graphic designer who handles the household bills. The lease and the resident account are in her husband Marcus's name.",
+   "reason_for_call": "Her husband's paycheck is arriving a week late this month, so she wants to pay June's rent seven days later than usual.",
+   "task_instructions": "Explain right away that you want the June rent moved back by seven days and give the charge ID from the statement. Mention the side topics in passing. When asked for the account holder's date of birth, explain honestly that the account is in your husband's name and you do not know his date of birth offhand. Accept the agent's answer politely if they cannot help.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2277",
+      "full_name": "Devin Okafor",
+      "email": "devin.okafor@example.com",
+      "unit": "Building A, Apt 208",
+      "date_of_birth": "1990-01-23",
+      "late_payments_12m": 1
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-62301",
+      "resident_id": "R-2277",
+      "billing_month": "2026-06",
+      "amount": 2240.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     },
+     {
+      "charge_id": "RC-62290",
+      "resident_id": "R-2277",
+      "billing_month": "2026-05",
+      "amount": 2240.0,
+      "due_date": "2026-05-01",
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-62301",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "res.email",
+     "value": "devin.okafor@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "charge.billing_month",
+     "value": "2026-06",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Devin Okafor, a sales rep who is always in a hurry and dislikes giving personal information over chat.",
+   "reason_for_call": "A big commission check is delayed and he wants to pay June's rent ten days late.",
+   "task_instructions": "Give your email and say you want June's rent pushed back ten days. You do not have a charge ID. Refuse to give your date of birth over chat; say your email should be enough. If the agent refuses, argue and demand an exception at least twice, then accept and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2315",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.org",
+      "unit": "Linden Court, Apt 5C",
+      "date_of_birth": "1994-11-30",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-63107",
+      "resident_id": "R-2315",
+      "billing_month": "2026-06",
+      "amount": 1620.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-63107",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.charge_id",
+     "value": "RC-63107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1994-11-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya Raman, a graduate student and careful planner who always reads her statements.",
+   "reason_for_call": "Her stipend for June arrives a week after the first, so she wants to pay June's rent seven days later.",
+   "task_instructions": "Ask to move June's rent back by seven days and give the charge ID. Give your date of birth only when the agent asks for it. Be polite and thank the agent.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2402",
+      "full_name": "Gustavo Rios",
+      "email": "g.rios.old@example.org",
+      "unit": "Building B, Apt 119",
+      "date_of_birth": "1976-03-04",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-64011",
+      "resident_id": "R-2402",
+      "billing_month": "2026-06",
+      "amount": 1850.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-64011",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.full_name",
+     "value": "Gustavo Rios",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.unit",
+     "value": "Building B, Apt 119",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1976-03-04",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gustavo Rios, a contractor who recently switched phones and email providers and has thrown out his paper statements.",
+   "reason_for_call": "A client paid him late and he wants ten more days for June's rent.",
+   "task_instructions": "Give your name and unit and say you want June's rent pushed back ten days. You do not have a charge ID and cannot remember which old email address the account uses. Give your date of birth if asked. Insist that your name and unit should be enough and push for an exception at least twice, then accept if the agent still cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2533",
+      "full_name": "Hannah Lindqvist",
+      "email": "h.lindqvist@example.com",
+      "unit": "Linden Court, Apt 3B",
+      "date_of_birth": "1978-04-05",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-65520",
+      "resident_id": "R-2533",
+      "billing_month": "2026-06",
+      "amount": 2050.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-65520",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.charge_id",
+     "value": "RC-65520",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1978-04-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days": 14
+   },
+   "persona": "Hannah Lindqvist, a hospital administrator, organized but a little indecisive.",
+   "reason_for_call": "A reimbursement from work is late, and she wants to pay June's rent later.",
+   "task_instructions": "In your first message give the charge ID and your date of birth, and ask to push June's rent back by 14 days. Before the agent makes any change, say you checked and the money arrives sooner, so seven days is enough, and ask for seven days instead.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2618",
+      "full_name": "Wesley Tran",
+      "email": "wtran@example.com",
+      "unit": "Building D, Apt 410",
+      "date_of_birth": "1988-07-27",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-66410",
+      "resident_id": "R-2618",
+      "billing_month": "2026-06",
+      "amount": 1940.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     },
+     {
+      "charge_id": "RC-66395",
+      "resident_id": "R-2618",
+      "billing_month": "2026-05",
+      "amount": 1940.0,
+      "due_date": "2026-05-01",
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-66410",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "res.email",
+     "value": "wtran@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "charge.billing_month",
+     "value": "2026-06",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Wesley Tran, a software tester who types in fragments and does not like questions.",
+   "reason_for_call": "He wants five extra days for June's rent.",
+   "task_instructions": "Answer in as few words as possible. State your email, that it is June rent, and five days. You have no charge ID. When asked for a date of birth, say you will not give it. If refused, say okay and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2741",
+      "full_name": "Aaliyah Brooks",
+      "email": "aaliyah.brooks@example.net",
+      "unit": "Building A, Apt 302",
+      "date_of_birth": "1985-06-17",
+      "late_payments_12m": 2
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-67702",
+      "resident_id": "R-2741",
+      "billing_month": "2026-06",
+      "amount": 1890.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-67702",
+    "days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.charge_id",
+     "value": "RC-67702",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1985-06-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.late_payments_12m",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aaliyah Brooks, a bus driver on a split shift, curt and to the point. She is convinced she has never paid late.",
+   "reason_for_call": "She wants five extra days for June's rent.",
+   "task_instructions": "Keep answers very short. In your first message give the charge ID, five days, your date of birth, and say you have never been late. If the agent says it must go to the manager, accept it briefly.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "resident": [
+     {
+      "resident_id": "R-2856",
+      "full_name": "Tobias Mwangi",
+      "email": "tobias.mwangi@example.org",
+      "unit": "Building A, Apt 105",
+      "date_of_birth": "1991-09-02",
+      "late_payments_12m": 0
+     }
+    ],
+    "rent_charge": [
+     {
+      "charge_id": "RC-68815",
+      "resident_id": "R-2856",
+      "billing_month": "2026-06",
+      "amount": 1780.0,
+      "due_date": "2026-06-01",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "charge_id": "RC-68815",
+    "days": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.charge_id",
+     "value": "RC-68815",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.date_of_birth",
+     "value": "1991-09-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.late_payments_12m",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He lives in Building A, apartment 105.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His June rent is 1,780 dollars.",
+     "kind": "helpful"
+    },
+    {
+     "text": "His employer moved payday to the 12th of the month starting in June.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "days": 5
+   },
+   "persona": "Tobias Mwangi, a warehouse supervisor, chatty and eager to give context.",
+   "reason_for_call": "His employer changed the payday, so he needs to pay June's rent later than the first.",
+   "task_instructions": "In your first message give the charge ID, your date of birth, your unit and rent amount, mention you have not been late in the past year, and ask for five extra days. Before anything is done, realize payday is the 12th and ask for 12 days instead. If the agent says a manager must approve, accept that.",
+   "expected_outcome": "review"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

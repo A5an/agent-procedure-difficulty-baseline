@@ -1,0 +1,783 @@
+{
+ "procedure_id": "h03_business",
+ "domain": "business mobile accounts",
+ "organization": "Meridian Business Mobile",
+ "title": "Mid-cycle plan upgrades for business lines",
+ "summary": "Move a business mobile line to a more expensive plan mid-cycle and bill the prorated difference when the account, line and target plan qualify.",
+ "entities": {
+  "business_account": {
+   "key": "account_id",
+   "description": "Business customer accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "contact_email": "str",
+    "status": "enum:active|suspended|closed",
+    "balance_due": "number"
+   }
+  },
+  "plan": {
+   "key": "plan_id",
+   "description": "Catalog of mobile plans",
+   "fields": {
+    "plan_id": "str",
+    "name": "str",
+    "monthly_price": "number",
+    "data_gb": "int",
+    "available": "bool"
+   }
+  },
+  "line": {
+   "key": "line_id",
+   "description": "Individual mobile lines on business accounts",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:business_account",
+    "phone_number": "str",
+    "user_name": "str",
+    "plan_id": "ref:plan",
+    "status": "enum:active|suspended|cancelled",
+    "cycle_end": "date",
+    "pending_charge": "number"
+   }
+  },
+  "plan_change": {
+   "key": "change_id",
+   "description": "Log of plan changes made on lines",
+   "fields": {
+    "change_id": "str",
+    "line_id": "ref:line",
+    "plan_id": "ref:plan",
+    "charge": "number",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "business_account",
+   "description": "Look up a business account by account number."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a plan in the catalog by plan code."
+  },
+  {
+   "name": "get_line",
+   "kind": "get",
+   "entity": "line",
+   "description": "Look up a mobile line by line number."
+  },
+  {
+   "name": "find_lines_by_phone",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find the line with a given phone number."
+  },
+  {
+   "name": "find_lines_by_account",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all lines of a business account."
+  },
+  {
+   "name": "find_plan_changes_by_line",
+   "kind": "search",
+   "entity": "plan_change",
+   "by": [
+    "line_id"
+   ],
+   "description": "List earlier plan changes recorded for a line."
+  },
+  {
+   "name": "update_line_plan",
+   "kind": "update",
+   "entity": "line",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line to move to the new plan."
+    },
+    "plan_id": {
+     "type": "ref:plan",
+     "description": "The new plan code."
+    },
+    "charge": {
+     "type": "number",
+     "description": "The prorated upgrade charge, in currency units, rounded to 2 decimals."
+    }
+   },
+   "set": {
+    "plan_id": "args.plan_id",
+    "pending_charge": "rec.pending_charge + args.charge"
+   },
+   "description": "Switch the line to the new plan and add the prorated charge to its pending charges."
+  },
+  {
+   "name": "create_plan_change",
+   "kind": "create",
+   "entity": "plan_change",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line that changed plan."
+    },
+    "plan_id": {
+     "type": "ref:plan",
+     "description": "The plan the line moved to."
+    },
+    "charge": {
+     "type": "number",
+     "description": "The prorated charge billed for this change."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "plan_id": "args.plan_id",
+    "charge": "args.charge",
+    "created": "today"
+   },
+   "description": "Record a plan change in the line's change log."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:line",
+   "description": "the mobile line you want to move to another plan"
+  },
+  "new_plan_id": {
+   "type": "ref:plan",
+   "description": "the code of the plan you want the line moved to"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "business_account",
+   "key": "line.account_id"
+  },
+  {
+   "name": "current",
+   "entity": "plan",
+   "key": "line.plan_id"
+  },
+  {
+   "name": "target",
+   "entity": "plan",
+   "key": "req.new_plan_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Move the line to the new plan, add the prorated charge, and log the change.",
+   "calls": [
+    {
+     "tool": "update_line_plan",
+     "args": {
+      "line_id": "req.line_id",
+      "plan_id": "req.new_plan_id",
+      "charge": "round((target.monthly_price - current.monthly_price) * days_between(today, line.cycle_end) / 30, 2)"
+     }
+    },
+    {
+     "tool": "create_plan_change",
+     "args": {
+      "line_id": "req.line_id",
+      "plan_id": "req.new_plan_id",
+      "charge": "round((target.monthly_price - current.monthly_price) * days_between(today, line.cycle_end) / 30, 2)"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Lines on accounts that are not active cannot change plan."
+  },
+  {
+   "id": "R2",
+   "when": "acct.balance_due > 100",
+   "outcome": "refuse",
+   "explain": "Accounts owing more than 100.00 cannot change plan until they pay."
+  },
+  {
+   "id": "R3",
+   "when": "line.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active lines can change plan."
+  },
+  {
+   "id": "R4",
+   "when": "not target.available",
+   "outcome": "refuse",
+   "explain": "The target plan must currently be offered for sale."
+  },
+  {
+   "id": "R5",
+   "when": "db_count('plan_change', 'line_id', req.line_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A line with two or more plan changes on record cannot change plan again."
+  },
+  {
+   "id": "R6",
+   "when": "target.monthly_price <= current.monthly_price",
+   "outcome": "refuse",
+   "explain": "Mid-cycle changes are upgrades only; the target plan must cost more than the current one."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Scope\nThis procedure covers mid-cycle plan upgrades for lines on business accounts. No further identity questions are required: it is enough to find the line the customer means.\n\n## Finding the line\nUse the line number if the customer has it. Otherwise ask for the phone number of the line and search for it. If you cannot find exactly one line, or the customer cannot tell you which plan (by plan code) they want, you cannot proceed; do not change anything. Always go by what the system shows, not by what the customer believes about the line, account or current plan.\n\n## When an upgrade is allowed\nCheck the line, the account that owns it, the plan the line is on now, and the plan requested. Decline the change if any of these is true:\n- The business account is not active (suspended or closed).\n- The account owes more than 100.00. A balance of exactly 100.00 is fine.\n- The line itself is not active.\n- The requested plan is not currently available in the catalog.\n- The line already has two or more plan changes in its change log (list them with the plan change search).\n- The requested plan's monthly price is not higher than the line's current plan price. Mid-cycle changes are upgrades only; same-price or cheaper plans are declined.\nDo not offer workarounds, exceptions or discounts.\n\n## Doing the upgrade\nIf none of the above applies, compute the prorated charge:\n charge = (new plan monthly price - current plan monthly price) x days remaining / 30, rounded to 2 decimals,\nwhere days remaining is the number of days from today to the line's billing cycle end date.\nThen make exactly two changes, in this order: (1) switch the line to the new plan with update_line_plan, passing the charge; (2) record the change with create_plan_change, passing the same line, plan and charge. Tell the customer the charge that will appear on their next bill.\n\n## Never\nDo not change a line the rules decline, do not alter the charge, do not change any other line or plan, and do not promise anything beyond this procedure.",
+ "db_common": {
+  "plan": [
+   {
+    "plan_id": "P-STARTER",
+    "name": "Business Starter",
+    "monthly_price": 25.0,
+    "data_gb": 5,
+    "available": true
+   },
+   {
+    "plan_id": "P-STANDARD",
+    "name": "Business Standard",
+    "monthly_price": 45.0,
+    "data_gb": 20,
+    "available": true
+   },
+   {
+    "plan_id": "P-PLUS",
+    "name": "Business Plus",
+    "monthly_price": 60.0,
+    "data_gb": 50,
+    "available": true
+   },
+   {
+    "plan_id": "P-PRO",
+    "name": "Business Pro",
+    "monthly_price": 75.0,
+    "data_gb": 100,
+    "available": true
+   },
+   {
+    "plan_id": "P-LEGACY",
+    "name": "Legacy Unlimited",
+    "monthly_price": 90.0,
+    "data_gb": 200,
+    "available": false
+   }
+  ],
+  "business_account": [
+   {
+    "account_id": "A-9000",
+    "company_name": "Brightwell Consulting",
+    "contact_email": "admin@brightwell.example.com",
+    "status": "active",
+    "balance_due": 0.0
+   }
+  ],
+  "line": [
+   {
+    "line_id": "L-9000",
+    "account_id": "A-9000",
+    "phone_number": "555-0100",
+    "user_name": "Helen Brightwell",
+    "plan_id": "P-STANDARD",
+    "status": "active",
+    "cycle_end": "2026-06-15",
+    "pending_charge": 0.0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-1001",
+      "company_name": "Harbor Bay Plumbing",
+      "contact_email": "ops@harborbayplumbing.example.com",
+      "status": "active",
+      "balance_due": 0.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3001",
+      "account_id": "A-1001",
+      "phone_number": "555-0111",
+      "user_name": "Marco Silva",
+      "plan_id": "P-STANDARD",
+      "status": "active",
+      "cycle_end": "2026-05-30",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3001",
+    "new_plan_id": "P-PRO"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-PRO",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.user_name",
+     "value": "Marco Silva",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The line is on the Harbor Bay Plumbing business account.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The line is used by a field technician named Marco and is currently working normally.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Gina, the owner of a small plumbing company. Very busy and writes in short sentences.",
+   "reason_for_call": "Her technician keeps running out of data on job sites and she wants his line moved to the top plan.",
+   "task_instructions": "Be terse: answer in a few words and never elaborate. In your first message give the line number, the plan you want, and mention briefly the company name and that the account has nothing owing.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-2001",
+      "company_name": "Northgate Dental",
+      "contact_email": "office@northgatedental.example.com",
+      "status": "active",
+      "balance_due": 0.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3101",
+      "account_id": "A-2001",
+      "phone_number": "555-0121",
+      "user_name": "Reception",
+      "plan_id": "P-STARTER",
+      "status": "active",
+      "cycle_end": "2026-06-02",
+      "pending_charge": 0.0
+     },
+     {
+      "line_id": "L-3102",
+      "account_id": "A-2001",
+      "phone_number": "555-0122",
+      "user_name": "Dr. Okafor",
+      "plan_id": "P-PLUS",
+      "status": "active",
+      "cycle_end": "2026-06-02",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3102",
+    "new_plan_id": "P-STARTER"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-STARTER",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The reception line had its SIM card replaced last week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "They pay their invoices by bank transfer at the start of each month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She asked earlier about international roaming rates but decided not to pursue it.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "new_plan_id": "P-PRO"
+   },
+   "persona": "Priya, the office manager at a dental practice. Polite but indecisive about budgets.",
+   "reason_for_call": "The dentist's phone line is on a pricey plan and she is reviewing costs.",
+   "task_instructions": "First ask to move the dentist's line to the Pro plan. Before the agent does anything, say you reconsidered for budget reasons and want the cheapest Starter plan on that same line instead. Mention the side stories naturally. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-3001",
+      "company_name": "Delgado Roofing",
+      "contact_email": "office@delgadoroofing.example.com",
+      "status": "active",
+      "balance_due": 80.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3201",
+      "account_id": "A-3001",
+      "phone_number": "555-0131",
+      "user_name": "Ben Carter",
+      "plan_id": "P-STARTER",
+      "status": "active",
+      "cycle_end": "2026-06-04",
+      "pending_charge": 0.0
+     }
+    ],
+    "plan_change": [
+     {
+      "change_id": "PC-5001",
+      "line_id": "L-3201",
+      "plan_id": "P-STARTER",
+      "charge": 5.0,
+      "created": "2026-02-10"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3201",
+    "new_plan_id": "P-PLUS"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-PLUS",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ben, a roofing site manager who is always in a hurry.",
+   "reason_for_call": "His line needs a bigger data allowance right away for site photo uploads.",
+   "task_instructions": "Be impatient and push the agent to hurry. Give the line number first; state the plan you want (Business Plus) only when asked. Complain about delays but cooperate.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-4001",
+      "company_name": "Kestrel Logistics",
+      "contact_email": "it@kestrellogistics.example.com",
+      "status": "active",
+      "balance_due": 0.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3301",
+      "account_id": "A-4001",
+      "phone_number": "555-0141",
+      "user_name": "Tomas Reyes",
+      "plan_id": "P-STANDARD",
+      "status": "active",
+      "cycle_end": "2026-06-12",
+      "pending_charge": 0.0
+     }
+    ],
+    "plan_change": [
+     {
+      "change_id": "PC-5101",
+      "line_id": "L-3301",
+      "plan_id": "P-STARTER",
+      "charge": 0.0,
+      "created": "2025-11-03"
+     },
+     {
+      "change_id": "PC-5102",
+      "line_id": "L-3301",
+      "plan_id": "P-STANDARD",
+      "charge": 8.0,
+      "created": "2026-01-22"
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3301",
+    "new_plan_id": "P-PRO"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-PRO",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_plan_id": "P-PLUS"
+   },
+   "persona": "Tomas, a dispatcher at a logistics company. Calm and practical.",
+   "reason_for_call": "A driver's line needs more data for route software.",
+   "task_instructions": "First ask for the Business Plus plan for the line, giving the line number. Before anything is done, change your mind and ask for Business Pro instead. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-5001",
+      "company_name": "Oakline Bakery",
+      "contact_email": "hello@oaklinebakery.example.com",
+      "status": "active",
+      "balance_due": 100.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3401",
+      "account_id": "A-5001",
+      "phone_number": "555-0151",
+      "user_name": "Nadia Brooks",
+      "plan_id": "P-STANDARD",
+      "status": "active",
+      "cycle_end": "2026-06-09",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3401",
+    "new_plan_id": "P-PRO"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3401",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-PRO",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_plan_id": "P-LEGACY"
+   },
+   "persona": "Nadia, a bakery owner who negotiates everything and is sure her account is fully paid up.",
+   "reason_for_call": "Her delivery phone needs a much bigger data plan.",
+   "task_instructions": "Say early that you are sure the account owes nothing. First ask for the Legacy Unlimited plan. When the agent refuses, ask for the Business Pro plan instead and accept it.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-6001",
+      "company_name": "Sunrise Childcare",
+      "contact_email": "info@sunrisechildcare.example.com",
+      "status": "active",
+      "balance_due": 240.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3501",
+      "account_id": "A-6001",
+      "phone_number": "555-0161",
+      "user_name": "Keisha Moore",
+      "plan_id": "P-STARTER",
+      "status": "active",
+      "cycle_end": "2026-06-06",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3501",
+    "new_plan_id": "P-STANDARD"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-STANDARD",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Keisha, a childcare center director who is stressed and impatient.",
+   "reason_for_call": "She wants a bigger data plan for the center's parent-messaging phone.",
+   "task_instructions": "Give the line number first and the plan (Business Standard) only if asked. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-7001",
+      "company_name": "Mendez Auto Repair",
+      "contact_email": "shop@mendezauto.example.com",
+      "status": "active",
+      "balance_due": 0.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3601",
+      "account_id": "A-7001",
+      "phone_number": "555-0171",
+      "user_name": "Luis Mendez",
+      "plan_id": "P-STARTER",
+      "status": "active",
+      "cycle_end": "2026-05-25",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3601",
+    "new_plan_id": "P-PRO"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "555-0171",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-PRO",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Luis, the owner of an auto repair shop. Friendly and cooperative.",
+   "reason_for_call": "He wants the shop's mobile line upgraded to the top plan but does not have the line number handy.",
+   "task_instructions": "Say you do not know the line number but give the phone number of the line and the plan you want. Answer questions clearly.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "business_account": [
+     {
+      "account_id": "A-8001",
+      "company_name": "Tidewater Marine Supply",
+      "contact_email": "orders@tidewatermarine.example.com",
+      "status": "active",
+      "balance_due": 0.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3701",
+      "account_id": "A-8001",
+      "phone_number": "555-0177",
+      "user_name": "Hal Dunn",
+      "plan_id": "P-PLUS",
+      "status": "active",
+      "cycle_end": "2026-06-10",
+      "pending_charge": 0.0
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3701",
+    "new_plan_id": "P-STARTER"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "555-0177",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_plan_id",
+     "value": "P-STARTER",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_plan_id": "P-LEGACY"
+   },
+   "persona": "Hal, a manager at a marine supply store who likes to haggle.",
+   "reason_for_call": "He wants to change the plan on his work phone but does not know the line number.",
+   "task_instructions": "Give the phone number of the line. First ask for the Legacy Unlimited plan. After the agent refuses, ask for the Starter plan instead (give the plan code when asked). Accept a second refusal.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

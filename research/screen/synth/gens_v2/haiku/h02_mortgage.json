@@ -1,0 +1,969 @@
+{
+ "procedure_id": "h02_mortgage",
+ "domain": "mortgage servicing",
+ "organization": "Cedar Ridge Home Loans",
+ "title": "Payment deferral requests",
+ "summary": "Defer one to three monthly mortgage payments for a borrower when the loan, its investor and the borrower's history qualify, or open a staff review when a rule calls for one.",
+ "entities": {
+  "borrower": {
+   "key": "borrower_id",
+   "description": "Borrowers who hold mortgage loans with us",
+   "fields": {
+    "borrower_id": "str",
+    "full_name": "str",
+    "birth_date": "date",
+    "email": "str"
+   }
+  },
+  "investor": {
+   "key": "investor_id",
+   "description": "Investors that own the loans we service and set deferral limits",
+   "fields": {
+    "investor_id": "str",
+    "investor_name": "str",
+    "max_deferrals": "int",
+    "deferral_allowed": "bool"
+   }
+  },
+  "loan": {
+   "key": "loan_id",
+   "description": "Mortgage loans",
+   "fields": {
+    "loan_id": "str",
+    "borrower_id": "ref:borrower",
+    "investor_id": "ref:investor",
+    "property_address": "str",
+    "monthly_payment": "number",
+    "next_due_date": "date",
+    "deferrals_used": "int",
+    "loan_status": "enum:current|delinquent|in_foreclosure|paid_off",
+    "days_past_due": "int",
+    "hardship_flag": "bool"
+   }
+  },
+  "servicing_request": {
+   "key": "request_id",
+   "description": "Earlier servicing requests a borrower has made on any loan",
+   "fields": {
+    "request_id": "str",
+    "borrower_id": "ref:borrower",
+    "loan_id": "ref:loan",
+    "request_type": "enum:deferral|payment_change|escrow_review",
+    "created": "date"
+   }
+  },
+  "fee_charge": {
+   "key": "charge_id",
+   "description": "Fees posted to a loan",
+   "fields": {
+    "charge_id": "str",
+    "loan_id": "ref:loan",
+    "amount": "number",
+    "posted": "date"
+   }
+  },
+  "notice": {
+   "key": "notice_id",
+   "description": "Letters and notices sent to a borrower about a loan",
+   "fields": {
+    "notice_id": "str",
+    "loan_id": "ref:loan",
+    "notice_type": "enum:deferral_confirmation|other",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for staff review of a loan",
+   "fields": {
+    "request_id": "str",
+    "loan_id": "ref:loan",
+    "reason": "enum:hardship_review|repeat_requests",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_borrower",
+   "kind": "get",
+   "entity": "borrower",
+   "description": "Look up a borrower by borrower number."
+  },
+  {
+   "name": "find_borrower_by_email",
+   "kind": "search",
+   "entity": "borrower",
+   "by": [
+    "email"
+   ],
+   "description": "Find borrowers by the email address on file."
+  },
+  {
+   "name": "get_loan",
+   "kind": "get",
+   "entity": "loan",
+   "description": "Look up a loan by loan number."
+  },
+  {
+   "name": "find_loans_by_property",
+   "kind": "search",
+   "entity": "loan",
+   "by": [
+    "property_address"
+   ],
+   "description": "Find loans by the property address on the loan."
+  },
+  {
+   "name": "find_loans_by_borrower",
+   "kind": "search",
+   "entity": "loan",
+   "by": [
+    "borrower_id"
+   ],
+   "description": "List all loans held by a borrower."
+  },
+  {
+   "name": "get_investor",
+   "kind": "get",
+   "entity": "investor",
+   "description": "Look up an investor by investor number."
+  },
+  {
+   "name": "find_requests_by_borrower",
+   "kind": "search",
+   "entity": "servicing_request",
+   "by": [
+    "borrower_id"
+   ],
+   "description": "List all servicing requests a borrower has on file."
+  },
+  {
+   "name": "defer_payment",
+   "kind": "update",
+   "entity": "loan",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan to defer."
+    },
+    "new_due_date": {
+     "type": "date",
+     "description": "The new next due date."
+    }
+   },
+   "set": {
+    "next_due_date": "args.new_due_date",
+    "deferrals_used": "rec.deferrals_used + 1"
+   },
+   "description": "Move the next due date of a loan to a new date and count one deferral."
+  },
+  {
+   "name": "post_deferral_fee",
+   "kind": "create",
+   "entity": "fee_charge",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the fee is charged to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The fee amount."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "amount": "args.amount",
+    "posted": "today"
+   },
+   "description": "Post a deferral fee to a loan."
+  },
+  {
+   "name": "create_notice",
+   "kind": "create",
+   "entity": "notice",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the notice is about."
+    },
+    "notice_type": {
+     "type": "enum:deferral_confirmation|other",
+     "description": "The kind of notice."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "notice_type": "args.notice_type",
+    "created": "today"
+   },
+   "description": "Create a notice to the borrower about a loan."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "loan_id": {
+     "type": "ref:loan",
+     "description": "The loan the review is about."
+    },
+    "reason": {
+     "type": "enum:hardship_review|repeat_requests",
+     "description": "Why staff should review the request."
+    }
+   },
+   "fields": {
+    "loan_id": "args.loan_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff review of a loan."
+  }
+ ],
+ "request": {
+  "loan_id": {
+   "type": "ref:loan",
+   "description": "the loan you want payments deferred on"
+  },
+  "months": {
+   "type": "int",
+   "description": "how many monthly payments you want put off"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "loan",
+   "entity": "loan",
+   "key": "req.loan_id"
+  },
+  {
+   "name": "borrower",
+   "entity": "borrower",
+   "key": "loan.borrower_id"
+  },
+  {
+   "name": "investor",
+   "entity": "investor",
+   "key": "loan.investor_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Defer the payments: move the due date, post the deferral fee and create the confirmation notice.",
+   "calls": [
+    {
+     "tool": "defer_payment",
+     "args": {
+      "loan_id": "req.loan_id",
+      "new_due_date": "add_days(loan.next_due_date, req.months * 30)"
+     }
+    },
+    {
+     "tool": "post_deferral_fee",
+     "args": {
+      "loan_id": "req.loan_id",
+      "amount": "min(round(loan.monthly_payment * req.months * 0.02, 2), 150.0)"
+     }
+    },
+    {
+     "tool": "create_notice",
+     "args": {
+      "loan_id": "req.loan_id",
+      "notice_type": "'deferral_confirmation'"
+     }
+    }
+   ]
+  },
+  "escalate_repeat": {
+   "kind": "perform",
+   "description": "The borrower has many servicing requests on file: open a staff review instead of deferring.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "reason": "'repeat_requests'"
+     }
+    }
+   ]
+  },
+  "escalate_hardship": {
+   "kind": "perform",
+   "description": "The loan is flagged for hardship: open a staff review instead of deferring.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "loan_id": "loan.loan_id",
+      "reason": "'hardship_review'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the loan; explain which requirement was not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != borrower.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on the borrower record before any change."
+  },
+  {
+   "id": "R2",
+   "when": "loan.loan_status not in ['current', 'delinquent']",
+   "outcome": "refuse",
+   "explain": "Loans in foreclosure or paid off cannot be deferred."
+  },
+  {
+   "id": "R3",
+   "when": "not investor.deferral_allowed",
+   "outcome": "refuse",
+   "explain": "The investor that owns the loan does not allow deferrals."
+  },
+  {
+   "id": "R4",
+   "when": "req.months not in [1, 2, 3]",
+   "outcome": "refuse",
+   "explain": "A deferral can cover one, two or three monthly payments only."
+  },
+  {
+   "id": "R5",
+   "when": "loan.deferrals_used >= investor.max_deferrals",
+   "outcome": "refuse",
+   "explain": "No more deferrals can be granted on a loan once the investor limit has been reached."
+  },
+  {
+   "id": "R6",
+   "when": "req.months == 3 and loan.days_past_due > 30",
+   "outcome": "refuse",
+   "explain": "A three-month deferral is only allowed when the loan is 30 days past due or less."
+  },
+  {
+   "id": "R7",
+   "when": "loan.days_past_due > 90",
+   "outcome": "refuse",
+   "explain": "A loan more than 90 days past due cannot be deferred."
+  },
+  {
+   "id": "R8",
+   "when": "db_count('servicing_request', 'borrower_id', borrower.borrower_id) >= 4",
+   "outcome": "escalate_repeat",
+   "explain": "If the borrower has four or more servicing requests on file, open a staff review instead of deferring."
+  },
+  {
+   "id": "R9",
+   "when": "loan.hardship_flag == True",
+   "outcome": "escalate_hardship",
+   "explain": "If the loan carries the hardship flag, open a staff review instead of deferring."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Scope\nBorrowers ask us to defer one, two or three monthly payments on their mortgage. Every request is checked against the loan, the borrower who holds it and the investor that owns it before anything is changed.\n\n## Identify the borrower and the loan\n- If the borrower gives a loan number, look up that loan.\n- If they do not know it, ask for the property address on the loan and search by that address. If the search finds no loan, or more than one, ask the borrower for more detail before going further.\n- Look up the borrower record through the loan, and the investor record through the loan.\n- Ask for the borrower's date of birth and compare it with the date of birth on the borrower record. If it does not match, or the borrower cannot give it, make no changes.\n\n## Checks, in order\nWork through these checks in order. The first one that applies decides the outcome.\n1. Identity: the date of birth must match the borrower on file.\n2. Loan status: the loan must be current or delinquent. Loans in foreclosure or paid off cannot be deferred.\n3. Investor: the investor's deferral_allowed flag must be set. If it is not set, decline.\n4. Number of months: the borrower may ask for one, two or three months. Any other number is declined, not reduced.\n5. Investor limit: if the loan's deferrals used is equal to or more than the investor's max_deferrals, decline.\n6. Three months: a three-month deferral is only possible if the loan is 30 days past due or less.\n7. Serious delinquency: a loan more than 90 days past due cannot be deferred.\n8. Repeat requests: count the servicing requests on file for the borrower, of any type, using the search by borrower. If there are 4 or more, do not change the loan and open a review with reason repeat_requests.\n9. Hardship: if the loan has the hardship flag set, do not change the loan and open a review with reason hardship_review.\n\nIf none of these applies, the request is a deferral.\n\n## Deferral\nDo these three things, in this order:\n1. Move the next due date to the loan's current next due date plus 30 days for each month deferred. For example, two months on a loan due June 1 gives a new due date 60 days later. The deferral count on the loan goes up by one.\n2. Post a deferral fee. The fee is 2 percent of the loan's monthly payment for each month deferred, rounded to the cent, with a maximum of 150.00.\n3. Create a deferral confirmation notice.\nThen tell the borrower the new due date and the fee.\n\n## Staff review\nWhen check 8 or check 9 applies, do not change the loan and do not post a fee. Open a review request with the matching reason, and tell the borrower that staff will contact them.\n\n## Declined requests\nWhen a check fails, do not change the loan, post a fee or create a notice. Tell the borrower in plain words which requirement was not met. Do not read out internal fields or investor details.\n\n## Never\nGo by the records, not by what the borrower believes about the account. If the borrower says the loan is current and the record shows it is past due, the record governs. Do not waive fees, do not move the due date by any amount other than the one above, and do not make changes the borrower did not ask for.",
+ "db_common": {
+  "investor": [
+   {
+    "investor_id": "INV-100",
+    "investor_name": "Meridian Secondary Trust",
+    "max_deferrals": 2,
+    "deferral_allowed": true
+   },
+   {
+    "investor_id": "INV-200",
+    "investor_name": "Harbor Residential Fund",
+    "max_deferrals": 3,
+    "deferral_allowed": false
+   },
+   {
+    "investor_id": "INV-300",
+    "investor_name": "Pinecrest Mortgage Pool",
+    "max_deferrals": 4,
+    "deferral_allowed": true
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-7710",
+      "full_name": "Teodora Vasquez",
+      "birth_date": "1971-03-14",
+      "email": "teo.vasquez@example.net"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-40118",
+      "borrower_id": "B-7710",
+      "investor_id": "INV-100",
+      "property_address": "418 Alder Court, Tacoma WA 98402",
+      "monthly_payment": 1840.55,
+      "next_due_date": "2026-03-01",
+      "deferrals_used": 0,
+      "loan_status": "delinquent",
+      "days_past_due": 95,
+      "hardship_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-40118",
+    "months": 2
+   },
+   "customer_facts": [
+    {
+     "fact": "loan.property_address",
+     "value": "418 Alder Court, Tacoma WA 98402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1971-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I have owned the house since 2009 and my daughter still lives in Seattle.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Teodora, a home health aide whose hours were cut this spring. Quiet and brief.",
+   "reason_for_call": "She wants to push two payments back while her hours come back up.",
+   "task_instructions": "Keep answers to a few words and give only what the agent asks for. You do not know the loan number, so give the property address when asked. Give your date of birth only when asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-8142",
+      "full_name": "Marcus Ellery",
+      "birth_date": "1984-09-22",
+      "email": "marcus.ellery@example.com"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-55261",
+      "borrower_id": "B-8142",
+      "investor_id": "INV-200",
+      "property_address": "77 Birchwood Terrace, Columbus OH 43215",
+      "monthly_payment": 2210.0,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 0,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-55261",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-55261",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-09-22",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a sales manager who travels for work and gets impatient with paperwork.",
+   "reason_for_call": "He wants to skip next month's payment because of a work trip that cost him a lot.",
+   "task_instructions": "In your first message give your loan number, your date of birth and what you want. If the agent refuses, argue that other lenders allow this and ask for an exception. Ask for an exception at least twice before you accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-6025",
+      "full_name": "Priya Raghunathan",
+      "birth_date": "1978-12-05",
+      "email": "priya.r@example.org"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-61907",
+      "borrower_id": "B-6025",
+      "investor_id": "INV-100",
+      "property_address": "2290 Larkspur Way, Unit 12, Austin TX 78745",
+      "monthly_payment": 1575.4,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 0,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-61907",
+    "months": 1
+   },
+   "initial_request_values": {
+    "months": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "loan.property_address",
+     "value": "2290 Larkspur Way, Unit 12, Austin TX 78745",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1978-12-05",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My son's braces have cost more than I expected this year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a pharmacist who is back on a reduced schedule after surgery. Polite but tired.",
+   "reason_for_call": "She wants a payment break while she recovers, and she first asks for four months.",
+   "task_instructions": "In your first message ask for a four-month payment deferral. You do not know the loan number, so give the property address when the agent asks for the loan. After the agent refuses four months, say you only need one payment deferred and accept that. Give your date of birth only when asked.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-9364",
+      "full_name": "Samuel Okafor",
+      "birth_date": "1966-06-30",
+      "email": "s.okafor@example.net"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-70345",
+      "borrower_id": "B-9364",
+      "investor_id": "INV-300",
+      "property_address": "904 Ridgeview Road, Denver CO 80220",
+      "monthly_payment": 2650.75,
+      "next_due_date": "2026-04-05",
+      "deferrals_used": 0,
+      "loan_status": "delinquent",
+      "days_past_due": 45,
+      "hardship_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-70345",
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-70345",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1966-06-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.days_past_due",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a retired machinist who pays early every month and keeps careful records.",
+   "reason_for_call": "He wants a three-month deferral to pay for a roof repair.",
+   "task_instructions": "Give your loan number, your date of birth and the three-month request in your first message. Say early on that you are fully up to date and have never been late. If the agent questions it, repeat that you are up to date. Be polite and cooperative, and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-4459",
+      "full_name": "Lucia Ferreira",
+      "birth_date": "1989-01-17",
+      "email": "lucia.ferreira@example.org"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-83016",
+      "borrower_id": "B-4459",
+      "investor_id": "INV-100",
+      "property_address": "31 Quarry Lane, Phoenix AZ 85007",
+      "monthly_payment": 1210.0,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 0,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     },
+     {
+      "loan_id": "LN-83017",
+      "borrower_id": "B-4459",
+      "investor_id": "INV-300",
+      "property_address": "144 Mesquite Drive, Mesa AZ 85201",
+      "monthly_payment": 980.25,
+      "next_due_date": "2026-06-15",
+      "deferrals_used": 1,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     }
+    ],
+    "servicing_request": [
+     {
+      "request_id": "SR-2201",
+      "borrower_id": "B-4459",
+      "loan_id": "LN-83017",
+      "request_type": "deferral",
+      "created": "2025-11-10"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-83016",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-83016",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1989-01-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My other place in Mesa is a rental and it has been fully occupied since March.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I have banked with you since 2015 and I have never liked the phone menu.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The escrow on the Mesa place was reviewed last fall and I am not calling about that.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Lucia, a school administrator who manages two properties and keeps careful notes.",
+   "reason_for_call": "She wants two payments pushed back on the Quarry Lane house while she moves a tenant out.",
+   "task_instructions": "Start by naming the Quarry Lane house, then give your loan number and date of birth. First ask for three months of deferral. Before the agent completes anything, change your request to two months and accept it. You may mention the Mesa rental and the escrow review in passing; they are not part of this request.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-2736",
+      "full_name": "Desmond Achebe",
+      "birth_date": "1972-08-08",
+      "email": "desmond.achebe@example.com"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-27480",
+      "borrower_id": "B-2736",
+      "investor_id": "INV-300",
+      "property_address": "65 Harborview Court, Baltimore MD 21224",
+      "monthly_payment": 1975.0,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 1,
+      "loan_status": "current",
+      "days_past_due": 12,
+      "hardship_flag": true
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-27480",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-27480",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1972-08-08",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My car loan payment went up in April.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Desmond, a hospital respiratory therapist working double shifts and short on time.",
+   "reason_for_call": "He wants a payment break after an unexpected medical bill.",
+   "task_instructions": "Give your loan number in your first message and ask for a four-month deferral. When the agent refuses, ask for two months instead and accept whatever the agent does next. Give your date of birth only if the agent asks for it. Do not mention the medical bill unless asked why you are calling.",
+   "expected_outcome": "escalate_hardship"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-5583",
+      "full_name": "Eleanor Quist",
+      "birth_date": "1981-04-27",
+      "email": "eleanor.quist@example.org"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-58801",
+      "borrower_id": "B-5583",
+      "investor_id": "INV-100",
+      "property_address": "806 Fenwick Avenue, Richmond VA 23220",
+      "monthly_payment": 1395.8,
+      "next_due_date": "2026-05-01",
+      "deferrals_used": 0,
+      "loan_status": "delinquent",
+      "days_past_due": 10,
+      "hardship_flag": false
+     }
+    ],
+    "servicing_request": [
+     {
+      "request_id": "SR-4411",
+      "borrower_id": "B-5583",
+      "loan_id": "LN-58801",
+      "request_type": "payment_change",
+      "created": "2024-11-02"
+     },
+     {
+      "request_id": "SR-4522",
+      "borrower_id": "B-5583",
+      "loan_id": "LN-58801",
+      "request_type": "escrow_review",
+      "created": "2025-03-18"
+     },
+     {
+      "request_id": "SR-4698",
+      "borrower_id": "B-5583",
+      "loan_id": "LN-58801",
+      "request_type": "deferral",
+      "created": "2025-09-09"
+     },
+     {
+      "request_id": "SR-4730",
+      "borrower_id": "B-5583",
+      "loan_id": "LN-58801",
+      "request_type": "payment_change",
+      "created": "2026-02-14"
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-58801",
+    "months": 2
+   },
+   "initial_request_values": {
+    "months": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-58801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 2,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1981-04-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "loan.days_past_due",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I am about ten days behind because my hours were cut this spring.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I have sent several payment requests and an escrow review about this loan since late 2024.",
+     "kind": "helpful"
+    },
+    {
+     "text": "My next payment is due on the first of June.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Eleanor, a dental hygienist who keeps paper folders of every letter from the bank.",
+   "reason_for_call": "She wants two months to catch up after cut hours and does not mind a review if one is needed.",
+   "task_instructions": "In your first message give your loan number, your date of birth, that you are about ten days behind, and that you want a two-month deferral. Mention the next payment date and the earlier requests when they are relevant. First ask for three months; then, before anything is done, change your request to two months and accept it.",
+   "expected_outcome": "escalate_repeat"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "borrower": [
+     {
+      "borrower_id": "B-3018",
+      "full_name": "Oliver Brandt",
+      "birth_date": "1958-10-03",
+      "email": "oliver.brandt@example.net"
+     }
+    ],
+    "loan": [
+     {
+      "loan_id": "LN-19342",
+      "borrower_id": "B-3018",
+      "investor_id": "INV-100",
+      "property_address": "9 Cypress Hollow, Nashville TN 37215",
+      "monthly_payment": 1640.0,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 2,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     },
+     {
+      "loan_id": "LN-19343",
+      "borrower_id": "B-3018",
+      "investor_id": "INV-300",
+      "property_address": "22 Lantern Street, Franklin TN 37064",
+      "monthly_payment": 2105.5,
+      "next_due_date": "2026-06-01",
+      "deferrals_used": 0,
+      "loan_status": "current",
+      "days_past_due": 0,
+      "hardship_flag": false
+     }
+    ]
+   },
+   "request_values": {
+    "loan_id": "LN-19342",
+    "months": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "req.loan_id",
+     "value": "LN-19342",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 1,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1958-10-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The Nashville place is my rental and my tenant's rent is running late this month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I have been with the bank since the nineties and I know how things work here.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My sister says the new mobile app is terrible and I agree with her.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Oliver, a retired electrician who manages two properties and does not like being told no.",
+   "reason_for_call": "He wants one payment skipped on the Nashville rental because his tenant's rent is late.",
+   "task_instructions": "In your first message give your loan number, your date of birth and what you want. If the agent refuses, argue that you have always paid and that the bank should make an exception. Ask for an exception at least twice before you accept and end the call. Mention the Franklin property only if the agent asks about your other properties.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

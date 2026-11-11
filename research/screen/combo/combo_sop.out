@@ -1,0 +1,60 @@
+68 procedures; real 808 (fail 0.144), probes 1365 (fail 0.144)
+M2 probe episodes                AUC on real 0.786, within procedure 0.640 (32 procedures with both outcomes)
+M2 other procedures' probes      AUC on real 0.700, within procedure 0.630 (32 procedures with both outcomes)
+M1 real logs of other domains    AUC on real 0.610, within procedure 0.674 (32 procedures with both outcomes)
+
+== F=20 h=5 q=0.99  best constant always g38 4.64, oracle per procedure 2.40
+  probes only [probes]                                        2.41  vs best -2.23 [-3.29, -1.27]  human share 0.37 residual fail 0.024
+  combined [probes | M2 probe episodes]                       2.33  vs best -2.31 [-3.44, -1.28] | vs probes only -0.08 [-0.42, +0.31]  human share 0.28 residual fail 0.043
+  combined [probes | M2 other procedures' probes]             2.63  vs best -2.01 [-3.10, -1.08] | vs probes only +0.22 [-0.16, +0.63]  human share 0.25 residual fail 0.066
+  combined [probes | M1 real logs of other domains]           2.58  vs best -2.06 [-3.12, -1.10] | vs probes only +0.17 [+0.04, +0.34]  human share 0.38 residual fail 0.031
+  probes only [probes+cal]                                    2.41  vs best -2.23 [-3.28, -1.27]  human share 0.37 residual fail 0.024
+  combined [probes+cal | M2 probe episodes]                   2.36  vs best -2.28 [-3.39, -1.24] | vs probes only -0.05 [-0.38, +0.34]  human share 0.28 residual fail 0.045
+  combined [probes+cal | M2 other procedures' probes]         2.64  vs best -2.00 [-3.08, -1.02] | vs probes only +0.23 [-0.14, +0.65]  human share 0.25 residual fail 0.067
+  combined [probes+cal | M1 real logs of other domains]       2.51  vs best -2.13 [-3.21, -1.17] | vs probes only +0.10 [+0.00, +0.24]  human share 0.36 residual fail 0.031
+  probes only [no probes]                                     4.64  vs best +0.00 [+0.00, +0.00]  human share 0.00 residual fail 0.231
+  combined [no probes | M2 probe episodes]                    2.94  vs best -1.70 [-2.77, -0.74] | vs probes only -1.70 [-2.73, -0.77]  human share 0.26 residual fail 0.078
+  combined [no probes | M2 other procedures' probes]          3.23  vs best -1.41 [-2.50, -0.46] | vs probes only -1.41 [-2.48, -0.45]  human share 0.25 residual fail 0.095
+  combined [no probes | M1 real logs of other domains]        3.76  vs best -0.88 [-1.91, +0.10] | vs probes only -0.88 [-1.94, +0.10]  human share 0.35 residual fail 0.095
+
+== F=20 h=2 q=0.95  best constant always human 3.00, oracle per procedure 1.51
+  probes only [probes]                                        1.74  vs best -1.26 [-1.63, -0.90]  human share 0.46 residual fail 0.018
+  combined [probes | M2 probe episodes]                       1.70  vs best -1.30 [-1.72, -0.84] | vs probes only -0.05 [-0.36, +0.31]  human share 0.37 residual fail 0.029
+  combined [probes | M2 other procedures' probes]             1.86  vs best -1.14 [-1.64, -0.59] | vs probes only +0.12 [-0.26, +0.56]  human share 0.35 residual fail 0.039
+  combined [probes | M1 real logs of other domains]           1.75  vs best -1.25 [-1.59, -0.92] | vs probes only +0.01 [-0.10, +0.12]  human share 0.48 residual fail 0.014
+  probes only [probes+cal]                                    1.75  vs best -1.25 [-1.63, -0.88]  human share 0.43 residual fail 0.023
+  combined [probes+cal | M2 probe episodes]                   1.63  vs best -1.37 [-1.79, -0.86] | vs probes only -0.12 [-0.41, +0.25]  human share 0.33 residual fail 0.031
+  combined [probes+cal | M2 other procedures' probes]         1.80  vs best -1.20 [-1.72, -0.61] | vs probes only +0.05 [-0.32, +0.46]  human share 0.32 residual fail 0.041
+  combined [probes+cal | M1 real logs of other domains]       1.75  vs best -1.25 [-1.59, -0.89] | vs probes only +0.00 [-0.07, +0.08]  human share 0.44 residual fail 0.021
+  probes only [no probes]                                     3.00  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.000
+  combined [no probes | M2 probe episodes]                    2.25  vs best -0.75 [-1.17, -0.26] | vs probes only -0.75 [-1.17, -0.27]  human share 0.53 residual fail 0.032
+  combined [no probes | M2 other procedures' probes]          2.57  vs best -0.43 [-0.98, +0.17] | vs probes only -0.43 [-0.97, +0.17]  human share 0.50 residual fail 0.053
+  combined [no probes | M1 real logs of other domains]        3.07  vs best +0.07 [-0.27, +0.54] | vs probes only +0.07 [-0.27, +0.53]  human share 0.84 residual fail 0.026
+
+== F=50 h=5 q=0.99  best constant always human 5.50, oracle per procedure 2.85
+  probes only [probes]                                        3.25  vs best -2.25 [-2.93, -1.58]  human share 0.49 residual fail 0.011
+  combined [probes | M2 probe episodes]                       3.31  vs best -2.19 [-2.85, -1.49] | vs probes only +0.06 [-0.33, +0.49]  human share 0.45 residual fail 0.016
+  combined [probes | M2 other procedures' probes]             3.48  vs best -2.02 [-2.81, -1.13] | vs probes only +0.23 [-0.31, +0.86]  human share 0.44 residual fail 0.021
+  combined [probes | M1 real logs of other domains]           3.59  vs best -1.91 [-2.53, -1.25] | vs probes only +0.34 [-0.02, +0.70]  human share 0.53 residual fail 0.014
+  probes only [probes+cal]                                    3.42  vs best -2.08 [-2.81, -1.31]  human share 0.46 residual fail 0.018
+  combined [probes+cal | M2 probe episodes]                   3.25  vs best -2.25 [-2.94, -1.57] | vs probes only -0.17 [-0.62, +0.28]  human share 0.44 residual fail 0.016
+  combined [probes+cal | M2 other procedures' probes]         3.40  vs best -2.10 [-2.92, -1.19] | vs probes only -0.02 [-0.52, +0.63]  human share 0.42 residual fail 0.021
+  combined [probes+cal | M1 real logs of other domains]       3.35  vs best -2.15 [-2.85, -1.45] | vs probes only -0.07 [-0.35, +0.17]  human share 0.48 residual fail 0.014
+  probes only [no probes]                                     5.50  vs best +0.00 [+0.00, +0.00]  human share 1.00 residual fail 0.000
+  combined [no probes | M2 probe episodes]                    4.54  vs best -0.96 [-1.97, +0.24] | vs probes only -0.96 [-1.93, +0.22]  human share 0.53 residual fail 0.032
+  combined [no probes | M2 other procedures' probes]          5.39  vs best -0.11 [-1.46, +1.41] | vs probes only -0.11 [-1.43, +1.39]  human share 0.50 residual fail 0.053
+  combined [no probes | M1 real logs of other domains]        5.46  vs best -0.04 [-0.10, +0.00] | vs probes only -0.04 [-0.10, +0.00]  human share 0.99 residual fail 0.000
+
+== F=10 h=5 q=0.99  best constant always g38 2.33, oracle per procedure 1.87
+  probes only [probes]                                        1.92  vs best -0.41 [-0.75, -0.14]  human share 0.09 residual fail 0.145
+  combined [probes | M2 probe episodes]                       1.62  vs best -0.71 [-1.07, -0.39] | vs probes only -0.30 [-0.48, -0.14]  human share 0.17 residual fail 0.075
+  combined [probes | M2 other procedures' probes]             1.68  vs best -0.65 [-1.01, -0.34] | vs probes only -0.24 [-0.41, -0.09]  human share 0.15 residual fail 0.089
+  combined [probes | M1 real logs of other domains]           1.86  vs best -0.46 [-0.85, -0.12] | vs probes only -0.05 [-0.22, +0.12]  human share 0.24 residual fail 0.061
+  probes only [probes+cal]                                    1.92  vs best -0.41 [-0.75, -0.12]  human share 0.09 residual fail 0.145
+  combined [probes+cal | M2 probe episodes]                   1.62  vs best -0.71 [-1.08, -0.39] | vs probes only -0.30 [-0.49, -0.14]  human share 0.16 residual fail 0.077
+  combined [probes+cal | M2 other procedures' probes]         1.68  vs best -0.65 [-1.01, -0.32] | vs probes only -0.24 [-0.41, -0.09]  human share 0.15 residual fail 0.091
+  combined [probes+cal | M1 real logs of other domains]       1.80  vs best -0.53 [-0.90, -0.22] | vs probes only -0.12 [-0.28, +0.02]  human share 0.19 residual fail 0.078
+  probes only [no probes]                                     2.33  vs best +0.00 [+0.00, +0.00]  human share 0.00 residual fail 0.231
+  combined [no probes | M2 probe episodes]                    2.22  vs best -0.11 [-0.34, +0.06] | vs probes only -0.11 [-0.35, +0.06]  human share 0.04 residual fail 0.197
+  combined [no probes | M2 other procedures' probes]          2.37  vs best +0.04 [+0.00, +0.09] | vs probes only +0.04 [+0.00, +0.09]  human share 0.01 residual fail 0.230
+  combined [no probes | M1 real logs of other domains]        2.52  vs best +0.19 [+0.05, +0.37] | vs probes only +0.19 [+0.04, +0.37]  human share 0.05 residual fail 0.226

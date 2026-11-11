@@ -1,0 +1,741 @@
+{
+ "procedure_id": "p24_software",
+ "domain": "software subscription billing",
+ "organization": "Corvane Software",
+ "title": "Seat additions for subscriptions",
+ "summary": "Add seats to a customer's software subscription when the account, plan and seat cap allow it.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer accounts that hold software subscriptions",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "billing_email": "str",
+    "status": "enum:active|suspended|cancelled",
+    "past_due_amount": "number"
+   }
+  },
+  "subscription": {
+   "key": "subscription_id",
+   "description": "Software subscriptions belonging to an account",
+   "fields": {
+    "subscription_id": "str",
+    "account_id": "ref:account",
+    "plan": "enum:starter|team|enterprise",
+    "seats": "int",
+    "seat_cap": "int",
+    "seat_price": "number",
+    "renewal_date": "date",
+    "auto_renew": "bool"
+   }
+  },
+  "charge": {
+   "key": "charge_id",
+   "description": "Charges and credits recorded against a subscription",
+   "fields": {
+    "charge_id": "str",
+    "subscription_id": "ref:subscription",
+    "amount": "number",
+    "kind": "enum:proration|refund|credit",
+    "created": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for staff approval of changes the agent cannot make",
+   "fields": {
+    "request_id": "str",
+    "subscription_id": "ref:subscription",
+    "reason": "enum:seat_cap|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_subscription",
+   "kind": "get",
+   "entity": "subscription",
+   "description": "Look up a subscription by its subscription number."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by its account number."
+  },
+  {
+   "name": "find_account_by_billing_email",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "billing_email"
+   ],
+   "description": "Find accounts by the billing email address on file."
+  },
+  {
+   "name": "find_subscriptions_by_account",
+   "kind": "search",
+   "entity": "subscription",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all subscriptions belonging to an account."
+  },
+  {
+   "name": "add_seats",
+   "kind": "update",
+   "entity": "subscription",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription to change."
+    },
+    "added_seats": {
+     "type": "int",
+     "description": "Number of seats to add."
+    }
+   },
+   "set": {
+    "seats": "rec.seats + args.added_seats"
+   },
+   "description": "Increase the seat count of a subscription by the given number of seats."
+  },
+  {
+   "name": "create_charge",
+   "kind": "create",
+   "entity": "charge",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription the charge belongs to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Amount of the charge in dollars."
+    },
+    "kind": {
+     "type": "enum:proration|refund|credit",
+     "description": "Type of charge."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "amount": "args.amount",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Record a charge on a subscription, such as a proration for added seats."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "subscription_id": {
+     "type": "ref:subscription",
+     "description": "The subscription the request is about."
+    },
+    "reason": {
+     "type": "enum:seat_cap|other",
+     "description": "Why staff should approve the change."
+    }
+   },
+   "fields": {
+    "subscription_id": "args.subscription_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for staff to approve a change the agent cannot make."
+  }
+ ],
+ "request": {
+  "subscription_id": {
+   "type": "ref:subscription",
+   "description": "the subscription number you want to add seats to"
+  },
+  "added_seats": {
+   "type": "int",
+   "description": "how many more seats you want to add"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "sub",
+   "entity": "subscription",
+   "key": "req.subscription_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "sub.account_id"
+  }
+ ],
+ "outcomes": {
+  "add_seats": {
+   "kind": "perform",
+   "description": "Add the requested seats to the subscription and record a proration charge for them.",
+   "calls": [
+    {
+     "tool": "add_seats",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "added_seats": "req.added_seats"
+     }
+    },
+    {
+     "tool": "create_charge",
+     "args": {
+      "subscription_id": "req.subscription_id",
+      "amount": "round(req.added_seats * sub.seat_price, 2)",
+      "kind": "'proration'"
+     }
+    }
+   ]
+  },
+  "escalate": {
+   "kind": "perform",
+   "description": "The new total would exceed the seat cap: open a staff approval request instead of adding seats.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "subscription_id": "sub.subscription_id",
+      "reason": "'seat_cap'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not add seats; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only accounts with active status can add seats."
+  },
+  {
+   "id": "R2",
+   "when": "acct.past_due_amount > 0",
+   "outcome": "refuse",
+   "explain": "Accounts with an unpaid balance cannot add seats until it is paid."
+  },
+  {
+   "id": "R3",
+   "when": "sub.plan == 'starter'",
+   "outcome": "refuse",
+   "explain": "Starter subscriptions cannot add seats and must move to the Team plan first."
+  },
+  {
+   "id": "R4",
+   "when": "req.added_seats > 50",
+   "outcome": "refuse",
+   "explain": "A single request can add at most 50 seats."
+  },
+  {
+   "id": "R5",
+   "when": "sub.seats + req.added_seats > sub.seat_cap",
+   "outcome": "escalate",
+   "explain": "If the new seat total would exceed the seat cap, open a staff approval request instead of adding seats."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(today, sub.renewal_date) < 3",
+   "outcome": "refuse",
+   "explain": "Seats cannot be added when the renewal date is less than three days away or has already passed."
+  }
+ ],
+ "default_outcome": "add_seats",
+ "policy_text": "## Who can ask\nAccount contacts can ask to add seats to a subscription by phone or chat. No separate identity check applies to this procedure, but you must identify the subscription before changing anything.\n\n## Finding the subscription\nUse the subscription number if the caller gives it. If they do not have it, find the account by the billing email address on file, list the account's subscriptions, and ask which one they mean if more than one is listed. The plan and seat count they give can help you pick the right one. If you cannot identify the subscription, or the caller does not say how many seats they want, do not change anything.\n\n## Checks before adding seats\nCheck the following, in this order, against the records:\n- The account status must be active. Suspended or cancelled accounts cannot add seats.\n- The account must have no past-due balance. If any balance is owed, decline until it is paid.\n- Starter subscriptions cannot add seats. They must move to the Team plan first.\n- A single request can add at most 50 seats. Decline requests above 50; do not add part of them.\n- If the subscription's current seats plus the seats requested would be more than its seat cap, do not add the seats. Instead open an approval request with reason seat_cap, and tell the caller that staff will review it and contact them.\n- Seats cannot be added when the renewal date is less than three days away or has already passed.\n\nIf a check above applies and no approval request is needed, decline the request, make no change, and explain the reason to the caller.\n\n## When seats are added\nIf none of the checks applies, add the requested number of seats to the subscription and record a proration charge for them. The charge is the number of seats multiplied by the seat price on the subscription, rounded to two decimals. Then tell the caller the new seat total and the charge.\n\n## Never\nDo not change the seat cap, plan, price or renewal date. Do not waive or reduce a charge, do not change a subscription you have not identified with the caller, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-9000",
+    "company_name": "Pinecrest Analytics",
+    "billing_email": "ops@pinecrest.example.com",
+    "status": "active",
+    "past_due_amount": 0.0
+   }
+  ],
+  "subscription": [
+   {
+    "subscription_id": "S-9000",
+    "account_id": "A-9000",
+    "plan": "team",
+    "seats": 15,
+    "seat_cap": 30,
+    "seat_price": 12.0,
+    "renewal_date": "2026-10-10",
+    "auto_renew": true
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1101",
+      "company_name": "Brightwater Logistics",
+      "billing_email": "ops@brightwater.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2101",
+      "account_id": "A-1101",
+      "plan": "team",
+      "seats": 30,
+      "seat_cap": 60,
+      "seat_price": 12.0,
+      "renewal_date": "2026-12-15",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2101",
+    "added_seats": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.plan",
+     "value": "team",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The account is for Brightwater Logistics, and the billing mail goes to our operations mailbox.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Our renewal is in December, so nothing is due for a while.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Mireille, operations lead at a regional trucking company, usually in a hurry between dispatch calls.",
+   "reason_for_call": "Her team hired ten dispatchers this week and they need seats today.",
+   "task_instructions": "Ask for the extra seats in your first message and give the subscription number right away. Answer the agent's questions briefly and politely. If the agent is slow, press once for it to be done today.",
+   "expected_outcome": "add_seats"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1202",
+      "company_name": "Harbor Dental Group",
+      "billing_email": "office@harbordental.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2202",
+      "account_id": "A-1202",
+      "plan": "team",
+      "seats": 12,
+      "seat_cap": 25,
+      "seat_price": 9.0,
+      "renewal_date": "2026-10-01",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2202",
+    "added_seats": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.company_name",
+     "value": "Harbor Dental Group",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Front-desk manager at a small dental office, calling from a new phone after losing her old one.",
+   "reason_for_call": "The practice hired two new hygienists and needs five more seats for their logins.",
+   "task_instructions": "You only know the company name and that you want five seats. You do not know the subscription number, and you cannot find the billing email. Be cooperative, answer what you can, and accept it if the agent cannot find the subscription.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1303",
+      "company_name": "Kestrel Print Co",
+      "billing_email": "accounts@kestrelprint.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2303",
+      "account_id": "A-1303",
+      "plan": "starter",
+      "seats": 5,
+      "seat_cap": 10,
+      "seat_price": 4.5,
+      "renewal_date": "2026-08-10",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2303",
+    "added_seats": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.plan",
+     "value": "team",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dimitri, office manager at a print shop, very brief and businesslike.",
+   "reason_for_call": "Two designers joined and need seats.",
+   "task_instructions": "Give the subscription number and the seat count in your first message. State that you are on the Team plan. Answer only what is asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1404",
+      "company_name": "Oakline Architects",
+      "billing_email": "billing@oakline.example.com",
+      "status": "active",
+      "past_due_amount": 84.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2404",
+      "account_id": "A-1404",
+      "plan": "team",
+      "seats": 8,
+      "seat_cap": 20,
+      "seat_price": 11.0,
+      "renewal_date": "2026-11-01",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2404",
+    "added_seats": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2404",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 5,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "acct.past_due_amount",
+     "value": 84.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sanjay, a partner at an architecture firm, impatient and used to getting his way.",
+   "reason_for_call": "A new drafter starts Monday and needs a seat before then.",
+   "task_instructions": "Give the subscription number in your first message and mention that you have an 84 dollar balance you plan to pay next week. Only say how many seats you need when the agent asks. If the agent declines, argue that it is a small balance and ask for an exception twice, then accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1505",
+      "company_name": "Marlow Freight",
+      "billing_email": "it@marlowfreight.example.com",
+      "status": "suspended",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2505",
+      "account_id": "A-1505",
+      "plan": "enterprise",
+      "seats": 40,
+      "seat_cap": 80,
+      "seat_price": 18.0,
+      "renewal_date": "2026-12-01",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2505",
+    "added_seats": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2505",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, an IT coordinator at a freight company, friendly and organized.",
+   "reason_for_call": "Six warehouse staff need access to the reporting tool this month.",
+   "task_instructions": "Give the subscription number and the seat count in your first message. Say that you believe the account is active and in good standing. Answer questions politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1606",
+      "company_name": "Juniper Health Partners",
+      "billing_email": "admin@juniperhealth.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2606",
+      "account_id": "A-1606",
+      "plan": "team",
+      "seats": 20,
+      "seat_cap": 40,
+      "seat_price": 14.0,
+      "renewal_date": "2026-11-20",
+      "auto_renew": true
+     },
+     {
+      "subscription_id": "S-2607",
+      "account_id": "A-1606",
+      "plan": "enterprise",
+      "seats": 100,
+      "seat_cap": 150,
+      "seat_price": 22.0,
+      "renewal_date": "2026-11-20",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2606",
+    "added_seats": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.billing_email",
+     "value": "admin@juniperhealth.example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "sub.plan",
+     "value": "team",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 8,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Felix, an administrator at a health clinic group, polite but easily distracted.",
+   "reason_for_call": "The clinic group added front-desk staff and needs more seats on its team tool.",
+   "task_instructions": "Do not give the subscription number, you do not have it. Give the billing email address and say you want the Team plan subscription. In your first message ask for 25 seats. When the agent is ready to make a change, switch to 8 seats instead and confirm that.",
+   "expected_outcome": "add_seats",
+   "initial_request_values": {
+    "added_seats": 25
+   }
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1707",
+      "company_name": "Tallgrass Veterinary",
+      "billing_email": "finance@tallgrassvet.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2707",
+      "account_id": "A-1707",
+      "plan": "team",
+      "seats": 25,
+      "seat_cap": 30,
+      "seat_price": 10.0,
+      "renewal_date": "2026-12-05",
+      "auto_renew": true
+     },
+     {
+      "subscription_id": "S-2708",
+      "account_id": "A-1707",
+      "plan": "enterprise",
+      "seats": 60,
+      "seat_cap": 100,
+      "seat_price": 20.0,
+      "renewal_date": "2026-12-05",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2707",
+    "added_seats": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2707",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 9,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "We also have an enterprise setup for the imaging clinic, and that one is fine. Please don't touch it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We tried a cheaper option a couple of years ago and went back.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Finance wants last quarter's invoices, but that is a separate issue.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Is there any discount for paying annually?",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, practice manager at a veterinary clinic, speaks in short fragments.",
+   "reason_for_call": "Two new technicians start next week and need seats.",
+   "task_instructions": "Give the subscription number and the number of seats in your first message. Answer in a few words and give nothing beyond what is asked. If staff must review the request, accept that.",
+   "expected_outcome": "escalate"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-1808",
+      "company_name": "Lindqvist Tax Advisory",
+      "billing_email": "ops@lindqvisttax.example.com",
+      "status": "active",
+      "past_due_amount": 0.0
+     }
+    ],
+    "subscription": [
+     {
+      "subscription_id": "S-2808",
+      "account_id": "A-1808",
+      "plan": "team",
+      "seats": 25,
+      "seat_cap": 50,
+      "seat_price": 13.0,
+      "renewal_date": "2026-11-30",
+      "auto_renew": true
+     }
+    ]
+   },
+   "request_values": {
+    "subscription_id": "S-2808",
+    "added_seats": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.subscription_id",
+     "value": "S-2808",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.added_seats",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gustav, a senior partner at a tax advisory firm, precise and polite.",
+   "reason_for_call": "The firm is taking on a few more clients for the season and needs seats for them.",
+   "task_instructions": "Give the subscription number in your first message and ask for 40 seats. Before the agent finishes, say you actually only need 4 more seats and confirm that 4 is what you want.",
+   "expected_outcome": "add_seats",
+   "initial_request_values": {
+    "added_seats": 40
+   }
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,859 @@
+{
+ "procedure_id": "h05_hospital",
+ "domain": "hospital billing office",
+ "organization": "Lakeview Regional Hospital Billing Office",
+ "title": "Self-pay payment plan setup",
+ "summary": "Set up an interest-free monthly payment plan for an open hospital invoice when the invoice, the patient account and the insurance claim all qualify.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Patients with a billing account",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "account_status": "enum:good|collections"
+   }
+  },
+  "insurance_claim": {
+   "key": "claim_id",
+   "description": "Insurance claims filed for hospital invoices",
+   "fields": {
+    "claim_id": "str",
+    "payer": "str",
+    "status": "enum:pending|settled|denied"
+   }
+  },
+  "invoice": {
+   "key": "invoice_id",
+   "description": "Hospital invoices",
+   "fields": {
+    "invoice_id": "str",
+    "patient_id": "ref:patient",
+    "claim_id": "ref:insurance_claim",
+    "service_date": "date",
+    "balance": "number",
+    "status": "enum:open|on_plan|paid|disputed"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Payment plans, current and past",
+   "fields": {
+    "plan_id": "str",
+    "patient_id": "ref:patient",
+    "invoice_id": "ref:invoice",
+    "months": "int",
+    "monthly_amount": "number",
+    "start_date": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient account by patient number."
+  },
+  {
+   "name": "find_patients_by_phone",
+   "kind": "search",
+   "entity": "patient",
+   "by": [
+    "phone"
+   ],
+   "description": "Find patient accounts by the phone number on file."
+  },
+  {
+   "name": "get_invoice",
+   "kind": "get",
+   "entity": "invoice",
+   "description": "Look up an invoice by invoice number."
+  },
+  {
+   "name": "find_invoices_by_patient",
+   "kind": "search",
+   "entity": "invoice",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all invoices of a patient."
+  },
+  {
+   "name": "get_insurance_claim",
+   "kind": "get",
+   "entity": "insurance_claim",
+   "description": "Look up an insurance claim by claim number."
+  },
+  {
+   "name": "get_payment_plan",
+   "kind": "get",
+   "entity": "payment_plan",
+   "description": "Look up a payment plan by plan number."
+  },
+  {
+   "name": "find_plans_by_patient",
+   "kind": "search",
+   "entity": "payment_plan",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all payment plans, current and past, of a patient."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "patient_id": {
+     "type": "ref:patient",
+     "description": "The patient the plan is for."
+    },
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice the plan covers."
+    },
+    "months": {
+     "type": "int",
+     "description": "Number of monthly payments."
+    },
+    "monthly_amount": {
+     "type": "number",
+     "description": "Amount of each monthly payment."
+    }
+   },
+   "fields": {
+    "patient_id": "args.patient_id",
+    "invoice_id": "args.invoice_id",
+    "months": "args.months",
+    "monthly_amount": "args.monthly_amount",
+    "start_date": "add_days(today, 30)"
+   },
+   "description": "Create a payment plan record for an invoice. The first payment date is set automatically to 30 days from today."
+  },
+  {
+   "name": "mark_invoice_on_plan",
+   "kind": "update",
+   "entity": "invoice",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice to mark."
+    }
+   },
+   "set": {
+    "status": "'on_plan'"
+   },
+   "description": "Set the status of an invoice to on_plan."
+  }
+ ],
+ "request": {
+  "invoice_id": {
+   "type": "ref:invoice",
+   "description": "the hospital invoice you want to pay off in monthly installments"
+  },
+  "months": {
+   "type": "int",
+   "description": "over how many months you want to spread the payments"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "inv",
+   "entity": "invoice",
+   "key": "req.invoice_id"
+  },
+  {
+   "name": "pat",
+   "entity": "patient",
+   "key": "inv.patient_id"
+  },
+  {
+   "name": "clm",
+   "entity": "insurance_claim",
+   "key": "inv.claim_id"
+  }
+ ],
+ "outcomes": {
+  "plan": {
+   "kind": "perform",
+   "description": "Create the payment plan and mark the invoice as on plan.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "patient_id": "pat.patient_id",
+      "invoice_id": "req.invoice_id",
+      "months": "req.months",
+      "monthly_amount": "round(inv.balance / req.months, 2)"
+     }
+    },
+    {
+     "tool": "mark_invoice_on_plan",
+     "args": {
+      "invoice_id": "req.invoice_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up a plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "inv.status != 'open'",
+   "outcome": "refuse",
+   "explain": "Only invoices with status open can be put on a payment plan."
+  },
+  {
+   "id": "R2",
+   "when": "pat.account_status == 'collections'",
+   "outcome": "refuse",
+   "explain": "Patients whose account is in collections cannot get a plan from this office."
+  },
+  {
+   "id": "R3",
+   "when": "clm.status == 'pending'",
+   "outcome": "refuse",
+   "explain": "No plan while the insurance claim for the invoice is still pending."
+  },
+  {
+   "id": "R4",
+   "when": "inv.balance < 200",
+   "outcome": "refuse",
+   "explain": "The invoice balance must be at least 200.00."
+  },
+  {
+   "id": "R5",
+   "when": "req.months > 12 or inv.balance / req.months < 50",
+   "outcome": "refuse",
+   "explain": "A plan runs at most 12 months and each monthly payment must be at least 50.00."
+  },
+  {
+   "id": "R6",
+   "when": "db_count('payment_plan', 'patient_id', pat.patient_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A patient who already has had two or more payment plans cannot get another."
+  }
+ ],
+ "default_outcome": "plan",
+ "policy_text": "## Purpose\nPatients may ask the billing office to spread the balance of one hospital invoice over monthly installments, free of interest. You handle these requests by phone or chat.\n\n## Finding the invoice\nUse the invoice number if the patient has it. If not, find the patient account by the phone number on file, list the patient's invoices, and ask for something that identifies the right one (for example the date of service) if there is more than one. You also need the number of months the patient wants. If you cannot identify the invoice or learn the number of months, do not change anything and tell the patient what you need.\n\n## Checks you must make yourself\nThe patient will not know these, so look them up in the system before deciding. Always go by what the system shows, not by what the patient believes the balance or status to be.\n- The invoice must have status open. Paid, disputed, or already on-plan invoices cannot get a plan.\n- The patient's account must not be in collections.\n- The insurance claim attached to the invoice must not be pending. Settled or denied claims are fine; if the claim is pending, the plan cannot be created until the insurer has decided.\n- The invoice balance must be at least 200.00.\n- A plan may run for at most 12 months, and each monthly payment must be at least 50.00 (balance divided by months).\n- Count the patient's payment plans on record, past and current. A patient who already has two or more plans cannot get another one.\n\nIf any check fails, decline, explain the reason in plain words, and make no change. If the patient asks for a plan that is too long or too small, decline it; you may say what the limits are, but only create a plan the patient actually asks for.\n\n## Creating the plan\nIf every check passes, do these two steps in this order:\n1. Create a payment plan with the patient number, the invoice number, the number of months, and the monthly amount. The monthly amount is the invoice balance divided by the number of months, rounded to two decimals. The system sets the first payment date to 30 days from today.\n2. Mark the invoice as on plan.\nThen tell the patient the monthly amount and the number of payments.\n\n## Never\nDo not waive or reduce any balance, do not offer interest terms or exceptions to the limits above, do not change a plan the patient did not ask for, and do not create a plan or mark an invoice before every check has passed.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "P-1000",
+    "full_name": "Helen Frost",
+    "phone": "555-0100",
+    "account_status": "good"
+   }
+  ],
+  "insurance_claim": [
+   {
+    "claim_id": "CLM-9000",
+    "payer": "Northline Health",
+    "status": "settled"
+   }
+  ],
+  "invoice": [
+   {
+    "invoice_id": "INV-30000",
+    "patient_id": "P-1000",
+    "claim_id": "CLM-9000",
+    "service_date": "2025-09-12",
+    "balance": 0,
+    "status": "paid"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4101",
+      "full_name": "Marta Kowalski",
+      "phone": "555-0141",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50011",
+      "payer": "Northline Health",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30011",
+      "patient_id": "P-4101",
+      "claim_id": "CLM-50011",
+      "service_date": "2026-02-10",
+      "balance": 600,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30011",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marta, a shop manager who is always short of time and gets irritated by extra questions.",
+   "reason_for_call": "She cannot pay her hospital bill at once and wants to pay it off in installments.",
+   "task_instructions": "Say in your first message that you want a payment plan for your invoice and give the invoice number. Do not mention the number of months until asked. Be impatient, complain if the agent asks many questions or is slow, and urge the agent to just get it done. Answer when asked.",
+   "expected_outcome": "plan"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4102",
+      "full_name": "Devon Price",
+      "phone": "555-0142",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50021",
+      "payer": "Summit Mutual",
+      "status": "pending"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30021",
+      "patient_id": "P-4102",
+      "claim_id": "CLM-50021",
+      "service_date": "2026-04-28",
+      "balance": 840,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30021",
+    "months": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "pat.phone",
+     "value": "555-0142",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 12
+   },
+   "persona": "Devon, a freelance photographer who lost the paper bill during a move.",
+   "reason_for_call": "He wants to pay off a bill from a recent hospital stay in installments but does not have the bill in front of him.",
+   "task_instructions": "You do not know the invoice number; give your phone number so the agent can find your account. First ask to spread the bill over 12 months. Before the agent does anything, change your mind and say you would rather pay over 4 months. Accept whatever the agent decides.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4103",
+      "full_name": "Aisha Rahman",
+      "phone": "555-0143",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50031",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     },
+     {
+      "claim_id": "CLM-50032",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     },
+     {
+      "claim_id": "CLM-50033",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30031",
+      "patient_id": "P-4103",
+      "claim_id": "CLM-50031",
+      "service_date": "2025-11-05",
+      "balance": 0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-30032",
+      "patient_id": "P-4103",
+      "claim_id": "CLM-50032",
+      "service_date": "2026-03-14",
+      "balance": 480,
+      "status": "open"
+     },
+     {
+      "invoice_id": "INV-30033",
+      "patient_id": "P-4103",
+      "claim_id": "CLM-50033",
+      "service_date": "2026-05-02",
+      "balance": 150,
+      "status": "open"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PLN-7001",
+      "patient_id": "P-4103",
+      "invoice_id": "INV-30031",
+      "months": 6,
+      "monthly_amount": 70,
+      "start_date": "2025-12-20"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30032",
+    "months": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "pat.phone",
+     "value": "555-0143",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.service_date",
+     "value": "2026-03-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 4
+   },
+   "persona": "Aisha, a pharmacist who is organized but does not keep invoice numbers.",
+   "reason_for_call": "She wants to pay off the bill for her March procedure in monthly installments.",
+   "task_instructions": "You do not know the invoice number; give your phone number. First ask for a plan over 4 months. Before anything is done, change your mind and ask for 8 months instead. If the agent asks which bill, say it is the one for your procedure on 14 March 2026.",
+   "expected_outcome": "plan"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4104",
+      "full_name": "Tom\u00e1s Herrera",
+      "phone": "555-0144",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50041",
+      "payer": "Summit Mutual",
+      "status": "denied"
+     },
+     {
+      "claim_id": "CLM-50042",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30041",
+      "patient_id": "P-4104",
+      "claim_id": "CLM-50041",
+      "service_date": "2026-03-02",
+      "balance": 1500,
+      "status": "open"
+     },
+     {
+      "invoice_id": "INV-30042",
+      "patient_id": "P-4104",
+      "claim_id": "CLM-50042",
+      "service_date": "2026-04-11",
+      "balance": 90,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30041",
+    "months": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30041",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His insurer denied the claim for the emergency visit, which is why the balance is so large.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He also has a small lab bill from April that he will pay in full himself.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His son had a check-up at the hospital pediatric clinic last year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is thinking of moving to a new address next month but is not asking to change it now.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "months": 18
+   },
+   "persona": "Tom\u00e1s, a bus driver and father of two, chatty and a bit anxious about money.",
+   "reason_for_call": "He wants to pay off his large emergency-room bill in installments.",
+   "task_instructions": "First ask for the plan on the big emergency bill over 18 months. When the agent refuses, negotiate and ask for 10 months instead. Mention your side stories naturally while talking. Accept the plan once offered.",
+   "expected_outcome": "plan"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4105",
+      "full_name": "Nina Volkov",
+      "phone": "555-0145",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50050",
+      "payer": "Northline Health",
+      "status": "settled"
+     },
+     {
+      "claim_id": "CLM-50051",
+      "payer": "Northline Health",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30050",
+      "patient_id": "P-4105",
+      "claim_id": "CLM-50050",
+      "service_date": "2024-10-03",
+      "balance": 0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-30051",
+      "patient_id": "P-4105",
+      "claim_id": "CLM-50051",
+      "service_date": "2026-01-22",
+      "balance": 540,
+      "status": "open"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PLN-7002",
+      "patient_id": "P-4105",
+      "invoice_id": "INV-30050",
+      "months": 4,
+      "monthly_amount": 75,
+      "start_date": "2024-11-15"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30051",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30051",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.balance",
+     "value": 500,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nina, a quiet accountant who writes very briefly.",
+   "reason_for_call": "She wants a six-month payment plan for her January hospital bill, which she thinks is 500.",
+   "task_instructions": "Use very short messages. State the invoice number, 6 months, and that you think the balance is 500. Do not elaborate. If the agent says the balance is different, accept the system's figure.",
+   "expected_outcome": "plan"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4106",
+      "full_name": "Gordon Wu",
+      "phone": "555-0146",
+      "account_status": "collections"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50061",
+      "payer": "Northline Health",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30061",
+      "patient_id": "P-4106",
+      "claim_id": "CLM-50061",
+      "service_date": "2026-02-17",
+      "balance": 900,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30061",
+    "months": 9
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30061",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 9,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gordon, a contractor who is blunt and impatient.",
+   "reason_for_call": "He wants to pay his surgery bill over nine months.",
+   "task_instructions": "In your first message give the invoice number and ask for a 9-month plan. If refused, argue that you are good for the money and ask for an exception at least twice before accepting the refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4107",
+      "full_name": "Lucy Bennett",
+      "phone": "555-0147",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50071",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     },
+     {
+      "claim_id": "CLM-50072",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     },
+     {
+      "claim_id": "CLM-50073",
+      "payer": "Summit Mutual",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30071",
+      "patient_id": "P-4107",
+      "claim_id": "CLM-50071",
+      "service_date": "2026-04-09",
+      "balance": 350,
+      "status": "open"
+     },
+     {
+      "invoice_id": "INV-30072",
+      "patient_id": "P-4107",
+      "claim_id": "CLM-50072",
+      "service_date": "2024-08-12",
+      "balance": 0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-30073",
+      "patient_id": "P-4107",
+      "claim_id": "CLM-50073",
+      "service_date": "2025-06-30",
+      "balance": 0,
+      "status": "paid"
+     }
+    ],
+    "payment_plan": [
+     {
+      "plan_id": "PLN-7003",
+      "patient_id": "P-4107",
+      "invoice_id": "INV-30072",
+      "months": 5,
+      "monthly_amount": 80,
+      "start_date": "2024-09-20"
+     },
+     {
+      "plan_id": "PLN-7004",
+      "patient_id": "P-4107",
+      "invoice_id": "INV-30073",
+      "months": 3,
+      "monthly_amount": 110,
+      "start_date": "2025-07-28"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30071",
+    "months": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30071",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.months",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.balance",
+     "value": 350,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She has used payment plans with this billing office twice before and paid both off on time.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The insurance company already settled its part of this bill in April.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Lucy, a friendly school librarian who likes to explain things.",
+   "reason_for_call": "She wants to pay her April clinic bill over five months.",
+   "task_instructions": "Give the invoice number, the balance of 350, and 5 months in your first message. Mention your two earlier plans and the insurance settlement when it seems relevant. Be polite and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "P-4108",
+      "full_name": "Samir Qureshi",
+      "phone": "555-0148",
+      "account_status": "good"
+     }
+    ],
+    "insurance_claim": [
+     {
+      "claim_id": "CLM-50081",
+      "payer": "Northline Health",
+      "status": "settled"
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-30081",
+      "patient_id": "P-4108",
+      "claim_id": "CLM-50081",
+      "service_date": "2026-04-20",
+      "balance": 240,
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-30081",
+    "months": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-30081",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.months",
+     "value": 6,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "months": 12
+   },
+   "persona": "Samir, a university student on a tight budget who bargains politely.",
+   "reason_for_call": "He wants to pay off a bill from a hospital visit in small monthly amounts.",
+   "task_instructions": "First ask to spread your bill over 12 months, without giving the invoice number until the agent asks for it. When the agent refuses, ask for 6 months instead. If that is also refused, accept it and end the conversation.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

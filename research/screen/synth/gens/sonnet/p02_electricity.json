@@ -1,0 +1,707 @@
+{
+ "procedure_id": "p02_electricity",
+ "domain": "electricity utility",
+ "organization": "Northgate Power & Light",
+ "title": "Instalment plans for overdue bills",
+ "summary": "Set up an instalment plan for an overdue electricity bill when the caller is verified and the account and bill qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer electricity accounts",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "email": "str",
+    "service_postcode": "str",
+    "status": "enum:active|suspended|closed",
+    "has_plan": "bool"
+   }
+  },
+  "bill": {
+   "key": "bill_id",
+   "description": "Monthly electricity bills",
+   "fields": {
+    "bill_id": "str",
+    "account_id": "ref:account",
+    "period": "str",
+    "amount": "number",
+    "due_date": "date",
+    "status": "enum:open|overdue|paid|on_plan"
+   }
+  },
+  "payment_plan": {
+   "key": "plan_id",
+   "description": "Instalment plans agreed for bills",
+   "fields": {
+    "plan_id": "str",
+    "bill_id": "ref:bill",
+    "installments": "int",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by account number."
+  },
+  {
+   "name": "get_bill",
+   "kind": "get",
+   "entity": "bill",
+   "description": "Look up a bill by bill number."
+  },
+  {
+   "name": "find_bills_by_account",
+   "kind": "search",
+   "entity": "bill",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all bills belonging to an account number."
+  },
+  {
+   "name": "create_payment_plan",
+   "kind": "create",
+   "entity": "payment_plan",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The overdue bill the plan covers."
+    },
+    "installments": {
+     "type": "int",
+     "description": "Number of monthly instalments."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "installments": "args.installments",
+    "created": "today"
+   },
+   "description": "Create an instalment plan record for a bill."
+  },
+  {
+   "name": "flag_account_on_plan",
+   "kind": "update",
+   "entity": "account",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account to flag."
+    }
+   },
+   "set": {
+    "has_plan": "True"
+   },
+   "description": "Mark an account as having an active instalment plan."
+  },
+  {
+   "name": "mark_bill_on_plan",
+   "kind": "update",
+   "entity": "bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill to mark."
+    }
+   },
+   "set": {
+    "status": "'on_plan'"
+   },
+   "description": "Change a bill's status to on_plan."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:bill",
+   "description": "the overdue bill you want to pay in instalments"
+  },
+  "installments": {
+   "type": "int",
+   "description": "how many monthly instalments you want to split it into"
+  }
+ },
+ "claims": {
+  "service_postcode": {
+   "type": "str",
+   "description": "the postcode of the property the electricity supply is for"
+  }
+ },
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "bill.account_id"
+  }
+ ],
+ "outcomes": {
+  "setup_plan": {
+   "kind": "perform",
+   "description": "Set up the instalment plan for the bill.",
+   "calls": [
+    {
+     "tool": "create_payment_plan",
+     "args": {
+      "bill_id": "req.bill_id",
+      "installments": "req.installments"
+     }
+    },
+    {
+     "tool": "flag_account_on_plan",
+     "args": {
+      "account_id": "acct.account_id"
+     }
+    },
+    {
+     "tool": "mark_bill_on_plan",
+     "args": {
+      "bill_id": "req.bill_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not set up a plan; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.service_postcode != acct.service_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the service postcode on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active accounts can have an instalment plan."
+  },
+  {
+   "id": "R3",
+   "when": "bill.status != 'overdue'",
+   "outcome": "refuse",
+   "explain": "Plans are only available for bills that are currently overdue."
+  },
+  {
+   "id": "R4",
+   "when": "acct.has_plan",
+   "outcome": "refuse",
+   "explain": "An account can have only one instalment plan at a time."
+  },
+  {
+   "id": "R5",
+   "when": "req.installments < 2 or req.installments > 6 or bill.amount < 60",
+   "outcome": "refuse",
+   "explain": "Plans need 2 to 6 instalments and a bill of at least 60.00."
+  }
+ ],
+ "default_outcome": "setup_plan",
+ "policy_text": "## Who can ask\nAccount holders may ask for an instalment plan on an overdue bill by phone or chat. Before changing anything, find the bill and the account it belongs to, and confirm the caller's identity: the service postcode (the property the supply is for) they give must match the one on file. If it does not match, or they cannot give it, make no change.\n\n## Finding the bill\nUse the bill number if the customer has it. Otherwise ask for the account number and list the account's bills; if there is more than one, ask which billing period they mean. If the customer can give neither a bill number nor an account number, you cannot identify the bill and must not guess; explain that and make no change. You also need to know how many instalments the customer wants; ask if they have not said.\n\n## When a plan is allowed\n- The account must be active. Suspended or closed accounts cannot have a plan.\n- The bill must currently be overdue. Bills that are open (not yet due), paid, or already on a plan do not qualify.\n- An account may have only one instalment plan at a time. If the account already has a plan, decline.\n- A plan must have between 2 and 6 monthly instalments, and the bill must be at least 60.00. Requests outside this are declined, not adjusted; do not offer a different number of instalments on your own.\n\nGo by the records in the system, not by what the customer believes the amount or status to be.\n\n## What to do when a plan is allowed\nMake these three changes, in this order: create the payment plan for the bill with the requested number of instalments; flag the account as having a plan; mark the bill as on_plan. Then confirm to the customer.\n\n## When it is not allowed\nExplain briefly which condition is not met and make no changes. Do not make exceptions.\n\n## Never\nDo not waive or reduce charges, do not set up a plan for someone who failed the identity check, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-10001",
+    "holder_name": "Greta Olsen",
+    "email": "greta.olsen@example.org",
+    "service_postcode": "N1 4AB",
+    "status": "active",
+    "has_plan": false
+   }
+  ],
+  "bill": [
+   {
+    "bill_id": "B-20001",
+    "account_id": "A-10001",
+    "period": "March 2026",
+    "amount": 130.0,
+    "due_date": "2026-04-20",
+    "status": "overdue"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30114",
+      "holder_name": "Marta Kowalski",
+      "email": "marta.k@example.org",
+      "service_postcode": "M14 5QT",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-30501",
+      "account_id": "A-30114",
+      "period": "February 2026",
+      "amount": 240.0,
+      "due_date": "2026-03-20",
+      "status": "overdue"
+     },
+     {
+      "bill_id": "B-30502",
+      "account_id": "A-30114",
+      "period": "March 2026",
+      "amount": 88.1,
+      "due_date": "2026-04-20",
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-30501",
+    "installments": 8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-30501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "M14 5QT",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She had solar panels installed on her roof last autumn.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her neighbour lost power for two hours last week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking about moving to a green tariff later this year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She already paid her March bill on time.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "installments": 4
+   },
+   "persona": "Marta, a primary school teacher who is chatty and tends to wander into side stories.",
+   "reason_for_call": "She cannot pay the overdue winter bill in one go and wants to split it up.",
+   "task_instructions": "First ask to split the overdue bill into 4 monthly instalments. Before the agent does anything, change your mind and say you want 8 instalments to keep payments small. Mention the side stories naturally. If the agent refuses, accept politely after one question.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30220",
+      "holder_name": "Devon Reyes",
+      "email": "devon.reyes@example.org",
+      "service_postcode": "LS6 2AB",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-30601",
+      "account_id": "A-30220",
+      "period": "March 2026",
+      "amount": 410.55,
+      "due_date": "2026-04-15",
+      "status": "overdue"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-30601",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "LS6 2AB",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Devon, a freelance designer calling from a friend's phone, polite and a bit embarrassed.",
+   "reason_for_call": "He wants to pay an overdue bill over three months but has lost the paper bill and his login details.",
+   "task_instructions": "Say you want 3 instalments and give your postcode. You do not have the bill number or the account number and cannot find them. Be cooperative, answer questions honestly, and accept it if the agent cannot proceed.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30330",
+      "holder_name": "Priya Nair",
+      "email": "priya.nair@example.org",
+      "service_postcode": "BS8 1TH",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-30701",
+      "account_id": "A-30330",
+      "period": "April 2026",
+      "amount": 182.9,
+      "due_date": "2026-06-02",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-30701",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-30701",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "BS8 1TH",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "installments": 2
+   },
+   "persona": "Priya, a careful planner who likes to sort out money early.",
+   "reason_for_call": "She expects a tight month and wants to arrange instalments for her latest bill before it falls due.",
+   "task_instructions": "In your first message give the bill number, your postcode and ask for 2 instalments. Then, before anything is done, say you would rather have 3 instalments. Accept the agent's decision calmly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30440",
+      "holder_name": "Tomas Berg",
+      "email": "tomas.berg@example.org",
+      "service_postcode": "NG7 3FD",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-30801",
+      "account_id": "A-30440",
+      "period": "March 2026",
+      "amount": 312.4,
+      "due_date": "2026-04-25",
+      "status": "overdue"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-30801",
+    "installments": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-30801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "NG7 3FD",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a delivery driver on a short break, impatient and wants things done fast.",
+   "reason_for_call": "He fell behind on an electricity bill after a slow month and wants four monthly payments.",
+   "task_instructions": "State the bill number and that you want 4 instalments. Do not give your postcode until asked. Complain about how long this takes, but answer the questions and press the agent to hurry.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30550",
+      "holder_name": "Yuki Tanaka",
+      "email": "yuki.t@example.org",
+      "service_postcode": "EH3 9DR",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-30901",
+      "account_id": "A-30550",
+      "period": "March 2026",
+      "amount": 148.75,
+      "due_date": "2026-04-22",
+      "status": "overdue"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-30901",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-30901",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "EH3 9DR",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.amount",
+     "value": 52.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yuki, a night-shift nurse who writes in very few words.",
+   "reason_for_call": "She wants an overdue bill spread over three months and believes it is a small amount.",
+   "task_instructions": "Give the bill number, 3 instalments, your postcode, and say you think the bill is about 52. Keep every message very short. If the agent says the amount on record is different, just accept the system's figure.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30660",
+      "holder_name": "Samuel Okafor",
+      "email": "samuel.okafor@example.org",
+      "service_postcode": "CF10 4PL",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-31001",
+      "account_id": "A-30660",
+      "period": "February 2026",
+      "amount": 598.2,
+      "due_date": "2026-04-10",
+      "status": "overdue"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-31001",
+    "installments": 6
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-31001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 6,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "CF10 4PL",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.status",
+     "value": "overdue",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He received a reminder letter in early May saying the bill is overdue.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He has never set up an instalment plan with the company before.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Samuel, a small-cafe owner under pressure who expects quick service.",
+   "reason_for_call": "A cold winter produced a very large bill and he wants to pay it off over six months.",
+   "task_instructions": "Give the bill number, your postcode, and ask for 6 instalments right away. Mention the reminder letter and that you never had a plan before. Be impatient and push the agent to finish quickly, but answer any question.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30770",
+      "holder_name": "Ingrid Solheim",
+      "email": "ingrid.s@example.org",
+      "service_postcode": "B15 2TT",
+      "status": "active",
+      "has_plan": false
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-31101",
+      "account_id": "A-30770",
+      "period": "March 2026",
+      "amount": 205.3,
+      "due_date": "2026-04-18",
+      "status": "overdue"
+     },
+     {
+      "bill_id": "B-31102",
+      "account_id": "A-30770",
+      "period": "April 2026",
+      "amount": 97.4,
+      "due_date": "2026-05-28",
+      "status": "open"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-31101",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "bill.account_id",
+     "value": "A-30770",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.period",
+     "value": "March 2026",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "B15 2TT",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ingrid, a retired librarian who is friendly and clear.",
+   "reason_for_call": "She wants to pay her overdue March bill in three instalments but does not have the bill number to hand.",
+   "task_instructions": "Say you do not know the bill number but give your account number and say the bill is for March 2026. Ask for 3 instalments. Give your postcode when asked and answer helpfully.",
+   "expected_outcome": "setup_plan"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-30880",
+      "holder_name": "Walter Pratt",
+      "email": "walter.pratt@example.org",
+      "service_postcode": "SE15 6HN",
+      "status": "active",
+      "has_plan": true
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-31201",
+      "account_id": "A-30880",
+      "period": "March 2026",
+      "amount": 275.0,
+      "due_date": "2026-04-12",
+      "status": "overdue"
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-31201",
+    "installments": 3
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-31201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.installments",
+     "value": 3,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.service_postcode",
+     "value": "SE15 6HN",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Walter, a retired bus driver of few words.",
+   "reason_for_call": "He wants to spread an overdue bill over several months.",
+   "task_instructions": "Give only the bill number at first and say you want to pay it in instalments. Answer only what is asked, in a few words: say 3 instalments only if asked how many, and give the postcode only if asked. Accept a refusal without arguing.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

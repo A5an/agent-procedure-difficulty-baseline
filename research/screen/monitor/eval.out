@@ -1,0 +1,30 @@
+within sopbench, logreg, 5-fold by task              n  16109  fail 0.48  AUC 0.813  within-agent 0.791 [0.772, 0.810]  caught@10% 0.17  @20% 0.32
+within sopbench, gbm, 5-fold by task                 n  16109  fail 0.48  AUC 0.844  within-agent 0.815 [0.800, 0.831]  caught@10% 0.18  @20% 0.34
+within sopbench, single feature has_commit           n  16109  fail 0.48  AUC 0.772  within-agent 0.753 [0.732, 0.774]  caught@10% 0.14  @20% 0.29
+within sopbench, single feature n_calls              n  16109  fail 0.48  AUC 0.364  within-agent 0.355 [0.340, 0.372]  caught@10% 0.07  @20% 0.15
+within sopbench, single feature grounding            n  16109  fail 0.48  AUC 0.529  within-agent 0.526 [0.515, 0.537]  caught@10% 0.12  @20% 0.22
+within sopbench, single feature n_tool_errors        n  16109  fail 0.48  AUC 0.500  within-agent 0.500 [0.490, 0.510]  caught@10% 0.10  @20% 0.20
+within tau2, logreg, 5-fold by task                  n   9762  fail 0.25  AUC 0.583  within-agent 0.582 [0.542, 0.628]  caught@10% 0.13  @20% 0.28
+within tau2, gbm, 5-fold by task                     n   9762  fail 0.25  AUC 0.644  within-agent 0.636 [0.594, 0.675]  caught@10% 0.20  @20% 0.36
+within tau2, single feature has_commit               n   9762  fail 0.25  AUC 0.478  within-agent 0.470 [0.427, 0.507]  caught@10% 0.10  @20% 0.19
+within tau2, single feature n_calls                  n   9762  fail 0.25  AUC 0.556  within-agent 0.565 [0.525, 0.610]  caught@10% 0.14  @20% 0.26
+within tau2, single feature grounding                n   9762  fail 0.25  AUC 0.508  within-agent 0.504 [0.485, 0.522]  caught@10% 0.10  @20% 0.21
+within tau2, single feature n_tool_errors            n   9762  fail 0.25  AUC 0.497  within-agent 0.495 [0.473, 0.519]  caught@10% 0.10  @20% 0.20
+within tib, logreg, 5-fold by task                   n    240  fail 0.42  AUC 0.767  within-agent 0.760 [0.693, 0.820]  caught@10% 0.23  @20% 0.41
+within tib, gbm, 5-fold by task                      n    240  fail 0.42  AUC 0.837  within-agent 0.836 [0.780, 0.890]  caught@10% 0.19  @20% 0.40
+within tib, single feature has_commit                n    240  fail 0.42  AUC 0.334  within-agent 0.338 [0.263, 0.414]  caught@10% 0.06  @20% 0.11
+within tib, single feature n_calls                   n    240  fail 0.42  AUC 0.562  within-agent 0.506 [0.435, 0.595]  caught@10% 0.11  @20% 0.21
+within tib, single feature grounding                 n    240  fail 0.42  AUC 0.434  within-agent 0.432 [0.354, 0.503]  caught@10% 0.12  @20% 0.13
+within tib, single feature n_tool_errors             n    240  fail 0.42  AUC 0.521  within-agent 0.524 [0.440, 0.600]  caught@10% 0.08  @20% 0.18
+train on others -> sopbench, logreg                  n  16109  fail 0.48  AUC 0.657  within-agent 0.684 [0.668, 0.705]  caught@10% 0.14  @20% 0.27
+train on others -> sopbench, gbm                     n  16109  fail 0.48  AUC 0.762  within-agent 0.763 [0.745, 0.779]  caught@10% 0.17  @20% 0.31
+train on others -> tau2, logreg                      n   9762  fail 0.25  AUC 0.484  within-agent 0.464 [0.418, 0.513]  caught@10% 0.10  @20% 0.21
+train on others -> tau2, gbm                         n   9762  fail 0.25  AUC 0.533  within-agent 0.535 [0.494, 0.582]  caught@10% 0.10  @20% 0.20
+train on others -> tib, logreg                       n    240  fail 0.42  AUC 0.461  within-agent 0.457 [0.371, 0.540]  caught@10% 0.12  @20% 0.24
+train on others -> tib, gbm                          n    240  fail 0.42  AUC 0.440  within-agent 0.446 [0.371, 0.530]  caught@10% 0.07  @20% 0.10
+train sopbench -> tau2, logreg                       n   9762  fail 0.25  AUC 0.479  within-agent 0.455 [0.408, 0.499]  caught@10% 0.10  @20% 0.21
+train sopbench -> tib, logreg                        n    240  fail 0.42  AUC 0.447  within-agent 0.442 [0.364, 0.522]  caught@10% 0.10  @20% 0.18
+train tau2 -> sopbench, logreg                       n  16109  fail 0.48  AUC 0.634  within-agent 0.665 [0.647, 0.681]  caught@10% 0.14  @20% 0.26
+train tau2 -> tib, logreg                            n    240  fail 0.42  AUC 0.621  within-agent 0.611 [0.533, 0.685]  caught@10% 0.08  @20% 0.22
+
+pooled logreg coefficients (per SD): {'has_commit': np.float64(1.108), 'n_calls': np.float64(0.158), 'n_distinct_tools': np.float64(-0.239), 'n_tool_errors': np.float64(-0.014), 'n_empty_arg_calls': np.float64(0.041), 'n_repeat_calls': np.float64(-0.041), 'n_user_msgs': np.float64(0.15), 'n_agent_texts': np.float64(0.095), 'log_chars': np.float64(-0.214), 'user_confirmed': np.float64(-0.635), 'agent_asked': np.float64(-0.387), 'n_commit_args': np.float64(0.057), 'grounding': np.float64(-0.055)}

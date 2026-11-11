@@ -1,0 +1,887 @@
+{
+ "procedure_id": "h10_cloud",
+ "domain": "cloud hosting billing",
+ "organization": "Strata Cloud Services",
+ "title": "Service cancellation with prorated credit",
+ "summary": "Cancel a customer's cloud service at their request and issue a prorated credit when the service, its account and its plan qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer accounts that own cloud services",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "contact_email": "str",
+    "billing_status": "enum:current|overdue|suspended"
+   }
+  },
+  "plan": {
+   "key": "plan_code",
+   "description": "Catalog of service plans and their cancellation terms",
+   "fields": {
+    "plan_code": "str",
+    "plan_name": "str",
+    "prorated_credit_allowed": "bool",
+    "minimum_term_days": "int",
+    "max_credit": "number"
+   }
+  },
+  "service": {
+   "key": "service_id",
+   "description": "Cloud services billed to an account",
+   "fields": {
+    "service_id": "str",
+    "account_id": "ref:account",
+    "plan_code": "ref:plan",
+    "service_name": "str",
+    "monthly_fee": "number",
+    "start_date": "date",
+    "paid_through": "date",
+    "status": "enum:active|cancelled|suspended"
+   }
+  },
+  "cancellation_request": {
+   "key": "request_id",
+   "description": "Log of cancellation requests made on services, kept for every account",
+   "fields": {
+    "request_id": "str",
+    "account_id": "ref:account",
+    "service_id": "ref:service",
+    "requested_on": "date"
+   }
+  },
+  "credit_note": {
+   "key": "note_id",
+   "description": "Credits issued to an account for a cancelled service",
+   "fields": {
+    "note_id": "str",
+    "account_id": "ref:account",
+    "service_id": "ref:service",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for billing staff to review a cancellation",
+   "fields": {
+    "request_id": "str",
+    "service_id": "ref:service",
+    "reason": "enum:repeat_cancellation|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by its account ID."
+  },
+  {
+   "name": "get_service",
+   "kind": "get",
+   "entity": "service",
+   "description": "Look up a cloud service by its service ID."
+  },
+  {
+   "name": "get_plan",
+   "kind": "get",
+   "entity": "plan",
+   "description": "Look up a plan in the catalog by its plan code."
+  },
+  {
+   "name": "find_services_by_name",
+   "kind": "search",
+   "entity": "service",
+   "by": [
+    "service_name"
+   ],
+   "description": "List services with the given service name."
+  },
+  {
+   "name": "find_cancellations_by_account",
+   "kind": "search",
+   "entity": "cancellation_request",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all cancellation requests logged for an account."
+  },
+  {
+   "name": "end_service",
+   "kind": "update",
+   "entity": "service",
+   "args": {
+    "service_id": {
+     "type": "ref:service",
+     "description": "The service to cancel."
+    }
+   },
+   "set": {
+    "status": "'cancelled'"
+   },
+   "description": "Mark a service as cancelled."
+  },
+  {
+   "name": "create_credit_note",
+   "kind": "create",
+   "entity": "credit_note",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the credit is issued to."
+    },
+    "service_id": {
+     "type": "ref:service",
+     "description": "The cancelled service the credit is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The credit amount in currency units, to the cent."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "service_id": "args.service_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Issue a credit note on an account for a cancelled service."
+  },
+  {
+   "name": "create_cancellation_request",
+   "kind": "create",
+   "entity": "cancellation_request",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account that made the request."
+    },
+    "service_id": {
+     "type": "ref:service",
+     "description": "The service that was cancelled."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "service_id": "args.service_id",
+    "requested_on": "today"
+   },
+   "description": "Log a cancellation request for an account and service."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "service_id": {
+     "type": "ref:service",
+     "description": "The service the review is about."
+    },
+    "reason": {
+     "type": "enum:repeat_cancellation|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "service_id": "args.service_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for billing staff to review a cancellation."
+  }
+ ],
+ "request": {
+  "service_id": {
+   "type": "ref:service",
+   "description": "the cloud service you want cancelled"
+  }
+ },
+ "claims": {
+  "contact_email": {
+   "type": "str",
+   "description": "the contact email address on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "service",
+   "entity": "service",
+   "key": "req.service_id"
+  },
+  {
+   "name": "account",
+   "entity": "account",
+   "key": "service.account_id"
+  },
+  {
+   "name": "plan",
+   "entity": "plan",
+   "key": "service.plan_code"
+  }
+ ],
+ "outcomes": {
+  "cancel_and_credit": {
+   "kind": "perform",
+   "description": "Cancel the service, issue the prorated credit to the account and log the cancellation request.",
+   "calls": [
+    {
+     "tool": "end_service",
+     "args": {
+      "service_id": "req.service_id"
+     }
+    },
+    {
+     "tool": "create_credit_note",
+     "args": {
+      "account_id": "account.account_id",
+      "service_id": "req.service_id",
+      "amount": "round(min(service.monthly_fee * days_between(today, service.paid_through) / 30, plan.max_credit), 2)"
+     }
+    },
+    {
+     "tool": "create_cancellation_request",
+     "args": {
+      "account_id": "account.account_id",
+      "service_id": "req.service_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The account already has two or more cancellation requests on record: do not cancel; open a staff review instead.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "service_id": "req.service_id",
+      "reason": "'repeat_cancellation'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not cancel or credit anything; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "service.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only an active service can be cancelled through this procedure."
+  },
+  {
+   "id": "R2",
+   "when": "claim.contact_email != account.contact_email",
+   "outcome": "refuse",
+   "explain": "The caller must give the contact email address on the account before any change."
+  },
+  {
+   "id": "R3",
+   "when": "account.billing_status == 'suspended'",
+   "outcome": "refuse",
+   "explain": "Services on a suspended account cannot be cancelled here."
+  },
+  {
+   "id": "R4",
+   "when": "account.billing_status == 'overdue'",
+   "outcome": "refuse",
+   "explain": "Services on an account with an overdue invoice cannot be cancelled until it is settled."
+  },
+  {
+   "id": "R5",
+   "when": "not plan.prorated_credit_allowed",
+   "outcome": "refuse",
+   "explain": "Services on a plan that does not allow prorated credit cannot be cancelled here."
+  },
+  {
+   "id": "R6",
+   "when": "plan.minimum_term_days > days_between(service.start_date, today)",
+   "outcome": "refuse",
+   "explain": "A service cannot be cancelled before its plan's minimum term has been completed."
+  },
+  {
+   "id": "R7",
+   "when": "round(service.monthly_fee * days_between(today, service.paid_through) / 30, 2) < 1",
+   "outcome": "refuse",
+   "explain": "No credit is issued when the prorated amount is under 1.00, including when the paid-through date is today or earlier."
+  },
+  {
+   "id": "R8",
+   "when": "db_count('cancellation_request', 'account_id', account.account_id) >= 2",
+   "outcome": "review",
+   "explain": "If the account already has two or more cancellation requests on record, open a staff review instead of cancelling."
+  }
+ ],
+ "default_outcome": "cancel_and_credit",
+ "policy_text": "## Who can ask\nCustomers ask to cancel a cloud service by phone or chat. Before changing anything, find the service and the account it belongs to, and confirm the caller's identity: they must give the contact email address on the account, and it must match the one on file (letter case does not matter). If it does not match, or they cannot give it, do not make any change.\n\n## Finding the service\nUse the service ID if the customer gives it. If they do not have it, search by the service name they give and list the matching services. If more than one matches, ask which one they mean. Only cancel the service the customer asked about. If the customer gives neither an ID nor a name, ask for one before going further.\n\n## When a cancellation can go ahead\nCheck these conditions in order. The first one that applies decides the outcome, and the conditions after it are not checked.\n\n1. The service status must be active. A suspended or already cancelled service cannot be cancelled here. Decline.\n2. The contact email the caller gives must match the account's contact email, as described above. If it does not, decline.\n3. The account's billing status must not be suspended. If it is, decline and tell the customer to contact billing.\n4. The account's billing status must not be overdue. If it is, decline and explain that the invoice must be settled first.\n5. The service's plan must allow prorated credit. Check the plan record. If prorated credit is not allowed on the plan, decline.\n6. The plan's minimum term must be complete. Count the days from the service's start date to today. If that is fewer than the plan's minimum_term_days, decline.\n7. The prorated credit must be at least 1.00 (see below). If it is under 1.00, including when the paid-through date is today or already past, decline.\n8. Repeat cancellations go to staff. Search the cancellation requests for the account. If there are two or more on record, do not cancel. Open a review request with reason repeat_cancellation and tell the customer that staff will contact them.\n\nIf none of steps 1 to 8 applies, cancel the service and issue the credit.\n\n## Computing the credit\nCredit = monthly fee x (days from today until the service's paid-through date) / 30, rounded to the cent. Use the monthly fee and paid-through date on the service record, not figures the customer quotes. If that amount is higher than the plan's max_credit, use max_credit instead. Tell the customer the exact credit amount.\n\n## What to do\n- Cancel: set the service status to cancelled, then issue a credit note on the account for the computed credit, then log a cancellation request for the account and service.\n- Review: open the review request described in step 8 and make no other change.\n- Decline: make no change and explain the reason in plain words.\n\n## Never\nDo not cancel a service the customer did not ask about. Do not change the monthly fee, the paid-through date or the plan. Do not issue a credit other than the computed amount, do not waive any charge, and do not skip the identity check.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-1001",
+    "company_name": "Quill & Rowe Bakeries",
+    "contact_email": "ops@quillrowe.example",
+    "billing_status": "current"
+   }
+  ],
+  "plan": [
+   {
+    "plan_code": "std-hourly",
+    "plan_name": "Standard on-demand",
+    "prorated_credit_allowed": true,
+    "minimum_term_days": 0,
+    "max_credit": 500.0
+   },
+   {
+    "plan_code": "res-compute-12m",
+    "plan_name": "Reserved compute, 12-month",
+    "prorated_credit_allowed": true,
+    "minimum_term_days": 365,
+    "max_credit": 2400.0
+   },
+   {
+    "plan_code": "res-storage-6m",
+    "plan_name": "Reserved storage, 6-month",
+    "prorated_credit_allowed": false,
+    "minimum_term_days": 180,
+    "max_credit": 800.0
+   },
+   {
+    "plan_code": "gpu-burst",
+    "plan_name": "GPU burst pool",
+    "prorated_credit_allowed": true,
+    "minimum_term_days": 30,
+    "max_credit": 1500.0
+   }
+  ],
+  "service": [
+   {
+    "service_id": "S-10001",
+    "account_id": "A-1001",
+    "plan_code": "std-hourly",
+    "service_name": "bakery-pos-sync",
+    "monthly_fee": 45.0,
+    "start_date": "2025-06-01",
+    "paid_through": "2026-06-01",
+    "status": "active"
+   }
+  ],
+  "cancellation_request": [
+   {
+    "request_id": "CR-60990",
+    "account_id": "A-1001",
+    "service_id": "S-10001",
+    "requested_on": "2025-10-19"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-4410",
+      "company_name": "Kestrel Logistics Ltd",
+      "contact_email": "billing@kestrel-logistics.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-61204",
+      "account_id": "A-4410",
+      "plan_code": "res-storage-6m",
+      "service_name": "kestrel-archive-eu",
+      "monthly_fee": 640.0,
+      "start_date": "2025-09-10",
+      "paid_through": "2026-06-30",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-61204"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-61204",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "billing@kestrel-logistics.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mireille Dube, operations lead at a logistics company. Organized and polite.",
+   "reason_for_call": "The archive storage for an old EU project is no longer needed, and she wants it closed.",
+   "task_instructions": "Give the contact email on your account in your first message. Do not give the service ID until the agent asks for it; when asked, give it. Answer questions politely and accept a refusal without arguing.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-5532",
+      "company_name": "Ferris & Vale Architects",
+      "contact_email": "it@ferrisvale.example",
+      "billing_status": "suspended"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-70145",
+      "account_id": "A-5532",
+      "plan_code": "gpu-burst",
+      "service_name": "vale-render-farm",
+      "monthly_fee": 520.0,
+      "start_date": "2026-02-03",
+      "paid_through": "2026-06-15",
+      "status": "active"
+     },
+     {
+      "service_id": "S-70146",
+      "account_id": "A-5532",
+      "plan_code": "std-hourly",
+      "service_name": "vale-cad-store",
+      "monthly_fee": 95.0,
+      "start_date": "2025-08-19",
+      "paid_through": "2026-06-19",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-70145"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-70145",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "it@ferrisvale.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "We are moving the office to Lisbon in the autumn, so everything is being reorganised this month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Our CFO has asked me to tidy up the cloud spending before the board meeting on Thursday.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The CAD store is a separate service that we are keeping for the summer, so leave that one alone.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Tomasz, a studio manager with a lot of deadlines. Impatient and direct.",
+   "reason_for_call": "The render farm for a finished project is still running and costing money, and he wants it stopped.",
+   "task_instructions": "Give the service ID and the contact email in your first message. If refused, argue twice that it has to be stopped today and ask for an exception. After the second refusal, accept it and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-6250",
+      "company_name": "Orion Health Analytics",
+      "contact_email": "ops@orionhealth.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-44802",
+      "account_id": "A-6250",
+      "plan_code": "res-compute-12m",
+      "service_name": "orion-batch-prod",
+      "monthly_fee": 1150.0,
+      "start_date": "2025-12-01",
+      "paid_through": "2026-07-31",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-44802"
+   },
+   "customer_facts": [
+    {
+     "fact": "service.service_name",
+     "value": "orion-batch-prod",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "ops@orionhealth.example",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dev, a terse on-call engineer who hates long calls.",
+   "reason_for_call": "A batch processing service set up in December is being retired, and he wants it stopped.",
+   "task_instructions": "Mention the service name in your first message. You do not know the service ID and cannot give one. Keep every answer to a few words. Give the contact email only if the agent asks for it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-3388",
+      "company_name": "Tessaro Print Co",
+      "contact_email": "accounts@tessaroprint.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-40117",
+      "account_id": "A-3388",
+      "plan_code": "std-hourly",
+      "service_name": "press-proof-render",
+      "monthly_fee": 380.0,
+      "start_date": "2025-11-02",
+      "paid_through": "2026-06-12",
+      "status": "active"
+     },
+     {
+      "service_id": "S-40118",
+      "account_id": "A-3388",
+      "plan_code": "std-hourly",
+      "service_name": "web-assets-cdn",
+      "monthly_fee": 75.0,
+      "start_date": "2025-11-02",
+      "paid_through": "2026-06-12",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-40117"
+   },
+   "initial_request_values": {
+    "service_id": "S-40118"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-40117",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "accounts@tessaroprint.example",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, who owns a print shop and handles her own IT on weekends. Friendly but a little scattered.",
+   "reason_for_call": "Her team moved proof rendering in-house, so she wants that service stopped. She first gets the web assets service mixed up with it.",
+   "task_instructions": "In your first message, ask to cancel your web assets service. Then, before the agent makes any change, say you got it mixed up and want the press proof rendering service cancelled instead. Give its service ID in that message. Give the account contact email only if the agent asks for it.",
+   "expected_outcome": "cancel_and_credit"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-9047",
+      "company_name": "Halvorsen Media",
+      "contact_email": "infra@halvorsenmedia.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-55410",
+      "account_id": "A-9047",
+      "plan_code": "gpu-burst",
+      "service_name": "render-queue-prod",
+      "monthly_fee": 900.0,
+      "start_date": "2025-10-01",
+      "paid_through": "2026-06-25",
+      "status": "active"
+     },
+     {
+      "service_id": "S-55411",
+      "account_id": "A-9047",
+      "plan_code": "gpu-burst",
+      "service_name": "render-queue-staging",
+      "monthly_fee": 300.0,
+      "start_date": "2025-10-01",
+      "paid_through": "2026-02-28",
+      "status": "cancelled"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-55410"
+   },
+   "initial_request_values": {
+    "service_id": "S-55411"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-55410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "infra@halvorsenmedia.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "service.paid_through",
+     "value": "2026-07-15",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, head of infrastructure at a video company. Confident and precise about her numbers.",
+   "reason_for_call": "The production render queue is being replaced by another vendor, and she wants it stopped.",
+   "task_instructions": "In your first message, ask to cancel the staging render queue. When the agent says that service cannot be cancelled, accept it, then ask to cancel the production render queue and give its service ID together with the contact email. Say up front that you believe it is paid through July 15. Accept the agent's answer on the amount without argument.",
+   "expected_outcome": "cancel_and_credit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-6631",
+      "company_name": "Ndlovu Freight",
+      "contact_email": "it@ndlovufreight.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-82010",
+      "account_id": "A-6631",
+      "plan_code": "std-hourly",
+      "service_name": "legacy-ci-old",
+      "monthly_fee": 60.0,
+      "start_date": "2025-03-02",
+      "paid_through": "2026-05-02",
+      "status": "cancelled"
+     },
+     {
+      "service_id": "S-82012",
+      "account_id": "A-6631",
+      "plan_code": "res-compute-12m",
+      "service_name": "ledger-replica-west",
+      "monthly_fee": 300.0,
+      "start_date": "2025-03-02",
+      "paid_through": "2026-06-10",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": [
+     {
+      "request_id": "CR-61001",
+      "account_id": "A-6631",
+      "service_id": "S-82010",
+      "requested_on": "2025-12-03"
+     }
+    ]
+   },
+   "request_values": {
+    "service_id": "S-82012"
+   },
+   "initial_request_values": {
+    "service_id": "S-82010"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-82012",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "it@ndlovufreight.example",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Thabo, IT lead at a freight company. Calm and practical.",
+   "reason_for_call": "The west ledger replica is being moved to another region, so they want it closed.",
+   "task_instructions": "In your first message, ask to cancel the legacy CI service. When the agent says it is already cancelled, switch to the ledger replica west service. In the same message, give its service ID and the contact email on the account. Accept what the agent says.",
+   "expected_outcome": "cancel_and_credit"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-8820",
+      "company_name": "Grenfell Dental Group",
+      "contact_email": "office@grenfelldental.example",
+      "billing_status": "overdue"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-93020",
+      "account_id": "A-8820",
+      "plan_code": "std-hourly",
+      "service_name": "practice-imaging-sync",
+      "monthly_fee": 180.0,
+      "start_date": "2025-07-14",
+      "paid_through": "2026-06-05",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": []
+   },
+   "request_values": {
+    "service_id": "S-93020"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-93020",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "office@grenfelldental.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.billing_status",
+     "value": "current",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "The office manager for a dental group. Short on patience and sure the practice is paid up.",
+   "reason_for_call": "The imaging sync service is being replaced by another one, and she wants it stopped.",
+   "task_instructions": "Say up front that you believe the account is fully paid up and current. If refused, argue twice that the billing is wrong and that the cancellation has to go through now. After the second refusal, accept it and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-7714",
+      "company_name": "Brightwater Analytics",
+      "contact_email": "billing@brightwater.example",
+      "billing_status": "current"
+     }
+    ],
+    "service": [
+     {
+      "service_id": "S-93300",
+      "account_id": "A-7714",
+      "plan_code": "std-hourly",
+      "service_name": "brightwater-old-etl",
+      "monthly_fee": 70.0,
+      "start_date": "2025-09-01",
+      "paid_through": "2026-01-10",
+      "status": "cancelled"
+     },
+     {
+      "service_id": "S-93301",
+      "account_id": "A-7714",
+      "plan_code": "gpu-burst",
+      "service_name": "brightwater-gpu-pool",
+      "monthly_fee": 620.0,
+      "start_date": "2026-01-15",
+      "paid_through": "2026-06-08",
+      "status": "active"
+     },
+     {
+      "service_id": "S-93302",
+      "account_id": "A-7714",
+      "plan_code": "std-hourly",
+      "service_name": "brightwater-etl-nightly",
+      "monthly_fee": 210.0,
+      "start_date": "2025-09-01",
+      "paid_through": "2026-06-08",
+      "status": "active"
+     }
+    ],
+    "cancellation_request": [
+     {
+      "request_id": "CR-71001",
+      "account_id": "A-7714",
+      "service_id": "S-93300",
+      "requested_on": "2026-01-08"
+     }
+    ]
+   },
+   "request_values": {
+    "service_id": "S-93301"
+   },
+   "initial_request_values": {
+    "service_id": "S-93302"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.service_id",
+     "value": "S-93301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.contact_email",
+     "value": "billing@brightwater.example",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.billing_status",
+     "value": "current",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The GPU pool is the big one we used for the model training runs. Its name on our dashboard is brightwater-gpu-pool.",
+     "kind": "helpful"
+    },
+    {
+     "text": "We are always current on invoices. The last payment cleared in April.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The nightly ETL service is a different one, and we are keeping it.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ruth, a data team lead who runs the analytics platform. Organized and quick.",
+   "reason_for_call": "They finished a model training project and no longer need the GPU pool.",
+   "task_instructions": "In your first message, ask to cancel the nightly ETL service. Then, before anything is changed, say you got that wrong and want the GPU pool cancelled instead. Give its service ID in that message. Give the contact email and the account details up front.",
+   "expected_outcome": "cancel_and_credit"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

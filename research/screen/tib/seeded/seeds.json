@@ -1,0 +1,85 @@
+{
+ "seed": "20261103-seeded",
+ "seed_tasks": {
+  "edgaineligible": [
+   "rl_edgaineligible_0045",
+   "rl_edgaineligible_0166"
+  ],
+  "edgamandwrong": [
+   "rl_edgamandwrong_0127",
+   "rl_edgamandwrong_0220"
+  ],
+  "edgbcarddisamb": [
+   "rl_edgbcarddisamb_0573",
+   "rl_edgbcarddisamb_0685"
+  ],
+  "edgbmatelig": [
+   "rl_edgbmatelig_0257",
+   "rl_edgbmatelig_0730"
+  ],
+  "edgbmindchange": [
+   "rl_edgbmindchange_0097",
+   "rl_edgbmindchange_0148"
+  ],
+  "edgbstmtwin": [
+   "rl_edgbstmtwin_0123",
+   "rl_edgbstmtwin_0184"
+  ],
+  "hpgold": [
+   "rl_hpgold_0047",
+   "rl_hpgold_0094"
+  ],
+  "hpservice": [
+   "rl_hpservice_0194",
+   "rl_hpservice_0270"
+  ],
+  "sq2fdladder": [
+   "rl_sq2fdladder_0101",
+   "rl_sq2fdladder_0301"
+  ],
+  "sq2gold": [
+   "rl_sq2gold_0134",
+   "rl_sq2gold_0235"
+  ],
+  "sq2insur": [
+   "rl_sq2insur_0206",
+   "rl_sq2insur_0343"
+  ],
+  "sq2mandaudit": [
+   "rl_sq2mandaudit_0064",
+   "rl_sq2mandaudit_0396"
+  ],
+  "sq2rdsize": [
+   "rl_sq2rdsize_0117",
+   "rl_sq2rdsize_0132"
+  ],
+  "sqclose": [
+   "rl_sqclose_0146",
+   "rl_sqclose_0343"
+  ],
+  "sqfd": [
+   "rl_sqfd_0002",
+   "rl_sqfd_0254"
+  ],
+  "sqreloc": [
+   "rl_sqreloc_0017",
+   "rl_sqreloc_0048"
+  ],
+  "sqrenew": [
+   "rl_sqrenew_0296",
+   "rl_sqrenew_0556"
+  ],
+  "tlacctdet": [
+   "rl_tlacctdet_0067",
+   "rl_tlacctdet_0206"
+  ],
+  "tlprodoff": [
+   "rl_tlprodoff_0051",
+   "rl_tlprodoff_0074"
+  ],
+  "tlreqstat": [
+   "rl_tlreqstat_0067",
+   "rl_tlreqstat_0105"
+  ]
+ }
+}

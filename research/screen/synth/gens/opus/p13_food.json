@@ -1,0 +1,683 @@
+{
+ "procedure_id": "p13_food",
+ "domain": "food delivery app",
+ "organization": "DashPlate Delivery",
+ "title": "Missing or wrong item refunds",
+ "summary": "Credit a customer for missing, wrong or spoiled items on a recent delivered order, or send larger and repeat refund requests to the Refund Review team.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "DashPlate app account holders",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "phone": "str",
+    "email": "str",
+    "refunds_last_90d": "int",
+    "city": "str"
+   }
+  },
+  "order": {
+   "key": "order_id",
+   "description": "Food orders placed through the app",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "restaurant_name": "str",
+    "status": "enum:delivered|cancelled|in_progress",
+    "delivered_on": "date",
+    "total": "number",
+    "refund_status": "enum:none|credited|under_review",
+    "refund_amount": "number"
+   }
+  },
+  "refund_review": {
+   "key": "review_id",
+   "description": "Refund requests passed to the Refund Review team",
+   "fields": {
+    "review_id": "str",
+    "order_id": "ref:order",
+    "amount": "number",
+    "reason": "enum:high_amount|frequent_refunds",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer account by customer ID."
+  },
+  {
+   "name": "find_customer_by_phone",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "phone"
+   ],
+   "description": "Find customer accounts by the phone number registered on the account."
+  },
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up an order by its order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all orders placed by a customer account."
+  },
+  {
+   "name": "issue_refund_credit",
+   "kind": "update",
+   "entity": "order",
+   "args": {
+    "order_id": {
+     "type": "ref:order",
+     "description": "The order the refund is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The refund amount in dollars, exactly as the customer requested."
+    }
+   },
+   "set": {
+    "refund_status": "'credited'",
+    "refund_amount": "args.amount"
+   },
+   "description": "Credit the refund amount to the customer's DashPlate wallet and mark the order as refunded."
+  },
+  {
+   "name": "create_refund_review",
+   "kind": "create",
+   "entity": "refund_review",
+   "args": {
+    "order_id": {
+     "type": "ref:order",
+     "description": "The order the refund request is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The refund amount in dollars the customer requested."
+    },
+    "reason": {
+     "type": "enum:high_amount|frequent_refunds",
+     "description": "Why the request needs review: high_amount if over 25.00, otherwise frequent_refunds."
+    }
+   },
+   "fields": {
+    "order_id": "args.order_id",
+    "amount": "args.amount",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a refund request to the Refund Review team instead of crediting it directly."
+  }
+ ],
+ "request": {
+  "order_id": {
+   "type": "ref:order",
+   "description": "the order you want a refund for"
+  },
+  "amount": {
+   "type": "number",
+   "description": "the refund amount in dollars you are asking for"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "order",
+   "entity": "order",
+   "key": "req.order_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "order.customer_id"
+  }
+ ],
+ "outcomes": {
+  "credit": {
+   "kind": "perform",
+   "description": "Credit the requested amount to the customer's wallet for this order.",
+   "calls": [
+    {
+     "tool": "issue_refund_credit",
+     "args": {
+      "order_id": "req.order_id",
+      "amount": "req.amount"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Send the request to the Refund Review team instead of crediting it.",
+   "calls": [
+    {
+     "tool": "create_refund_review",
+     "args": {
+      "order_id": "order.order_id",
+      "amount": "req.amount",
+      "reason": "'high_amount' if req.amount > 25 else 'frequent_refunds'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "The order does not qualify for a refund; explain why and make no change.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "order.status != 'delivered' or days_between(order.delivered_on, today) > 3 or req.amount > order.total or order.refund_status != 'none'",
+   "outcome": "refuse",
+   "explain": "Refunds are only for delivered orders reported within 3 days of delivery, for no more than the order total, and only if the order has not already been refunded or sent for review."
+  },
+  {
+   "id": "R2",
+   "when": "req.amount > 25 or cust.refunds_last_90d >= 3",
+   "outcome": "review",
+   "explain": "Requests over 25.00, or from customers with 3 or more refunds in the last 90 days, go to the Refund Review team instead of being credited."
+  }
+ ],
+ "default_outcome": "credit",
+ "policy_text": "## Purpose\nCustomers contact us when an item from a delivered order was missing, wrong or spoiled. Depending on the order and the request, you either credit the refund to the customer's DashPlate wallet, send the request to the Refund Review team, or decline it.\n\n## Finding the order\nAsk for the order number (it is in the app under Orders and in the receipt email). If the customer does not have it, find their account by the phone number registered on the account, list their orders and confirm which one they mean (for example by restaurant name). If you cannot identify the order, you cannot process a refund. Do not guess.\n\nAsk the customer how much they want refunded, in dollars, if they have not said. Use the amount they ask for. Do not suggest a different amount and do not split or round it.\n\n## When a refund cannot be given\nDecline the request and make no change if any of these is true:\n- The order is not marked as delivered (for example, it was cancelled or is still in progress).\n- The order was delivered more than 3 days ago. Requests on the day of delivery and up to 3 days after it are accepted.\n- The amount requested is more than the order total.\n- The order has already been refunded, or a refund for it is already under review. Only one refund request is accepted per order.\n\n## When the request goes to Refund Review\nIf the order qualifies, check two things before crediting:\n- If the requested amount is more than 25.00, do not credit it. Create a refund review with reason high_amount.\n- Otherwise, if the customer has had 3 or more refunds in the last 90 days, as shown on their account, do not credit it. Create a refund review with reason frequent_refunds.\nTell the customer the Refund Review team will look at it and reply in the app within 48 hours.\n\n## Crediting the refund\nIf none of the above applies, issue the refund credit for the exact amount requested. Tell the customer it is in their DashPlate wallet now.\n\n## Always go by our records\nUse the delivery date, order total, refund status and refund count shown in our records, even if the customer remembers them differently.\n\n## Never\nDo not make exceptions to the 3-day window or the review thresholds. Do not credit a request that must go to review. Do not create more than one refund action per request, and do not change any order the customer did not ask about.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-9001",
+    "full_name": "Hannah Oduya",
+    "phone": "+1 312 555 0147",
+    "email": "h.oduya@example.com",
+    "refunds_last_90d": 0,
+    "city": "Chicago"
+   }
+  ],
+  "order": [
+   {
+    "order_id": "FD-900112",
+    "customer_id": "C-9001",
+    "restaurant_name": "Green Bowl",
+    "status": "delivered",
+    "delivered_on": "2026-05-18",
+    "total": 17.4,
+    "refund_status": "none",
+    "refund_amount": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-1103",
+      "full_name": "Priya Raman",
+      "phone": "+1 206 555 0193",
+      "email": "priya.raman@example.com",
+      "refunds_last_90d": 1,
+      "city": "Seattle"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-110273",
+      "customer_id": "C-1103",
+      "restaurant_name": "Masala Junction",
+      "status": "delivered",
+      "delivered_on": "2026-05-19",
+      "total": 24.8,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-110273",
+    "amount": 9.8
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-110273",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 9.8,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.refunds_last_90d",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graduate student who orders dinner a lot and is a little embarrassed about how often things go wrong.",
+   "reason_for_call": "Her garlic naan and mango lassi were missing from last night's order and she wants 9.80 back.",
+   "task_instructions": "Say what was missing, give the order number and the amount upfront. Mention apologetically that you think this is your third or fourth refund in the last few months, so it might need checking. Accept whatever the agent tells you and thank them.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2240",
+      "full_name": "Marcus Bell",
+      "phone": "+1 404 555 0126",
+      "email": "mbell@example.com",
+      "refunds_last_90d": 0,
+      "city": "Atlanta"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-610552",
+      "customer_id": "C-2240",
+      "restaurant_name": "Smokehouse 54",
+      "status": "delivered",
+      "delivered_on": "2026-05-14",
+      "total": 26.3,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-610552",
+    "amount": 14.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-610552",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 14.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a contractor who just got back from a job out of town and is short on patience.",
+   "reason_for_call": "His brisket plate from last week's order was cold and half of it was missing; he wants 14.00 back.",
+   "task_instructions": "Give the order number and the amount in your first message. If the agent declines, insist that you were travelling and could not report it sooner, and ask for an exception at least twice. Then accept grudgingly and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-3318",
+      "full_name": "Elena Petrova",
+      "phone": "+1 617 555 0171",
+      "email": "elena.p@example.com",
+      "refunds_last_90d": 1,
+      "city": "Boston"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-520034",
+      "customer_id": "C-3318",
+      "restaurant_name": "Lucky Dragon",
+      "status": "delivered",
+      "delivered_on": "2026-05-19",
+      "total": 38.75,
+      "refund_status": "credited",
+      "refund_amount": 4.5
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-520034",
+    "amount": 11.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-520034",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 11.0,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.delivered_on",
+     "value": "2026-05-19",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.restaurant_name",
+     "value": "Lucky Dragon",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The order came from Lucky Dragon and was delivered to my office yesterday evening around seven.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I already got a small credit yesterday for the bubble tea that never arrived on this same order.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "order_id": "FD-520034",
+    "amount": 6.5
+   },
+   "persona": "Elena, an office manager who orders for her team and keeps careful notes.",
+   "reason_for_call": "After the missing drink was refunded, she noticed the dumplings in the same order were the wrong kind.",
+   "task_instructions": "Give the order number, the delivery date and the restaurant, and mention the earlier credit for the drink. First ask for 6.50 for the dumplings; then, before the agent does anything, say you also want the spring rolls covered and change the amount to 11.00. Accept the agent's answer politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4407",
+      "full_name": "Kwame Asante",
+      "phone": "+1 415 555 0182",
+      "email": "kwame.asante@example.com",
+      "refunds_last_90d": 0,
+      "city": "San Francisco"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-300411",
+      "customer_id": "C-4407",
+      "restaurant_name": "Bao House",
+      "status": "delivered",
+      "delivered_on": "2026-05-19",
+      "total": 45.2,
+      "refund_status": "none",
+      "refund_amount": 0
+     },
+     {
+      "order_id": "FD-300388",
+      "customer_id": "C-4407",
+      "restaurant_name": "Taco Loco",
+      "status": "delivered",
+      "delivered_on": "2026-05-10",
+      "total": 22.15,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-300411",
+    "amount": 32.0
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.phone",
+     "value": "+1 415 555 0182",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "order.restaurant_name",
+     "value": "Bao House",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 32.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a software developer messaging between meetings.",
+   "reason_for_call": "Most of his family-size bao order was wrong and he wants 32.00 back, but he deleted the receipt email.",
+   "task_instructions": "Reply in very few words. Say it's the Bao House order and give your phone number and the amount. You don't have the order number. If told it goes to review, say ok.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5019",
+      "full_name": "Rosa Delgado",
+      "phone": "+1 305 555 0164",
+      "email": "rosa.delgado@example.com",
+      "refunds_last_90d": 0,
+      "city": "Miami"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-505870",
+      "customer_id": "C-5019",
+      "restaurant_name": "Pollo Dorado",
+      "status": "delivered",
+      "delivered_on": "2026-05-19",
+      "total": 29.6,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-505870",
+    "amount": 8.5
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.full_name",
+     "value": "Rosa Delgado",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 8.5,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a retired nurse who is writing in from her daughter's laptop because her own phone broke.",
+   "reason_for_call": "Her side of plantains was missing from a chicken order and she wants 8.50 back.",
+   "task_instructions": "Give your name and the amount. You do not know the order number, you cannot get into the app, and you cannot remember which phone number the account was opened with. Do not remember the restaurant name exactly. Accept it kindly if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6025",
+      "full_name": "Tomasz Nowak",
+      "phone": "+1 773 555 0139",
+      "email": "t.nowak@example.com",
+      "refunds_last_90d": 1,
+      "city": "Chicago"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-700918",
+      "customer_id": "C-6025",
+      "restaurant_name": "Napoli Slice",
+      "status": "delivered",
+      "delivered_on": "2026-05-20",
+      "total": 52.0,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-700918",
+    "amount": 20.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-700918",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 20.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "order_id": "FD-700918",
+    "amount": 35.0
+   },
+   "persona": "Tomasz, a friendly father who ordered pizza for his son's birthday party this afternoon.",
+   "reason_for_call": "One of the pizzas arrived crushed and a side order was missing.",
+   "task_instructions": "Give the order number and first ask for 35.00. Before the agent does anything, say that on second thought you only want 20.00 for the crushed pizza, since the kids ate the rest. Be cheerful and accept the result.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7731",
+      "full_name": "Jasmine Cole",
+      "phone": "+1 512 555 0158",
+      "email": "jas.cole@example.com",
+      "refunds_last_90d": 4,
+      "city": "Austin"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-410227",
+      "customer_id": "C-7731",
+      "restaurant_name": "Pho Saigon",
+      "status": "delivered",
+      "delivered_on": "2026-05-18",
+      "total": 27.6,
+      "refund_status": "none",
+      "refund_amount": 0
+     },
+     {
+      "order_id": "FD-410199",
+      "customer_id": "C-7731",
+      "restaurant_name": "Burger Barn",
+      "status": "delivered",
+      "delivered_on": "2026-05-12",
+      "total": 19.9,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-410227",
+    "amount": 8.4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-410227",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 8.4,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Last week's Burger Barn order was fine, by the way, the fries were actually great.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I'm thinking about getting the DashPlate Plus subscription next month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The driver today was really polite, I already gave him a good tip.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Jasmine, a busy event planner who talks fast and hates waiting.",
+   "reason_for_call": "The spring rolls from her pho order were missing and she wants 8.40 back right now.",
+   "task_instructions": "Give the order number and the amount, and chat about the other things in passing. If the agent says it must go to review instead of an instant credit, complain and ask at least twice for it to be credited now, then accept the review.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8164",
+      "full_name": "Daniel Kim",
+      "phone": "+1 213 555 0177",
+      "email": "dkim@example.com",
+      "refunds_last_90d": 0,
+      "city": "Los Angeles"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "FD-830045",
+      "customer_id": "C-8164",
+      "restaurant_name": "Seoul Kitchen",
+      "status": "delivered",
+      "delivered_on": "2026-05-16",
+      "total": 33.1,
+      "refund_status": "none",
+      "refund_amount": 0
+     }
+    ]
+   },
+   "request_values": {
+    "order_id": "FD-830045",
+    "amount": 16.0
+   },
+   "customer_facts": [
+    {
+     "fact": "req.order_id",
+     "value": "FD-830045",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.amount",
+     "value": 16.0,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, a nurse who just came off a long run of shifts and has little energy to type.",
+   "reason_for_call": "His bibimbap was the wrong dish and he wants money back for it.",
+   "task_instructions": "Give only the order number and say an item was wrong. Give the amount only if asked. Answer in a few words. Accept the result.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools exist and how to look up the existing complaint/request (status lookup by ID vs. listing the customer's requests) is not specified; the order of lookup then follow-up is unstated",
+  "What the 'follow-up request' final action is: raise a new service request, add a note/escalate the existing one, or transfer to a human; policy only says 'transfer or raise a service request' when tools cannot resolve",
+  "Whether a chase-up is allowed at all depending on the original request's state (open, in progress, resolved, closed) and on elapsed time versus the SLA/turnaround; the bank's SLA conventions are not given",
+  "How to handle requests that are already resolved/closed or within SLA (decline the follow-up, explain, or still raise it), and duplicate follow-ups on the same complaint",
+  "Whether to search the knowledge base for complaint escalation/TAT rules and what to do if hits are weak",
+  "Handling when the customer gives a request ID that does not exist or belongs to another customer (refuse unlinked IDs) or gives no ID at all and has multiple open requests (disambiguation)",
+  "Required fields for the follow-up (category, priority, description, reference to original request) and whether to confirm with the customer before creating it, since confirmation is only mandated for listed irreversible actions",
+  "Customer behavior variants: angry or threatening to escalate to regulator/ombudsman, changing their mind, asking for human agent, asking for compensation or a guaranteed resolution date the assistant must not invent",
+  "Date arithmetic against the simulation date 2026-07-16 to judge how overdue a request is, and the expected wording in plain language without exposing internal status codes or category names",
+  "Bank-specific conventions such as escalation levels, ticket ID formats, and what the assistant should tell the customer about next steps and expected timelines"
+ ]
+}

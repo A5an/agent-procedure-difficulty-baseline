@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Policy never defines the senior-citizen benefit: age threshold, how age is determined (DOB in profile vs. customer statement), the extra rate amount, or whether it applies to FDs, tenures, or amount bands. It must come from the knowledge base, which the description doesn't mention.",
+  "Which tools exist and their order and parameters are unspecified: how to fetch balance, look up rates, and create the FD. The policy lists no tool for FD creation or rate lookup, so the exact tool and argument mapping are unknown.",
+  "FD parameters are unspecified: principal, tenure, interest payout type (cumulative vs. periodic), maturity instruction, nominee, and the funding source account. The assistant must elicit or infer them without exposing backend fields.",
+  "Whether FD creation needs explicit customer confirmation. The policy's confirm list covers only closures, blocks, mandate cancellation, and cheque stops, not FD booking, yet it is a money-moving mutation.",
+  "Edge cases: customer is not a senior, so the benefit doesn't apply; insufficient balance; amount below the minimum or above the maximum deposit; tenure not offered; FD funded from a non-linked account (refused); and the customer changing their mind midway.",
+  "Rate presentation: whether to quote the base rate, the senior rate, or both; the effective date; and whether the rate is locked at booking.",
+  "Final balance step: whether the customer expects a post-booking balance check to show the debit, and how to handle a mismatch or a pending or delayed posting.",
+  "Customer behavior is unspecified: whether they give all the details upfront or incrementally, whether they ask follow-up policy questions (premature withdrawal, TDS, and so on) that call for further knowledge-base searches, and what to do when the knowledge-base hits are weak.",
+  "Account selection: if the customer has several linked accounts, which one to use for the balance check and for funding.",
+  "Bank conventions: rounding, currency formatting, a date-based rate (simulation date 2026-07-16), and a maturity date calculation to state back to the customer."
+ ]
+}

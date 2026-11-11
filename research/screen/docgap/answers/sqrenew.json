@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools exist and their exact names/parameters (deposit details lookup, update renewal instruction, re-fetch to verify) are not specified, nor the order of calls.",
+  "What 'change renewal' means concretely: switching between auto-renew principal only, principal+interest, or closure at maturity, versus changing tenor; which options the bank allows is not stated.",
+  "How to identify which FD the customer means when they hold multiple deposits, or when the customer gives an unlinked or invalid deposit ID (refuse vs. ask).",
+  "Whether confirmation is required before the renewal change: policy lists confirmation only for irreversible actions, and it is unclear if a renewal change counts.",
+  "What 'verify' means: re-fetching deposit details and comparing the renewal field, and how to report the result, including what to do if the change did not persist.",
+  "Edge cases: FD already matured or within a cutoff window before maturity (as of 2026-07-16), premature-closed or lien-marked FDs, joint holders, tax-saver or non-renewable FD types, and a renewal setting identical to the current one.",
+  "Whether and when to consult the knowledge base for renewal rules, such as cutoff days, rate applied on renewal, and penalties, and how to handle weak search hits.",
+  "Customer behavior: changing their mind mid-flow, asking for rates or tenor changes beyond the renewal setting, or asking for closure instead, which would trigger the closure quote and confirm flow.",
+  "Final-action convention: whether the conversation ends with a summary, whether any escalation or service request applies if the update tool fails, and how much detail to give without exposing internal field names.",
+  "Bank-specific conventions: date and currency formatting, how maturity amounts and rates are quoted, and whether rates on renewal are guaranteed or only indicative."
+ ]
+}

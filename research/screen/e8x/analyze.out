@@ -1,0 +1,142 @@
+
+## Q1 cross-run flips
+pro>flash vs pro alone [all]: n=150, rescued=22, spoiled=9, net=13
+pro>flash vs pro alone [perform]: n=75, rescued=7, spoiled=5, net=2
+pro>flash vs pro alone [refuse]: n=75, rescued=15, spoiled=4, net=11
+pro>flash vs flash alone [all]: n=150, rescued=17, spoiled=5, net=12
+pro>flash vs flash alone [perform]: n=75, rescued=8, spoiled=3, net=5
+pro>flash vs flash alone [refuse]: n=75, rescued=9, spoiled=2, net=7
+flash>pro vs flash alone [all]: n=150, rescued=18, spoiled=2, net=16
+flash>pro vs flash alone [perform]: n=75, rescued=10, spoiled=1, net=9
+flash>pro vs flash alone [refuse]: n=75, rescued=8, spoiled=1, net=7
+flash>pro vs pro alone [all]: n=150, rescued=22, spoiled=5, net=17
+flash>pro vs pro alone [perform]: n=75, rescued=9, spoiled=3, net=6
+flash>pro vs pro alone [refuse]: n=75, rescued=13, spoiled=2, net=11
+lite>g38 vs lite alone [all]: n=150, rescued=100, spoiled=2, net=98
+lite>g38 vs lite alone [perform]: n=75, rescued=52, spoiled=1, net=51
+lite>g38 vs lite alone [refuse]: n=75, rescued=48, spoiled=1, net=47
+lite>g38 vs g38 alone [all]: n=150, rescued=2, spoiled=12, net=-10
+lite>g38 vs g38 alone [perform]: n=75, rescued=2, spoiled=8, net=-6
+lite>g38 vs g38 alone [refuse]: n=75, rescued=0, spoiled=4, net=-4
+NOISE flash 13 Oct vs 5 Oct [all]: n=150, rescued=6, spoiled=11, net=-5
+NOISE flash 13 Oct vs 5 Oct [perform]: n=75, rescued=4, spoiled=3, net=1
+NOISE flash 13 Oct vs 5 Oct [refuse]: n=75, rescued=2, spoiled=8, net=-6
+NOISE g38 13 Oct vs 5 Oct [all]: n=150, rescued=4, spoiled=1, net=3
+NOISE g38 13 Oct vs 5 Oct [perform]: n=75, rescued=2, spoiled=1, net=1
+NOISE g38 13 Oct vs 5 Oct [refuse]: n=75, rescued=2, spoiled=0, net=2
+
+## Q1 gate decisions pro>flash
+B calls it later | refuse | fail 2
+B calls it later | perform | fail 4
+B calls it later | perform | success 4
+B never calls it | refuse | success 9
+B never calls it | perform | fail 2
+B repeats A's call | refuse | fail 7
+B repeats A's call | perform | fail 11
+B repeats A's call | perform | success 49
+no handoff | refuse | fail 2
+no handoff | refuse | success 55
+no handoff | perform | fail 5
+
+## Q1 gate decisions flash>pro
+B calls it later | refuse | fail 2
+B calls it later | perform | fail 5
+B calls it later | perform | success 9
+B never calls it | refuse | fail 1
+B never calls it | refuse | success 4
+B repeats A's call | refuse | fail 5
+B repeats A's call | perform | fail 11
+B repeats A's call | perform | success 48
+no handoff | refuse | fail 3
+no handoff | refuse | success 60
+no handoff | perform | fail 2
+
+## Q1 gate decisions lite>g38
+B calls it later | refuse | fail 7
+B calls it later | perform | fail 14
+B calls it later | perform | success 52
+B never calls it | refuse | fail 3
+B never calls it | refuse | success 46
+B never calls it | perform | fail 1
+B repeats A's call | perform | fail 1
+B repeats A's call | perform | success 1
+no handoff | refuse | fail 3
+no handoff | refuse | success 16
+no handoff | perform | fail 6
+
+## Q2 by predicted difficulty: sonnet_premortem (zero-shot, text)
+pro>flash: auc_pred_vs_A_fail=0.629, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.06, -0.022, 0.154), tercile0 A-alone success=0.78, tercile1 (0=easy) gain vs A alone=(0.1, -0.026, 0.226), tercile1 A-alone success=0.72, tercile2 (0=easy) gain vs A alone=(0.1, 0.019, 0.258), tercile2 A-alone success=0.58, gain hard third minus rest=0.02
+flash>pro: auc_pred_vs_A_fail=0.635, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.08, 0.019, 0.16), tercile0 A-alone success=0.76, tercile1 (0=easy) gain vs A alone=(0.06, 0.0, 0.125), tercile1 A-alone success=0.78, tercile2 (0=easy) gain vs A alone=(0.18, 0.033, 0.271), tercile2 A-alone success=0.56, gain hard third minus rest=0.11
+lite>g38: auc_pred_vs_A_fail=0.486, best_single=g38, tercile0 (0=easy) gain vs A alone=(0.74, 0.6, 0.886), tercile0 A-alone success=0.06, tercile1 (0=easy) gain vs A alone=(0.6, 0.405, 0.773), tercile1 A-alone success=0.18, tercile2 (0=easy) gain vs A alone=(0.62, 0.444, 0.755), tercile2 A-alone success=0.1, gain hard third minus rest=-0.05
+
+## Q2 by predicted difficulty: public IRT b (28 public agents' runs)
+pro>flash: auc_pred_vs_A_fail=0.835, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.06, -0.023, 0.146), tercile0 A-alone success=0.92, tercile1 (0=easy) gain vs A alone=(0.1, -0.03, 0.219), tercile1 A-alone success=0.82, tercile2 (0=easy) gain vs A alone=(0.1, -0.05, 0.263), tercile2 A-alone success=0.34, gain hard third minus rest=0.02
+flash>pro: auc_pred_vs_A_fail=0.923, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.0, -0.058, 0.055), tercile0 A-alone success=0.96, tercile1 (0=easy) gain vs A alone=(0.08, 0.019, 0.162), tercile1 A-alone success=0.9, tercile2 (0=easy) gain vs A alone=(0.24, 0.129, 0.311), tercile2 A-alone success=0.24, gain hard third minus rest=0.2
+lite>g38: auc_pred_vs_A_fail=0.89, best_single=g38, tercile0 (0=easy) gain vs A alone=(0.64, 0.5, 0.775), tercile0 A-alone success=0.26, tercile1 (0=easy) gain vs A alone=(0.82, 0.673, 0.941), tercile1 A-alone success=0.08, tercile2 (0=easy) gain vs A alone=(0.5, 0.333, 0.685), tercile2 A-alone success=0.0, gain hard third minus rest=-0.23
+
+## Q2 by predicted difficulty: refuse label (oracle-ish structure)
+pro>flash: auc_pred_vs_A_fail=0.484, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.04, -0.089, 0.17), tercile0 A-alone success=0.58, tercile1 (0=easy) gain vs A alone=(0.06, -0.03, 0.143), tercile1 A-alone success=0.82, tercile2 (0=easy) gain vs A alone=(0.16, 0.039, 0.283), tercile2 A-alone success=0.68, gain hard third minus rest=0.11
+flash>pro: auc_pred_vs_A_fail=0.429, best_single=flash, tercile0 (0=easy) gain vs A alone=(0.16, 0.056, 0.241), tercile0 A-alone success=0.54, tercile1 (0=easy) gain vs A alone=(0.04, 0.0, 0.088), tercile1 A-alone success=0.86, tercile2 (0=easy) gain vs A alone=(0.12, 0.019, 0.216), tercile2 A-alone success=0.7, gain hard third minus rest=0.02
+lite>g38: auc_pred_vs_A_fail=0.284, best_single=g38, tercile0 (0=easy) gain vs A alone=(0.72, 0.591, 0.875), tercile0 A-alone success=0.0, tercile1 (0=easy) gain vs A alone=(0.56, 0.388, 0.739), tercile1 A-alone success=0.16, tercile2 (0=easy) gain vs A alone=(0.68, 0.538, 0.807), tercile2 A-alone success=0.18, gain hard third minus rest=0.04
+
+## Q2 selective gate
+flash>pro gated by sonnet_premortem (zero-shot, text)
+    {'gated_share': 0, 'success': 0.7, 'success_random': 0.7, 'success_oracle': 0.7, 'usd_150': 1.174}
+    {'gated_share': 0.1, 'success': 0.72, 'success_random': 0.711, 'success_oracle': 0.8, 'usd_150': 1.452}
+    {'gated_share': 0.2, 'success': 0.747, 'success_random': 0.721, 'success_oracle': 0.82, 'usd_150': 1.8}
+    {'gated_share': 0.3, 'success': 0.76, 'success_random': 0.732, 'success_oracle': 0.82, 'usd_150': 2.075}
+    {'gated_share': 0.5, 'success': 0.773, 'success_random': 0.753, 'success_oracle': 0.82, 'usd_150': 2.608}
+    {'gated_share': 0.7, 'success': 0.78, 'success_random': 0.775, 'success_oracle': 0.82, 'usd_150': 2.884}
+    {'gated_share': 1.0, 'success': 0.807, 'success_random': 0.807, 'success_oracle': 0.807, 'usd_150': 3.587}
+flash>pro gated by public IRT b (28 public agents' runs)
+    {'gated_share': 0, 'success': 0.7, 'success_random': 0.7, 'success_oracle': 0.7, 'usd_150': 1.174}
+    {'gated_share': 0.1, 'success': 0.7, 'success_random': 0.711, 'success_oracle': 0.8, 'usd_150': 1.554}
+    {'gated_share': 0.2, 'success': 0.753, 'success_random': 0.721, 'success_oracle': 0.82, 'usd_150': 1.983}
+    {'gated_share': 0.3, 'success': 0.773, 'success_random': 0.732, 'success_oracle': 0.82, 'usd_150': 2.338}
+    {'gated_share': 0.5, 'success': 0.807, 'success_random': 0.753, 'success_oracle': 0.82, 'usd_150': 2.906}
+    {'gated_share': 0.7, 'success': 0.807, 'success_random': 0.775, 'success_oracle': 0.82, 'usd_150': 3.269}
+    {'gated_share': 1.0, 'success': 0.807, 'success_random': 0.807, 'success_oracle': 0.807, 'usd_150': 3.587}
+pro>flash gated by sonnet_premortem (zero-shot, text)
+    {'gated_share': 0, 'success': 0.693, 'success_random': 0.693, 'success_oracle': 0.693, 'usd_150': 6.223}
+    {'gated_share': 0.1, 'success': 0.7, 'success_random': 0.702, 'success_oracle': 0.793, 'usd_150': 6.15}
+    {'gated_share': 0.2, 'success': 0.707, 'success_random': 0.711, 'success_oracle': 0.84, 'usd_150': 6.173}
+    {'gated_share': 0.3, 'success': 0.727, 'success_random': 0.719, 'success_oracle': 0.84, 'usd_150': 6.176}
+    {'gated_share': 0.5, 'success': 0.753, 'success_random': 0.737, 'success_oracle': 0.84, 'usd_150': 6.03}
+    {'gated_share': 0.7, 'success': 0.76, 'success_random': 0.754, 'success_oracle': 0.84, 'usd_150': 5.905}
+    {'gated_share': 1.0, 'success': 0.78, 'success_random': 0.78, 'success_oracle': 0.78, 'usd_150': 5.714}
+pro>flash gated by public IRT b (28 public agents' runs)
+    {'gated_share': 0, 'success': 0.693, 'success_random': 0.693, 'success_oracle': 0.693, 'usd_150': 6.223}
+    {'gated_share': 0.1, 'success': 0.7, 'success_random': 0.702, 'success_oracle': 0.793, 'usd_150': 6.187}
+    {'gated_share': 0.2, 'success': 0.713, 'success_random': 0.711, 'success_oracle': 0.84, 'usd_150': 6.089}
+    {'gated_share': 0.3, 'success': 0.707, 'success_random': 0.719, 'success_oracle': 0.84, 'usd_150': 5.925}
+    {'gated_share': 0.5, 'success': 0.747, 'success_random': 0.737, 'success_oracle': 0.84, 'usd_150': 5.867}
+    {'gated_share': 0.7, 'success': 0.76, 'success_random': 0.754, 'success_oracle': 0.84, 'usd_150': 5.717}
+    {'gated_share': 1.0, 'success': 0.78, 'success_random': 0.78, 'success_oracle': 0.78, 'usd_150': 5.714}
+
+## Q3 disagreement
+pro>flash gate agree [perform]: n=60, success=0.817
+pro>flash gate deviate [perform]: n=10, success=0.4
+pro>flash gate none [perform]: n=5, success=0.0
+pro>flash gate agree [refuse]: n=7, success=0.0
+pro>flash gate deviate [refuse]: n=11, success=0.818
+pro>flash gate none [refuse]: n=57, success=0.965
+flash>pro gate agree [perform]: n=59, success=0.814
+flash>pro gate deviate [perform]: n=14, success=0.643
+flash>pro gate none [perform]: n=2, success=0.0
+flash>pro gate agree [refuse]: n=5, success=0.0
+flash>pro gate deviate [refuse]: n=7, success=0.571
+flash>pro gate none [refuse]: n=63, success=0.952
+lite>g38 gate agree [perform]: n=2, success=0.5
+lite>g38 gate deviate [perform]: n=67, success=0.776
+lite>g38 gate none [perform]: n=6, success=0.0
+lite>g38 gate agree [refuse]: n=0, success=None
+lite>g38 gate deviate [refuse]: n=56, success=0.821
+lite>g38 gate none [refuse]: n=19, success=0.842
+independent flash vs pro: n=150, agree_share=0.9, flash success when agree=0.741, flash success when disagree=0.333, pro success when agree=0.748, pro success when disagree=0.2, router agree->a, disagree->human(1.0)=0.767, flash alone=0.7, pro alone=0.693
+independent flash vs g38: n=150, agree_share=0.927, flash success when agree=0.755, flash success when disagree=0.0, g38 success when agree=0.842, g38 success when disagree=0.727, router agree->a, disagree->human(1.0)=0.773, flash alone=0.7, g38 alone=0.833
+independent pro vs g38: n=150, agree_share=0.88, pro success when agree=0.773, pro success when disagree=0.111, g38 success when agree=0.871, g38 success when disagree=0.556, router agree->a, disagree->human(1.0)=0.8, pro alone=0.693, g38 alone=0.833
+independent lite vs g38: n=150, agree_share=0.693, lite success when agree=0.163, lite success when disagree=0.0, g38 success when agree=0.808, g38 success when disagree=0.891, router agree->a, disagree->human(1.0)=0.42, lite alone=0.113, g38 alone=0.833
+independent flash vs flash (5 Oct): n=150, agree_share=0.933, flash success when agree=0.743, flash success when disagree=0.1, flash (5 Oct) success when agree=0.743, flash (5 Oct) success when disagree=0.6, router agree->a, disagree->human(1.0)=0.76, flash alone=0.7, flash (5 Oct) alone=0.733
+pro>flash: escalate gate disagreements to human: human_share=0.14, success=0.833, pair alone=0.78
+flash>pro: escalate gate disagreements to human: human_share=0.14, success=0.86, pair alone=0.807
+lite>g38: escalate gate disagreements to human: human_share=0.82, success=0.933, pair alone=0.767

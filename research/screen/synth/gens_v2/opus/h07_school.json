@@ -1,0 +1,930 @@
+{
+ "procedure_id": "h07_school",
+ "domain": "school district transport",
+ "organization": "Cedar Valley Unified School District \u2013 Pupil Transportation Office",
+ "title": "Bus stop change requests",
+ "summary": "Move a student's assigned school bus stop to a different stop when the student, the new stop and its route qualify, and schedule the change after the required notice period.",
+ "entities": {
+  "school": {
+   "key": "school_id",
+   "description": "Schools served by district buses",
+   "fields": {
+    "school_id": "str",
+    "name": "str"
+   }
+  },
+  "student": {
+   "key": "student_id",
+   "description": "Students registered for district bus transportation",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "guardian_email": "str",
+    "school_id": "ref:school",
+    "grade": "int",
+    "current_stop_id": "ref:bus_stop",
+    "transport_status": "enum:eligible|suspended|ineligible",
+    "unpaid_transport_fees": "number"
+   }
+  },
+  "bus_stop": {
+   "key": "stop_id",
+   "description": "Bus stops; each stop belongs to one route",
+   "fields": {
+    "stop_id": "str",
+    "name": "str",
+    "route_id": "ref:bus_route",
+    "active": "bool"
+   }
+  },
+  "bus_route": {
+   "key": "route_id",
+   "description": "Bus routes, the school each serves, seat capacity and the notice period for stop changes",
+   "fields": {
+    "route_id": "str",
+    "route_number": "str",
+    "school_id": "ref:school",
+    "capacity": "int",
+    "seats_assigned": "int",
+    "notice_days": "int"
+   }
+  },
+  "stop_change": {
+   "key": "change_id",
+   "description": "Stop changes recorded for the current school year",
+   "fields": {
+    "change_id": "str",
+    "student_id": "ref:student",
+    "from_stop_id": "ref:bus_stop",
+    "to_stop_id": "ref:bus_stop",
+    "effective_date": "date",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student's transportation record by student ID."
+  },
+  {
+   "name": "find_students_by_guardian_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "guardian_email"
+   ],
+   "description": "Find all students whose guardian email on file matches the given address."
+  },
+  {
+   "name": "get_bus_stop",
+   "kind": "get",
+   "entity": "bus_stop",
+   "description": "Look up a bus stop by its stop code, including the route it belongs to and whether it is active."
+  },
+  {
+   "name": "find_stops_by_name",
+   "kind": "search",
+   "entity": "bus_stop",
+   "by": [
+    "name"
+   ],
+   "description": "Find bus stops by their exact stop name (for example an intersection or landmark)."
+  },
+  {
+   "name": "get_bus_route",
+   "kind": "get",
+   "entity": "bus_route",
+   "description": "Look up a bus route: the school it serves, seat capacity, seats assigned and notice period in days."
+  },
+  {
+   "name": "get_school",
+   "kind": "get",
+   "entity": "school",
+   "description": "Look up a school by its school ID."
+  },
+  {
+   "name": "find_stop_changes_by_student",
+   "kind": "search",
+   "entity": "stop_change",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all stop changes recorded for a student this school year."
+  },
+  {
+   "name": "create_stop_change",
+   "kind": "create",
+   "entity": "stop_change",
+   "args": {
+    "student_id": {
+     "type": "ref:student",
+     "description": "The student whose stop is changing."
+    },
+    "from_stop_id": {
+     "type": "ref:bus_stop",
+     "description": "The student's current assigned stop."
+    },
+    "to_stop_id": {
+     "type": "ref:bus_stop",
+     "description": "The new stop."
+    },
+    "effective_date": {
+     "type": "date",
+     "description": "The date the new stop takes effect: today plus the longer of the two notice periods (the current stop's route and the new stop's route)."
+    }
+   },
+   "fields": {
+    "student_id": "args.student_id",
+    "from_stop_id": "args.from_stop_id",
+    "to_stop_id": "args.to_stop_id",
+    "effective_date": "args.effective_date",
+    "created": "today"
+   },
+   "description": "Record a scheduled stop change for a student. The student's assigned stop switches automatically on the effective date."
+  },
+  {
+   "name": "reserve_route_seat",
+   "kind": "update",
+   "entity": "bus_route",
+   "args": {
+    "route_id": {
+     "type": "ref:bus_route",
+     "description": "The route of the new stop."
+    }
+   },
+   "set": {
+    "seats_assigned": "rec.seats_assigned + 1"
+   },
+   "description": "Reserve one seat on a route for an incoming student."
+  },
+  {
+   "name": "release_route_seat",
+   "kind": "update",
+   "entity": "bus_route",
+   "args": {
+    "route_id": {
+     "type": "ref:bus_route",
+     "description": "The route of the student's current stop."
+    }
+   },
+   "set": {
+    "seats_assigned": "rec.seats_assigned - 1"
+   },
+   "description": "Release one seat on a route a student is leaving."
+  }
+ ],
+ "request": {
+  "student_id": {
+   "type": "ref:student",
+   "description": "the student whose bus stop you want changed"
+  },
+  "new_stop_id": {
+   "type": "ref:bus_stop",
+   "description": "the bus stop you want the student moved to"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "req.student_id"
+  },
+  {
+   "name": "stop",
+   "entity": "bus_stop",
+   "key": "req.new_stop_id"
+  },
+  {
+   "name": "route",
+   "entity": "bus_route",
+   "key": "stop.route_id"
+  },
+  {
+   "name": "old_stop",
+   "entity": "bus_stop",
+   "key": "stu.current_stop_id"
+  },
+  {
+   "name": "old_route",
+   "entity": "bus_route",
+   "key": "old_stop.route_id"
+  }
+ ],
+ "outcomes": {
+  "change_stop": {
+   "kind": "perform",
+   "description": "Schedule the stop change after the longer of the two routes' notice periods, reserve a seat on the new route and release the seat on the old route.",
+   "calls": [
+    {
+     "tool": "create_stop_change",
+     "args": {
+      "student_id": "stu.student_id",
+      "from_stop_id": "stu.current_stop_id",
+      "to_stop_id": "stop.stop_id",
+      "effective_date": "add_days(today, max(route.notice_days, old_route.notice_days))"
+     }
+    },
+    {
+     "tool": "reserve_route_seat",
+     "args": {
+      "route_id": "route.route_id"
+     }
+    },
+    {
+     "tool": "release_route_seat",
+     "args": {
+      "route_id": "old_route.route_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the stop; explain the reason to the guardian.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "stu.transport_status != 'eligible'",
+   "outcome": "refuse",
+   "explain": "Only students whose transportation status is eligible can have their stop changed."
+  },
+  {
+   "id": "R2",
+   "when": "stu.unpaid_transport_fees > 0",
+   "outcome": "refuse",
+   "explain": "Students with any unpaid transportation fees on record cannot have their stop changed until the balance is paid."
+  },
+  {
+   "id": "R3",
+   "when": "req.new_stop_id == stu.current_stop_id",
+   "outcome": "refuse",
+   "explain": "The requested stop is already the student's assigned stop, so there is nothing to change."
+  },
+  {
+   "id": "R4",
+   "when": "not stop.active",
+   "outcome": "refuse",
+   "explain": "Students cannot be assigned to an inactive (discontinued) stop."
+  },
+  {
+   "id": "R5",
+   "when": "route.school_id != stu.school_id",
+   "outcome": "refuse",
+   "explain": "The new stop must be on a route that serves the student's own school."
+  },
+  {
+   "id": "R6",
+   "when": "route.seats_assigned >= route.capacity",
+   "outcome": "refuse",
+   "explain": "The new stop's route must have a free seat; full routes cannot take more students."
+  },
+  {
+   "id": "R7",
+   "when": "db_count('stop_change', 'student_id', stu.student_id) >= 2",
+   "outcome": "refuse",
+   "explain": "A student can have at most two stop changes per school year."
+  }
+ ],
+ "default_outcome": "change_stop",
+ "policy_text": "## Purpose\nParents and guardians may ask the Transportation Office to move a student's assigned bus stop to a different stop. This document explains how to check the request and how to schedule the change. No identity verification beyond identifying the student is required for this request.\n\n## Identifying the student and the stop\nUse the student ID if the caller has it. Otherwise, look up students by the guardian email address on file; if more than one student is listed under that email, ask which child the request is for (for example by name). Identify the requested stop by its stop code (printed on the stop sign) or by its exact stop name. If you cannot identify the student or the stop, do not make any change.\n\nAlways look up, on your own: the student's record, the new stop and its route, the student's current stop and its route, and the student's stop changes for this school year. Decide only from what the records show, not from what the caller believes about fees, seats or past changes.\n\n## When a stop change is not allowed\nDecline the request (make no change) if any of the following is true:\n1. The student's transportation status is not eligible (suspended or ineligible students cannot have their stop changed).\n2. The student has any unpaid transportation fees on record (any amount above 0.00). The balance must be paid first; you cannot waive it.\n3. The requested stop is already the student's assigned stop.\n4. The requested stop is inactive (discontinued).\n5. The requested stop's route does not serve the student's own school. A stop is only usable if its route goes to the school the student attends.\n6. The requested stop's route is full: the seats assigned are equal to or greater than the route's capacity.\n7. The student already has two or more stop changes recorded this school year. The limit is two per school year.\n\nIf the request is declined, tell the caller why. If they then ask for a different stop, check the new request in the same way from the start.\n\n## Scheduling an approved change\nIf none of the reasons above applies, make these three changes, in this order:\n1. Create the stop change record for the student, from their current stop to the new stop, with the effective date calculated as below.\n2. Reserve one seat on the new stop's route.\n3. Release one seat on the route of the student's current stop. Do this even if the new stop is on the same route as the current stop.\n\n### Effective date\nEvery route has a notice period in calendar days, because both the route the student leaves and the route the student joins must update their rosters. Take the notice period of the student's CURRENT stop's route and the notice period of the NEW stop's route, and use whichever is longer (if they are equal, use that number). The effective date is today's date plus that number of days. For example, if today is 2026-05-20, the current route's notice period is 8 days and the new route's notice period is 5 days, the effective date is 2026-05-28. Do not set an earlier or later date, even if the caller asks; the student's assigned stop switches automatically on the effective date.\n\n## Never\nDo not waive or ignore unpaid fees, do not add students to full routes, do not assign stops on routes for other schools or inactive stops, do not exceed two changes per school year, and do not change anything the caller did not ask for.",
+ "db_common": {
+  "school": [
+   {
+    "school_id": "SCH-01",
+    "name": "Hawthorne Elementary School"
+   },
+   {
+    "school_id": "SCH-02",
+    "name": "Lincoln Middle School"
+   },
+   {
+    "school_id": "SCH-03",
+    "name": "Eastbrook High School"
+   }
+  ],
+  "bus_route": [
+   {
+    "route_id": "RT-12",
+    "route_number": "12",
+    "school_id": "SCH-01",
+    "capacity": 48,
+    "seats_assigned": 40,
+    "notice_days": 3
+   },
+   {
+    "route_id": "RT-14",
+    "route_number": "14",
+    "school_id": "SCH-01",
+    "capacity": 48,
+    "seats_assigned": 48,
+    "notice_days": 6
+   },
+   {
+    "route_id": "RT-21",
+    "route_number": "21",
+    "school_id": "SCH-02",
+    "capacity": 52,
+    "seats_assigned": 45,
+    "notice_days": 5
+   },
+   {
+    "route_id": "RT-23",
+    "route_number": "23",
+    "school_id": "SCH-02",
+    "capacity": 52,
+    "seats_assigned": 51,
+    "notice_days": 8
+   },
+   {
+    "route_id": "RT-31",
+    "route_number": "31",
+    "school_id": "SCH-03",
+    "capacity": 60,
+    "seats_assigned": 58,
+    "notice_days": 7
+   },
+   {
+    "route_id": "RT-35",
+    "route_number": "35",
+    "school_id": "SCH-03",
+    "capacity": 60,
+    "seats_assigned": 60,
+    "notice_days": 7
+   }
+  ],
+  "bus_stop": [
+   {
+    "stop_id": "STP-1201",
+    "name": "Maple Ave & 5th St",
+    "route_id": "RT-12",
+    "active": true
+   },
+   {
+    "stop_id": "STP-1202",
+    "name": "Cedar Ln & Orchard Rd",
+    "route_id": "RT-12",
+    "active": true
+   },
+   {
+    "stop_id": "STP-1203",
+    "name": "Willow Creek Apartments",
+    "route_id": "RT-12",
+    "active": true
+   },
+   {
+    "stop_id": "STP-1401",
+    "name": "Birch St & Pine Ave",
+    "route_id": "RT-14",
+    "active": true
+   },
+   {
+    "stop_id": "STP-1402",
+    "name": "Harbor View Dr",
+    "route_id": "RT-14",
+    "active": true
+   },
+   {
+    "stop_id": "STP-2101",
+    "name": "Oak Ridge Rd & Hill St",
+    "route_id": "RT-21",
+    "active": true
+   },
+   {
+    "stop_id": "STP-2102",
+    "name": "Fairmont Library",
+    "route_id": "RT-21",
+    "active": true
+   },
+   {
+    "stop_id": "STP-2103",
+    "name": "Old Mill Rd",
+    "route_id": "RT-21",
+    "active": false
+   },
+   {
+    "stop_id": "STP-2301",
+    "name": "Kingsley Park Entrance",
+    "route_id": "RT-23",
+    "active": true
+   },
+   {
+    "stop_id": "STP-2302",
+    "name": "Grove St & Elm St",
+    "route_id": "RT-23",
+    "active": true
+   },
+   {
+    "stop_id": "STP-3101",
+    "name": "Riverside Plaza",
+    "route_id": "RT-31",
+    "active": true
+   },
+   {
+    "stop_id": "STP-3102",
+    "name": "Sunset Blvd & 9th Ave",
+    "route_id": "RT-31",
+    "active": true
+   },
+   {
+    "stop_id": "STP-3501",
+    "name": "Lakeshore Community Center",
+    "route_id": "RT-35",
+    "active": true
+   },
+   {
+    "stop_id": "STP-3502",
+    "name": "Meadowbrook Rd",
+    "route_id": "RT-35",
+    "active": true
+   }
+  ],
+  "student": [
+   {
+    "student_id": "STU-40001",
+    "full_name": "Priya Raman",
+    "guardian_email": "priya.raman.fam@example.com",
+    "school_id": "SCH-02",
+    "grade": 7,
+    "current_stop_id": "STP-2101",
+    "transport_status": "eligible",
+    "unpaid_transport_fees": 0
+   }
+  ],
+  "stop_change": [
+   {
+    "change_id": "CHG-6990",
+    "student_id": "STU-40001",
+    "from_stop_id": "STP-2301",
+    "to_stop_id": "STP-2101",
+    "effective_date": "2025-09-15",
+    "created": "2025-09-10"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-41207",
+      "full_name": "Mateo Alvarez",
+      "guardian_email": "lucia.alvarez@example.net",
+      "school_id": "SCH-02",
+      "grade": 6,
+      "current_stop_id": "STP-2302",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": [
+     {
+      "change_id": "CHG-7001",
+      "student_id": "STU-41207",
+      "from_stop_id": "STP-2101",
+      "to_stop_id": "STP-2302",
+      "effective_date": "2025-11-10",
+      "created": "2025-11-03"
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "STU-41207",
+    "new_stop_id": "STP-2102"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-41207",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-2102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.unpaid_transport_fees",
+     "value": 30,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Luc\u00eda Alvarez, a single mother who works double shifts at a hospital pharmacy. Impatient, talks fast and expects things done immediately.",
+   "reason_for_call": "Her son's after-school program moved to the Fairmont Library, so she wants his bus stop switched there. She thinks she still owes a 30-dollar late transport fee from the fall and is worried it will be used against her.",
+   "task_instructions": "In your first message give your son's student ID and the stop code you want, and say you know you still owe about 30 dollars from the fall but that it should not hold this up. Be impatient and insist the change start tomorrow. If the agent gives a later date, complain and push for an earlier one at least twice, then accept the date the agent gives. If the agent refuses anything, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "change_stop"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-42315",
+      "full_name": "Ava Thompson",
+      "guardian_email": "mthompson.home@example.org",
+      "school_id": "SCH-01",
+      "grade": 3,
+      "current_stop_id": "STP-1201",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-42315",
+    "new_stop_id": "STP-1402"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-42315",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-1402",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus Thompson, a contractor who is used to getting quick answers and gets irritated by red tape.",
+   "reason_for_call": "His daughter will be staying at her grandparents' house near Harbor View Drive and he wants her picked up there.",
+   "task_instructions": "Give your daughter's student ID and the stop code you want right away. If the agent refuses, argue that it is only one small child and ask for an exception at least twice, getting more irritated. Then accept the answer and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-43098",
+      "full_name": "Noah Kim",
+      "guardian_email": "jkim.family@example.com",
+      "school_id": "SCH-01",
+      "grade": 4,
+      "current_stop_id": "STP-1401",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-43098",
+    "new_stop_id": "STP-1203"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-43098",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-1203",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jiwoo Kim, a software tester typing on her phone between meetings. Uses as few words as possible.",
+   "reason_for_call": "Her family moved into an apartment complex across town and her son needs a closer bus stop.",
+   "task_instructions": "Start by saying only that you need your son's bus stop changed and give his student ID. Give the stop code only when the agent asks for it. Answer every question in a few words and never add details on your own.",
+   "expected_outcome": "change_stop"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-44521",
+      "full_name": "Isabella Chen",
+      "guardian_email": "wei.chen.home@example.com",
+      "school_id": "SCH-02",
+      "grade": 8,
+      "current_stop_id": "STP-2101",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     },
+     {
+      "student_id": "STU-44522",
+      "full_name": "Ethan Chen",
+      "guardian_email": "wei.chen.home@example.com",
+      "school_id": "SCH-01",
+      "grade": 2,
+      "current_stop_id": "STP-1202",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-44521",
+    "new_stop_id": "STP-2103"
+   },
+   "initial_request_values": {
+    "student_id": "STU-44521",
+    "new_stop_id": "STP-2301"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-44521",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-2103",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "His younger son's bus has been running about ten minutes late in the mornings this month, but he is not calling about that today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He wonders aloud whether there will be summer school buses, then says he will check the website instead.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Their grandmother picks the kids up by car on Fridays.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The family moved from the other side of town last year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Wei Chen, a chatty father of two who works from home and likes to give background on everything.",
+   "reason_for_call": "He wants his daughter's bus stop moved closer to home; he first thinks of the park entrance, then remembers kids used to be picked up on Old Mill Road, which is even closer.",
+   "task_instructions": "Give your daughter's student ID and first ask to move her to the stop named Kingsley Park Entrance (you do not know its code). Before the agent makes any change, change your mind and say you would rather have the Old Mill Rd stop, and give its stop code. Mention the side details naturally during the chat. If the agent says the stop cannot be used, accept it politely and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-45760",
+      "full_name": "Liam O'Connor",
+      "guardian_email": "oconnor.clan@example.net",
+      "school_id": "SCH-03",
+      "grade": 11,
+      "current_stop_id": "STP-3101",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     },
+     {
+      "student_id": "STU-45761",
+      "full_name": "Siobhan O'Connor",
+      "guardian_email": "oconnor.clan@example.net",
+      "school_id": "SCH-02",
+      "grade": 6,
+      "current_stop_id": "STP-2102",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-45760",
+    "new_stop_id": "STP-3102"
+   },
+   "initial_request_values": {
+    "student_id": "STU-45760",
+    "new_stop_id": "STP-3501"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-45760",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-3102",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her daughter's school lunch account is running low and she plans to top it up online later.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her son has his driving test next month and may not need the bus next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She compliments the current bus driver, who always waves to the neighbors.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She asks whether a jacket left on the bus ended up in lost and found, then says she will ask the school office instead.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Maeve O'Connor, a warm, talkative nurse who juggles two kids' schedules and is good at finding compromises.",
+   "reason_for_call": "Her son started a part-time job and she wants his stop changed so he can get to work after school.",
+   "task_instructions": "Give your son's student ID and first ask for the stop named Lakeshore Community Center, near his job (you do not know its code). Only after the agent says that is not possible, ask instead for the Sunset Blvd & 9th Ave stop and give its stop code; it is still walkable to his job. Mention the side details naturally. Accept the effective date the agent gives.",
+   "expected_outcome": "change_stop"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-46233",
+      "full_name": "Zoe Patel",
+      "guardian_email": "raj.patel.home@example.com",
+      "school_id": "SCH-01",
+      "grade": 5,
+      "current_stop_id": "STP-1202",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     },
+     {
+      "student_id": "STU-46234",
+      "full_name": "Arjun Patel",
+      "guardian_email": "raj.patel.home@example.com",
+      "school_id": "SCH-02",
+      "grade": 7,
+      "current_stop_id": "STP-2302",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-46233",
+    "new_stop_id": "STP-2302"
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.guardian_email",
+     "value": "raj.patel.home@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.full_name",
+     "value": "Zoe Patel",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-2302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stop.name",
+     "value": "Grove St & Elm St",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Raj Patel, a polite accountant and father of two who wants mornings to be simpler.",
+   "reason_for_call": "He wants his younger daughter to wait at the same stop as her older brother so the two can walk to the bus together.",
+   "task_instructions": "You do not know your daughter's student ID. Give your email address on file, your daughter's full name, and the name and code of the stop your son uses, which you read off the stop sign. Answer questions helpfully. If the agent explains it cannot be done, accept it and thank them.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-47819",
+      "full_name": "Hannah Becker",
+      "guardian_email": "becker.anja@example.org",
+      "school_id": "SCH-02",
+      "grade": 7,
+      "current_stop_id": "STP-2301",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": [
+     {
+      "change_id": "CHG-7102",
+      "student_id": "STU-47819",
+      "from_stop_id": "STP-2101",
+      "to_stop_id": "STP-2102",
+      "effective_date": "2025-10-06",
+      "created": "2025-10-01"
+     },
+     {
+      "change_id": "CHG-7103",
+      "student_id": "STU-47819",
+      "from_stop_id": "STP-2102",
+      "to_stop_id": "STP-2301",
+      "effective_date": "2026-02-09",
+      "created": "2026-02-04"
+     }
+    ]
+   },
+   "request_values": {
+    "student_id": "STU-47819",
+    "new_stop_id": "STP-2102"
+   },
+   "initial_request_values": {
+    "student_id": "STU-47819",
+    "new_stop_id": "STP-2103"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-47819",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-2102",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Anja Becker, a practical small-business owner who shares custody of her daughter and is willing to compromise.",
+   "reason_for_call": "Her daughter now spends weekdays at her father's house and needs a stop near there.",
+   "task_instructions": "Start by asking to move your daughter to the stop named Old Mill Rd (you do not know its code). Give her student ID only when the agent asks. After the agent refuses, suggest the Fairmont Library stop instead and give its stop code. If that is also refused, ask briefly why, then accept and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "STU-48402",
+      "full_name": "Grace Okafor",
+      "guardian_email": "okafor.family@example.com",
+      "school_id": "SCH-02",
+      "grade": 6,
+      "current_stop_id": "STP-2101",
+      "transport_status": "eligible",
+      "unpaid_transport_fees": 0
+     }
+    ],
+    "stop_change": []
+   },
+   "request_values": {
+    "student_id": "STU-48402",
+    "new_stop_id": "STP-2302"
+   },
+   "initial_request_values": {
+    "student_id": "STU-48402",
+    "new_stop_id": "STP-2102"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.student_id",
+     "value": "STU-48402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_stop_id",
+     "value": "STP-2302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.unpaid_transport_fees",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her daughter attends Lincoln Middle School.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She paid the spring transportation fee in March, so nothing is owed.",
+     "kind": "helpful"
+    },
+    {
+     "text": "This is the first time this school year they have asked to change her stop.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ngozi Okafor, an organized high-school librarian who prepares notes before calling.",
+   "reason_for_call": "Her daughter is starting to walk to the bus with a friend and needs a different stop; she first considers the library stop, then decides the stop near her friend's house is better.",
+   "task_instructions": "In your first message give your daughter's student ID, say she attends Lincoln Middle School, that you owe nothing, and that this is her first stop change this year. First ask for the stop named Fairmont Library (you do not know its code). Before the agent makes any change, change your mind and ask for the Grove St & Elm St stop instead, giving its stop code. Accept the effective date the agent gives.",
+   "expected_outcome": "change_stop"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

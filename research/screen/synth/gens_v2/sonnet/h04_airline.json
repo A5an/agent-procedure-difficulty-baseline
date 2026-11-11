@@ -1,0 +1,896 @@
+{
+ "procedure_id": "h04_airline",
+ "domain": "airline loyalty program",
+ "organization": "Meridian Skyways Rewards",
+ "title": "Miles cabin upgrades",
+ "summary": "Upgrade an economy booking to premium or business cabin by redeeming loyalty miles, or put the request on a waitlist when the cabin is full.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Loyalty program members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "tier": "enum:member|silver|gold",
+    "miles_balance": "int",
+    "status": "enum:active|suspended|closed"
+   }
+  },
+  "flight": {
+   "key": "flight_id",
+   "description": "Scheduled flights",
+   "fields": {
+    "flight_id": "str",
+    "route": "str",
+    "departure_date": "date",
+    "distance_miles": "int",
+    "premium_seats_left": "int",
+    "business_seats_left": "int"
+   }
+  },
+  "booking": {
+   "key": "booking_id",
+   "description": "Passenger bookings",
+   "fields": {
+    "booking_id": "str",
+    "member_id": "ref:member",
+    "flight_id": "ref:flight",
+    "destination": "str",
+    "cabin": "enum:economy|premium|business",
+    "fare_class": "enum:basic|standard|flex",
+    "status": "enum:ticketed|cancelled|flown"
+   }
+  },
+  "upgrade_request": {
+   "key": "request_id",
+   "description": "Waitlisted upgrade requests",
+   "fields": {
+    "request_id": "str",
+    "booking_id": "ref:booking",
+    "target_cabin": "enum:premium|business",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a loyalty member by member number."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find loyalty members by the email address on file."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a booking by booking number."
+  },
+  {
+   "name": "find_bookings_by_member",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all bookings of a member."
+  },
+  {
+   "name": "get_flight",
+   "kind": "get",
+   "entity": "flight",
+   "description": "Look up a flight by flight id."
+  },
+  {
+   "name": "deduct_miles",
+   "kind": "update",
+   "entity": "member",
+   "args": {
+    "member_id": {
+     "type": "ref:member",
+     "description": "The member whose miles are redeemed."
+    },
+    "miles": {
+     "type": "int",
+     "description": "Number of miles to deduct from the balance."
+    }
+   },
+   "set": {
+    "miles_balance": "rec.miles_balance - args.miles"
+   },
+   "description": "Deduct redeemed miles from a member's balance."
+  },
+  {
+   "name": "set_booking_cabin",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking to upgrade."
+    },
+    "cabin": {
+     "type": "enum:premium|business",
+     "description": "The new cabin."
+    }
+   },
+   "set": {
+    "cabin": "args.cabin"
+   },
+   "description": "Change the cabin of a booking."
+  },
+  {
+   "name": "create_upgrade_request",
+   "kind": "create",
+   "entity": "upgrade_request",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking to waitlist."
+    },
+    "target_cabin": {
+     "type": "enum:premium|business",
+     "description": "The cabin requested."
+    }
+   },
+   "fields": {
+    "booking_id": "args.booking_id",
+    "target_cabin": "args.target_cabin",
+    "created": "today"
+   },
+   "description": "Put a booking on the upgrade waitlist for a cabin."
+  }
+ ],
+ "request": {
+  "booking_id": {
+   "type": "ref:booking",
+   "description": "the booking you want upgraded"
+  },
+  "target_cabin": {
+   "type": "enum:premium|business",
+   "description": "the cabin you want to upgrade to (premium or business)"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "booking.member_id"
+  },
+  {
+   "name": "flight",
+   "entity": "flight",
+   "key": "booking.flight_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Deduct the miles cost and move the booking to the requested cabin.",
+   "calls": [
+    {
+     "tool": "deduct_miles",
+     "args": {
+      "member_id": "mem.member_id",
+      "miles": "flight.distance_miles * (3 if req.target_cabin == 'premium' else 6)"
+     }
+    },
+    {
+     "tool": "set_booking_cabin",
+     "args": {
+      "booking_id": "req.booking_id",
+      "cabin": "req.target_cabin"
+     }
+    }
+   ]
+  },
+  "waitlist": {
+   "kind": "perform",
+   "description": "The requested cabin is full: add the booking to the upgrade waitlist without charging miles.",
+   "calls": [
+    {
+     "tool": "create_upgrade_request",
+     "args": {
+      "booking_id": "req.booking_id",
+      "target_cabin": "req.target_cabin"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not upgrade; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active members can redeem miles for upgrades."
+  },
+  {
+   "id": "R2",
+   "when": "booking.status != 'ticketed'",
+   "outcome": "refuse",
+   "explain": "Only ticketed bookings can be upgraded."
+  },
+  {
+   "id": "R3",
+   "when": "booking.fare_class == 'basic'",
+   "outcome": "refuse",
+   "explain": "Basic fares are not eligible for upgrades."
+  },
+  {
+   "id": "R4",
+   "when": "booking.cabin != 'economy'",
+   "outcome": "refuse",
+   "explain": "Only bookings currently in economy can be upgraded."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(today, flight.departure_date) < 3",
+   "outcome": "refuse",
+   "explain": "Upgrades are closed when the flight departs in fewer than 3 days."
+  },
+  {
+   "id": "R6",
+   "when": "req.target_cabin == 'business' and mem.tier == 'member'",
+   "outcome": "refuse",
+   "explain": "Business upgrades require silver or gold tier."
+  },
+  {
+   "id": "R7",
+   "when": "mem.miles_balance < flight.distance_miles * (3 if req.target_cabin == 'premium' else 6)",
+   "outcome": "refuse",
+   "explain": "The member must have enough miles to cover the upgrade cost."
+  },
+  {
+   "id": "R8",
+   "when": "(flight.premium_seats_left if req.target_cabin == 'premium' else flight.business_seats_left) <= 0",
+   "outcome": "waitlist",
+   "explain": "If the requested cabin has no seats left, waitlist the booking instead of upgrading."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Who can ask\nMembers may ask to upgrade a booking from economy to premium or business cabin using miles. Find the booking and the member it belongs to. Use the booking number if the member has it. Otherwise find the member by the email address on file, list their bookings, and ask for the destination to pick the right one. You also need to know which cabin they want (premium or business); ask if they have not said.\n\n## What to check\nLook up the booking, the member who owns it, and the flight it is on, and check all of the following in this order. The first problem found decides the result:\n1. The member's status must be active. Suspended or closed members cannot redeem miles.\n2. The booking must be ticketed (not cancelled or flown).\n3. Basic fares cannot be upgraded. Standard and flex fares can.\n4. The booking must currently be in economy.\n5. The flight must depart at least 3 days from today. If the departure date is fewer than 3 days away, upgrades are closed.\n6. Business upgrades require silver or gold tier. Members at the base tier (member) may only request premium.\n7. The member's miles balance must cover the cost. The cost is the flight's distance in miles multiplied by 3 for premium or by 6 for business. Use the balance in our records, not what the customer believes.\n8. If the requested cabin has no seats left on the flight (premium_seats_left for premium, business_seats_left for business is 0), do not upgrade. Add the booking to the upgrade waitlist for that cabin and tell the member nothing is charged now.\n\nIf a request is declined, explain the reason briefly and do not shorten, discount or substitute anything unless the member makes a new request that you can check the same way.\n\n## Doing the upgrade\nIf all checks pass, do two things in this order: deduct the miles cost from the member's balance, then change the booking's cabin to the requested cabin.\n\n## Never\nDo not waive the miles cost, do not make exceptions to the departure cutoff, tier or fare rules, do not upgrade without checking the flight and the member's records yourself, and do not change anything the member did not ask for.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1000",
+    "full_name": "Hana Sato",
+    "email": "hana.sato@example.com",
+    "tier": "gold",
+    "miles_balance": 40000,
+    "status": "active"
+   }
+  ],
+  "flight": [
+   {
+    "flight_id": "F-1000",
+    "route": "NRT-SFO",
+    "departure_date": "2026-09-30",
+    "distance_miles": 5130,
+    "premium_seats_left": 4,
+    "business_seats_left": 2
+   }
+  ],
+  "booking": [
+   {
+    "booking_id": "B-1000",
+    "member_id": "M-1000",
+    "flight_id": "F-1000",
+    "destination": "San Francisco",
+    "cabin": "economy",
+    "fare_class": "flex",
+    "status": "ticketed"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "tier": "silver",
+      "miles_balance": 15000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2101",
+      "route": "SFO-SEA",
+      "departure_date": "2026-06-15",
+      "distance_miles": 679,
+      "premium_seats_left": 3,
+      "business_seats_left": 1
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2101",
+      "member_id": "M-2101",
+      "flight_id": "F-2101",
+      "destination": "Seattle",
+      "cabin": "economy",
+      "fare_class": "basic",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2101",
+    "target_cabin": "premium"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a product designer who travels to Seattle for client visits. Polite and relaxed.",
+   "reason_for_call": "She wants to use some miles to get a roomier seat on an upcoming trip.",
+   "task_instructions": "Say you want to upgrade your booking and give the booking number. Say which cabin you want only when asked. Answer politely and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2202",
+      "full_name": "Tomas Weber",
+      "email": "tomas.weber@example.com",
+      "tier": "member",
+      "miles_balance": 5000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2202",
+      "route": "FRA-MAD",
+      "departure_date": "2026-07-02",
+      "distance_miles": 900,
+      "premium_seats_left": 5,
+      "business_seats_left": 2
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2202",
+      "member_id": "M-2202",
+      "flight_id": "F-2202",
+      "destination": "Madrid",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2202",
+    "target_cabin": "premium"
+   },
+   "initial_request_values": {
+    "target_cabin": "business"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a sales manager who flies often but has only just joined the loyalty program.",
+   "reason_for_call": "He would like to treat himself to a better cabin on a trip to Madrid.",
+   "task_instructions": "First ask for a business class upgrade on your booking. If the agent refuses, ask whether premium cabin is possible instead and confirm you want premium. Accept the agent's answer to that request.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2303",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.com",
+      "tier": "silver",
+      "miles_balance": 20000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2303",
+      "route": "BOS-DEN",
+      "departure_date": "2026-08-14",
+      "distance_miles": 1750,
+      "premium_seats_left": 2,
+      "business_seats_left": 2
+     },
+     {
+      "flight_id": "F-2304",
+      "route": "DEN-ORD",
+      "departure_date": "2026-04-02",
+      "distance_miles": 888,
+      "premium_seats_left": 2,
+      "business_seats_left": 1
+     },
+     {
+      "flight_id": "F-2305",
+      "route": "ORD-AUS",
+      "departure_date": "2026-12-01",
+      "distance_miles": 978,
+      "premium_seats_left": 3,
+      "business_seats_left": 1
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2303",
+      "member_id": "M-2303",
+      "flight_id": "F-2303",
+      "destination": "Denver",
+      "cabin": "economy",
+      "fare_class": "flex",
+      "status": "ticketed"
+     },
+     {
+      "booking_id": "B-2304",
+      "member_id": "M-2303",
+      "flight_id": "F-2304",
+      "destination": "Chicago",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "cancelled"
+     },
+     {
+      "booking_id": "B-2305",
+      "member_id": "M-2303",
+      "flight_id": "F-2305",
+      "destination": "Austin",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2303",
+    "target_cabin": "business"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "business",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a December trip to Austin that she is not changing.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She cancelled a Chicago trip earlier this year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The airline lost her suitcase last year and she is still a bit annoyed about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was wondering about lounge access but decides not to ask about it today.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a busy architect who talks fast and wants things done quickly.",
+   "reason_for_call": "She wants a business class seat for a long-awaited trip to Denver.",
+   "task_instructions": "Ask for the business upgrade and give the booking number straight away. Be impatient and push the agent to hurry. Mention the side stories casually while chatting, but keep returning to your Denver upgrade.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2404",
+      "full_name": "Daniel Kim",
+      "email": "daniel.kim@example.com",
+      "tier": "member",
+      "miles_balance": 50000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2404",
+      "route": "LAX-HNL",
+      "departure_date": "2026-09-05",
+      "distance_miles": 2556,
+      "premium_seats_left": 4,
+      "business_seats_left": 2
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2404",
+      "member_id": "M-2404",
+      "flight_id": "F-2404",
+      "destination": "Honolulu",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2404",
+    "target_cabin": "business"
+   },
+   "initial_request_values": {
+    "target_cabin": "premium"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2404",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "business",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Daniel, an accountant planning a honeymoon trip to Hawaii. Friendly but a bit indecisive.",
+   "reason_for_call": "He wants to use his saved miles to upgrade his honeymoon flight.",
+   "task_instructions": "Start by asking for a premium cabin upgrade on your booking and give the booking number. Before the agent does anything, say you have changed your mind and want business class instead. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2505",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@example.com",
+      "tier": "silver",
+      "miles_balance": 12000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2505",
+      "route": "ROM-AMS",
+      "departure_date": "2026-06-28",
+      "distance_miles": 1100,
+      "premium_seats_left": 2,
+      "business_seats_left": 1
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2505",
+      "member_id": "M-2505",
+      "flight_id": "F-2505",
+      "destination": "Amsterdam",
+      "cabin": "economy",
+      "fare_class": "flex",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2505",
+    "target_cabin": "premium"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2505",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.miles_balance",
+     "value": 2500,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a translator who writes very short messages and does not like long chats.",
+   "reason_for_call": "She wants a premium seat for her Amsterdam flight but thinks she has few miles left.",
+   "task_instructions": "Keep every answer very short. Say you want premium on your booking, give the booking number, and say you think you only have about 2500 miles but ask the agent to check. Do not elaborate.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2606",
+      "full_name": "Kofi Mensah",
+      "email": "kofi.mensah@example.com",
+      "tier": "gold",
+      "miles_balance": 30000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2606",
+      "route": "ATL-LHR",
+      "departure_date": "2026-08-08",
+      "distance_miles": 4200,
+      "premium_seats_left": 0,
+      "business_seats_left": 2
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2606",
+      "member_id": "M-2606",
+      "flight_id": "F-2606",
+      "destination": "London",
+      "cabin": "economy",
+      "fare_class": "flex",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2606",
+    "target_cabin": "premium"
+   },
+   "initial_request_values": {
+    "target_cabin": "business"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-2606",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.tier",
+     "value": "gold",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He holds a flex fare on this booking.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The flight to London departs on August 8.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Kofi, a consultant and long-time gold member who knows the program well.",
+   "reason_for_call": "He wants a more comfortable cabin for an overnight flight to London.",
+   "task_instructions": "Start by asking for a business upgrade on your booking and give the booking number and your gold tier. Before anything is done, change your mind and say you would rather have premium cabin. Mention the flex fare and the August 8 date naturally. Accept whatever the agent decides.",
+   "expected_outcome": "waitlist"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2707",
+      "full_name": "Sofia Alvarez",
+      "email": "sofia.alvarez@example.com",
+      "tier": "silver",
+      "miles_balance": 20000,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2707",
+      "route": "MAD-LIS",
+      "departure_date": "2026-05-22",
+      "distance_miles": 313,
+      "premium_seats_left": 3,
+      "business_seats_left": 2
+     },
+     {
+      "flight_id": "F-2708",
+      "route": "LIS-MEX",
+      "departure_date": "2026-10-10",
+      "distance_miles": 5400,
+      "premium_seats_left": 3,
+      "business_seats_left": 2
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2707",
+      "member_id": "M-2707",
+      "flight_id": "F-2707",
+      "destination": "Lisbon",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     },
+     {
+      "booking_id": "B-2708",
+      "member_id": "M-2707",
+      "flight_id": "F-2708",
+      "destination": "Mexico City",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2707",
+    "target_cabin": "premium"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "sofia.alvarez@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.destination",
+     "value": "Lisbon",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a marketing director rushing to a conference and short on patience. She does not have her booking number to hand.",
+   "reason_for_call": "She wants a premium seat on her flight to Lisbon this week.",
+   "task_instructions": "Say you want a premium upgrade and give your email address. You do not know the booking number. Give the destination when asked which trip. If refused, argue that you are a loyal silver member and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2808",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "tier": "member",
+      "miles_balance": 1500,
+      "status": "active"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "F-2808",
+      "route": "JFK-DUB",
+      "departure_date": "2026-09-18",
+      "distance_miles": 3200,
+      "premium_seats_left": 3,
+      "business_seats_left": 1
+     },
+     {
+      "flight_id": "F-2809",
+      "route": "BOS-JFK",
+      "departure_date": "2026-07-12",
+      "distance_miles": 187,
+      "premium_seats_left": 1,
+      "business_seats_left": 1
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-2808",
+      "member_id": "M-2808",
+      "flight_id": "F-2808",
+      "destination": "Dublin",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     },
+     {
+      "booking_id": "B-2809",
+      "member_id": "M-2808",
+      "flight_id": "F-2809",
+      "destination": "Boston",
+      "cabin": "economy",
+      "fare_class": "standard",
+      "status": "ticketed"
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-2808",
+    "target_cabin": "premium"
+   },
+   "initial_request_values": {
+    "target_cabin": "business"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "marcus.bell@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.destination",
+     "value": "Dublin",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.target_cabin",
+     "value": "premium",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a teacher heading to Dublin for his sister's wedding. He does not remember his booking number.",
+   "reason_for_call": "He hopes to use his miles for a better seat on his flight to Dublin.",
+   "task_instructions": "Give your email and say your trip is to Dublin; you do not know the booking number. First ask for a business class upgrade. If the agent refuses, ask about premium cabin instead and confirm premium when asked. Accept the agent's answer.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

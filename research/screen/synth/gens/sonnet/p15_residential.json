@@ -1,0 +1,720 @@
+{
+ "procedure_id": "p15_residential",
+ "domain": "residential property management",
+ "organization": "Larkspur Residential Management",
+ "title": "Pet registration requests",
+ "summary": "Register a tenant's pet on their lease, or send the request to a manager for approval when it exceeds the standard pet limits.",
+ "entities": {
+  "tenant": {
+   "key": "tenant_id",
+   "description": "Residents who hold a lease",
+   "fields": {
+    "tenant_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date"
+   }
+  },
+  "lease": {
+   "key": "lease_id",
+   "description": "Leases for rental units",
+   "fields": {
+    "lease_id": "str",
+    "tenant_id": "ref:tenant",
+    "unit_label": "str",
+    "status": "enum:active|notice|ended",
+    "monthly_rent": "number",
+    "pets_registered": "int"
+   }
+  },
+  "pet_registration": {
+   "key": "registration_id",
+   "description": "Pets registered on a lease",
+   "fields": {
+    "registration_id": "str",
+    "lease_id": "ref:lease",
+    "species": "enum:dog|cat|bird|other",
+    "weight_kg": "int",
+    "registered": "date"
+   }
+  },
+  "pet_review_request": {
+   "key": "request_id",
+   "description": "Requests for a property manager to review a pet exception",
+   "fields": {
+    "request_id": "str",
+    "lease_id": "ref:lease",
+    "species": "enum:dog|cat|bird|other",
+    "weight_kg": "int",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_tenant",
+   "kind": "get",
+   "entity": "tenant",
+   "description": "Look up a tenant by tenant number."
+  },
+  {
+   "name": "find_tenants_by_email",
+   "kind": "search",
+   "entity": "tenant",
+   "by": [
+    "email"
+   ],
+   "description": "Find tenants by the email address on file."
+  },
+  {
+   "name": "get_lease",
+   "kind": "get",
+   "entity": "lease",
+   "description": "Look up a lease by lease number."
+  },
+  {
+   "name": "find_leases_by_tenant",
+   "kind": "search",
+   "entity": "lease",
+   "by": [
+    "tenant_id"
+   ],
+   "description": "List all leases of a tenant."
+  },
+  {
+   "name": "create_pet_registration",
+   "kind": "create",
+   "entity": "pet_registration",
+   "args": {
+    "lease_id": {
+     "type": "ref:lease",
+     "description": "The lease the pet is registered on."
+    },
+    "species": {
+     "type": "enum:dog|cat|bird|other",
+     "description": "Species of the pet."
+    },
+    "weight_kg": {
+     "type": "int",
+     "description": "Weight of the pet in whole kilograms."
+    }
+   },
+   "fields": {
+    "lease_id": "args.lease_id",
+    "species": "args.species",
+    "weight_kg": "args.weight_kg",
+    "registered": "today"
+   },
+   "description": "Register a pet on a lease."
+  },
+  {
+   "name": "create_pet_review_request",
+   "kind": "create",
+   "entity": "pet_review_request",
+   "args": {
+    "lease_id": {
+     "type": "ref:lease",
+     "description": "The lease the request is about."
+    },
+    "species": {
+     "type": "enum:dog|cat|bird|other",
+     "description": "Species of the pet."
+    },
+    "weight_kg": {
+     "type": "int",
+     "description": "Weight of the pet in whole kilograms."
+    }
+   },
+   "fields": {
+    "lease_id": "args.lease_id",
+    "species": "args.species",
+    "weight_kg": "args.weight_kg",
+    "created": "today"
+   },
+   "description": "Open a request for a property manager to review a pet that exceeds the standard limits."
+  }
+ ],
+ "request": {
+  "lease_id": {
+   "type": "ref:lease",
+   "description": "the lease on which you want to register your pet"
+  },
+  "species": {
+   "type": "enum:dog|cat|bird|other",
+   "description": "the kind of pet you want to register"
+  },
+  "weight_kg": {
+   "type": "int",
+   "description": "your pet's weight in whole kilograms"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "lease",
+   "entity": "lease",
+   "key": "req.lease_id"
+  },
+  {
+   "name": "ten",
+   "entity": "tenant",
+   "key": "lease.tenant_id"
+  }
+ ],
+ "outcomes": {
+  "register": {
+   "kind": "perform",
+   "description": "Register the pet on the lease.",
+   "calls": [
+    {
+     "tool": "create_pet_registration",
+     "args": {
+      "lease_id": "req.lease_id",
+      "species": "req.species",
+      "weight_kg": "req.weight_kg"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Open a manager review request instead of registering the pet.",
+   "calls": [
+    {
+     "tool": "create_pet_review_request",
+     "args": {
+      "lease_id": "req.lease_id",
+      "species": "req.species",
+      "weight_kg": "req.weight_kg"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not register the pet; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != ten.birth_date or lease.status != 'active'",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file, and the lease must be active."
+  },
+  {
+   "id": "R2",
+   "when": "req.weight_kg > 25 or lease.pets_registered >= 2",
+   "outcome": "review",
+   "explain": "Pets over 25 kg, or a third pet on a lease, need manager approval instead of direct registration."
+  }
+ ],
+ "default_outcome": "register",
+ "policy_text": "## Who can ask\nTenants may ask to register a pet on their lease by phone or chat. Before changing anything, find the lease and the tenant it belongs to, and confirm identity: the date of birth the caller gives must match the one on file. If it does not match, or the caller cannot or will not give it, make no change.\n\n## Finding the lease\nUse the lease number if the tenant has it. Otherwise find the tenant by the email address on file and list their leases; ask which unit they mean if there is more than one. If you cannot identify the lease, do not guess and make no change.\n\n## What you need\nAsk for the kind of pet (dog, cat, bird or other) and its weight in whole kilograms.\n\n## When a pet can be registered\n- The lease must be active. Leases that are under notice to vacate or have ended cannot register pets.\n- Go by the records, not by what the caller believes about their lease.\n\n## Manager approval\nIf the pet weighs more than 25 kg, or the lease already has 2 or more pets registered, do not register the pet. Open a pet review request for a property manager with the pet's species and weight, and tell the tenant that a manager will follow up.\n\n## Otherwise\nIf everything above is fine, register the pet with the species and weight the tenant gave.\n\n## Never\nDo not register a pet for someone who failed the identity check, do not waive limits or promise approval, and do not change anything the tenant did not ask for.",
+ "db_common": {
+  "tenant": [
+   {
+    "tenant_id": "T-1001",
+    "full_name": "Marcus Ellery",
+    "email": "marcus.ellery@example.com",
+    "birth_date": "1975-03-14"
+   }
+  ],
+  "lease": [
+   {
+    "lease_id": "LS-1001",
+    "tenant_id": "T-1001",
+    "unit_label": "Oak Court 4B",
+    "status": "active",
+    "monthly_rent": 1450,
+    "pets_registered": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "birth_date": "1988-08-21"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2101",
+      "tenant_id": "T-2101",
+      "unit_label": "Birchwood 2A",
+      "status": "notice",
+      "monthly_rent": 1620,
+      "pets_registered": 0
+     },
+     {
+      "lease_id": "LS-2102",
+      "tenant_id": "T-2101",
+      "unit_label": "Harbor View 7C",
+      "status": "ended",
+      "monthly_rent": 1380,
+      "pets_registered": 1
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2101",
+    "species": "cat",
+    "weight_kg": 4
+   },
+   "customer_facts": [
+    {
+     "fact": "req.lease_id",
+     "value": "LS-2101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "cat",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 4,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-08-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She used to live at Harbor View and had a goldfish there.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The hallway light outside her unit has been flickering for a month.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She is thinking about asking for a second parking spot later.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a graphic designer who is moving across town soon. Polite and chatty.",
+   "reason_for_call": "She just adopted a kitten and wants it registered on her current lease.",
+   "task_instructions": "Explain the request, give the lease number and your date of birth. Mention a few side stories naturally. If told the lease cannot register pets, accept it politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2201",
+      "full_name": "Greg Alvarez",
+      "email": "greg.alvarez@example.com",
+      "birth_date": "1969-12-02"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2201",
+      "tenant_id": "T-2201",
+      "unit_label": "Maple Row 12",
+      "status": "ended",
+      "monthly_rent": 1290,
+      "pets_registered": 0
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2201",
+    "species": "dog",
+    "weight_kg": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "ten.email",
+     "value": "greg.alvarez@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "dog",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 12,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-12-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Greg, a contractor who is impatient and sure he is still a tenant.",
+   "reason_for_call": "He wants his beagle registered and does not remember his lease number.",
+   "task_instructions": "You do not know the lease number; give your email when asked. Give your date of birth if asked. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2301",
+      "full_name": "Hannah Berg",
+      "email": "hannah.berg@example.com",
+      "birth_date": "1994-05-30"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2301",
+      "tenant_id": "T-2301",
+      "unit_label": "Birchwood 3D",
+      "status": "active",
+      "monthly_rent": 1710,
+      "pets_registered": 0
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2301",
+    "species": "cat",
+    "weight_kg": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.lease_id",
+     "value": "LS-2301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "cat",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 5,
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-05-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a librarian. Calm and cooperative.",
+   "reason_for_call": "She wants to register her cat on her lease.",
+   "task_instructions": "Give the lease number and say you want to register a cat. Answer the agent's questions about weight and date of birth when asked.",
+   "expected_outcome": "register"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2401",
+      "full_name": "Samuel Okoye",
+      "email": "s.okoye@example.com",
+      "birth_date": "1981-01-17"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2401",
+      "tenant_id": "T-2401",
+      "unit_label": "Maple Row 5",
+      "status": "active",
+      "monthly_rent": 1500,
+      "pets_registered": 0
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2401",
+    "species": "dog",
+    "weight_kg": 20
+   },
+   "customer_facts": [
+    {
+     "fact": "req.species",
+     "value": "dog",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 20,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, calling from a borrowed phone while traveling. Demanding and in a hurry.",
+   "reason_for_call": "He wants his dog registered but has no lease paperwork with him and cannot remember which email he used.",
+   "task_instructions": "Say you want to register a dog of 20 kg. You do not know your lease number, and you do not know which email is on file. Push the agent to do it anyway at least twice, then accept.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2501",
+      "full_name": "Mei Tan",
+      "email": "mei.tan@example.com",
+      "birth_date": "1990-09-09"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2501",
+      "tenant_id": "T-2501",
+      "unit_label": "Harbor View 3A",
+      "status": "active",
+      "monthly_rent": 1840,
+      "pets_registered": 1
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2501",
+    "species": "dog",
+    "weight_kg": 18
+   },
+   "customer_facts": [
+    {
+     "fact": "req.lease_id",
+     "value": "LS-2501",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "dog",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 18,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-09-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "weight_kg": 30
+   },
+   "persona": "Mei, an accountant who is a bit scatterbrained.",
+   "reason_for_call": "She wants to register her new dog.",
+   "task_instructions": "First say your dog weighs 30 kg. Before anything is done, correct yourself: you misremembered and the dog is 18 kg. Give the lease number and your date of birth early.",
+   "expected_outcome": "register"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2601",
+      "full_name": "Colin Frost",
+      "email": "colin.frost@example.com",
+      "birth_date": "1977-06-25"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2601",
+      "tenant_id": "T-2601",
+      "unit_label": "Oak Court 1C",
+      "status": "active",
+      "monthly_rent": 1325,
+      "pets_registered": 0
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2601",
+    "species": "bird",
+    "weight_kg": 1
+   },
+   "customer_facts": [
+    {
+     "fact": "ten.email",
+     "value": "colin.frost@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "bird",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Colin, a private man who keeps answers minimal.",
+   "reason_for_call": "He wants to register a parrot but does not have his lease number.",
+   "task_instructions": "Keep answers to a few words. Give your email when asked. If asked for your date of birth, say you would rather not share it. Accept it if the agent cannot proceed.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2701",
+      "full_name": "Rosa Delgado",
+      "email": "rosa.delgado@example.com",
+      "birth_date": "1985-04-04"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2701",
+      "tenant_id": "T-2701",
+      "unit_label": "Birchwood 1B",
+      "status": "active",
+      "monthly_rent": 1560,
+      "pets_registered": 1
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2701",
+    "species": "cat",
+    "weight_kg": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.lease_id",
+     "value": "LS-2701",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "cat",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1985-04-04",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "lease.pets_registered",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Rosa, a nurse who answers in short sentences.",
+   "reason_for_call": "She wants to register a cat and thinks she already has two pets registered.",
+   "task_instructions": "Keep answers very short. Mention that you think you already have two pets registered, but ask to register the cat anyway. Accept what the agent decides from the records.",
+   "expected_outcome": "register"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "tenant": [
+     {
+      "tenant_id": "T-2801",
+      "full_name": "Jamal Wright",
+      "email": "jamal.wright@example.com",
+      "birth_date": "1992-10-11"
+     }
+    ],
+    "lease": [
+     {
+      "lease_id": "LS-2801",
+      "tenant_id": "T-2801",
+      "unit_label": "Harbor View 9B",
+      "status": "active",
+      "monthly_rent": 1990,
+      "pets_registered": 1
+     }
+    ]
+   },
+   "request_values": {
+    "lease_id": "LS-2801",
+    "species": "dog",
+    "weight_kg": 32
+   },
+   "customer_facts": [
+    {
+     "fact": "req.lease_id",
+     "value": "LS-2801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.species",
+     "value": "dog",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.weight_kg",
+     "value": 32,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-10-11",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "lease.pets_registered",
+     "value": 1,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The dog was weighed at the vet last week and came to 32 kg.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He already has one pet registered on this lease, a small cat.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "species": "cat",
+    "weight_kg": 5
+   },
+   "persona": "Jamal, a software tester who is friendly and a little indecisive.",
+   "reason_for_call": "He is adopting a rescue dog and wants it registered.",
+   "task_instructions": "First say you want to register a 5 kg cat, then say you meant your new dog, which weighs 32 kg. Give the lease number and your date of birth early and mention the vet weight and the existing cat. If told a manager must review, accept that.",
+   "expected_outcome": "review"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

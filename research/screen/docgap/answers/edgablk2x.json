@@ -1,0 +1,14 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Exact tool sequence is unspecified: which tool checks card status (e.g., get card details/list cards) and whether it must be called before any block attempt, and how 'verify' maps to a concrete tool call.",
+  "Order of steps: whether to look up the card status first, then confirm with the customer, then call block_card, then re-verify status, versus detecting the already-blocked state up front and skipping the mutation entirely.",
+  "What 'permanent block' means in the flow: whether the customer must explicitly confirm permanence, and what to do if they only say 'lost' (policy says use freeze for lost/misplaced, block only for stolen/compromised).",
+  "Final action for the already-blocked case: the description says 'decline repeat', but not whether to just inform the customer, offer a replacement card, raise a service request, or transfer; nor whether blocking an already-blocked card is a no-op versus an error.",
+  "How the customer behaves: may insist on re-blocking, change their mind, be ambiguous about which card, give a card ID not linked to them (must be refused), or ask about a replacement/reissue after the block.",
+  "Edge cases: card currently frozen (not blocked) versus permanently blocked; multiple cards; a block that fails or returns an error; status that is stale after the mutation; a block done earlier in the same conversation versus a prior session.",
+  "Which card identifier the customer provides or how to resolve it (last four digits, card type) and whether to list cards to disambiguate.",
+  "Bank conventions not in policy: wording for explaining the block's irreversibility, whether to mention reissue timelines or fees, and whether the knowledge base should be searched for block/replacement rules.",
+  "Whether the 'verify' step is post-mutation confirmation of status to the customer or pre-mutation verification of ownership/eligibility; the one-line description is ambiguous."
+ ]
+}

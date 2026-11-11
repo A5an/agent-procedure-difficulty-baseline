@@ -1,0 +1,695 @@
+{
+ "procedure_id": "p01_mobile",
+ "domain": "mobile phone carrier",
+ "organization": "Harbor Mobile",
+ "title": "Device upgrades on mobile lines",
+ "summary": "Change the phone model on a customer's line when the account holder passes the identity check, the line is active and the requested model is new to the line, or send the request to the credit team when the line is on a credit hold.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Customer accounts that own one or more phone lines",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "birth_date": "date",
+    "plan_name": "str"
+   }
+  },
+  "line": {
+   "key": "line_id",
+   "description": "Phone lines on an account",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:account",
+    "phone_number": "str",
+    "device_model": "enum:nova_s|nova_x|nova_fold",
+    "device_since": "date",
+    "line_status": "enum:active|suspended|closed",
+    "credit_hold": "bool"
+   }
+  },
+  "charge": {
+   "key": "charge_id",
+   "description": "Charges added to an account",
+   "fields": {
+    "charge_id": "str",
+    "line_id": "ref:line",
+    "kind": "enum:upgrade_fee",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "credit_review": {
+   "key": "review_id",
+   "description": "Reviews opened for the credit team",
+   "fields": {
+    "review_id": "str",
+    "line_id": "ref:line",
+    "reason": "enum:credit_hold",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by its account number."
+  },
+  {
+   "name": "get_line",
+   "kind": "get",
+   "entity": "line",
+   "description": "Look up a phone line by its line number."
+  },
+  {
+   "name": "find_lines_by_phone",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find phone lines by the number they are registered under."
+  },
+  {
+   "name": "set_line_device",
+   "kind": "update",
+   "entity": "line",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line that gets the new phone."
+    },
+    "device": {
+     "type": "enum:nova_s|nova_x|nova_fold",
+     "description": "The phone model the line will use."
+    }
+   },
+   "set": {
+    "device_model": "args.device",
+    "device_since": "today"
+   },
+   "description": "Set the phone model on a line and record today as the date of the change."
+  },
+  {
+   "name": "create_upgrade_charge",
+   "kind": "create",
+   "entity": "charge",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the fee belongs to."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The fee amount in dollars."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "kind": "'upgrade_fee'",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Add an upgrade fee to the account of a line."
+  },
+  {
+   "name": "create_credit_review",
+   "kind": "create",
+   "entity": "credit_review",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the review is about."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "reason": "'credit_hold'",
+    "created": "today"
+   },
+   "description": "Open a review for the credit team about a line on credit hold."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:line",
+   "description": "the phone line you want the new phone on"
+  },
+  "device": {
+   "type": "enum:nova_s|nova_x|nova_fold",
+   "description": "the phone model you want"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth as the account holder"
+  }
+ },
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "line.account_id"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Set the line to the requested phone and add the 49.00 upgrade fee to the account.",
+   "calls": [
+    {
+     "tool": "set_line_device",
+     "args": {
+      "line_id": "req.line_id",
+      "device": "req.device"
+     }
+    },
+    {
+     "tool": "create_upgrade_charge",
+     "args": {
+      "line_id": "req.line_id",
+      "amount": "49.0"
+     }
+    }
+   ]
+  },
+  "credit_review": {
+   "kind": "perform",
+   "description": "The line is on a credit hold: open a credit review instead of changing the phone.",
+   "calls": [
+    {
+     "tool": "create_credit_review",
+     "args": {
+      "line_id": "line.line_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the line; explain why the upgrade cannot be made.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != acct.birth_date or line.line_status != 'active' or req.device == line.device_model",
+   "outcome": "refuse",
+   "explain": "The upgrade is refused if the caller's date of birth does not match the account, the line is not active, or the line already has the requested phone model."
+  },
+  {
+   "id": "R2",
+   "when": "line.credit_hold",
+   "outcome": "credit_review",
+   "explain": "If the line passed the other checks but is on a credit hold, open a credit review instead of changing the phone."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Who can ask\nAccount holders can ask for a new phone on one of their lines by phone or chat. Before changing anything, find the line and the account it belongs to, and check the caller's identity: the date of birth they give must match the date of birth on the account. If they cannot give it, do not make any change.\n\n## Finding the line\nUse the line number if the customer has it. Otherwise ask for the phone number the line is registered under and look the line up with it. If the search finds no line, ask again for the number. If the customer can give neither a line number nor a phone number, you cannot complete the request. Once you have the line, get the account it belongs to.\n\n## Which phone\nThe customer must tell you which phone model they want: Nova S, Nova X or Nova Fold. If they have not said, ask before you do anything else. Do not guess the model.\n\n## Checks before any change\nGo through these in order. The first one that applies decides the outcome.\n1. The date of birth the customer gives must match the date of birth on the account. If it does not match, or they cannot give it, make no change and explain that the upgrade cannot be made.\n2. The line must be active. A suspended or closed line cannot be upgraded; make no change.\n3. The line must not already have the phone model the customer asked for. If it does, there is nothing to upgrade; make no change and tell the customer the line already has that phone.\n\nDo not open a credit review and do not add a fee for a caller who fails any of checks 1 to 3.\n\n## Credit holds\nIf the caller passes checks 1 to 3 and the line is on a credit hold, do not change the phone and do not add a fee. Open a credit review for the line and tell the customer that the credit team will contact them. Do not discuss the details of the hold.\n\n## Upgrades\nIf the line passes all checks and is not on a credit hold, set the line to the phone model the customer asked for. Then add an upgrade fee of 49.00 to the account for the line. Tell the customer the new phone is set and the fee has been added.\n\n## Never\nDo not waive the upgrade fee. Do not change the phone for a caller who failed the identity check or whose line is not active. Do not change anything the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACC-1001",
+    "holder_name": "Ruth Okafor",
+    "birth_date": "1961-03-08",
+    "plan_name": "Unlimited Plus"
+   }
+  ],
+  "line": [
+   {
+    "line_id": "LN-1001",
+    "account_id": "ACC-1001",
+    "phone_number": "415-555-0100",
+    "device_model": "nova_s",
+    "device_since": "2024-02-10",
+    "line_status": "active",
+    "credit_hold": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2101",
+      "holder_name": "Tomas Reyes",
+      "birth_date": "1984-06-17",
+      "plan_name": "Family Share"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2101",
+      "account_id": "ACC-2101",
+      "phone_number": "415-555-0171",
+      "device_model": "nova_s",
+      "device_since": "2023-09-02",
+      "line_status": "suspended",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2101",
+    "device": "nova_x"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "415-555-0171",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_x",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1984-06-17",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "line_id": "LN-2101",
+    "device": "nova_fold"
+   },
+   "persona": "Tomas, a delivery driver whose current phone has a cracked screen. Direct and a little distracted.",
+   "reason_for_call": "He wants a new phone and is hoping to get a better model than the one he has.",
+   "task_instructions": "Start by asking for the Nova Fold. Give the phone number the line is registered under in your first message. When the agent explains prices or options, switch to the Nova X and stick with it. Give your birth date only if the agent asks for it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2102",
+      "holder_name": "Mei Lin Chou",
+      "birth_date": "1977-12-30",
+      "plan_name": "Basic 10"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2102",
+      "account_id": "ACC-2102",
+      "phone_number": "415-555-0182",
+      "device_model": "nova_x",
+      "device_since": "2025-01-14",
+      "line_status": "active",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2102",
+    "device": "nova_x"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1977-12-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_x",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "line_id": "LN-2102",
+    "device": "nova_fold"
+   },
+   "persona": "Mei Lin, a retired accountant who is careful about money and checks every charge.",
+   "reason_for_call": "She wants a newer foldable phone for her grandson and wants to know what it would cost.",
+   "task_instructions": "Give your line number and your birth date in your first message. When the agent asks which phone model you want, say the Nova Fold. If the agent asks you again which model you want, switch to the Nova X and say that is the one you want. Do not mention the Nova Fold after you have switched. Accept the answer the agent gives you.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2103",
+      "holder_name": "Hassan Bello",
+      "birth_date": "1990-08-21",
+      "plan_name": "Unlimited"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2103",
+      "account_id": "ACC-2103",
+      "phone_number": "415-555-0193",
+      "device_model": "nova_x",
+      "device_since": "2024-11-05",
+      "line_status": "active",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2103",
+    "device": "nova_fold"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.device",
+     "value": "nova_fold",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-08-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hassan, calling from a new phone after losing his old one. Short and tired.",
+   "reason_for_call": "He wants the Nova Fold on his line.",
+   "task_instructions": "You do not know the line number or the phone number the line is registered under. You have no paperwork. Say you are calling from a new phone. Keep every answer to a few words. Give your birth date only if asked.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2104",
+      "holder_name": "Priya Raman",
+      "birth_date": "1988-04-02",
+      "plan_name": "Unlimited Plus"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2104",
+      "account_id": "ACC-2104",
+      "phone_number": "415-555-0224",
+      "device_model": "nova_s",
+      "device_since": "2024-06-30",
+      "line_status": "active",
+      "credit_hold": true
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2104",
+    "device": "nova_x"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_x",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-04-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.credit_hold",
+     "value": false,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a nurse who manages her family's phones and is polite about it.",
+   "reason_for_call": "She wants the Nova X on her line. She believes the late bill she paid last year cleared everything, so there should be no credit hold.",
+   "task_instructions": "Give your line number, the phone you want and your birth date in your first message. Say early that you paid the late bill and believe there is no credit hold on the line. Answer any question politely and accept the answer the agent gives you.",
+   "expected_outcome": "credit_review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2105",
+      "holder_name": "Benjamin Okoye",
+      "birth_date": "1975-09-14",
+      "plan_name": "Family Share"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2105",
+      "account_id": "ACC-2105",
+      "phone_number": "415-555-0235",
+      "device_model": "nova_x",
+      "device_since": "2023-03-18",
+      "line_status": "active",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2105",
+    "device": "nova_fold"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_fold",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-09-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.line_status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I am the account holder, and the bill is in my name, Benjamin Okoye.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The line is the one I use for work and it has been active without any problems.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Benjamin, a contractor on a tight schedule who gets frustrated by slow phone systems.",
+   "reason_for_call": "He wants the Nova Fold so he can review job photos on site.",
+   "task_instructions": "Give your line number, the phone you want and your birth date in your first message. Ask how fast the change will be made and push the agent to hurry. Accept the result once the change is confirmed.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2106",
+      "holder_name": "Sofia Marquez",
+      "birth_date": "1982-01-27",
+      "plan_name": "Family Share"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2106",
+      "account_id": "ACC-2106",
+      "phone_number": "415-555-0246",
+      "device_model": "nova_s",
+      "device_since": "2022-10-01",
+      "line_status": "active",
+      "credit_hold": false
+     },
+     {
+      "line_id": "LN-2116",
+      "account_id": "ACC-2106",
+      "phone_number": "415-555-0257",
+      "device_model": "nova_x",
+      "device_since": "2024-07-19",
+      "line_status": "active",
+      "credit_hold": true
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2106",
+    "device": "nova_fold"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2106",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_fold",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1982-01-27",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My teenager's phone is on the same family plan, and it has been on hold since a late bill last spring.",
+     "kind": "distractor"
+    },
+    {
+     "text": "My nephew wants to know the price of the Nova Fold, but he is not the account holder.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The plan renews in March and I may add a tablet next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was charged a late fee on a different bill two years ago and it was cleared.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Sofia, a school administrator who handles the family's phones and is organized about it.",
+   "reason_for_call": "She wants the Nova Fold on her own line for work.",
+   "task_instructions": "Give your line number, the phone you want and your birth date in your first message. If the agent mentions your teenager's line or other family matters, answer briefly and return to your own line. Accept the answer the agent gives you.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2107",
+      "holder_name": "Grace Nakamura",
+      "birth_date": "1969-05-09",
+      "plan_name": "Unlimited Plus"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2107",
+      "account_id": "ACC-2107",
+      "phone_number": "415-555-0268",
+      "device_model": "nova_fold",
+      "device_since": "2025-02-11",
+      "line_status": "suspended",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2107",
+    "device": "nova_x"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2107",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_x",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-05-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a hospital nurse who speaks in short sentences and has no time for small talk.",
+   "reason_for_call": "She wants the Nova X on her line.",
+   "task_instructions": "Give your line number, the phone you want and your birth date in your first message. Keep every answer to a few words. Accept the result without arguing.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2108",
+      "holder_name": "Kwame Asante",
+      "birth_date": "1993-11-30",
+      "plan_name": "Unlimited"
+     }
+    ],
+    "line": [
+     {
+      "line_id": "LN-2108",
+      "account_id": "ACC-2108",
+      "phone_number": "415-555-0279",
+      "device_model": "nova_s",
+      "device_since": "2023-12-01",
+      "line_status": "active",
+      "credit_hold": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "LN-2108",
+    "device": "nova_x"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "LN-2108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.device",
+     "value": "nova_x",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1993-11-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kwame, a sales representative who is always on the road and impatient with phone systems.",
+   "reason_for_call": "He wants the Nova X before a client trip next week.",
+   "task_instructions": "Give your line number, the phone you want and your birth date in your first message. Press the agent to finish quickly and ask it to skip any extra questions. Accept the result once the change is confirmed.",
+   "expected_outcome": "upgrade"
+  }
+ ],
+ "_check": {
+  "round_accepted": 2,
+  "rounds_used": 3,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

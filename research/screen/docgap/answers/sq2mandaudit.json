@@ -1,0 +1,15 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which mandates to cancel: the description says '#1' and '#2' but not how they are chosen (customer-named, first two in the list, by merchant, by amount, by status) or how ties and ambiguous references are resolved.",
+  "Whether the 'audit' implies a specific criterion (e.g., cancel only active, duplicate, or unrecognized mandates) or just a mechanical list-cancel-list sequence.",
+  "Whether confirmation is needed before each cancel separately, or one confirmation covers both; the policy requires confirmation for cancel_mandate but not how it is obtained in a multi-cancel flow.",
+  "Customer behavior: they may change their mind, decline the second cancellation, ask to cancel a different mandate, or give vague references, and the correct response (no mutation) depends on it.",
+  "What the final state or final action should be: ending after the third list, summarizing the remaining mandates, or answering follow-up questions. The bank's expected closing is unspecified.",
+  "Edge cases: already-cancelled or non-active mandates in the list, an ID not linked to the customer (must refuse), a cancel failure, an empty list after cancellation, or a mandate with pending or upcoming debits.",
+  "Whether list output should be re-fetched after each cancel (the description implies yes) and how to present status changes without exposing internal field names or tool names.",
+  "Whether knowledge-base lookups are needed (e.g., cancellation notice periods, effect on upcoming debits, fees, reversibility) and what the bank's convention is on warning the customer about consequences.",
+  "Which tool and parameters map to 'list' (mandates by account, by status, all accounts) and whether filtering to active mandates is expected.",
+  "Bank-specific conventions such as the cancellation reason, whether the customer must supply one, and whether any related service request or follow-up is expected."
+ ]
+}

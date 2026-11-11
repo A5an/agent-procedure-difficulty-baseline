@@ -1,0 +1,14 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Which exact tools to call and in what order: how to look up card status, which card to select if the customer has several linked cards, and what 'verify' means (re-fetching card status after the action vs. verifying something with the customer).",
+  "Freeze vs. permanent block decision: the policy says to use toggle_card_freeze for lost or misplaced cards and block_card only for stolen or compromised ones with explicit confirmation. The request type says 'block' but not which applies, so the correct action depends on the customer's stated reason (lost, stolen, fraud, temporary) and how ambiguous cases are handled.",
+  "Whether and when to ask the customer to confirm: the exact wording, what counts as explicit confirmation, and what to do if the customer hesitates, changes their mind, or only says 'maybe'.",
+  "Replacement request mechanics: which tool or service request creates a replacement, which parameters it needs (reason, delivery address, card type, fee), whether replacement is allowed after a freeze versus after a block, and whether the knowledge base must be searched for fees, timelines, or eligibility.",
+  "Ordering edge cases: whether to check status first, whether replacement should follow only after the block succeeds, and what to do if the card is already blocked, frozen, expired, or has a replacement pending.",
+  "Customer behavior variations: the customer may provide an unlinked card ID or last-4 digits (policy says to refuse), may refuse the block, may ask only for status, or may change the request midway (e.g. freeze, then decide to block, or unfreeze after finding the card).",
+  "Failure and escalation paths: what to do if a tool errors, if a replacement is not possible through tools, or when to raise a service request or transfer instead.",
+  "Bank-specific conventions that are not stated: replacement fees, delivery timelines, handling of linked services (standing instructions, mandates, tokenised wallets, pending transactions) on a blocked card, and what the final summary to the customer should contain.",
+  "The final state the request is judged on is unclear: whether success means a frozen card, a permanently blocked card with a replacement request logged, or a verified status, which depends on unspecified details."
+ ]
+}

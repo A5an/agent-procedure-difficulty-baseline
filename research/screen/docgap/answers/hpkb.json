@@ -1,0 +1,13 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "'General banking question' is open-ended: the description doesn't say which topics occur (rates, fees, product rules, card/deposit/loan processes, schemes), so the exact knowledge-base queries and categories needed are unspecified.",
+  "Policy says to search the knowledge base but not how many refinements are acceptable, what score threshold counts as 'weak', or what to do if repeated searches still return nothing useful (admit not knowing vs. escalate vs. raise a service request).",
+  "Unclear boundary between a general question and a customer-specific one: when a question turns into needing the customer's own balance, rate, or product (e.g. 'what is my FD rate?'), which lookups to run and in what order is unspecified.",
+  "Final action is undefined: for most general questions the correct outcome is probably just an answer with no mutation, but the policy doesn't say whether any follow-up, ticket, or transfer is expected.",
+  "Edge cases are not covered: questions about unlinked products or other people's accounts (refuse), requests that drift into mutations (freeze/block card, close deposit) mid-conversation, and off-topic or advisory questions (investment advice, legal/tax).",
+  "Customer behavior is unspecified: vague or multi-part questions, pushing for a guess when the KB has no answer, changing their mind, or insisting on a human agent.",
+  "Bank-specific conventions are missing: how to quote rates, fees, and dates relative to the simulation date (2026-07-16), currency and rounding formats, tone, and whether to cite sources or add disclaimers.",
+  "The ban on exposing tool names, field names, and category codes is stated, but there's no guidance on translating KB content that itself contains internal terms or jargon into plain language."
+ ]
+}

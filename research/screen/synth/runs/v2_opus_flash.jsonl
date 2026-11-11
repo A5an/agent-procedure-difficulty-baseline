@@ -1,0 +1,96 @@
+{"task_id": "v2_opus__h03_business__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 13, "sec": 15.6, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h03_business__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 17.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h03_business__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 17.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h03_business__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 22.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h03_business__c3", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 23.0, "db_ok": false, "actions_ok": [false, false]}
+{"task_id": "v2_opus__h03_business__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 27.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h02_mortgage__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 12.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h03_business__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 17.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h03_business__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 20.5, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h02_mortgage__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 11.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h02_mortgage__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 17.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h02_mortgage__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 33.0, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h02_mortgage__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 18.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h02_mortgage__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 21.6, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h02_mortgage__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 27.9, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h02_mortgage__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 34.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h12_university__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 28.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h12_university__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 16.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h12_university__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 15.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h12_university__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 24.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h12_university__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 14.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h12_university__c4", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 26.0, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_opus__h12_university__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 11.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h12_university__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 23.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h10_cloud__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 14.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 18.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 15.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 18.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 30.8, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h10_cloud__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 30.5, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h11_freight__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 17.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 27.0, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_opus__h11_freight__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 13.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h10_cloud__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 36, "sec": 43.3, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h11_freight__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 21.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h11_freight__c4", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 20.4, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "v2_opus__h11_freight__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 22.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h11_freight__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 13.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h11_freight__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 18.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_opus__h11_freight__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 23.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h01_auto__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 14.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h01_auto__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 20.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h01_auto__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 30.6, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h01_auto__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 27.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h01_auto__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 20.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h01_auto__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 28.1, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_opus__h01_auto__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 20.9, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h01_auto__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 22.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h09_bike__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 19, "sec": 22.0, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h09_bike__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 19.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h09_bike__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 22.9, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h09_bike__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 19.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h09_bike__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 31.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h07_school__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 377.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h07_school__c4", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 47.4, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_opus__h07_school__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 28, "sec": 35.1, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h07_school__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 25.2, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h07_school__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 20.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h07_school__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 25, "sec": 31.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h05_hospital__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 19.4, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h05_hospital__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 15.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h05_hospital__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 25, "sec": 31.5, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h05_hospital__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 31.3, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h05_hospital__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 16.8, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h09_bike__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 689.9, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h09_bike__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 668.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h05_hospital__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 17.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h09_bike__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 687.1, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h07_school__c1", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 681.6, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "v2_opus__h07_school__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 23, "sec": 678.7, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h04_airline__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 13.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h05_hospital__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 17.4, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h05_hospital__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 22.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h04_airline__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 16, "sec": 18.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h04_airline__c7", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 15, "sec": 17.5, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h04_airline__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 22.3, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h04_airline__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 25.4, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_opus__h04_airline__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 25.4, "db_ok": true, "actions_ok": [true, true]}
+{"task_id": "v2_opus__h04_airline__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 25.6, "db_ok": true, "actions_ok": [true]}
+{"task_id": "v2_opus__h08_car__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 9.1, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h08_car__c1", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 18.9, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "v2_opus__h08_car__c3", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 23.5, "db_ok": false, "actions_ok": [false, false, false]}
+{"task_id": "v2_opus__h08_car__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 12.8, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h04_airline__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 17, "sec": 32.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h08_car__c7", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 10, "sec": 12.7, "db_ok": false, "actions_ok": [false]}
+{"task_id": "v2_opus__h08_car__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 24, "sec": 31.6, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h08_car__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 26.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h06_city__c1", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 11, "sec": 16.0, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h06_city__c4", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 14, "sec": 18.3, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h06_city__c2", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 23.6, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h06_city__c3", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 18, "sec": 23.6, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h08_car__c8", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 26, "sec": 28.1, "db_ok": false, "actions_ok": []}
+{"task_id": "v2_opus__h06_city__c5", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 22, "sec": 25.2, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h06_city__c8", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 12, "sec": 11.7, "db_ok": true, "actions_ok": []}
+{"task_id": "v2_opus__h06_city__c6", "gen": "opus", "agent": "flash", "reward": 1.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 23.9, "db_ok": true, "actions_ok": [true, true, true]}
+{"task_id": "v2_opus__h06_city__c7", "gen": "opus", "agent": "flash", "reward": 0.0, "termination": "TerminationReason.USER_STOP", "n_msgs": 20, "sec": 21.0, "db_ok": false, "actions_ok": []}

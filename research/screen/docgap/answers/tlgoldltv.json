@@ -1,0 +1,16 @@
+{
+ "gap_score": 9,
+ "gaps": [
+  "Policy has no gold-loan content at all: LTV ratio/cap, eligible purity (18K/22K/24K), valuation method (gross vs net weight, deductions for stones), and the formula for max loan are not specified and must come from the knowledge base or tools",
+  "Exact tool sequence and order unspecified: which tool gives gold rate, which computes LTV/eligibility, which lists offers, which submits the application; whether to call search_knowledge_base before quoting scheme rules",
+  "Which inputs must be gathered from the customer (weight, purity, desired amount, tenure, repayment type, branch/collateral deposit) and what to do if they are missing, ambiguous, or in different units (grams/tola/oz)",
+  "Gold rate source and freshness: which rate (per gram, by purity, buy vs. sell, city), how to handle stale/unavailable rates, and whether the rate on the simulation date 2026-07-16 must be used",
+  "Offer selection rules: how to compare schemes (interest rate, processing fee, tenure, LTV), whether to recommend one or present all, and how to handle no eligible offers or requested amount exceeding max eligible",
+  "Final action and confirmation: whether 'apply' is a mutation requiring explicit confirmation (policy lists only close/block/cancel/stop as confirm-required), what the application tool needs, and what to report after submission (reference no., next steps like physical gold appraisal at branch)",
+  "Customer behavior variations: customer wants to change weight/amount mid-flow, only wants an estimate and not to apply, changes their mind after offers, asks for more than eligible, negotiates rate, or asks about unlinked accounts/IDs",
+  "Disbursement account selection: which linked account receives funds, and the requirement to use only the customer's own linked products",
+  "Edge cases: gold already pledged, existing gold loan, KYC or eligibility failures, minimum/maximum loan amounts, rate changes between quote and application, rounding conventions, currency/formatting",
+  "Communication constraints interplay: must explain results without exposing tool/field names or scheme codes, and product IDs must be looked up rather than invented, so how to present offers to the customer vs. map to IDs is unspecified",
+  "Escalation boundary: when a gold loan problem (e.g., valuation dispute, application tool error) warrants transfer vs. service request is not defined"
+ ]
+}

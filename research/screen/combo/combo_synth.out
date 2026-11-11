@@ -1,0 +1,9 @@
+71 procedures; probe half 852 episodes, real half 849
+{'flash': 0.053, 'g38': 0.042, 'lite': 0.307} real-half failure
+monitor on real half, lite: AUC 0.652
+monitor on real half, flash: AUC 0.550
+monitor on real half, g38: AUC 0.678
+F=20 h=5 q=0.99: best constant always g38 0.855, oracle per procedure 0.427 | probes only 0.991 (+0.136 [-0.427, +0.699]) | probes + monitor 0.961 (+0.106 [-0.461, +0.653]); monitor adds -0.030 [-0.223, +0.129]
+F=20 h=2 q=0.95: best constant always g38 0.855, oracle per procedure 0.257 | probes only 1.272 (+0.417 [-0.189, +0.980]) | probes + monitor 1.045 (+0.189 [-0.402, +0.763]); monitor adds -0.227 [-0.396, -0.091]
+F=50 h=5 q=0.99: best constant always g38 2.123, oracle per procedure 0.469 | probes only 2.892 (+0.769 [-0.794, +2.213]) | probes + monitor 2.616 (+0.493 [-0.993, +1.906]); monitor adds -0.276 [-0.515, -0.064]
+F=10 h=5 q=0.99: best constant always g38 0.433, oracle per procedure 0.215 | probes only 0.498 (+0.066 [-0.216, +0.347]) | probes + monitor 0.536 (+0.104 [-0.193, +0.369]); monitor adds +0.038 [-0.069, +0.146]

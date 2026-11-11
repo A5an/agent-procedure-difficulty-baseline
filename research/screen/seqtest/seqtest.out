@@ -1,0 +1,20 @@
+
+threshold t=0.9, confidence c=0.8
+  seq       probes per procedure   3.0  delegated  77% of cases  success among delegated  92%
+  fixed6    probes per procedure   6.0  delegated  61% of cases  success among delegated  95%
+  fixedall  probes per procedure  30.5  delegated  61% of cases  success among delegated  95%
+
+threshold t=0.9, confidence c=0.9
+  seq       probes per procedure   6.0  delegated  68% of cases  success among delegated  94%
+  fixed6    probes per procedure   6.0  delegated  62% of cases  success among delegated  95%
+  fixedall  probes per procedure  30.5  delegated  61% of cases  success among delegated  95%
+
+threshold t=0.8, confidence c=0.8
+  seq       probes per procedure   1.7  delegated  86% of cases  success among delegated  90%
+  fixed6    probes per procedure   6.0  delegated  78% of cases  success among delegated  92%
+  fixedall  probes per procedure  30.5  delegated  88% of cases  success among delegated  91%
+
+threshold t=0.8, confidence c=0.9
+  seq       probes per procedure   4.4  delegated  84% of cases  success among delegated  91%
+  fixed6    probes per procedure   6.0  delegated  77% of cases  success among delegated  93%
+  fixedall  probes per procedure  30.5  delegated  88% of cases  success among delegated  91%

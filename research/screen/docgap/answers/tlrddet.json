@@ -1,0 +1,16 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which RD(s) the customer means: how to identify and choose among multiple linked recurring deposits, and what to do if the customer gives an unlinked or ambiguous ID",
+  "Which lookup steps are required and in what order for 'status' (balance, installments paid, missed installments, maturity date, rate) and whether a status check alone is sufficient",
+  "Whether the closure quote is informational only or leads to actual closure; the customer may stop after the quote, change their mind, or confirm closure, and the policy gives no rule for when to proceed",
+  "What 'renewal change' means for an RD: auto-renewal on/off, maturity instruction change, or payout account change. Which tool or process applies, and whether it is supported or needs a service request",
+  "Premature closure rules: penalty, reduced interest rate, minimum tenure, treatment of missed installments, TDS, and loans against the RD, all of which come from the knowledge base and are not in the policy",
+  "Edge cases: RD already matured or closed, RD with an active lien or loan against it, RD near maturity where waiting may be better, and the simulation date (2026-07-16) affecting maturity and penalty calculations",
+  "Final action expected: close_deposit, renewal update, service request, or no mutation. What counts as explicit confirmation, and how to behave if the customer asks for advice on whether to close",
+  "Where closure proceeds are credited (which linked account), and whether the customer can choose the destination",
+  "Customer behavior: whether they compare quote versus keeping the RD, change their mind midway, or ask for the renewal change after seeing the quote, which affects the order of mutations",
+  "Bank conventions: how to present quote figures (gross vs. net, penalty breakdown), rounding, currency formatting, and when the KB must be searched again after weak hits",
+  "Escalation boundary: when an unsupported renewal change should become a service request versus a human transfer"
+ ]
+}

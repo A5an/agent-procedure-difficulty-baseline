@@ -1,0 +1,16 @@
+{
+ "gap_score": 6,
+ "gaps": [
+  "Exact tool names and parameters are not given, so the lookup tools for listing deposits, fetching FD details, and checking the linked savings/settlement account are unspecified.",
+  "Policy says to prefer a quote before closing, but does not say whether it is mandatory or what happens if the customer declines the quote.",
+  "Confirmation wording and timing are unspecified: whether explicit confirmation is needed after the quote, and what counts as a valid yes versus an ambiguous reply.",
+  "Which FD the customer means is unclear when they hold several, when the ID is missing or unlinked, or when the FD is already closed or matured.",
+  "Premature closure penalties, notice periods, lock-in terms, TDS, and interest rules live in the knowledge base, so the right query and when to refine it are unspecified.",
+  "The destination account for proceeds is unspecified: the original linked account, a customer-chosen account, or a mismatch.",
+  "FD-linked loans or overdrafts, liens, joint holders, nominee rules, and auto-renewal settings are possible blockers or edge cases the description does not mention.",
+  "'Balance' in the flow is ambiguous: it could mean checking the account balance after closure to confirm credit, or reporting the FD balance before closure. The order and what to report are unspecified.",
+  "Customer behavior varies: they may change their mind after the quote, ask for partial withdrawal, or compare the penalty to alternatives. The policy only says not to mutate in those cases, not how to respond.",
+  "Failure handling is unspecified when the closure call errors, when the quote differs from the final amount, or when the post-closure balance does not reflect the credit. It is unclear whether to escalate or raise a service request.",
+  "Output conventions are unspecified: currency formatting, how much of the quote breakdown to present, and whether to mention the simulation date or maturity date."
+ ]
+}

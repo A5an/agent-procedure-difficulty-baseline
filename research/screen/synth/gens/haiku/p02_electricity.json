@@ -1,0 +1,738 @@
+{
+ "procedure_id": "p02_electricity",
+ "domain": "electricity utility",
+ "organization": "Northfield Energy",
+ "title": "Bill payment deferrals",
+ "summary": "Push back the due date of a customer's electricity bill by a number of days when the account and bill qualify for a payment deferral.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Electricity supply accounts, one per service address and holder",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "holder_surname": "str",
+    "service_address": "str",
+    "status": "enum:active|closed"
+   }
+  },
+  "bill": {
+   "key": "bill_id",
+   "description": "Bills issued against an account",
+   "fields": {
+    "bill_id": "str",
+    "account_id": "ref:account",
+    "amount_due": "number",
+    "issued": "date",
+    "due_date": "date",
+    "deferrals": "int",
+    "in_dispute": "bool"
+   }
+  },
+  "arrangement": {
+   "key": "arrangement_id",
+   "description": "Payment deferral arrangements granted on a bill",
+   "fields": {
+    "arrangement_id": "str",
+    "bill_id": "ref:bill",
+    "days": "int",
+    "created": "date"
+   }
+  },
+  "contact_log": {
+   "key": "log_id",
+   "description": "Log of account contacts that changed a bill",
+   "fields": {
+    "log_id": "str",
+    "bill_id": "ref:bill",
+    "kind": "enum:deferral|reminder_hold",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up an account by its account number."
+  },
+  {
+   "name": "find_accounts_by_address",
+   "kind": "search",
+   "entity": "account",
+   "by": [
+    "service_address"
+   ],
+   "description": "Find accounts by the service address they supply."
+  },
+  {
+   "name": "get_bill",
+   "kind": "get",
+   "entity": "bill",
+   "description": "Look up a bill by its bill number."
+  },
+  {
+   "name": "find_bills_by_account",
+   "kind": "search",
+   "entity": "bill",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all bills issued on an account."
+  },
+  {
+   "name": "extend_due_date",
+   "kind": "update",
+   "entity": "bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill whose due date is pushed back."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to add to the due date."
+    }
+   },
+   "set": {
+    "due_date": "add_days(rec.due_date, args.days)",
+    "deferrals": "rec.deferrals + 1"
+   },
+   "description": "Push the due date of a bill back by a number of days and count one deferral on it."
+  },
+  {
+   "name": "create_arrangement",
+   "kind": "create",
+   "entity": "arrangement",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill the deferral is for."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days the deferral adds."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "days": "args.days",
+    "created": "today"
+   },
+   "description": "Record a payment deferral arrangement on a bill."
+  },
+  {
+   "name": "log_contact",
+   "kind": "create",
+   "entity": "contact_log",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill the contact is about."
+    },
+    "kind": {
+     "type": "enum:deferral|reminder_hold",
+     "description": "Type of contact to log."
+    }
+   },
+   "fields": {
+    "bill_id": "args.bill_id",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Write a log entry on a bill recording an account contact."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:bill",
+   "description": "the bill you want the payment date moved on"
+  },
+  "deferral_days": {
+   "type": "int",
+   "description": "how many days you want to push the payment date back"
+  }
+ },
+ "claims": {
+  "surname": {
+   "type": "str",
+   "description": "the surname of the account holder"
+  }
+ },
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "account",
+   "entity": "account",
+   "key": "bill.account_id"
+  }
+ ],
+ "outcomes": {
+  "defer": {
+   "kind": "perform",
+   "description": "Grant the payment deferral: record the arrangement, push the bill's due date back by the requested days, and log the deferral.",
+   "calls": [
+    {
+     "tool": "create_arrangement",
+     "args": {
+      "bill_id": "req.bill_id",
+      "days": "req.deferral_days"
+     }
+    },
+    {
+     "tool": "extend_due_date",
+     "args": {
+      "bill_id": "req.bill_id",
+      "days": "req.deferral_days"
+     }
+    },
+    {
+     "tool": "log_contact",
+     "args": {
+      "bill_id": "req.bill_id",
+      "kind": "'deferral'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no changes and explain to the customer why the deferral cannot be granted.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.surname != account.holder_surname",
+   "outcome": "refuse",
+   "explain": "The caller must state the surname of the account holder before any change."
+  },
+  {
+   "id": "R2",
+   "when": "account.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Deferrals cannot be granted on a closed account."
+  },
+  {
+   "id": "R3",
+   "when": "bill.deferrals >= 1",
+   "outcome": "refuse",
+   "explain": "A bill can be deferred only once."
+  },
+  {
+   "id": "R4",
+   "when": "req.deferral_days > 14",
+   "outcome": "refuse",
+   "explain": "A deferral may be at most 14 days."
+  },
+  {
+   "id": "R5",
+   "when": "bill.in_dispute",
+   "outcome": "refuse",
+   "explain": "A bill that is in dispute cannot be deferred through this channel."
+  }
+ ],
+ "default_outcome": "defer",
+ "policy_text": "## Who can ask\nOnly the account holder, or someone speaking for the account, may ask for a payment deferral. Before changing anything, confirm the caller's identity: ask for the surname of the account holder and check it against the surname on the account. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the bill\nUse the bill number if the customer has it. If not, find the account by the service address, or by the account number if the customer gives it, then list the bills on that account. If there is more than one bill, ask which one they mean, for example by its due date. If you cannot find the bill, do not make any change.\n\n## Getting the request\nIf the customer has not said how many days they want, ask them. Do not decide the number yourself.\n\n## When a deferral can be granted\n- The account must be active. A deferral cannot be granted on a closed account.\n- A bill can be deferred once. If it has already been deferred, decline the request.\n- A deferral may be at most 14 days. Requests for more are declined, not reduced to 14.\n- A bill that is in dispute cannot be deferred through this channel. Tell the customer the dispute must be resolved first.\n\nIf all of this is satisfied, grant the deferral for the number of days the customer asked for. Create the arrangement on the bill, push the bill's due date back by the same number of days, and log a deferral contact on the bill.\n\n## Never\nDo not waive or reduce any charge, do not change a bill the customer did not ask about, and do not grant a deferral to a caller who failed the identity check.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "A-10044",
+    "holder_name": "Gintaras Vilkas",
+    "holder_surname": "Vilkas",
+    "service_address": "7 Millbrook Road",
+    "status": "active"
+   }
+  ],
+  "bill": [
+   {
+    "bill_id": "B-30117",
+    "account_id": "A-10044",
+    "amount_due": 182.4,
+    "issued": "2026-04-20",
+    "due_date": "2026-05-14",
+    "deferrals": 0,
+    "in_dispute": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20311",
+      "holder_name": "Marisol Quintero",
+      "holder_surname": "Quintero",
+      "service_address": "22 Tern Close",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61204",
+      "account_id": "A-20311",
+      "amount_due": 96.15,
+      "issued": "2026-04-28",
+      "due_date": "2026-05-26",
+      "deferrals": 1,
+      "in_dispute": false
+     },
+     {
+      "bill_id": "B-61205",
+      "account_id": "A-20311",
+      "amount_due": 240.0,
+      "issued": "2026-05-01",
+      "due_date": "2026-06-02",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61204",
+    "deferral_days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61204",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Quintero",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I also want to ask about switching to your green tariff, but that can wait for another call.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A heat pump installer is coming to the house next month and I want to know if that changes anything.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I had one late payment back in 2024 and it was sorted out at the time.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "deferral_days": 21
+   },
+   "persona": "Marisol, a school administrator who manages the household bills around a busy schedule. Polite but direct.",
+   "reason_for_call": "She wants more time to pay the bill for her flat because a term fee came due early this month.",
+   "task_instructions": "In your first message, say you want to push back the payment date on the bill you have in mind by three weeks, and give your surname. Then, before anything is done, change your mind and ask for one week instead. Answer the agent's questions politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20398",
+      "holder_name": "Tomasz Brzeski",
+      "holder_surname": "Brzeski",
+      "service_address": "3 Canal Street",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61377",
+      "account_id": "A-20398",
+      "amount_due": 58.7,
+      "issued": "2026-05-02",
+      "due_date": "2026-05-30",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61377",
+    "deferral_days": 5
+   },
+   "customer_facts": [
+    {
+     "fact": "req.deferral_days",
+     "value": 5,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Brzeski",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a delivery driver who is often on the road and calls from a new mobile number he has only had since spring.",
+   "reason_for_call": "He wants five more days to pay the electricity bill because his wages come in late this month.",
+   "task_instructions": "You lost the letter with the bill and do not remember the bill number, the account number, or the service address. If the agent asks for them, say you do not have them. Give your surname when asked. Keep being cooperative and accept it if the agent cannot find the bill.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20455",
+      "holder_name": "Owen Mackie",
+      "holder_surname": "Mackie",
+      "service_address": "81 Ferncliff Avenue",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61502",
+      "account_id": "A-20455",
+      "amount_due": 412.9,
+      "issued": "2026-04-30",
+      "due_date": "2026-05-28",
+      "deferrals": 0,
+      "in_dispute": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61502",
+    "deferral_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Mackie",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "bill_id": "B-61502",
+    "deferral_days": 30
+   },
+   "persona": "Owen, a retired machinist who likes to be thorough and keeps paper records of everything.",
+   "reason_for_call": "He wants more time on a large bill that arrived while he was in hospital for a week.",
+   "task_instructions": "In your first message, give the bill number, your surname, and ask for a thirty-day deferral. Then, before anything is done, change your mind and ask for ten days instead. Answer the agent's questions clearly.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20517",
+      "holder_name": "Priya Raman",
+      "holder_surname": "Raman",
+      "service_address": "14 Larch Grove",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61633",
+      "account_id": "A-20517",
+      "amount_due": 133.05,
+      "issued": "2026-05-03",
+      "due_date": "2026-06-01",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61633",
+    "deferral_days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61633",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Raman",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a sales manager with a packed calendar who expects things to be done fast and has little patience for scripts.",
+   "reason_for_call": "She wants a week's extension on a bill because a trip has pushed her budget back.",
+   "task_instructions": "Open by stating the bill number and asking for a one-week deferral, sounding impatient. Give your surname only when the agent asks for it. If the agent asks you to wait, complain once, then wait. Accept the outcome if it goes through.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20602",
+      "holder_name": "Ilse Dunmore",
+      "holder_surname": "Dunmore",
+      "service_address": "9 Quarry Way",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61718",
+      "account_id": "A-20602",
+      "amount_due": 210.0,
+      "issued": "2026-05-04",
+      "due_date": "2026-06-03",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61718",
+    "deferral_days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61718",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Dunmore",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.in_dispute",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ilse, a nurse on early shifts who answers calls between patients and speaks in short sentences.",
+   "reason_for_call": "She wants ten days more to pay the bill because her shifts changed this month.",
+   "task_instructions": "Give the bill number, your surname, and the ten days in your first message. Say up front that you believe you have disputed this bill with the company. Keep answers very short and do not elaborate.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20634",
+      "holder_name": "Samuel Okafor",
+      "holder_surname": "Okafor",
+      "service_address": "58 Birch Terrace",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61790",
+      "account_id": "A-20634",
+      "amount_due": 77.6,
+      "issued": "2026-05-05",
+      "due_date": "2026-05-29",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61790",
+    "deferral_days": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61790",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Okafor",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "account.status",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The account is in my name at 58 Birch Terrace, the house I have lived in for six years.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The bill is the one that was issued on the fifth of May, and it is the only one I have not paid yet.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Samuel, a self-employed electrician who is short on cash this month and talks fast.",
+   "reason_for_call": "He wants two weeks to pay the current bill because a client has not paid him yet.",
+   "task_instructions": "Give the bill number, your surname, the two-week request, and say the account is still open. If the agent asks, confirm the address and the bill date. When the agent says no, argue once that you always pay and ask for an exception, then accept if it is still refused. If it is granted, accept it.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20711",
+      "holder_name": "Beatriz Lopes",
+      "holder_surname": "Lopes",
+      "service_address": "2 Sorrel Court",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61844",
+      "account_id": "A-20711",
+      "amount_due": 65.4,
+      "issued": "2026-04-29",
+      "due_date": "2026-05-22",
+      "deferrals": 0,
+      "in_dispute": false
+     },
+     {
+      "bill_id": "B-61851",
+      "account_id": "A-20711",
+      "amount_due": 118.25,
+      "issued": "2026-05-06",
+      "due_date": "2026-06-05",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61851",
+    "deferral_days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "bill.account_id",
+     "value": "A-20711",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.due_date",
+     "value": "2026-06-05",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Lopes",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Beatriz, a teacher who runs a small household and keeps her paperwork in a folder by the door.",
+   "reason_for_call": "She wants a week's deferral on the bill that falls due in June, but does not have the bill number.",
+   "task_instructions": "Say you have your account number and want to push back the payment on the bill due on the fifth of June by one week. You do not know the bill number. If the agent finds more than one bill, tell them the due date. Give your surname when asked. Be cooperative and accept the outcome.",
+   "expected_outcome": "defer"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-20846",
+      "holder_name": "Felix Abernathy",
+      "holder_surname": "Abernathy",
+      "service_address": "31 Heron Lane",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "B-61946",
+      "account_id": "A-20846",
+      "amount_due": 44.0,
+      "issued": "2026-05-12",
+      "due_date": "2026-06-08",
+      "deferrals": 0,
+      "in_dispute": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "B-61946",
+    "deferral_days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "B-61946",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.surname",
+     "value": "Abernathy",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.deferral_days",
+     "value": 21,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Felix, a site foreman who is paying a deposit on a new flat and is trying to stretch his budget this month.",
+   "reason_for_call": "He wants a three-week extension on the bill because the deposit is due before the bill.",
+   "task_instructions": "In your first message, give only the bill number and your surname. Do not mention how many days you want. If the agent asks how many days you want, say twenty-one days. Keep every answer to a few words and do not elaborate.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

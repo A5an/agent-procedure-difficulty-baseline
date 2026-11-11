@@ -1,0 +1,563 @@
+{
+ "procedure_id": "p16_employee",
+ "domain": "employee HR self-service",
+ "organization": "Northbridge Logistics",
+ "title": "Work mode change requests",
+ "summary": "Change an employee's work mode (on site, hybrid or remote) when the employee's identity and the record allow it.",
+ "entities": {
+  "employee": {
+   "key": "employee_id",
+   "description": "Employee records held by HR",
+   "fields": {
+    "employee_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "hire_date": "date",
+    "status": "enum:active|on_leave|terminated",
+    "employment_type": "enum:full_time|part_time|contractor",
+    "remote_eligible": "bool",
+    "work_mode": "enum:on_site|hybrid|remote",
+    "performance_plan": "enum:none|active"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_employee",
+   "kind": "get",
+   "entity": "employee",
+   "description": "Look up an employee record by employee ID."
+  },
+  {
+   "name": "find_employee_by_email",
+   "kind": "search",
+   "entity": "employee",
+   "by": [
+    "email"
+   ],
+   "description": "Find employee records by the work email address on file."
+  },
+  {
+   "name": "set_work_mode",
+   "kind": "update",
+   "entity": "employee",
+   "args": {
+    "employee_id": {
+     "type": "ref:employee",
+     "description": "The employee whose work mode changes."
+    },
+    "work_mode": {
+     "type": "enum:on_site|hybrid|remote",
+     "description": "The new work mode."
+    }
+   },
+   "set": {
+    "work_mode": "args.work_mode"
+   },
+   "description": "Set the employee's work mode to the given value. Changes no other field."
+  }
+ ],
+ "request": {
+  "employee_id": {
+   "type": "ref:employee",
+   "description": "your employee ID"
+  },
+  "work_mode": {
+   "type": "enum:on_site|hybrid|remote",
+   "description": "the work mode you want: on_site, hybrid or remote"
+  }
+ },
+ "claims": {
+  "hire_date": {
+   "type": "date",
+   "description": "your hire date, the first day you started with the company"
+  }
+ },
+ "bindings": [
+  {
+   "name": "emp",
+   "entity": "employee",
+   "key": "req.employee_id"
+  }
+ ],
+ "outcomes": {
+  "change_mode": {
+   "kind": "perform",
+   "description": "Set the employee's work mode to the requested value.",
+   "calls": [
+    {
+     "tool": "set_work_mode",
+     "args": {
+      "employee_id": "emp.employee_id",
+      "work_mode": "req.work_mode"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change and explain which requirement was not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.hire_date != emp.hire_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the hire date on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "emp.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active employees can change their work mode."
+  },
+  {
+   "id": "R3",
+   "when": "emp.employment_type == 'contractor'",
+   "outcome": "refuse",
+   "explain": "Contractors cannot change their work mode through this service."
+  },
+  {
+   "id": "R4",
+   "when": "req.work_mode == 'remote' and not emp.remote_eligible",
+   "outcome": "refuse",
+   "explain": "A remote work mode requires remote eligibility on the employee record."
+  },
+  {
+   "id": "R5",
+   "when": "emp.performance_plan == 'active' and req.work_mode != 'on_site'",
+   "outcome": "refuse",
+   "explain": "Employees on an active performance plan must work on site."
+  }
+ ],
+ "default_outcome": "change_mode",
+ "policy_text": "## Who can ask\nEmployees can ask to change their work mode (on site, hybrid or remote) by phone or chat. Before changing anything, find the employee record and confirm identity: the hire date the employee gives must match the hire date on the record. If it does not match, or they cannot give it, make no change.\n\n## Finding the record\nUse the employee ID if the employee has it. If they do not, look up their work email address with the email search and use the single record it returns. If no record or more than one record is returned, do not guess: make no change and explain that the record cannot be confirmed.\n\n## When a change is allowed\n- The employee's status must be active. Employees on leave or terminated cannot change their work mode through this service.\n- Contractors cannot use this service; their arrangements are set by their agency.\n- A request for remote work is allowed only if the record shows remote eligibility. If it does not, decline the request.\n- Employees on an active performance plan can work only on site. Requests for hybrid or remote work are declined.\n- Check the performance plan and remote eligibility on the record, not on what the employee believes about them. If the employee believes something different from the record, follow the record and explain this politely.\n\nIf all of this is fine, set the employee's work mode to the mode they asked for.\n\n## Declined requests\nWhen a request is declined, tell the employee which requirement it did not meet and do not change the record.\n\n## Never\nDo not change any field other than the work mode. Do not grant exceptions to the performance plan or remote eligibility rules. Do not change the record for anyone who failed the identity check.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-30118",
+      "full_name": "Sofia Almeida",
+      "email": "sofia.almeida@example.com",
+      "hire_date": "2021-03-08",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": true,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     },
+     {
+      "employee_id": "E-30244",
+      "full_name": "Ben Okafor",
+      "email": "ben.okafor@example.com",
+      "hire_date": "2019-10-14",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": false,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-30118",
+    "work_mode": "hybrid"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-30118",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "hybrid",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2021-03-08",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The coffee machine on floor three has been broken all week.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I still have to finish the onboarding checklist I started in 2021.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Ramon from the Lisbon office keeps asking me to join his shared calendar.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Sofia, a payroll analyst who answers in short sentences between meetings.",
+   "reason_for_call": "She wants to move from fully on site to hybrid starting next week.",
+   "task_instructions": "Be terse. Give your employee ID, the work mode you want and your hire date in your first message. Do not add stories unless asked. Accept the outcome.",
+   "expected_outcome": "change_mode"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-41207",
+      "full_name": "Marcus Tran",
+      "email": "marcus.tran@example.com",
+      "hire_date": "2018-06-25",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": true,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-41207",
+    "work_mode": "hybrid"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-41207",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "hybrid",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2018-06-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.performance_plan",
+     "value": "active",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a support engineer who is sure his manager put him on a performance plan in March.",
+   "reason_for_call": "He wants hybrid days from next month and expects the request to be blocked by the plan.",
+   "task_instructions": "In your first message give your employee ID, your hire date and the hybrid request, and say you are on a performance plan. Be impatient and push for the change. If the agent raises the plan, argue and ask for an exception at least twice.",
+   "expected_outcome": "change_mode"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-52630",
+      "full_name": "Hanna Lindqvist",
+      "email": "hanna.lindqvist@example.com",
+      "hire_date": "2020-01-13",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": false,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-52630",
+    "work_mode": "remote"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-52630",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "remote",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2020-01-13",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hanna, a nurse educator who is calm and organized.",
+   "reason_for_call": "She wants to work fully remote for the next quarter so she can look after her mother.",
+   "task_instructions": "In your first message give your employee ID, the remote work you want and your hire date. Answer questions politely and accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-63091",
+      "full_name": "Tomasz Wierzbicki",
+      "email": "tomasz.w@example.com",
+      "hire_date": "2017-09-04",
+      "status": "on_leave",
+      "employment_type": "full_time",
+      "remote_eligible": true,
+      "work_mode": "hybrid",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-63091",
+    "work_mode": "on_site"
+   },
+   "customer_facts": [
+    {
+     "fact": "emp.email",
+     "value": "tomasz.w@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "on_site",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2017-09-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, who is on parental leave and writes from his phone.",
+   "reason_for_call": "He wants to move to on site work when he returns.",
+   "task_instructions": "Be terse. Give your work email first and your hire date when asked. You do not know your employee ID. Accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-70455",
+      "full_name": "Yusuf Demir",
+      "email": "yusuf.demir@example.com",
+      "hire_date": "2022-02-21",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": false,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "employee_id": "E-70455",
+    "work_mode": "hybrid"
+   },
+   "request_values": {
+    "employee_id": "E-70455",
+    "work_mode": "remote"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-70455",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "remote",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2022-02-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.employment_type",
+     "value": "full_time",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "I have been on this planning team since I joined in February 2022.",
+     "kind": "helpful"
+    },
+    {
+     "text": "My contract says full time, so my payslips show full-time hours.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Yusuf, a planner who changes his mind mid-sentence.",
+   "reason_for_call": "He first wants hybrid days, then decides he wants to work remote instead.",
+   "task_instructions": "In your first message give your employee ID, your hire date and a request for hybrid work. Before the agent makes any change or confirms one, switch to asking for remote work and say that is what you really want. Accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-81773",
+      "full_name": "Rania Haddad",
+      "email": "rania.h@example.com",
+      "hire_date": "2016-05-30",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": true,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-81773",
+    "work_mode": "hybrid"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.work_mode",
+     "value": "hybrid",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2016-05-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My name is Rania Haddad and I work in the Amman office.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Rania, who lost her access badge and is calling from a new phone number.",
+   "reason_for_call": "She wants hybrid work from Monday.",
+   "task_instructions": "You do not have your employee ID and cannot remember the work email on file. You know your name and your hire date and can give them if asked. Be cooperative. If the agent cannot find your record, accept that and end the call.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-92018",
+      "full_name": "Nikhil Rao",
+      "email": "nikhil.rao@example.com",
+      "hire_date": "2023-08-14",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": true,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "request_values": {
+    "employee_id": "E-92018",
+    "work_mode": "remote"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-92018",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "remote",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2023-08-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "emp.remote_eligible",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "My onboarding letter says I am eligible for remote work.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I am a full-time engineer on the platform team.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Nikhil, an engineer who is short on patience and talks fast.",
+   "reason_for_call": "He wants to work remotely from next week and expects a fight.",
+   "task_instructions": "In your first message give your employee ID, your hire date and the remote request, and mention your onboarding letter. Be impatient. If the agent asks you to wait, push back once and ask for it to be done now. Accept once the change is made.",
+   "expected_outcome": "change_mode"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "employee": [
+     {
+      "employee_id": "E-95506",
+      "full_name": "Grace Oyelaran",
+      "email": "grace.oyelaran@example.com",
+      "hire_date": "2019-11-04",
+      "status": "active",
+      "employment_type": "full_time",
+      "remote_eligible": false,
+      "work_mode": "on_site",
+      "performance_plan": "none"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "employee_id": "E-95506",
+    "work_mode": "remote"
+   },
+   "request_values": {
+    "employee_id": "E-95506",
+    "work_mode": "hybrid"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.employee_id",
+     "value": "E-95506",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.work_mode",
+     "value": "hybrid",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.hire_date",
+     "value": "2019-11-04",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a project coordinator who likes to think out loud.",
+   "reason_for_call": "She first asks for remote work, then settles on hybrid once she considers it.",
+   "task_instructions": "In your first message give your employee ID and ask for remote work. If the agent asks for your hire date, give it. Before any change is made, switch to asking for hybrid work and say remote is not realistic for your role. Accept the outcome.",
+   "expected_outcome": "change_mode"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,12 @@
+
+=== target g38 (50 families)
+  own probes                         Brier skill +0.26  delegate p>=0.9:  36% of cases, success  91%
+  flash probes, raw                  Brier skill +0.15  delegate p>=0.9:  48% of cases, success  84%
+  flash probes, level-shifted        Brier skill +0.14  delegate p>=0.9:   0% of cases, success nan%
+  both agents' probes pooled         Brier skill +0.26  delegate p>=0.9:  28% of cases, success  92%
+
+=== target flash (50 families)
+  own probes                         Brier skill +0.36  delegate p>=0.9:  48% of cases, success  93%
+  g38 probes, raw                    Brier skill +0.23  delegate p>=0.9:  36% of cases, success  87%
+  g38 probes, level-shifted          Brier skill +0.21  delegate p>=0.9:  36% of cases, success  87%
+  both agents' probes pooled         Brier skill +0.36  delegate p>=0.9:  28% of cases, success  96%

@@ -1,0 +1,638 @@
+{
+ "procedure_id": "p23_water",
+ "domain": "water utility",
+ "organization": "Brookfield Water & Sewer",
+ "title": "Bill due-date extensions",
+ "summary": "Push back the due date of an unpaid water bill when the account and the bill qualify.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Water service accounts, one per service address",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "service_address": "str",
+    "status": "enum:active|suspended|closed"
+   }
+  },
+  "bill": {
+   "key": "bill_id",
+   "description": "Water bills issued to an account",
+   "fields": {
+    "bill_id": "str",
+    "account_id": "ref:account",
+    "amount_due": "number",
+    "due_date": "date",
+    "extensions": "int",
+    "paid": "bool"
+   }
+  },
+  "account_note": {
+   "key": "note_id",
+   "description": "Notes recorded on an account when billing changes are made",
+   "fields": {
+    "note_id": "str",
+    "account_id": "ref:account",
+    "kind": "enum:due_date_extended|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a water service account by its account number."
+  },
+  {
+   "name": "get_bill",
+   "kind": "get",
+   "entity": "bill",
+   "description": "Look up a water bill by its bill number."
+  },
+  {
+   "name": "find_bills_by_due_date_and_amount",
+   "kind": "search",
+   "entity": "bill",
+   "by": [
+    "due_date",
+    "amount_due"
+   ],
+   "description": "Find bills with the given due date and amount due. Use it when the customer does not have the bill number."
+  },
+  {
+   "name": "extend_bill_due_date",
+   "kind": "update",
+   "entity": "bill",
+   "args": {
+    "bill_id": {
+     "type": "ref:bill",
+     "description": "The bill whose due date is being pushed back."
+    },
+    "days": {
+     "type": "int",
+     "description": "Number of days to add to the due date."
+    }
+   },
+   "set": {
+    "due_date": "add_days(rec.due_date, args.days)",
+    "extensions": "rec.extensions + 1"
+   },
+   "description": "Push the due date of a bill back by a number of days and count one extension on the bill."
+  },
+  {
+   "name": "create_account_note",
+   "kind": "create",
+   "entity": "account_note",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The account the note is recorded on."
+    },
+    "kind": {
+     "type": "enum:due_date_extended|other",
+     "description": "What the note records."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Record a billing note on an account."
+  }
+ ],
+ "request": {
+  "bill_id": {
+   "type": "ref:bill",
+   "description": "the water bill whose due date you want pushed back"
+  },
+  "days": {
+   "type": "int",
+   "description": "how many extra days you want"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "bill",
+   "entity": "bill",
+   "key": "req.bill_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "bill.account_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Push the bill's due date back by the requested days and record the extension on the account.",
+   "calls": [
+    {
+     "tool": "extend_bill_due_date",
+     "args": {
+      "bill_id": "req.bill_id",
+      "days": "req.days"
+     }
+    },
+    {
+     "tool": "create_account_note",
+     "args": {
+      "account_id": "acct.account_id",
+      "kind": "'due_date_extended'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the bill; explain why the extension cannot be granted.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Suspended or closed accounts cannot have a bill due date extended."
+  },
+  {
+   "id": "R2",
+   "when": "bill.paid or bill.extensions >= 2 or req.days > 14",
+   "outcome": "refuse",
+   "explain": "Paid bills cannot be extended, a bill can be extended at most twice, and each extension can add at most 14 days."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Who this covers\nCustomers ask us to push back the due date of a water bill. This request does not need a date of birth or other identity check. Work only from the bill and account in our system.\n\n## Finding the bill\nUse the bill number if the customer has it. If not, ask for the exact amount due and the due date printed on the bill, and search with those two. If the search does not return exactly one bill, do not guess: explain that you cannot find the bill and make no change. Once you have the bill, open its account.\n\n## When a due date can be extended\n- The account must be active. Accounts that are suspended or closed cannot have a bill's due date extended. Decline in that case and tell the customer to speak to the billing team about the account.\n- The bill must not be paid according to our record. A paid bill cannot be extended.\n- A bill can be extended at most twice in total, and each extension can add at most 14 days. Requests for more than 14 days are declined, not shortened.\n\nGo by our records, not by what the customer tells you about payment or account status.\n\nIf none of these conditions blocks the request, extend the bill's due date by the number of days the customer asked for. Then record a note on the account with kind due_date_extended. Tell the customer the bill's new due date.\n\n## Never\nDo not extend a paid bill, do not extend an account that is not active, do not give more than 14 days in one request, do not waive or reduce any charge, and do not change anything the customer did not ask for.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACT-1001",
+    "holder_name": "Marta Quintero",
+    "service_address": "14 Alder Court",
+    "status": "active"
+   }
+  ],
+  "bill": [
+   {
+    "bill_id": "BL-7001",
+    "account_id": "ACT-1001",
+    "amount_due": 48.1,
+    "due_date": "2026-04-15",
+    "extensions": 0,
+    "paid": true
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2101",
+      "holder_name": "Helen Okafor",
+      "service_address": "9 Birch Lane",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8101",
+      "account_id": "ACT-2101",
+      "amount_due": 62.4,
+      "due_date": "2026-06-03",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8101",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.holder_name",
+     "value": "Helen Okafor",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "days": 21
+   },
+   "persona": "Helen, a retired bookkeeper who pays her household bills by post and keeps everything in a shoebox.",
+   "reason_for_call": "She wants more time to pay a water bill that arrived while she was away, and she has lost the letter.",
+   "task_instructions": "Start by asking for three weeks more on your water bill. You know your name, but you have lost the letter and cannot find the bill number, the amount or the due date. If the agent asks for them, say you cannot find the letter. After that, switch to asking for one week instead, and accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2202",
+      "holder_name": "Priya Raman",
+      "service_address": "27 Cedar Road",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8202",
+      "account_id": "ACT-2202",
+      "amount_due": 55.0,
+      "due_date": "2026-05-10",
+      "extensions": 0,
+      "paid": true
+     },
+     {
+      "bill_id": "BL-8203",
+      "account_id": "ACT-2202",
+      "amount_due": 71.35,
+      "due_date": "2026-06-10",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8202",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.paid",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The June water bill is also on your account, but you are not calling about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The meter in the back garden was read last Tuesday and you think the number was high, but you are not disputing it today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You have been with the company since 2014 and have never been late before.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, an accountant who keeps her answers short during busy season.",
+   "reason_for_call": "She wants a week more on the May bill, which she believes she has already paid.",
+   "task_instructions": "Give the bill number and say you want seven days. Say you already paid the bill. Keep every answer to a few words and do not volunteer anything beyond what is asked.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2303",
+      "holder_name": "Tomasz Lewandowski",
+      "service_address": "5 Harbor Street",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8303",
+      "account_id": "ACT-2303",
+      "amount_due": 84.9,
+      "due_date": "2026-05-28",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8303",
+    "days": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8303",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 21,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomasz, a delivery driver who is always on the road and short of time.",
+   "reason_for_call": "He wants three weeks more on his water bill because he is travelling for work.",
+   "task_instructions": "Give your bill number in your first message. If the agent asks how many days you need, say three weeks, which is 21 days. If you are refused, argue that you have always paid on time and ask for an exception. Ask for the exception at least twice before you accept the refusal and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2404",
+      "holder_name": "Nadia Sorensen",
+      "service_address": "88 Ferry Way",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8404",
+      "account_id": "ACT-2404",
+      "amount_due": 39.75,
+      "due_date": "2026-05-27",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8404",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8404",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.paid",
+     "value": true,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Nadia, a nurse who uses the water company's app on her phone between shifts.",
+   "reason_for_call": "She wants a week more on a bill she believes she paid through the app last week.",
+   "task_instructions": "Say early on that you already paid this bill through the app last week, and give the bill number and that you want seven days. Keep your answers short and do not add detail unless asked.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2505",
+      "holder_name": "Gareth Lloyd",
+      "service_address": "312 Mill Road",
+      "status": "suspended"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8505",
+      "account_id": "ACT-2505",
+      "amount_due": 102.15,
+      "due_date": "2026-06-01",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8505",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "bill.amount_due",
+     "value": 102.15,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.due_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Gareth, a site manager who is quick to get annoyed when he has to repeat himself.",
+   "reason_for_call": "He wants ten more days on a water bill and does not have the bill number.",
+   "task_instructions": "Do not give the bill number, because you do not have it. Give the amount due and the due date when the agent asks for them, and say you want ten days. If you are refused, argue that you have always paid and ask for an exception. Ask for the exception at least twice before you accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2606",
+      "holder_name": "Ines Carvalho",
+      "service_address": "41 Lakeview Drive",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8606",
+      "account_id": "ACT-2606",
+      "amount_due": 66.2,
+      "due_date": "2026-06-08",
+      "extensions": 1,
+      "paid": false
+     },
+     {
+      "bill_id": "BL-8607",
+      "account_id": "ACT-2606",
+      "amount_due": 66.2,
+      "due_date": "2026-05-08",
+      "extensions": 0,
+      "paid": true
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8606",
+    "days": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8606",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Your May bill was paid in full at the counter in town, and you are not asking about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "A neighbour has the same water company and recommended them to you years ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "The hot water heater was replaced last winter and the plumber came out twice.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ines, a primary school teacher who is organised and polite.",
+   "reason_for_call": "She wants a week more on the June bill because her paycheque comes in a week later than usual.",
+   "task_instructions": "Cooperate fully. Give the bill number and say you want seven days. Answer the agent's questions clearly and politely. Accept the outcome when it is explained to you.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2707",
+      "holder_name": "Bronwyn Hale",
+      "service_address": "60 Quarry Hill",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8707",
+      "account_id": "ACT-2707",
+      "amount_due": 93.45,
+      "due_date": "2026-05-30",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8707",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8707",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.due_date",
+     "value": "2026-05-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bronwyn, a freelance designer who likes to keep her affairs in order.",
+   "reason_for_call": "She wants ten more days on a water bill to match when her next client pays her.",
+   "task_instructions": "Give the bill number, the due date and the number of days in your first message. Cooperate with the agent and accept what it decides.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACT-2808",
+      "holder_name": "Kwame Asante",
+      "service_address": "203 Juniper Avenue",
+      "status": "active"
+     }
+    ],
+    "bill": [
+     {
+      "bill_id": "BL-8808",
+      "account_id": "ACT-2808",
+      "amount_due": 58.0,
+      "due_date": "2026-05-25",
+      "extensions": 0,
+      "paid": false
+     }
+    ]
+   },
+   "request_values": {
+    "bill_id": "BL-8808",
+    "days": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.bill_id",
+     "value": "BL-8808",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.days",
+     "value": 10,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "bill.extensions",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bill is for your flat on Juniper Avenue, and the account is in your name, Kwame Asante.",
+     "kind": "helpful"
+    },
+    {
+     "text": "You have never asked the water company for an extension on this bill before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The bill arrived by post on the second of the month, which is why you are late reading it.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "days": 20
+   },
+   "persona": "Kwame, a warehouse supervisor with a busy shift pattern.",
+   "reason_for_call": "He first wants three weeks on his water bill, then decides ten days will be enough once he thinks about his pay date.",
+   "task_instructions": "First ask for twenty days on the bill. After the agent answers, change your mind and ask for ten days instead, before the agent makes any change. Give your name and the bill number when asked. Accept the outcome.",
+   "expected_outcome": "extend"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

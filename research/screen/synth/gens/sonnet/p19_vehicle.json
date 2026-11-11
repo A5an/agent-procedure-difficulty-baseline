@@ -1,0 +1,763 @@
+{
+ "procedure_id": "p19_vehicle",
+ "domain": "vehicle registration office",
+ "organization": "Lakeshore County Vehicle Registration Office",
+ "title": "Annual vehicle registration renewal",
+ "summary": "Renew a vehicle's registration for one year and order its sticker when the owner and vehicle qualify, or send transfer-pending vehicles to staff review.",
+ "entities": {
+  "owner": {
+   "key": "owner_id",
+   "description": "Registered vehicle owners",
+   "fields": {
+    "owner_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date"
+   }
+  },
+  "vehicle": {
+   "key": "vehicle_id",
+   "description": "Registered vehicles",
+   "fields": {
+    "vehicle_id": "str",
+    "owner_id": "ref:owner",
+    "plate": "str",
+    "make_model": "str",
+    "status": "enum:active|cancelled",
+    "expiry_date": "date",
+    "last_renewed": "date",
+    "insurance_expiry": "date",
+    "emissions_passed": "bool",
+    "fines_due": "number",
+    "pending_transfer": "bool"
+   }
+  },
+  "sticker_order": {
+   "key": "order_id",
+   "description": "Registration sticker orders",
+   "fields": {
+    "order_id": "str",
+    "vehicle_id": "ref:vehicle",
+    "delivery": "enum:mail|pickup",
+    "created": "date"
+   }
+  },
+  "review_request": {
+   "key": "request_id",
+   "description": "Requests for staff review of a vehicle",
+   "fields": {
+    "request_id": "str",
+    "vehicle_id": "ref:vehicle",
+    "reason": "enum:transfer_pending|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_owner",
+   "kind": "get",
+   "entity": "owner",
+   "description": "Look up a vehicle owner by owner number."
+  },
+  {
+   "name": "find_owner_by_email",
+   "kind": "search",
+   "entity": "owner",
+   "by": [
+    "email"
+   ],
+   "description": "Find owners by the email address on file."
+  },
+  {
+   "name": "get_vehicle",
+   "kind": "get",
+   "entity": "vehicle",
+   "description": "Look up a vehicle by its vehicle record number."
+  },
+  {
+   "name": "find_vehicle_by_plate",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "plate"
+   ],
+   "description": "Find a vehicle by its licence plate."
+  },
+  {
+   "name": "find_vehicles_by_owner",
+   "kind": "search",
+   "entity": "vehicle",
+   "by": [
+    "owner_id"
+   ],
+   "description": "List all vehicles registered to an owner."
+  },
+  {
+   "name": "renew_registration",
+   "kind": "update",
+   "entity": "vehicle",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle to renew."
+    }
+   },
+   "set": {
+    "expiry_date": "add_days(rec.expiry_date, 365)",
+    "last_renewed": "today"
+   },
+   "description": "Extend the registration expiry date by 365 days and record today as the renewal date."
+  },
+  {
+   "name": "order_sticker",
+   "kind": "create",
+   "entity": "sticker_order",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle the sticker is for."
+    },
+    "delivery": {
+     "type": "enum:mail|pickup",
+     "description": "How the owner receives the sticker."
+    }
+   },
+   "fields": {
+    "vehicle_id": "args.vehicle_id",
+    "delivery": "args.delivery",
+    "created": "today"
+   },
+   "description": "Order a new registration sticker for a vehicle, by mail or office pickup."
+  },
+  {
+   "name": "create_review_request",
+   "kind": "create",
+   "entity": "review_request",
+   "args": {
+    "vehicle_id": {
+     "type": "ref:vehicle",
+     "description": "The vehicle staff should review."
+    },
+    "reason": {
+     "type": "enum:transfer_pending|other",
+     "description": "Why staff should review it."
+    }
+   },
+   "fields": {
+    "vehicle_id": "args.vehicle_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for office staff to review a vehicle instead of renewing it."
+  }
+ ],
+ "request": {
+  "vehicle_id": {
+   "type": "ref:vehicle",
+   "description": "the vehicle record you want renewed"
+  },
+  "delivery": {
+   "type": "enum:mail|pickup",
+   "description": "whether you want the new sticker mailed to you or picked up at the office"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "veh",
+   "entity": "vehicle",
+   "key": "req.vehicle_id"
+  },
+  {
+   "name": "owner",
+   "entity": "owner",
+   "key": "veh.owner_id"
+  }
+ ],
+ "outcomes": {
+  "renew": {
+   "kind": "perform",
+   "description": "Renew the registration and order the sticker with the requested delivery.",
+   "calls": [
+    {
+     "tool": "renew_registration",
+     "args": {
+      "vehicle_id": "req.vehicle_id"
+     }
+    },
+    {
+     "tool": "order_sticker",
+     "args": {
+      "vehicle_id": "req.vehicle_id",
+      "delivery": "req.delivery"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "Open a staff review because a transfer of ownership is pending; do not renew.",
+   "calls": [
+    {
+     "tool": "create_review_request",
+     "args": {
+      "vehicle_id": "veh.vehicle_id",
+      "reason": "'transfer_pending'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not renew; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != owner.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the owner's date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "veh.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only vehicles with active registration status can be renewed."
+  },
+  {
+   "id": "R3",
+   "when": "veh.fines_due > 0",
+   "outcome": "refuse",
+   "explain": "Vehicles with any unpaid fines cannot be renewed."
+  },
+  {
+   "id": "R4",
+   "when": "not veh.emissions_passed or days_between(today, veh.insurance_expiry) < 0",
+   "outcome": "refuse",
+   "explain": "The vehicle needs a passed emissions test and insurance that has not expired."
+  },
+  {
+   "id": "R5",
+   "when": "veh.pending_transfer",
+   "outcome": "review",
+   "explain": "If an ownership transfer is pending, open a staff review instead of renewing."
+  }
+ ],
+ "default_outcome": "renew",
+ "policy_text": "## Who can ask\nVehicle owners can ask to renew their annual registration by phone or chat. Before changing anything, find the vehicle record and the owner it belongs to, and confirm identity: the date of birth the caller gives must match the owner's date of birth on file. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the vehicle\nUse the vehicle record number if the caller has it. Otherwise find the vehicle by licence plate, or find the owner by the email on file and list their vehicles; ask which vehicle they mean if there is more than one. If you cannot identify the vehicle, do not guess; explain that you cannot proceed.\n\n## When a renewal is allowed\n- The registration status must be active. Cancelled registrations cannot be renewed.\n- The vehicle must have no unpaid fines (any amount above 0.00 blocks renewal).\n- The vehicle must have a passed emissions test, and its insurance must not have expired before today.\n- If an ownership transfer is pending on the vehicle, do not renew. Open a staff review request with reason transfer_pending and tell the owner staff will contact them.\n\nGo by the database, not by what the caller believes about fines, insurance or tests.\n\n## Doing the renewal\nIf all checks pass, do two things in order: first renew the registration (this extends the expiry date by one year), then order the sticker with the delivery method the owner asked for (mail or pickup). Use the delivery choice the owner finally confirms.\n\n## Never\nDo not waive fines, do not renew for a caller who failed the identity check, do not make exceptions to the rules above, and do not change anything the owner did not ask for.",
+ "db_common": {
+  "owner": [
+   {
+    "owner_id": "O-1001",
+    "full_name": "Beatrice Allen",
+    "email": "b.allen@example.org",
+    "birth_date": "1962-06-18"
+   }
+  ],
+  "vehicle": [
+   {
+    "vehicle_id": "V-60001",
+    "owner_id": "O-1001",
+    "plate": "ZZA-1001",
+    "make_model": "Volvo V60",
+    "status": "active",
+    "expiry_date": "2026-09-01",
+    "last_renewed": "2025-09-01",
+    "insurance_expiry": "2027-01-01",
+    "emissions_passed": true,
+    "fines_due": 0,
+    "pending_transfer": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3101",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.org",
+      "birth_date": "1983-03-14"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70101",
+      "owner_id": "O-3101",
+      "plate": "KJT-4821",
+      "make_model": "Honda Civic",
+      "status": "active",
+      "expiry_date": "2026-06-02",
+      "last_renewed": "2025-06-02",
+      "insurance_expiry": "2026-12-31",
+      "emissions_passed": true,
+      "fines_due": 85,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70101",
+    "delivery": "pickup"
+   },
+   "customer_facts": [
+    {
+     "fact": "veh.plate",
+     "value": "KJT-4821",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-03-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "pickup",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "delivery": "mail"
+   },
+   "persona": "Marcus, a delivery driver who wants his paperwork done quickly. Polite but a little scatterbrained.",
+   "reason_for_call": "His registration runs out in a couple of weeks and he wants to renew his Honda but he does not have the record number with him.",
+   "task_instructions": "Say you want to renew and want the sticker mailed. Give the plate and date of birth. After the agent starts looking, change your mind and say you would rather pick the sticker up at the office. Accept the agent's decision if it cannot be done.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3102",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.org",
+      "birth_date": "1991-08-09"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70102",
+      "owner_id": "O-3102",
+      "plate": "PNR-3350",
+      "make_model": "Subaru Outback",
+      "status": "active",
+      "expiry_date": "2026-05-31",
+      "last_renewed": "2025-05-31",
+      "insurance_expiry": "2026-04-30",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70102",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1991-08-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graduate student who is organized and friendly.",
+   "reason_for_call": "She wants to renew her Subaru's registration before it expires at the end of the month.",
+   "task_instructions": "Give the vehicle record number, mailing preference and date of birth in your first message. Answer questions politely and accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3103",
+      "full_name": "Tom Eriksen",
+      "email": "tom.eriksen@example.org",
+      "birth_date": "1975-12-01"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70103",
+      "owner_id": "O-3103",
+      "plate": "TEK-7712",
+      "make_model": "Ford F-150",
+      "status": "active",
+      "expiry_date": "2026-06-10",
+      "last_renewed": "2025-06-10",
+      "insurance_expiry": "2027-01-15",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70103",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1975-12-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.fines_due",
+     "value": 40,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom, a contractor who thinks he still has an old parking ticket outstanding.",
+   "reason_for_call": "He wants to renew his pickup truck and expects to pay a fine he remembers getting.",
+   "task_instructions": "Say you want to renew and that you believe you still owe about 40 dollars in fines. Give the vehicle record number, mail delivery and date of birth. Accept whatever the agent finds on file.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3104",
+      "full_name": "Keiko Tanaka",
+      "email": "keiko.t@example.org",
+      "birth_date": "1988-05-22"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70104",
+      "owner_id": "O-3104",
+      "plate": "KTN-9040",
+      "make_model": "Toyota Prius",
+      "status": "active",
+      "expiry_date": "2026-06-15",
+      "last_renewed": "2025-06-15",
+      "insurance_expiry": "2026-11-30",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70104",
+    "delivery": "pickup"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70104",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "pickup",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-05-22",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Keiko, a software tester who writes very short messages.",
+   "reason_for_call": "She wants to renew her Prius and collect the sticker herself.",
+   "task_instructions": "Be extremely brief. Give the vehicle record number, pickup and date of birth in one short message. Only answer what is asked.",
+   "expected_outcome": "renew"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3105",
+      "full_name": "Luis Ferreira",
+      "email": "luis.ferreira@example.org",
+      "birth_date": "1969-10-30"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70105",
+      "owner_id": "O-3105",
+      "plate": "LFR-5523",
+      "make_model": "Chevrolet Malibu",
+      "status": "active",
+      "expiry_date": "2026-05-28",
+      "last_renewed": "2025-05-28",
+      "insurance_expiry": "2026-10-10",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": true
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70105",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70105",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-10-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Luis, a restaurant manager who is impatient and hates being put on hold.",
+   "reason_for_call": "His registration expires in a week and he wants it renewed immediately.",
+   "task_instructions": "Give the vehicle record number and mail delivery up front, and demand it be done fast. Give your date of birth only when asked. If the agent says staff will review it instead, grumble once but accept.",
+   "expected_outcome": "review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3106",
+      "full_name": "Hannah Cole",
+      "email": "hannah.cole@example.org",
+      "birth_date": "1996-02-17"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70106",
+      "owner_id": "O-3106",
+      "plate": "HCL-2288",
+      "make_model": "Kia Soul",
+      "status": "active",
+      "expiry_date": "2026-06-05",
+      "last_renewed": "2025-06-05",
+      "insurance_expiry": "2026-09-09",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70106",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, calling from a friend's phone because hers broke; she has lost the renewal notice.",
+   "reason_for_call": "She wants to renew her Kia but has no renewal letter, plate number at hand, or the email she registered with.",
+   "task_instructions": "Keep answers to a few words. You do not know the record number, plate or which email is on file. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3107",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.org",
+      "birth_date": "1980-07-04"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70107",
+      "owner_id": "O-3107",
+      "plate": "GOK-6001",
+      "make_model": "Nissan Altima",
+      "status": "active",
+      "expiry_date": "2026-06-01",
+      "last_renewed": "2025-06-01",
+      "insurance_expiry": "2026-12-12",
+      "emissions_passed": false,
+      "fines_due": 0,
+      "pending_transfer": false
+     },
+     {
+      "vehicle_id": "V-70108",
+      "owner_id": "O-3107",
+      "plate": "GOK-6002",
+      "make_model": "Mazda 3",
+      "status": "active",
+      "expiry_date": "2026-08-20",
+      "last_renewed": "2025-08-20",
+      "insurance_expiry": "2027-02-02",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70107",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70107",
+     "delivery_note": "",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1980-07-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also owns a Mazda 3 that is not due for renewal until August.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her daughter just got her learner's permit and may drive the Mazda.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She had a long wait at this office two years ago.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a hospital administrator who is short on time and insists rules should bend for her.",
+   "reason_for_call": "She wants to renew the registration on her Nissan, which expires in under two weeks.",
+   "task_instructions": "Ask to renew the Nissan, with the record number, mail delivery and date of birth. Mention the other details naturally. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "owner": [
+     {
+      "owner_id": "O-3108",
+      "full_name": "Sam Dubois",
+      "email": "sam.dubois@example.org",
+      "birth_date": "1994-01-25"
+     }
+    ],
+    "vehicle": [
+     {
+      "vehicle_id": "V-70109",
+      "owner_id": "O-3108",
+      "plate": "SDB-4410",
+      "make_model": "Hyundai Elantra",
+      "status": "active",
+      "expiry_date": "2026-06-20",
+      "last_renewed": "2025-06-20",
+      "insurance_expiry": "2026-12-05",
+      "emissions_passed": true,
+      "fines_due": 0,
+      "pending_transfer": false
+     }
+    ]
+   },
+   "request_values": {
+    "vehicle_id": "V-70109",
+    "delivery": "mail"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.vehicle_id",
+     "value": "V-70109",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.delivery",
+     "value": "mail",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1994-01-25",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "veh.insurance_expiry",
+     "value": "2026-12-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The emissions test was passed at a garage in March.",
+     "kind": "helpful"
+    },
+    {
+     "text": "All parking tickets were paid online last year, so there should be no fines.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "delivery": "pickup"
+   },
+   "persona": "Sam, a freelance photographer who is cooperative but changes plans easily.",
+   "reason_for_call": "He wants to renew his Hyundai's registration.",
+   "task_instructions": "Start by saying you want to renew and will pick the sticker up at the office. Give the record number, date of birth and that your insurance runs to 2026-12-05, and mention the other details. Before anything is done, switch to wanting the sticker mailed instead.",
+   "expected_outcome": "renew"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

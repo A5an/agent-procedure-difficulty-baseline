@@ -1,0 +1,98 @@
+flash 1 {'raw_rho': 0.445, 'raw_ll': 0.571, 'calib_rho': 0.44, 'calib_ll': 0.567, 'mf_rho': 0.437, 'mf_ll': 0.552, 'mf_minus_raw_rho': (-0.008, -0.038, 0.014), 'mf_minus_rawALL_rho': (np.float64(-0.249), -0.402, -0.089)}
+flash 2 {'raw_rho': 0.539, 'raw_ll': 0.559, 'calib_rho': 0.544, 'calib_ll': 0.551, 'mf_rho': 0.54, 'mf_ll': 0.538, 'mf_minus_raw_rho': (0.001, -0.056, 0.053), 'mf_minus_rawALL_rho': (np.float64(-0.146), -0.262, -0.017)}
+flash 4 {'raw_rho': 0.596, 'raw_ll': 0.543, 'calib_rho': 0.616, 'calib_ll': 0.55, 'mf_rho': 0.62, 'mf_ll': 0.533, 'mf_minus_raw_rho': (0.024, -0.028, 0.076), 'mf_minus_rawALL_rho': (np.float64(-0.066), -0.176, 0.061)}
+flash 8 {'raw_rho': 0.615, 'raw_ll': 0.517, 'calib_rho': 0.608, 'calib_ll': 0.55, 'mf_rho': 0.608, 'mf_ll': 0.53, 'mf_minus_raw_rho': (-0.007, -0.096, 0.089), 'mf_minus_rawALL_rho': (np.float64(-0.078), -0.185, 0.053)}
+flash 12 {'raw_rho': 0.672, 'raw_ll': 0.492, 'calib_rho': 0.656, 'calib_ll': 0.539, 'mf_rho': 0.652, 'mf_ll': 0.515, 'mf_minus_raw_rho': (-0.02, -0.104, 0.068), 'mf_minus_rawALL_rho': (np.float64(-0.034), -0.157, 0.097)}
+flash all {'raw_rho': 0.686, 'raw_ll': 0.48, 'calib_rho': 0.664, 'calib_ll': 0.542, 'mf_rho': 0.632, 'mf_ll': 0.522, 'mf_minus_raw_rho': (-0.054, -0.142, 0.048), 'mf_minus_rawALL_rho': (np.float64(-0.054), -0.142, 0.048)}
+g38 1 {'raw_rho': 0.571, 'raw_ll': 0.399, 'calib_rho': 0.571, 'calib_ll': 0.43, 'mf_rho': 0.571, 'mf_ll': 0.365, 'mf_minus_raw_rho': (0.0, 0.0, 0.0), 'mf_minus_rawALL_rho': (np.float64(-0.127), -0.236, 0.019)}
+g38 2 {'raw_rho': 0.489, 'raw_ll': 0.38, 'calib_rho': 0.48, 'calib_ll': 0.418, 'mf_rho': 0.667, 'mf_ll': 0.327, 'mf_minus_raw_rho': (0.179, 0.115, 0.263), 'mf_minus_rawALL_rho': (np.float64(-0.031), -0.135, 0.109)}
+g38 4 {'raw_rho': 0.673, 'raw_ll': 0.341, 'calib_rho': 0.644, 'calib_ll': 0.374, 'mf_rho': 0.753, 'mf_ll': 0.298, 'mf_minus_raw_rho': (0.08, 0.017, 0.187), 'mf_minus_rawALL_rho': (np.float64(0.054), -0.048, 0.203)}
+g38 8 {'raw_rho': 0.734, 'raw_ll': 0.282, 'calib_rho': 0.723, 'calib_ll': 0.299, 'mf_rho': 0.735, 'mf_ll': 0.265, 'mf_minus_raw_rho': (0.001, -0.048, 0.053), 'mf_minus_rawALL_rho': (np.float64(0.036), -0.038, 0.144)}
+g38 12 {'raw_rho': 0.741, 'raw_ll': 0.264, 'calib_rho': 0.738, 'calib_ll': 0.279, 'mf_rho': 0.752, 'mf_ll': 0.262, 'mf_minus_raw_rho': (0.011, -0.035, 0.066), 'mf_minus_rawALL_rho': (np.float64(0.053), -0.032, 0.169)}
+g38 all {'raw_rho': 0.699, 'raw_ll': 0.239, 'calib_rho': 0.685, 'calib_ll': 0.259, 'mf_rho': 0.713, 'mf_ll': 0.241, 'mf_minus_raw_rho': (0.014, -0.052, 0.103), 'mf_minus_rawALL_rho': (np.float64(0.014), -0.052, 0.103)}
+sonnet 1 {'raw_rho': 0.556, 'raw_ll': 0.503, 'calib_rho': 0.556, 'calib_ll': 0.519, 'mf_rho': 0.556, 'mf_ll': 0.472, 'mf_minus_raw_rho': (0.0, 0.0, 0.0), 'mf_minus_rawALL_rho': (np.float64(-0.158), -0.282, 0.002)}
+sonnet 2 {'raw_rho': 0.576, 'raw_ll': 0.453, 'calib_rho': 0.543, 'calib_ll': 0.463, 'mf_rho': 0.602, 'mf_ll': 0.424, 'mf_minus_raw_rho': (0.027, -0.04, 0.091), 'mf_minus_rawALL_rho': (np.float64(-0.112), -0.251, 0.05)}
+sonnet 4 {'raw_rho': 0.65, 'raw_ll': 0.411, 'calib_rho': 0.637, 'calib_ll': 0.424, 'mf_rho': 0.693, 'mf_ll': 0.387, 'mf_minus_raw_rho': (0.042, 0.008, 0.08), 'mf_minus_rawALL_rho': (np.float64(-0.021), -0.139, 0.144)}
+sonnet 8 {'raw_rho': 0.704, 'raw_ll': 0.366, 'calib_rho': 0.688, 'calib_ll': 0.37, 'mf_rho': 0.696, 'mf_ll': 0.357, 'mf_minus_raw_rho': (-0.009, -0.055, 0.029), 'mf_minus_rawALL_rho': (np.float64(-0.018), -0.095, 0.08)}
+sonnet 12 {'raw_rho': 0.73, 'raw_ll': 0.357, 'calib_rho': 0.741, 'calib_ll': 0.358, 'mf_rho': 0.734, 'mf_ll': 0.354, 'mf_minus_raw_rho': (0.004, -0.045, 0.056), 'mf_minus_rawALL_rho': (np.float64(0.02), -0.07, 0.155)}
+sonnet all {'raw_rho': 0.714, 'raw_ll': 0.321, 'calib_rho': 0.718, 'calib_ll': 0.322, 'mf_rho': 0.747, 'mf_ll': 0.317, 'mf_minus_raw_rho': (0.033, -0.055, 0.146), 'mf_minus_rawALL_rho': (np.float64(0.033), -0.055, 0.146)}
+ceiling lite {'split_half': 0.003948747625231607, 'spearman_brown': 0.0078664326930475, 'max_rho_vs_noisy_target': 0.08869291230446488}
+ceiling flash {'split_half': 0.10717655084345648, 'spearman_brown': 0.1936033612016231, 'max_rho_vs_noisy_target': 0.44000381953072076}
+ceiling g38 {'split_half': 0.12010920162295126, 'spearman_brown': 0.21445980704188905, 'max_rho_vs_noisy_target': 0.463098053377348}
+ceiling sonnet {'split_half': 0.08692669778040404, 'spearman_brown': 0.15994951261739304, 'max_rho_vs_noisy_target': 0.3999368857924873}
+
+routing F=20 human=$5 q=0.99
+   always flash 5.82
+   always g38 4.434
+   always sonnet 5.187
+   always human 5.2
+   oracle per procedure 2.235
+   raw probes n=2 3.128
+   raw probes n=2 shares {'flash': 0.23529411764705882, 'g38': 0.45588235294117646, 'sonnet': 0.08823529411764706, 'human': 0.22058823529411764}
+   mf probes n=2 2.923
+   mf probes n=2 shares {'flash': 0.11764705882352941, 'g38': 0.5147058823529411, 'sonnet': 0.16176470588235295, 'human': 0.20588235294117646}
+   raw probes n=4 2.885
+   raw probes n=4 shares {'flash': 0.29411764705882354, 'g38': 0.20588235294117646, 'sonnet': 0.17647058823529413, 'human': 0.3235294117647059}
+   mf probes n=4 2.553
+   mf probes n=4 shares {'flash': 0.04411764705882353, 'g38': 0.5735294117647058, 'sonnet': 0.10294117647058823, 'human': 0.27941176470588236}
+   raw probes n=all 2.691
+   raw probes n=all shares {'flash': 0.3088235294117647, 'g38': 0.3235294117647059, 'sonnet': 0.04411764705882353, 'human': 0.3235294117647059}
+   mf probes n=all 2.542
+   mf probes n=all shares {'flash': 0.07352941176470588, 'g38': 0.5588235294117647, 'sonnet': 0.058823529411764705, 'human': 0.3088235294117647}
+
+routing F=20 human=$2 q=0.95
+   always flash 5.82
+   always g38 4.434
+   always sonnet 5.187
+   always human 3.0
+   oracle per procedure 1.406
+   raw probes n=2 2.649
+   raw probes n=2 shares {'flash': 0.0, 'g38': 0.14705882352941177, 'sonnet': 0.029411764705882353, 'human': 0.8235294117647058}
+   mf probes n=2 2.067
+   mf probes n=2 shares {'flash': 0.10294117647058823, 'g38': 0.45588235294117646, 'sonnet': 0.1323529411764706, 'human': 0.3088235294117647}
+   raw probes n=4 2.968
+   raw probes n=4 shares {'flash': 0.0, 'g38': 0.0, 'sonnet': 0.014705882352941176, 'human': 0.9852941176470589}
+   mf probes n=4 1.75
+   mf probes n=4 shares {'flash': 0.014705882352941176, 'g38': 0.5441176470588235, 'sonnet': 0.08823529411764706, 'human': 0.35294117647058826}
+   raw probes n=all 1.974
+   raw probes n=all shares {'flash': 0.29411764705882354, 'g38': 0.29411764705882354, 'sonnet': 0.029411764705882353, 'human': 0.38235294117647056}
+   mf probes n=all 1.731
+   mf probes n=all shares {'flash': 0.029411764705882353, 'g38': 0.5147058823529411, 'sonnet': 0.04411764705882353, 'human': 0.4117647058823529}
+
+routing F=50 human=$5 q=0.99
+   always flash 14.539
+   always g38 11.054
+   always sonnet 12.893
+   always human 5.5
+   oracle per procedure 2.66
+   raw probes n=2 5.028
+   raw probes n=2 shares {'flash': 0.0, 'g38': 0.14705882352941177, 'sonnet': 0.0, 'human': 0.8529411764705882}
+   mf probes n=2 3.944
+   mf probes n=2 shares {'flash': 0.0, 'g38': 0.4411764705882353, 'sonnet': 0.014705882352941176, 'human': 0.5441176470588235}
+   raw probes n=4 5.458
+   raw probes n=4 shares {'flash': 0.0, 'g38': 0.0, 'sonnet': 0.0, 'human': 1.0}
+   mf probes n=4 3.49
+   mf probes n=4 shares {'flash': 0.0, 'g38': 0.5294117647058824, 'sonnet': 0.07352941176470588, 'human': 0.39705882352941174}
+   raw probes n=all 4.005
+   raw probes n=all shares {'flash': 0.10294117647058823, 'g38': 0.25, 'sonnet': 0.014705882352941176, 'human': 0.6323529411764706}
+   mf probes n=all 3.338
+   mf probes n=all shares {'flash': 0.014705882352941176, 'g38': 0.5147058823529411, 'sonnet': 0.04411764705882353, 'human': 0.4264705882352941}
+
+routing F=10 human=$5 q=0.99
+   always flash 2.914
+   always g38 2.228
+   always sonnet 2.619
+   always human 5.1
+   oracle per procedure 1.612
+   raw probes n=2 2.087
+   raw probes n=2 shares {'flash': 0.29411764705882354, 'g38': 0.5147058823529411, 'sonnet': 0.1323529411764706, 'human': 0.058823529411764705}
+   mf probes n=2 1.958
+   mf probes n=2 shares {'flash': 0.16176470588235295, 'g38': 0.5882352941176471, 'sonnet': 0.19117647058823528, 'human': 0.058823529411764705}
+   raw probes n=4 2.035
+   raw probes n=4 shares {'flash': 0.4117647058823529, 'g38': 0.3235294117647059, 'sonnet': 0.19117647058823528, 'human': 0.07352941176470588}
+   mf probes n=4 1.858
+   mf probes n=4 shares {'flash': 0.08823529411764706, 'g38': 0.7205882352941176, 'sonnet': 0.1323529411764706, 'human': 0.058823529411764705}
+   raw probes n=all 1.974
+   raw probes n=all shares {'flash': 0.47058823529411764, 'g38': 0.39705882352941174, 'sonnet': 0.04411764705882353, 'human': 0.08823529411764706}
+   mf probes n=all 1.826
+   mf probes n=all shares {'flash': 0.1323529411764706, 'g38': 0.7058823529411765, 'sonnet': 0.08823529411764706, 'human': 0.07352941176470588}

@@ -1,0 +1,817 @@
+{
+ "procedure_id": "p01_mobile",
+ "domain": "mobile phone carrier",
+ "organization": "Northwind Mobile",
+ "title": "International roaming pass activation",
+ "summary": "Add a prepaid international roaming pass to a customer's mobile line after verifying the account PIN and checking the line's balance against the account credit limit.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Billing accounts. Each account has an account holder, a 4-digit account PIN and a credit limit for charges on its lines.",
+   "fields": {
+    "account_id": "str",
+    "holder_name": "str",
+    "email": "str",
+    "account_pin": "str",
+    "credit_limit": "number"
+   }
+  },
+  "line": {
+   "key": "line_id",
+   "description": "Mobile lines (phone numbers) on an account, with the current unpaid balance of each line.",
+   "fields": {
+    "line_id": "str",
+    "account_id": "ref:account",
+    "phone_number": "str",
+    "user_name": "str",
+    "plan_name": "str",
+    "balance_due": "number",
+    "roaming_enabled": "bool"
+   }
+  },
+  "roaming_pass": {
+   "key": "pass_id",
+   "description": "Catalog of international roaming passes with their zone, duration and price.",
+   "fields": {
+    "pass_id": "str",
+    "name": "str",
+    "zone": "enum:europe|north_america|asia_pacific|worldwide",
+    "days": "int",
+    "price": "number"
+   }
+  },
+  "pass_order": {
+   "key": "order_id",
+   "description": "Roaming passes added to lines.",
+   "fields": {
+    "order_id": "str",
+    "line_id": "ref:line",
+    "pass_id": "ref:roaming_pass",
+    "start_date": "date",
+    "status": "enum:active|cancelled"
+   }
+  },
+  "credit_review": {
+   "key": "review_id",
+   "description": "Requests for the credit team to review a charge that would exceed the account credit limit.",
+   "fields": {
+    "review_id": "str",
+    "line_id": "ref:line",
+    "pass_id": "ref:roaming_pass",
+    "reason": "enum:over_credit_limit|other",
+    "created": "date",
+    "status": "enum:open|closed"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a billing account by its account ID. Returns the holder name, email, account PIN and credit limit."
+  },
+  {
+   "name": "get_line",
+   "kind": "get",
+   "entity": "line",
+   "description": "Look up a mobile line by its line ID. Returns the account it belongs to, the phone number, the user, the plan, the current balance due and whether roaming is enabled."
+  },
+  {
+   "name": "find_line_by_phone_number",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "phone_number"
+   ],
+   "description": "Find a mobile line by its phone number, written as XXX-555-XXXX."
+  },
+  {
+   "name": "find_lines_by_account",
+   "kind": "search",
+   "entity": "line",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all mobile lines on a billing account."
+  },
+  {
+   "name": "get_roaming_pass",
+   "kind": "get",
+   "entity": "roaming_pass",
+   "description": "Look up a roaming pass in the catalog by its pass code (for example RP-EU-07)."
+  },
+  {
+   "name": "find_passes_by_zone",
+   "kind": "search",
+   "entity": "roaming_pass",
+   "by": [
+    "zone"
+   ],
+   "description": "List the roaming passes available for a zone: europe, north_america, asia_pacific or worldwide."
+  },
+  {
+   "name": "create_pass_order",
+   "kind": "create",
+   "entity": "pass_order",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the pass is added to."
+    },
+    "pass_id": {
+     "type": "ref:roaming_pass",
+     "description": "The roaming pass to add."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "pass_id": "args.pass_id",
+    "start_date": "today",
+    "status": "'active'"
+   },
+   "description": "Add a roaming pass to a line, starting today."
+  },
+  {
+   "name": "add_roaming_charge",
+   "kind": "update",
+   "entity": "line",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line to charge."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to add to the line's balance (the catalog price of the pass)."
+    }
+   },
+   "set": {
+    "balance_due": "rec.balance_due + args.amount",
+    "roaming_enabled": "True"
+   },
+   "description": "Add the roaming pass charge to the line's balance and turn roaming on for the line."
+  },
+  {
+   "name": "create_credit_review",
+   "kind": "create",
+   "entity": "credit_review",
+   "args": {
+    "line_id": {
+     "type": "ref:line",
+     "description": "The line the request is about."
+    },
+    "pass_id": {
+     "type": "ref:roaming_pass",
+     "description": "The roaming pass the customer asked for."
+    },
+    "reason": {
+     "type": "enum:over_credit_limit|other",
+     "description": "Why the credit team should review it."
+    }
+   },
+   "fields": {
+    "line_id": "args.line_id",
+    "pass_id": "args.pass_id",
+    "reason": "args.reason",
+    "created": "today",
+    "status": "'open'"
+   },
+   "description": "Open a request for the credit team to review a roaming pass purchase."
+  }
+ ],
+ "request": {
+  "line_id": {
+   "type": "ref:line",
+   "description": "the mobile line you want the roaming pass on"
+  },
+  "pass_id": {
+   "type": "ref:roaming_pass",
+   "description": "the roaming pass you want to buy"
+  }
+ },
+ "claims": {
+  "account_pin": {
+   "type": "str",
+   "description": "the 4-digit PIN of your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "line",
+   "entity": "line",
+   "key": "req.line_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "line.account_id"
+  },
+  {
+   "name": "rpass",
+   "entity": "roaming_pass",
+   "key": "req.pass_id"
+  }
+ ],
+ "outcomes": {
+  "activate": {
+   "kind": "perform",
+   "description": "Add the roaming pass to the line and charge its catalog price to the line.",
+   "calls": [
+    {
+     "tool": "create_pass_order",
+     "args": {
+      "line_id": "req.line_id",
+      "pass_id": "req.pass_id"
+     }
+    },
+    {
+     "tool": "add_roaming_charge",
+     "args": {
+      "line_id": "req.line_id",
+      "amount": "rpass.price"
+     }
+    }
+   ]
+  },
+  "credit_review": {
+   "kind": "perform",
+   "description": "The charge would take the line over the account credit limit: open a credit review instead of adding the pass.",
+   "calls": [
+    {
+     "tool": "create_credit_review",
+     "args": {
+      "line_id": "req.line_id",
+      "pass_id": "req.pass_id",
+      "reason": "'over_credit_limit'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Identity not verified: make no change and explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.account_pin != acct.account_pin",
+   "outcome": "refuse",
+   "explain": "The caller must give the account PIN on file for the account the line belongs to before any roaming pass is added."
+  },
+  {
+   "id": "R2",
+   "when": "line.balance_due + rpass.price > acct.credit_limit",
+   "outcome": "credit_review",
+   "explain": "If the line's current balance plus the pass price would be more than the account credit limit, open a credit review with reason over_credit_limit instead of adding the pass."
+  }
+ ],
+ "default_outcome": "activate",
+ "policy_text": "## Purpose\nCustomers travelling abroad can buy a prepaid international roaming pass for one of their mobile lines. A pass covers one zone (Europe, North America, Asia Pacific or Worldwide) for a fixed number of days, starts today, and its price is added to the line's balance.\n\n## Finding the line\nUse the line ID if the customer has it. Otherwise find the line by its phone number. On family or multi-line accounts, make sure you have the exact line the customer means; you can list all lines on an account to check. If you cannot identify the line, you cannot add a pass; explain this and do not guess.\n\n## Finding the pass\nUse the pass code if the customer gives one (for example RP-EU-07). Otherwise list the passes for the zone the customer is travelling to and confirm with the customer which one they want (passes in the same zone differ by number of days). If the customer changes their mind about the pass before anything is done, use the pass they finally choose.\n\n## Identity check\nBefore making any change, ask for the 4-digit account PIN and compare it with the PIN on the account the line belongs to. If the PIN does not match exactly, or the customer cannot give it, do not add a pass or open any request. Tell the customer the PIN could not be verified. Never read out, hint at or confirm digits of the PIN on file.\n\n## Credit limit check\nAdd the catalog price of the requested pass to the line's current balance due as shown in our records (not the balance the customer believes they have). If the result is more than the account's credit limit, do not add the pass. Instead, open a credit review for that line and pass with reason over_credit_limit, and tell the customer the credit team will review it and contact them. A total exactly equal to the credit limit is allowed.\n\n## Adding the pass\nIf the PIN is verified and the credit limit check passes, first create the pass order for the line and pass, then add the roaming charge to the line for exactly the catalog price of the pass. This also turns roaming on for the line. Confirm the pass name, duration and price to the customer.\n\n## Never\n- Do not discount, waive or change the price of a pass.\n- Do not add a pass when a credit review is required, even if the customer insists or says they have paid; do not raise credit limits.\n- Do not add a different pass, a second pass, or a pass on another line than the one the customer asked for.\n- Do not make any change for a caller whose PIN was not verified.",
+ "db_common": {
+  "roaming_pass": [
+   {
+    "pass_id": "RP-EU-07",
+    "name": "Europe Traveler 7-Day",
+    "zone": "europe",
+    "days": 7,
+    "price": 35.0
+   },
+   {
+    "pass_id": "RP-EU-30",
+    "name": "Europe Traveler 30-Day",
+    "zone": "europe",
+    "days": 30,
+    "price": 80.0
+   },
+   {
+    "pass_id": "RP-NA-07",
+    "name": "North America 7-Day",
+    "zone": "north_america",
+    "days": 7,
+    "price": 25.0
+   },
+   {
+    "pass_id": "RP-AS-14",
+    "name": "Asia Pacific 14-Day",
+    "zone": "asia_pacific",
+    "days": 14,
+    "price": 60.0
+   },
+   {
+    "pass_id": "RP-WW-10",
+    "name": "Worldwide 10-Day",
+    "zone": "worldwide",
+    "days": 10,
+    "price": 95.0
+   }
+  ],
+  "account": [
+   {
+    "account_id": "A-10001",
+    "holder_name": "Beatriz Moreno",
+    "email": "b.moreno@example.org",
+    "account_pin": "8034",
+    "credit_limit": 200.0
+   }
+  ],
+  "line": [
+   {
+    "line_id": "L-1001",
+    "account_id": "A-10001",
+    "phone_number": "408-555-0111",
+    "user_name": "Beatriz Moreno",
+    "plan_name": "Essentials 15GB",
+    "balance_due": 55.0,
+    "roaming_enabled": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-40112",
+      "holder_name": "Priya Raman",
+      "email": "priya.raman@example.net",
+      "account_pin": "4821",
+      "credit_limit": 200.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-7731",
+      "account_id": "A-40112",
+      "phone_number": "415-555-0182",
+      "user_name": "Priya Raman",
+      "plan_name": "Unlimited Plus",
+      "balance_due": 42.1,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-7731",
+    "pass_id": "RP-EU-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "line.phone_number",
+     "value": "415-555-0182",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-EU-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "4812",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "pass_id": "RP-EU-07"
+   },
+   "persona": "Priya, a product designer heading to a conference in Lisbon. Chatty and a little scattered, and she mixes up numbers when she is in a hurry.",
+   "reason_for_call": "She wants a Europe roaming pass on her phone before her trip but does not have her account or line number handy.",
+   "task_instructions": "Start by giving your phone number and asking for the Europe Traveler 7-day pass. Before the agent adds anything, say you just remembered you are staying on for a month of vacation and switch to the Europe Traveler 30-day pass, giving its pass code. Give your PIN only when asked. If the agent says the PIN does not match, say you might have mixed up the digits, then accept that nothing can be done today and end politely.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-52290",
+      "holder_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "account_pin": "7009",
+      "credit_limit": 150.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-8840",
+      "account_id": "A-52290",
+      "phone_number": "312-555-0147",
+      "user_name": "Marcus Bell",
+      "plan_name": "Unlimited Basic",
+      "balance_due": 25.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-8840",
+    "pass_id": "RP-AS-14"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-8840",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-AS-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "7090",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "pass_id": "RP-NA-07"
+   },
+   "persona": "Marcus, a sales manager who travels often for work. Polite and businesslike.",
+   "reason_for_call": "His company trip changed at the last minute and he needs roaming on his work phone.",
+   "task_instructions": "First ask for the North America 7-day pass for a trip to Toronto, giving its pass code. Before the agent completes anything, explain that your boss just moved you to a Tokyo office visit instead and ask for the Asia Pacific 14-day pass, giving its pass code. Give your line number and your PIN only when the agent asks for them. If the agent cannot verify the PIN, say you will check the PIN with your wife who set up the account, and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-61005",
+      "holder_name": "Hannah Okafor",
+      "email": "hannah.okafor@example.org",
+      "account_pin": "3356",
+      "credit_limit": 200.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-9102",
+      "account_id": "A-61005",
+      "phone_number": "646-555-0193",
+      "user_name": "Hannah Okafor",
+      "plan_name": "Unlimited Plus",
+      "balance_due": 10.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-9102",
+    "pass_id": "RP-EU-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "acct.holder_name",
+     "value": "Hannah Okafor",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-EU-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "3356",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a nurse who just got a new phone number last week and is now writing from a hotel computer in Amsterdam. Says as little as possible.",
+   "reason_for_call": "Her new phone has no service abroad and she wants the Europe 7-day pass on it.",
+   "task_instructions": "Answer in a few words only. Give your name and the pass you want. You do not remember your new phone number, you never got a line or account number, and your phone is not working so you cannot check. Give the PIN if asked. If the agent cannot find your line, accept it and end.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-70318",
+      "holder_name": "Tom\u00e1s Reyes",
+      "email": "tomas.reyes@example.net",
+      "account_pin": "5540",
+      "credit_limit": 150.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-3307",
+      "account_id": "A-70318",
+      "phone_number": "305-555-0129",
+      "user_name": "Tom\u00e1s Reyes",
+      "plan_name": "Unlimited Basic",
+      "balance_due": 130.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-3307",
+    "pass_id": "RP-EU-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-3307",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-EU-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "5540",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.balance_due",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tom\u00e1s, a friendly retired electrician visiting his daughter in Madrid next week. He believes he paid his phone bill in full.",
+   "reason_for_call": "He wants the Europe 7-day pass on his line for the trip.",
+   "task_instructions": "In your first message give your line number, the pass code and your PIN, and mention that your balance is zero because you paid everything. If the agent says your records show a balance and that a credit review is needed, be surprised but accept it calmly and thank them.",
+   "expected_outcome": "credit_review"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-81442",
+      "holder_name": "Grace Liu",
+      "email": "grace.liu@example.com",
+      "account_pin": "9183",
+      "credit_limit": 250.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-0447",
+      "account_id": "A-81442",
+      "phone_number": "206-555-0447",
+      "user_name": "Grace Liu",
+      "plan_name": "Unlimited Premium",
+      "balance_due": 210.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-0447",
+    "pass_id": "RP-WW-10"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-0447",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-WW-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "9183",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.balance_due",
+     "value": 210.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her account's credit limit is 250 dollars; she remembers it from when she opened the account.",
+     "kind": "helpful"
+    },
+    {
+     "text": "This line is in her own name and has never had roaming turned on before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The phone number on the line ends in 0447, same as the line number.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Grace, a documentary photographer about to fly out for a shoot across several countries. Impatient and used to getting her way.",
+   "reason_for_call": "She leaves for the airport in a few hours and wants the Worldwide 10-day pass active right now.",
+   "task_instructions": "Give your line number, the pass code, your PIN and your current balance of 210 dollars in your first message, and mention the helpful details. If the agent says it must go to a credit review instead of activating now, push back: insist you are a loyal customer and ask them to just add it anyway, then ask a second time for an exception because you are flying today. After the second refusal, accept the credit review and end.",
+   "expected_outcome": "credit_review"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-90227",
+      "holder_name": "David Kowalski",
+      "email": "d.kowalski@example.org",
+      "account_pin": "2468",
+      "credit_limit": 300.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-5501",
+      "account_id": "A-90227",
+      "phone_number": "773-555-0101",
+      "user_name": "David Kowalski",
+      "plan_name": "Family Unlimited",
+      "balance_due": 18.5,
+      "roaming_enabled": false
+     },
+     {
+      "line_id": "L-5502",
+      "account_id": "A-90227",
+      "phone_number": "773-555-0102",
+      "user_name": "Emma Kowalski",
+      "plan_name": "Family Unlimited",
+      "balance_due": 18.5,
+      "roaming_enabled": false
+     },
+     {
+      "line_id": "L-5503",
+      "account_id": "A-90227",
+      "phone_number": "773-555-0103",
+      "user_name": "Jakub Kowalski",
+      "plan_name": "Family Unlimited",
+      "balance_due": 12.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-5502",
+    "pass_id": "RP-EU-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-5502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-EU-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "2468",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "line.user_name",
+     "value": "Emma Kowalski",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He is thinking about upgrading his own phone in the fall, but not today.",
+     "kind": "distractor"
+    },
+    {
+     "text": "His son Jakub ran out of data last month and he complained about it, but he does not want to change Jakub's line.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year the family went to Mexico while they were still with another carrier and the roaming bill was huge.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Emma is going to a summer art course in Barcelona.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "David, a talkative father of two who runs a small bakery in Chicago and holds the family plan.",
+   "reason_for_call": "His daughter Emma is leaving for a month in Spain and he wants a Europe 30-day pass on her line only.",
+   "task_instructions": "Give the line number of Emma's line, the pass code and your PIN early on. Chat along the way about the other things on your mind, but make clear you only want the pass on Emma's line. Answer questions helpfully and thank the agent at the end.",
+   "expected_outcome": "activate"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-23019",
+      "holder_name": "Fatima Al-Sayed",
+      "email": "fatima.alsayed@example.com",
+      "account_pin": "6612",
+      "credit_limit": 200.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-2210",
+      "account_id": "A-23019",
+      "phone_number": "917-555-0166",
+      "user_name": "Fatima Al-Sayed",
+      "plan_name": "Essentials 15GB",
+      "balance_due": 40.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-2210",
+    "pass_id": "RP-NA-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-2210",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-NA-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "6621",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Fatima, a graduate student who answers in as few words as possible.",
+   "reason_for_call": "She is driving to Montreal for a weekend and wants the North America 7-day pass.",
+   "task_instructions": "In your first message give only your line number, the pass code and your PIN, briefly. Answer questions in a few words. If the agent says the PIN does not match, reply briefly that you will check and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "A-34871",
+      "holder_name": "Kevin Brandt",
+      "email": "kevin.brandt@example.net",
+      "account_pin": "1195",
+      "credit_limit": 100.0
+     }
+    ],
+    "line": [
+     {
+      "line_id": "L-6618",
+      "account_id": "A-34871",
+      "phone_number": "512-555-0138",
+      "user_name": "Kevin Brandt",
+      "plan_name": "Unlimited Basic",
+      "balance_due": 0.0,
+      "roaming_enabled": false
+     }
+    ]
+   },
+   "request_values": {
+    "line_id": "L-6618",
+    "pass_id": "RP-NA-07"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.line_id",
+     "value": "L-6618",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pass_id",
+     "value": "RP-NA-07",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.account_pin",
+     "value": "1195",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kevin, a contractor standing at the border crossing to Mexico with little patience for slow service.",
+   "reason_for_call": "He needs the North America 7-day pass on his line immediately for a job site visit.",
+   "task_instructions": "Give your line number, the pass code and your PIN in your first message and demand it be done right away. Complain if the agent asks unnecessary questions and push them to hurry. If the agent ever hesitates or refuses, argue and ask for an exception at least twice. Once the pass is added, say thanks curtly and end.",
+   "expected_outcome": "activate"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

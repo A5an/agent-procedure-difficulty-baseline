@@ -1,0 +1,17 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which deposit(s) in the ladder: the customer may have several FDs, and the description doesn't say how to identify the target one (by ID, maturity, amount) or whether to list all linked deposits first",
+  "Exact tool sequence and order: details \u2192 closure quote \u2192 confirmation \u2192 close \u2192 rate lookup \u2192 reinvest (new FD) \u2192 balance check; unclear if rate lookup comes before or after close, or whether the customer decides the new tenure/amount before closing",
+  "Reinvestment specifics: new FD amount (full proceeds vs. partial), tenure, payout/compounding type, auto-renewal option, and which product ID/scheme to pick are not stated",
+  "Source account for the new FD and where closure proceeds are credited; which account's balance is to be reported at the end",
+  "Premature closure penalty rules: penalty rate, minimum holding period, lock-in, loan-against-FD links, nominee/joint-holder conditions, and TDS on interest all live in the knowledge base and are not given in the policy",
+  "Whether closing early and reinvesting is actually beneficial; should the assistant advise or warn when the penalty outweighs the new rate, or just execute",
+  "Confirmation handling: the policy requires confirmation before close_deposit but not before opening the new FD; whether opening the FD also needs confirmation is unclear",
+  "Customer behavior variations: changing their mind after the quote, declining the closure, wanting a different rate or tenure after seeing rates, partial confirmation, asking for a rate that doesn't exist",
+  "Edge cases: FD with an existing lien or loan, FD already matured or closed, unlinked deposit ID, closure quote higher or lower than expected, insufficient proceeds for the minimum FD amount, tenure bounds",
+  "Meaning of 'rate': current FD interest rate card vs. the rate on the closed deposit vs. senior citizen or special rates; which customer category applies and how to determine it",
+  "Simulation date handling (2026-07-16) for tenure, maturity date, and penalty calculations, plus rounding and currency conventions",
+  "Final action expectation: whether the end state is the new FD booked and a balance reported, or whether the flow may end earlier (declined close, escalation); and what to do if the reinvest tool fails after the close has already succeeded"
+ ]
+}

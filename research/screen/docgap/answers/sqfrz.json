@@ -1,0 +1,14 @@
+{
+ "gap_score": 7,
+ "gaps": [
+  "Exact step order is unspecified: the description says check \u2192 freeze \u2192 verify, but not which tools implement 'check' (list cards? get card details/status?) or 'verify' (re-fetch status after toggle?), nor whether verification is mandatory or reported to the customer.",
+  "Which final action is correct is ambiguous: toggle_card_freeze (temporary) vs block_card (permanent) depends on the customer's reason (lost, misplaced, stolen, compromised, suspicious activity), which the policy only partly maps, and the customer may be vague or change their story mid-conversation.",
+  "Policy requires confirmation only for block_card, not for toggle_card_freeze; unclear whether the bank expects confirmation before a freeze or whether the customer's request counts as sufficient.",
+  "Customer has multiple cards (debit/credit, primary/add-on): how to identify the right card (last 4 digits, type), what to do if the card is already frozen, already blocked, expired, or not linked to the customer (refuse).",
+  "Edge cases for freezing: toggle semantics (calling toggle on an already-frozen card would unfreeze it), so the check step is crucial but not spelled out; unfreeze requests; partial failures from the tool.",
+  "Customer behavior unspecified: may escalate from freeze to permanent block, decline confirmation, ask about fraudulent transactions, replacement card issuance, fees, or limits, which may require knowledge base lookups or service request/escalation.",
+  "Knowledge base use: which questions (replacement timelines, charges, what freeze blocks such as recurring payments or ATM) require search, and how to handle weak results is only generally described.",
+  "Whether to raise a service request or transfer for needs tools cannot satisfy (e.g., reissue card, dispute transactions), and what details the request needs.",
+  "Communication conventions: how to phrase the verification outcome in plain language without exposing tool/field names, and whether to proactively offer next steps."
+ ]
+}

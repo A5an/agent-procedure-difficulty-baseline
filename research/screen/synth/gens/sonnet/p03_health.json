@@ -1,0 +1,703 @@
+{
+ "procedure_id": "p03_health",
+ "domain": "health insurance claims",
+ "organization": "Meridian Health Plan",
+ "title": "Release of cleared claims for payment",
+ "summary": "Pay out a claim that a claims examiner has cleared, after verifying the member, by marking the claim paid and recording the reimbursement.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Plan members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "plan_status": "enum:active|lapsed|terminated",
+    "coverage_rate": "number"
+   }
+  },
+  "claim": {
+   "key": "claim_id",
+   "description": "Medical claims submitted by members",
+   "fields": {
+    "claim_id": "str",
+    "member_id": "ref:member",
+    "provider_name": "str",
+    "service_date": "date",
+    "billed_amount": "number",
+    "status": "enum:submitted|ready_for_payment|paid|denied"
+   }
+  },
+  "payment": {
+   "key": "payment_id",
+   "description": "Reimbursement payments issued to members",
+   "fields": {
+    "payment_id": "str",
+    "claim_id": "ref:claim",
+    "amount": "number",
+    "method": "enum:bank_transfer|check",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member ID."
+  },
+  {
+   "name": "find_member_by_email",
+   "kind": "search",
+   "entity": "member",
+   "by": [
+    "email"
+   ],
+   "description": "Find members by the email address on file."
+  },
+  {
+   "name": "get_claim",
+   "kind": "get",
+   "entity": "claim",
+   "description": "Look up a claim by claim ID."
+  },
+  {
+   "name": "find_claims_by_member",
+   "kind": "search",
+   "entity": "claim",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all claims of a member."
+  },
+  {
+   "name": "update_claim_status",
+   "kind": "update",
+   "entity": "claim",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim to update."
+    },
+    "new_status": {
+     "type": "enum:paid|denied",
+     "description": "The new status of the claim."
+    }
+   },
+   "set": {
+    "status": "args.new_status"
+   },
+   "description": "Change the status of a claim."
+  },
+  {
+   "name": "create_payment",
+   "kind": "create",
+   "entity": "payment",
+   "args": {
+    "claim_id": {
+     "type": "ref:claim",
+     "description": "The claim being reimbursed."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Reimbursement amount."
+    },
+    "method": {
+     "type": "enum:bank_transfer|check",
+     "description": "How the member is paid."
+    }
+   },
+   "fields": {
+    "claim_id": "args.claim_id",
+    "amount": "args.amount",
+    "method": "args.method",
+    "created": "today"
+   },
+   "description": "Record a reimbursement payment for a claim."
+  }
+ ],
+ "request": {
+  "claim_id": {
+   "type": "ref:claim",
+   "description": "the claim you want paid out"
+  },
+  "payout_method": {
+   "type": "enum:bank_transfer|check",
+   "description": "how you want to receive the reimbursement (bank_transfer or check)"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "your date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "clm",
+   "entity": "claim",
+   "key": "req.claim_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "clm.member_id"
+  }
+ ],
+ "outcomes": {
+  "pay": {
+   "kind": "perform",
+   "description": "Mark the claim paid and record the reimbursement.",
+   "calls": [
+    {
+     "tool": "update_claim_status",
+     "args": {
+      "claim_id": "req.claim_id",
+      "new_status": "'paid'"
+     }
+    },
+    {
+     "tool": "create_payment",
+     "args": {
+      "claim_id": "req.claim_id",
+      "amount": "round(clm.billed_amount * mem.coverage_rate, 2)",
+      "method": "req.payout_method"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not pay; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != mem.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the date of birth on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "mem.plan_status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only members with an active plan can have claims paid."
+  },
+  {
+   "id": "R3",
+   "when": "clm.status != 'ready_for_payment'",
+   "outcome": "refuse",
+   "explain": "Only claims cleared by an examiner (ready_for_payment) can be paid."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(clm.service_date, today) > 180",
+   "outcome": "refuse",
+   "explain": "Claims for services more than 180 days old are past the payment window."
+  },
+  {
+   "id": "R5",
+   "when": "clm.billed_amount > 5000",
+   "outcome": "refuse",
+   "explain": "Claims billed above 5000.00 cannot be released by the agent."
+  }
+ ],
+ "default_outcome": "pay",
+ "policy_text": "## Who can ask\nMembers may ask us to release a cleared claim for payment. Before changing anything, find the claim and the member it belongs to, and confirm identity: the date of birth the caller gives must match the one on file. If it does not match, or the caller cannot give it, make no change.\n\n## Finding the claim\nUse the claim number if the member has it. Otherwise find the member by the email address on file, list their claims, and ask which provider the claim is for if there is more than one. If the claim or the member cannot be identified, you cannot proceed. You also need to know how the member wants to be paid: bank_transfer or check.\n\n## When a claim can be paid\n- The member's plan must be active. Lapsed or terminated plans cannot have claims paid.\n- The claim status must be ready_for_payment (cleared by a claims examiner). Claims that are submitted, already paid or denied cannot be paid.\n- The date of service must be no more than 180 days before today. Older claims are past the payment window.\n- Claims billed above 5000.00 cannot be released by you and are declined.\n\nThe member's statements about the status of a claim do not count; go by our records.\n\n## What to do\nIf all conditions are met, do two things in order: first set the claim status to paid, then record a payment for the claim using the chosen payout method. The amount is the billed amount multiplied by the member's coverage rate, rounded to two decimals. Tell the member the amount and method.\nIf any condition fails, make no change and explain the reason plainly.\n\n## Never\nDo not make exceptions to the payment window or amount limit, do not pay a claim for someone who failed the identity check, and do not change anything the member did not ask for.",
+ "db_common": {},
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3101",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "birth_date": "1988-06-14",
+      "plan_status": "active",
+      "coverage_rate": 0.8
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70101",
+      "member_id": "M-3101",
+      "provider_name": "Lakeside Physical Therapy",
+      "service_date": "2026-03-10",
+      "billed_amount": 420,
+      "status": "ready_for_payment"
+     },
+     {
+      "claim_id": "C-70102",
+      "member_id": "M-3101",
+      "provider_name": "Greenway Pharmacy",
+      "service_date": "2026-02-02",
+      "billed_amount": 60,
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70101",
+    "payout_method": "bank_transfer"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "priya.nair@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.provider_name",
+     "value": "Lakeside Physical Therapy",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "bank_transfer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-06-14",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a graphic designer who writes in short, clipped messages.",
+   "reason_for_call": "She finished physical therapy and wants her reimbursement, but she does not have the claim number.",
+   "task_instructions": "Keep every answer to a few words. Give your email and the provider name first, and your date of birth only if asked.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3102",
+      "full_name": "Tomas Berg",
+      "email": "tomas.berg@example.com",
+      "birth_date": "1976-02-09",
+      "plan_status": "active",
+      "coverage_rate": 0.8
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70201",
+      "member_id": "M-3102",
+      "provider_name": "Northside Imaging",
+      "service_date": "2026-02-18",
+      "billed_amount": 980,
+      "status": "denied"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70201",
+    "payout_method": "bank_transfer"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-70201",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "bank_transfer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1976-02-09",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.status",
+     "value": "ready_for_payment",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "payout_method": "check"
+   },
+   "persona": "Tomas, a carpenter who is sure his MRI claim was approved after a phone call weeks ago.",
+   "reason_for_call": "He wants the reimbursement for his MRI sent out.",
+   "task_instructions": "First ask to be paid by check, then before anything is done change your mind and ask for bank transfer. State that your claim was approved and is ready for payment. If the agent says it is not payable, accept it after one polite question.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3103",
+      "full_name": "Hannah Cole",
+      "email": "hannah.cole@example.com",
+      "birth_date": "1992-10-30",
+      "plan_status": "active",
+      "coverage_rate": 0.75
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70301",
+      "member_id": "M-3103",
+      "provider_name": "Harbor Imaging",
+      "service_date": "2025-10-02",
+      "billed_amount": 1500,
+      "status": "ready_for_payment"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70301",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-70301",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-10-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.service_date",
+     "value": "2025-10-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The service was a knee MRI at Harbor Imaging.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She mailed the paperwork back to the plan in April after a first request for documents.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hannah, an accountant who answers in as few words as possible.",
+   "reason_for_call": "She wants a check for an old MRI claim that she believes is ready.",
+   "task_instructions": "Give the claim number, check as payout method, your date of birth and the service date in your first message. Answer briefly and do not elaborate. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3104",
+      "full_name": "Samuel Okoye",
+      "email": "s.okoye@example.com",
+      "birth_date": "1969-04-03",
+      "plan_status": "active",
+      "coverage_rate": 0.8
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70401",
+      "member_id": "M-3104",
+      "provider_name": "Westfield Cardiology",
+      "service_date": "2026-04-11",
+      "billed_amount": 640,
+      "status": "ready_for_payment"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70401",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1969-04-03",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a friendly retired bus driver calling from a borrowed phone.",
+   "reason_for_call": "He wants his cardiology visit reimbursed by check but lost the letter with the claim number.",
+   "task_instructions": "Say you lost the letter and cannot remember the claim number. You do not remember which email address the plan has and have no member number with you. Answer questions cooperatively and accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3105",
+      "full_name": "Mei Lin Chen",
+      "email": "mei.chen@example.com",
+      "birth_date": "1995-12-01",
+      "plan_status": "active",
+      "coverage_rate": 0.7
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70501",
+      "member_id": "M-3105",
+      "provider_name": "Riverbend Orthopedics",
+      "service_date": "2026-01-15",
+      "billed_amount": 1250,
+      "status": "ready_for_payment"
+     },
+     {
+      "claim_id": "C-70502",
+      "member_id": "M-3105",
+      "provider_name": "Summit Dental",
+      "service_date": "2026-02-20",
+      "billed_amount": 300,
+      "status": "paid"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70501",
+    "payout_method": "check"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.email",
+     "value": "mei.chen@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "clm.provider_name",
+     "value": "Riverbend Orthopedics",
+     "disclose": "if_asked"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "check",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-12-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Mei Lin, a warm and organized graduate student.",
+   "reason_for_call": "She wants the reimbursement for her wrist treatment sent as a check, but she has no claim number at hand.",
+   "task_instructions": "Give your email and date of birth early. If asked which claim, say it is the orthopedic visit. Answer all questions helpfully.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3106",
+      "full_name": "Carlos Ruiz",
+      "email": "carlos.ruiz@example.com",
+      "birth_date": "1983-08-22",
+      "plan_status": "active",
+      "coverage_rate": 0.85
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70601",
+      "member_id": "M-3106",
+      "provider_name": "Eastside Dermatology",
+      "service_date": "2026-04-02",
+      "billed_amount": 300,
+      "status": "ready_for_payment"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70601",
+    "payout_method": "bank_transfer"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-70601",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "bank_transfer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1983-08-22",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "payout_method": "check"
+   },
+   "persona": "Carlos, a restaurant manager who is a bit indecisive.",
+   "reason_for_call": "He wants his dermatology visit reimbursed.",
+   "task_instructions": "Start by asking for a check. Before anything is processed, say you would rather have a bank transfer instead. Give your date of birth only when asked.",
+   "expected_outcome": "pay"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3107",
+      "full_name": "Gloria Fenner",
+      "email": "gloria.fenner@example.com",
+      "birth_date": "1957-01-17",
+      "plan_status": "active",
+      "coverage_rate": 0.9
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70701",
+      "member_id": "M-3107",
+      "provider_name": "Mercy General Hospital",
+      "service_date": "2026-03-25",
+      "billed_amount": 6400,
+      "status": "ready_for_payment"
+     },
+     {
+      "claim_id": "C-70702",
+      "member_id": "M-3107",
+      "provider_name": "Oakmont Family Clinic",
+      "service_date": "2026-01-08",
+      "billed_amount": 150,
+      "status": "paid"
+     },
+     {
+      "claim_id": "C-70703",
+      "member_id": "M-3107",
+      "provider_name": "Brightview Optical",
+      "service_date": "2025-12-12",
+      "billed_amount": 220,
+      "status": "denied"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70701",
+    "payout_method": "bank_transfer"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-70701",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "bank_transfer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1957-01-17",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her eye-glasses claim from last December was denied and she has stopped worrying about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She was paid for a clinic visit in February without any trouble.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Her grandson is visiting this week and is helping her with the phone.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Gloria, a retired school principal who is used to getting her way and is short on patience.",
+   "reason_for_call": "She wants the reimbursement for her recent hospital stay paid by bank transfer right away.",
+   "task_instructions": "Ask for the hospital stay claim to be paid. Mention your side stories casually. If refused, argue and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-3108",
+      "full_name": "Devon Walsh",
+      "email": "devon.walsh@example.com",
+      "birth_date": "1990-05-05",
+      "plan_status": "active",
+      "coverage_rate": 0.8
+     }
+    ],
+    "claim": [
+     {
+      "claim_id": "C-70801",
+      "member_id": "M-3108",
+      "provider_name": "Parkview Clinic",
+      "service_date": "2026-05-02",
+      "billed_amount": 210,
+      "status": "ready_for_payment"
+     }
+    ]
+   },
+   "request_values": {
+    "claim_id": "C-70801",
+    "payout_method": "bank_transfer"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.claim_id",
+     "value": "C-70801",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.payout_method",
+     "value": "bank_transfer",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-05-05",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Devon, a delivery driver who is in a hurry and impatient.",
+   "reason_for_call": "He wants his clinic visit reimbursed to his bank account quickly.",
+   "task_instructions": "In your first message give the claim number, bank transfer and your date of birth. Be impatient and ask the agent to hurry, but answer any question.",
+   "expected_outcome": "pay"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

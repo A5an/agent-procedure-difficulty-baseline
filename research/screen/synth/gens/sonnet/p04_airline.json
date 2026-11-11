@@ -1,0 +1,903 @@
+{
+ "procedure_id": "p04_airline",
+ "domain": "airline",
+ "organization": "Meridian Air",
+ "title": "Voluntary flight changes",
+ "summary": "Move a confirmed booking to another flight on the same route when the passenger, fare and flight qualify, or send late changes for agent approval.",
+ "entities": {
+  "passenger": {
+   "key": "passenger_id",
+   "description": "Passengers holding bookings",
+   "fields": {
+    "passenger_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "birth_date": "date",
+    "tier": "enum:standard|silver|gold"
+   }
+  },
+  "flight": {
+   "key": "flight_id",
+   "description": "Scheduled flights",
+   "fields": {
+    "flight_id": "str",
+    "origin": "str",
+    "destination": "str",
+    "depart_date": "date",
+    "seats_available": "int"
+   }
+  },
+  "booking": {
+   "key": "booking_id",
+   "description": "Ticketed bookings",
+   "fields": {
+    "booking_id": "str",
+    "passenger_id": "ref:passenger",
+    "flight_id": "ref:flight",
+    "fare_class": "enum:basic|standard|flex",
+    "status": "enum:confirmed|cancelled|flown",
+    "contact_email": "str",
+    "ticket_paid": "number",
+    "changes": "int"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a duty agent to approve a change",
+   "fields": {
+    "request_id": "str",
+    "booking_id": "ref:booking",
+    "new_flight_id": "ref:flight",
+    "reason": "enum:late_change|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_passenger",
+   "kind": "get",
+   "entity": "passenger",
+   "description": "Look up a passenger by passenger number."
+  },
+  {
+   "name": "find_passenger_by_email",
+   "kind": "search",
+   "entity": "passenger",
+   "by": [
+    "email"
+   ],
+   "description": "Find passengers by the email address on their profile."
+  },
+  {
+   "name": "get_flight",
+   "kind": "get",
+   "entity": "flight",
+   "description": "Look up a flight by flight id."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a booking by booking reference."
+  },
+  {
+   "name": "find_bookings_by_contact_email",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "contact_email"
+   ],
+   "description": "List bookings by the contact email on the booking."
+  },
+  {
+   "name": "change_booking_flight",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking to move."
+    },
+    "new_flight_id": {
+     "type": "ref:flight",
+     "description": "The flight to move the booking to."
+    }
+   },
+   "set": {
+    "flight_id": "args.new_flight_id",
+    "changes": "rec.changes + 1"
+   },
+   "description": "Move a booking to a new flight and count one change."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking concerned."
+    },
+    "new_flight_id": {
+     "type": "ref:flight",
+     "description": "The flight the passenger wants."
+    },
+    "reason": {
+     "type": "enum:late_change|other",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "booking_id": "args.booking_id",
+    "new_flight_id": "args.new_flight_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a duty agent to approve a flight change."
+  }
+ ],
+ "request": {
+  "booking_id": {
+   "type": "ref:booking",
+   "description": "the booking you want to move"
+  },
+  "new_flight_id": {
+   "type": "ref:flight",
+   "description": "the flight you want to be moved to"
+  }
+ },
+ "claims": {
+  "birth_date": {
+   "type": "date",
+   "description": "the passenger's date of birth"
+  }
+ },
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_id"
+  },
+  {
+   "name": "pax",
+   "entity": "passenger",
+   "key": "booking.passenger_id"
+  },
+  {
+   "name": "curf",
+   "entity": "flight",
+   "key": "booking.flight_id"
+  },
+  {
+   "name": "newf",
+   "entity": "flight",
+   "key": "req.new_flight_id"
+  }
+ ],
+ "outcomes": {
+  "change": {
+   "kind": "perform",
+   "description": "Move the booking to the requested flight.",
+   "calls": [
+    {
+     "tool": "change_booking_flight",
+     "args": {
+      "booking_id": "req.booking_id",
+      "new_flight_id": "req.new_flight_id"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "Departure is close: open an approval request instead of changing.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "booking_id": "req.booking_id",
+      "new_flight_id": "req.new_flight_id",
+      "reason": "'late_change'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change the booking; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.birth_date != pax.birth_date",
+   "outcome": "refuse",
+   "explain": "The caller must give the passenger's date of birth as on file before any change."
+  },
+  {
+   "id": "R2",
+   "when": "booking.status != 'confirmed' or booking.fare_class == 'basic' or newf.seats_available < 1 or newf.origin != curf.origin or newf.destination != curf.destination",
+   "outcome": "refuse",
+   "explain": "Only confirmed, non-basic bookings can move, to a flight on the same route that has a free seat."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, curf.depart_date) < 3",
+   "outcome": "approval",
+   "explain": "If the current flight departs in less than 3 days, open an approval request instead of changing."
+  }
+ ],
+ "default_outcome": "change",
+ "policy_text": "## Identity\nBefore changing anything, find the booking and the passenger it belongs to. Ask for the passenger's date of birth; it must match the one on file. If it does not match or the caller cannot give it, make no change.\n\n## Finding the booking\nUse the booking reference if the caller has it. Otherwise search by the contact email on the booking. If several bookings come up, ask which one is meant. If the booking cannot be identified, or the caller cannot say which flight they want, do not guess; explain that you cannot proceed.\n\n## When a change is allowed\n- The booking must be confirmed, and its fare must not be basic. Basic fares cannot be changed.\n- The new flight must have the same origin and destination as the current flight and at least one seat available.\n- Always go by the system record, not by what the caller believes about their fare or flight.\n\n## Late changes\nIf all of the above is fine but the current flight departs in fewer than 3 days from today, do not change the booking yourself. Open an approval request with reason late_change for the new flight and tell the passenger a duty agent will follow up.\n\n## Otherwise\nIf everything is fine and departure is 3 or more days away, move the booking to the requested flight.\n\n## Never\nDo not waive fare restrictions, do not change a booking for someone who failed the identity check, and do not do anything the passenger did not ask for.",
+ "db_common": {
+  "passenger": [
+   {
+    "passenger_id": "P-1000",
+    "full_name": "Helen Brandt",
+    "email": "helen.brandt@example.com",
+    "birth_date": "1966-02-11",
+    "tier": "gold"
+   }
+  ],
+  "flight": [
+   {
+    "flight_id": "FL-1000",
+    "origin": "MUC",
+    "destination": "LHR",
+    "depart_date": "2026-07-01",
+    "seats_available": 20
+   },
+   {
+    "flight_id": "FL-1001",
+    "origin": "MUC",
+    "destination": "LHR",
+    "depart_date": "2026-07-03",
+    "seats_available": 15
+   }
+  ],
+  "booking": [
+   {
+    "booking_id": "BK-10000",
+    "passenger_id": "P-1000",
+    "flight_id": "FL-1000",
+    "fare_class": "flex",
+    "status": "confirmed",
+    "contact_email": "helen.brandt@example.com",
+    "ticket_paid": 310.0,
+    "changes": 0
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2101",
+      "full_name": "Marta Silva",
+      "email": "marta.silva@example.com",
+      "birth_date": "1988-03-14",
+      "tier": "silver"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2101",
+      "origin": "LIS",
+      "destination": "AMS",
+      "depart_date": "2026-06-12",
+      "seats_available": 40
+     },
+     {
+      "flight_id": "FL-2102",
+      "origin": "LIS",
+      "destination": "AMS",
+      "depart_date": "2026-06-14",
+      "seats_available": 5
+     },
+     {
+      "flight_id": "FL-2103",
+      "origin": "LIS",
+      "destination": "AMS",
+      "depart_date": "2026-06-13",
+      "seats_available": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-21001",
+      "passenger_id": "P-2101",
+      "flight_id": "FL-2101",
+      "fare_class": "flex",
+      "status": "confirmed",
+      "contact_email": "marta.silva@example.com",
+      "ticket_paid": 240.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-21001",
+    "new_flight_id": "FL-2102"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-21001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2102",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1988-03-14",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_class",
+     "value": "flex",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You bought a flexible fare because your work plans often shift.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The trip is from Lisbon to Amsterdam for a conference.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "new_flight_id": "FL-2103"
+   },
+   "persona": "Marta, a project manager, polite and a bit indecisive.",
+   "reason_for_call": "Her conference was pushed back and she wants a later flight to Amsterdam.",
+   "task_instructions": "Start by asking for the initial flight in your initial request. Before the agent finishes, say you checked your calendar and want the other, later flight instead. Give your booking reference and date of birth early.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2201",
+      "full_name": "Kenji Mori",
+      "email": "kenji.mori@example.com",
+      "birth_date": "1992-09-30",
+      "tier": "standard"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2201",
+      "origin": "SFO",
+      "destination": "NRT",
+      "depart_date": "2026-05-22",
+      "seats_available": 30
+     },
+     {
+      "flight_id": "FL-2202",
+      "origin": "SFO",
+      "destination": "NRT",
+      "depart_date": "2026-05-24",
+      "seats_available": 12
+     },
+     {
+      "flight_id": "FL-2203",
+      "origin": "SFO",
+      "destination": "NRT",
+      "depart_date": "2026-05-23",
+      "seats_available": 8
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-22001",
+      "passenger_id": "P-2201",
+      "flight_id": "FL-2201",
+      "fare_class": "standard",
+      "status": "confirmed",
+      "contact_email": "kenji.mori@example.com",
+      "ticket_paid": 780.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-22001",
+    "new_flight_id": "FL-2202"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-22001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1992-09-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_flight_id": "FL-2203"
+   },
+   "persona": "Kenji, a software engineer flying home to Tokyo, calm and practical.",
+   "reason_for_call": "A family matter means he cannot leave on his current day.",
+   "task_instructions": "First ask for the initial flight in your initial request. Then say the day after is too early and you want the other flight. Give your date of birth only when asked. If the agent says a duty agent will follow up, accept that.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2301",
+      "full_name": "Amara Okafor",
+      "email": "amara.okafor@example.com",
+      "birth_date": "1979-12-05",
+      "tier": "gold"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2301",
+      "origin": "LHR",
+      "destination": "LOS",
+      "depart_date": "2026-07-02",
+      "seats_available": 18
+     },
+     {
+      "flight_id": "FL-2302",
+      "origin": "LHR",
+      "destination": "LOS",
+      "depart_date": "2026-07-05",
+      "seats_available": 3
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-23001",
+      "passenger_id": "P-2301",
+      "flight_id": "FL-2301",
+      "fare_class": "standard",
+      "status": "confirmed",
+      "contact_email": "amara.okafor@example.com",
+      "ticket_paid": 560.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-23001",
+    "new_flight_id": "FL-2302"
+   },
+   "customer_facts": [
+    {
+     "fact": "booking.contact_email",
+     "value": "amara.okafor@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2302",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1979-12-05",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Amara, a busy consultant, impatient and direct.",
+   "reason_for_call": "She wants to leave three days later for a wedding in Lagos but has lost her booking reference.",
+   "task_instructions": "Say you do not have the booking reference but give your contact email. Be impatient and push for speed. Give your date of birth when asked.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2401",
+      "full_name": "Tomas Novak",
+      "email": "tomas.novak@example.com",
+      "birth_date": "1985-06-21",
+      "tier": "standard"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2401",
+      "origin": "PRG",
+      "destination": "JFK",
+      "depart_date": "2026-06-18",
+      "seats_available": 25
+     },
+     {
+      "flight_id": "FL-2402",
+      "origin": "PRG",
+      "destination": "JFK",
+      "depart_date": "2026-06-20",
+      "seats_available": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-24001",
+      "passenger_id": "P-2401",
+      "flight_id": "FL-2401",
+      "fare_class": "standard",
+      "status": "confirmed",
+      "contact_email": "tomas.novak@example.com",
+      "ticket_paid": 690.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-24001",
+    "new_flight_id": "FL-2402"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-24001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2402",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1985-06-21",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a terse engineer who writes in very short sentences.",
+   "reason_for_call": "He wants to fly two days later to New York.",
+   "task_instructions": "Give booking reference, wanted flight and date of birth in your first message. Keep every later answer to a few words. Accept a refusal.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2501",
+      "full_name": "Grace Liu",
+      "email": "grace.liu@example.com",
+      "birth_date": "1995-01-09",
+      "tier": "silver"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2501",
+      "origin": "SIN",
+      "destination": "SYD",
+      "depart_date": "2026-08-09",
+      "seats_available": 22
+     },
+     {
+      "flight_id": "FL-2502",
+      "origin": "SIN",
+      "destination": "SYD",
+      "depart_date": "2026-08-11",
+      "seats_available": 22
+     },
+     {
+      "flight_id": "FL-2503",
+      "origin": "SIN",
+      "destination": "HKG",
+      "depart_date": "2026-09-01",
+      "seats_available": 14
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-25001",
+      "passenger_id": "P-2501",
+      "flight_id": "FL-2501",
+      "fare_class": "flex",
+      "status": "confirmed",
+      "contact_email": "grace.liu@example.com",
+      "ticket_paid": 430.0,
+      "changes": 0
+     },
+     {
+      "booking_id": "BK-25002",
+      "passenger_id": "P-2501",
+      "flight_id": "FL-2503",
+      "fare_class": "standard",
+      "status": "confirmed",
+      "contact_email": "grace.liu@example.com",
+      "ticket_paid": 260.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-25001",
+    "new_flight_id": "FL-2502"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-25001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2502",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1995-01-09",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a separate September trip to Hong Kong that she does not want to touch.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She recently joined the silver loyalty tier and likes the lounge.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Last year her bag arrived a day late on another airline.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace, a friendly graphic designer who chats a lot.",
+   "reason_for_call": "She wants her Sydney trip moved two days later because of a client deadline.",
+   "task_instructions": "Mention your Sydney booking reference, the flight you want and your date of birth. Chat about the side topics but make clear only the Sydney booking needs changing.",
+   "expected_outcome": "change"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2601",
+      "full_name": "Isaac Bernard",
+      "email": "isaac.bernard@example.com",
+      "birth_date": "1971-04-02",
+      "tier": "standard"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2601",
+      "origin": "CDG",
+      "destination": "YUL",
+      "depart_date": "2026-06-25",
+      "seats_available": 28
+     },
+     {
+      "flight_id": "FL-2602",
+      "origin": "CDG",
+      "destination": "YUL",
+      "depart_date": "2026-06-27",
+      "seats_available": 30
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-26001",
+      "passenger_id": "P-2601",
+      "flight_id": "FL-2601",
+      "fare_class": "basic",
+      "status": "confirmed",
+      "contact_email": "isaac.bernard@example.com",
+      "ticket_paid": 199.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-26001",
+    "new_flight_id": "FL-2602"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-26001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2602",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1971-04-02",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_class",
+     "value": "basic",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He bought the cheapest fare on a promotion.",
+     "kind": "helpful"
+    },
+    {
+     "text": "He is travelling from Paris to Montreal to visit his daughter.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Isaac, a retired bus driver, courteous and a little anxious.",
+   "reason_for_call": "His daughter's plans changed and he wants to travel two days later.",
+   "task_instructions": "Give your booking reference, the wanted flight, your date of birth and mention it is the cheapest fare. Answer questions politely and accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2701",
+      "full_name": "Sofia Rossi",
+      "email": "sofia.rossi@example.com",
+      "birth_date": "1990-10-17",
+      "tier": "standard"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2701",
+      "origin": "FCO",
+      "destination": "BCN",
+      "depart_date": "2026-06-08",
+      "seats_available": 16
+     },
+     {
+      "flight_id": "FL-2702",
+      "origin": "FCO",
+      "destination": "BCN",
+      "depart_date": "2026-06-09",
+      "seats_available": 9
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-27001",
+      "passenger_id": "P-2701",
+      "flight_id": "FL-2701",
+      "fare_class": "basic",
+      "status": "confirmed",
+      "contact_email": "sofia.rossi@example.com",
+      "ticket_paid": 89.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-27001",
+    "new_flight_id": "FL-2702"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "BK-27001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2702",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.birth_date",
+     "value": "1990-10-17",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.fare_class",
+     "value": "flex",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a terse marketing assistant who is sure she bought a flexible ticket.",
+   "reason_for_call": "She wants to fly one day later to Barcelona.",
+   "task_instructions": "State that you have a flex ticket along with your booking reference, wanted flight and date of birth. Keep all later answers very short. Accept the outcome.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "passenger": [
+     {
+      "passenger_id": "P-2801",
+      "full_name": "Dmitri Volkov",
+      "email": "d.volkov@example.com",
+      "birth_date": "1983-08-26",
+      "tier": "standard"
+     }
+    ],
+    "flight": [
+     {
+      "flight_id": "FL-2801",
+      "origin": "FRA",
+      "destination": "DXB",
+      "depart_date": "2026-06-05",
+      "seats_available": 10
+     },
+     {
+      "flight_id": "FL-2802",
+      "origin": "FRA",
+      "destination": "DXB",
+      "depart_date": "2026-06-07",
+      "seats_available": 10
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "BK-28001",
+      "passenger_id": "P-2801",
+      "flight_id": "FL-2801",
+      "fare_class": "flex",
+      "status": "confirmed",
+      "contact_email": "d.volkov@example.com",
+      "ticket_paid": 520.0,
+      "changes": 0
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "BK-28001",
+    "new_flight_id": "FL-2802"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_flight_id",
+     "value": "FL-2802",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "pax.full_name",
+     "value": "Dmitri Volkov",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dmitri, a stressed traveller calling from a new phone number, demanding.",
+   "reason_for_call": "He wants his Dubai flight moved two days later but lost the confirmation email and cannot remember which email address he booked with.",
+   "task_instructions": "Give your name and the flight you want. You do not have the booking reference and cannot say which email was used. Insist the agent just find it by name and push back at least twice before accepting that it cannot be done.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

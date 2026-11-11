@@ -1,0 +1,20 @@
+
+================ procedure-level prediction, 50 TauIndianBank families, leave one family out
+
+g38: real failure mean 0.34; ceiling (split-half reliability of the target) 0.74, so rho above about 0.86 is out of reach
+  B  seeded probe rate                 rho +0.70 [+0.52, +0.83]  MAE 0.177
+     documentation probe rate          rho +0.31 [+0.01, +0.56]  MAE 0.256  vs B -0.39 [-0.69, -0.11]
+  P12 all 12 probes                    rho +0.62 [+0.40, +0.78]  MAE 0.194  vs B -0.08 [-0.23, +0.05]
+  R  monitor risk on probe episodes    rho +0.28 [-0.02, +0.56]  MAE 0.273  vs B -0.42 [-0.71, -0.15]
+  C  combination                       rho +0.61 [+0.40, +0.77]  MAE 0.210  vs B -0.09 [-0.21, -0.00]
+
+flash: real failure mean 0.32; ceiling (split-half reliability of the target) 0.88, so rho above about 0.94 is out of reach
+  B  seeded probe rate                 rho +0.73 [+0.54, +0.88]  MAE 0.147
+     documentation probe rate          rho +0.53 [+0.30, +0.71]  MAE 0.253  vs B -0.21 [-0.47, +0.04]
+  P12 all 12 probes                    rho +0.75 [+0.56, +0.87]  MAE 0.173  vs B +0.02 [-0.10, +0.13]
+  R  monitor risk on probe episodes    rho +0.34 [+0.07, +0.58]  MAE 0.298  vs B -0.39 [-0.66, -0.14]
+  C  combination                       rho +0.72 [+0.51, +0.87]  MAE 0.157  vs B -0.01 [-0.11, +0.08]
+
+================ how far more probes of the same kind could go
+g38: reliability of the 6-seeded-probe rate 0.76, of the 6-task real rate 0.79; observed rho 0.70; implied rho between true rates 0.90; projected observed rho with 12 / 18 / 30 seeded probes 0.74 / 0.76 / 0.78
+flash: reliability of the 6-seeded-probe rate 0.82, of the 6-task real rate 0.84; observed rho 0.73; implied rho between true rates 0.88; projected observed rho with 12 / 18 / 30 seeded probes 0.77 / 0.78 / 0.79

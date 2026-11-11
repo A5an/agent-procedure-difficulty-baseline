@@ -1,0 +1,379 @@
+fitted 7 folds x 1 variants in 275s
+{
+"lite/refuse": {
+"mR": 1.824,
+"lR": 0.394,
+"mS": 0.515,
+"lS": 0.028,
+"kap": 3.039,
+"tau": 0.239
+},
+"lite/perform": {
+"mR": 3.686,
+"lR": 1.146,
+"mS": 3.941,
+"lS": 1.453,
+"kap": 1.005,
+"tau": 0.624
+},
+"flash/refuse": {
+"mR": 1.022,
+"lR": 1.706,
+"mS": -1.496,
+"lS": 0.435,
+"kap": 1.451,
+"tau": 0.569
+},
+"flash/perform": {
+"mR": 0.342,
+"lR": 3.953,
+"mS": 0.843,
+"lS": 3.567,
+"kap": 1.221,
+"tau": 1.389
+},
+"g38/refuse": {
+"mR": 0.596,
+"lR": 2.726,
+"mS": -0.844,
+"lS": 3.112,
+"kap": 0.366,
+"tau": 0.255
+},
+"g38/perform": {
+"mR": -0.859,
+"lR": 5.054,
+"mS": -1.519,
+"lS": 6.183,
+"kap": 1.414,
+"tau": 0.815
+},
+"sonnet/refuse": {
+"mR": 0.021,
+"lR": 1.926,
+"mS": -0.296,
+"lS": 1.658,
+"kap": 0.67,
+"tau": 2.576
+},
+"sonnet/perform": {
+"mR": -0.185,
+"lR": 3.092,
+"mS": -0.844,
+"lS": 3.586,
+"kap": 1.562,
+"tau": 1.537
+},
+"se": [
+0.323,
+0.939
+],
+"b0": [
+-2.111,
+-0.075
+],
+"b1": [
+0.0,
+0.0
+]
+}
+
+### own probes, all (~20 per procedure)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.075   0.5270  0.1780  0.114
+lite   calib     0.044   0.4831  0.1614  0.096
+lite   mf        0.134   0.4882  0.1639  0.070
+       MF - calib logloss +0.0052 [-0.0043, +0.0141];  MF - const brier +0.0087 [-0.0008, +0.0168]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.686   0.4796  0.1519  0.058
+flash  calib     0.664   0.5422  0.1692  0.086
+flash  mf        0.632   0.5217  0.1619  0.095
+       MF - calib logloss -0.0205 [-0.0396, -0.0003];  MF - const brier -0.0248 [-0.0520, +0.0012]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.699   0.2390  0.0692  0.034
+g38    calib     0.685   0.2591  0.0752  0.033
+g38    mf        0.713   0.2406  0.0705  0.023
+       MF - calib logloss -0.0185 [-0.0334, -0.0012];  MF - const brier -0.0507 [-0.0787, -0.0320]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.714   0.3209  0.0970  0.048
+sonnet calib     0.718   0.3218  0.0972  0.038
+sonnet mf        0.747   0.3165  0.0955  0.033
+       MF - calib logloss -0.0053 [-0.0162, +0.0074];  MF - const brier -0.0696 [-0.1217, -0.0332]
+
+### probes of all four agents
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.075   0.5270  0.1780  0.114
+lite   calib     0.044   0.4831  0.1614  0.096
+lite   mf        0.171   0.5029  0.1697  0.072
+       MF - calib logloss +0.0198 [+0.0003, +0.0416];  MF - const brier +0.0145 [+0.0015, +0.0277]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.686   0.4796  0.1519  0.058
+flash  calib     0.664   0.5422  0.1692  0.086
+flash  mf        0.675   0.5513  0.1700  0.097
+       MF - calib logloss +0.0091 [-0.0731, +0.0909];  MF - const brier -0.0168 [-0.0474, +0.0053]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.699   0.2390  0.0692  0.034
+g38    calib     0.685   0.2591  0.0752  0.033
+g38    mf        0.740   0.2617  0.0786  0.037
+       MF - calib logloss +0.0026 [-0.0312, +0.0475];  MF - const brier -0.0427 [-0.0747, -0.0220]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.714   0.3209  0.0970  0.048
+sonnet calib     0.718   0.3218  0.0972  0.038
+sonnet mf        0.719   0.3443  0.1105  0.056
+       MF - calib logloss +0.0225 [-0.0121, +0.0785];  MF - const brier -0.0546 [-0.0917, -0.0294]
+
+### probes of the other three agents only (target has no probes)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.193   0.4755  0.1551  0.074
+lite   calib     0.193   0.4755  0.1551  0.074
+lite   mf        0.260   0.4744  0.1556  0.037
+       MF - calib logloss -0.0011 [-0.0104, +0.0096];  MF - const brier +0.0005 [-0.0030, +0.0041]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.259   0.5580  0.1867  0.074
+flash  calib     0.259   0.5580  0.1867  0.074
+flash  mf        0.625   0.5576  0.1708  0.092
+       MF - calib logloss -0.0004 [-0.1156, +0.1014];  MF - const brier -0.0159 [-0.0481, +0.0092]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.279   0.3967  0.1212  0.086
+g38    calib     0.279   0.3967  0.1212  0.086
+g38    mf        0.714   0.3413  0.1097  0.084
+       MF - calib logloss -0.0554 [-0.1544, +0.0761];  MF - const brier -0.0116 [-0.0481, +0.0439]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.254   0.5139  0.1651  0.115
+sonnet calib     0.254   0.5139  0.1651  0.115
+sonnet mf        0.601   0.5292  0.1516  0.123
+       MF - calib logloss +0.0153 [-0.0988, +0.1614];  MF - const brier -0.0135 [-0.0415, +0.0180]
+
+### no evidence (prior only)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.193   0.4755  0.1551  0.074
+lite   calib     0.193   0.4755  0.1551  0.074
+lite   mf        0.193   0.4752  0.1557  0.091
+       MF - calib logloss -0.0003 [-0.0047, +0.0035];  MF - const brier +0.0006 [-0.0010, +0.0020]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.259   0.5580  0.1867  0.074
+flash  calib     0.259   0.5580  0.1867  0.074
+flash  mf        0.259   0.5522  0.1837  0.094
+       MF - calib logloss -0.0058 [-0.0212, +0.0098];  MF - const brier -0.0030 [-0.0104, +0.0042]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.279   0.3967  0.1212  0.086
+g38    calib     0.279   0.3967  0.1212  0.086
+g38    mf        0.279   0.3928  0.1209  0.102
+       MF - calib logloss -0.0039 [-0.0282, +0.0202];  MF - const brier -0.0003 [-0.0099, +0.0091]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.254   0.5139  0.1651  0.115
+sonnet calib     0.254   0.5139  0.1651  0.115
+sonnet mf        0.254   0.5080  0.1642  0.095
+       MF - calib logloss -0.0060 [-0.0213, +0.0102];  MF - const brier -0.0009 [-0.0069, +0.0054]
+
+### own probes, 2 per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.112   0.5920  0.2029  0.127
+lite   calib     0.078   0.4909  0.1612  0.077
+lite   mf        0.101   0.4782  0.1566  0.074
+       MF - calib logloss -0.0127 [-0.0203, -0.0046];  MF - const brier +0.0015 [-0.0008, +0.0035]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.568   0.5655  0.1885  0.118
+flash  calib     0.584   0.5525  0.1815  0.099
+flash  mf        0.575   0.5342  0.1736  0.070
+       MF - calib logloss -0.0183 [-0.0370, -0.0001];  MF - const brier -0.0131 [-0.0329, +0.0066]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.484   0.3706  0.1061  0.118
+g38    calib     0.464   0.4107  0.1203  0.139
+g38    mf        0.682   0.3238  0.0929  0.037
+       MF - calib logloss -0.0869 [-0.1258, -0.0475];  MF - const brier -0.0283 [-0.0448, -0.0142]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.592   0.4564  0.1405  0.112
+sonnet calib     0.536   0.4618  0.1436  0.117
+sonnet mf        0.632   0.4299  0.1334  0.058
+       MF - calib logloss -0.0320 [-0.0771, +0.0145];  MF - const brier -0.0317 [-0.0639, -0.0101]
+
+### own probes, 4 per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.102   0.5710  0.1944  0.121
+lite   calib     0.076   0.4883  0.1608  0.074
+lite   mf        0.077   0.4773  0.1566  0.064
+       MF - calib logloss -0.0110 [-0.0180, -0.0025];  MF - const brier +0.0015 [-0.0012, +0.0040]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.589   0.5398  0.1789  0.074
+flash  calib     0.604   0.5407  0.1759  0.062
+flash  mf        0.622   0.5264  0.1691  0.066
+       MF - calib logloss -0.0143 [-0.0280, -0.0006];  MF - const brier -0.0176 [-0.0369, -0.0002]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.653   0.3397  0.0947  0.094
+g38    calib     0.613   0.3716  0.1065  0.109
+g38    mf        0.757   0.3007  0.0848  0.023
+       MF - calib logloss -0.0709 [-0.1079, -0.0346];  MF - const brier -0.0365 [-0.0584, -0.0202]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.659   0.4079  0.1241  0.085
+sonnet calib     0.637   0.4240  0.1314  0.091
+sonnet mf        0.693   0.3783  0.1159  0.032
+       MF - calib logloss -0.0457 [-0.0973, +0.0057];  MF - const brier -0.0492 [-0.1011, -0.0177]
+
+### own probes, 8 per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.193   0.4755  0.1551  0.074
+lite   raw       0.108   0.5548  0.1880  0.117
+lite   calib     0.070   0.4832  0.1595  0.071
+lite   mf        0.080   0.4786  0.1576  0.065
+       MF - calib logloss -0.0047 [-0.0078, -0.0011];  MF - const brier +0.0025 [-0.0012, +0.0064]
+flash  const     0.259   0.5580  0.1867  0.074
+flash  raw       0.604   0.5137  0.1683  0.070
+flash  calib     0.606   0.5528  0.1771  0.076
+flash  mf        0.598   0.5295  0.1694  0.077
+       MF - calib logloss -0.0233 [-0.0344, -0.0127];  MF - const brier -0.0173 [-0.0424, +0.0055]
+g38    const     0.279   0.3967  0.1212  0.086
+g38    raw       0.735   0.2879  0.0792  0.055
+g38    calib     0.734   0.3070  0.0867  0.063
+g38    mf        0.730   0.2776  0.0775  0.017
+       MF - calib logloss -0.0295 [-0.0486, -0.0126];  MF - const brier -0.0438 [-0.0713, -0.0235]
+sonnet const     0.254   0.5139  0.1651  0.115
+sonnet raw       0.711   0.3721  0.1120  0.031
+sonnet calib     0.691   0.3782  0.1159  0.040
+sonnet mf        0.708   0.3652  0.1103  0.023
+       MF - calib logloss -0.0131 [-0.0500, +0.0184];  MF - const brier -0.0548 [-0.0967, -0.0230]
+
+### no probes, 1 real pilot cases per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.182   0.4780  0.1561  0.075
+lite   raw       0.090   0.5304  0.1773  0.067
+lite   calib     0.182   0.4780  0.1561  0.075
+lite   mf        0.097   0.4773  0.1564  0.084
+       MF - calib logloss -0.0006 [-0.0056, +0.0037];  MF - const brier +0.0003 [-0.0015, +0.0020]
+flash  const     0.257   0.5568  0.1863  0.074
+flash  raw       0.333   0.5733  0.1931  0.127
+flash  calib     0.257   0.5568  0.1863  0.074
+flash  mf        0.400   0.5293  0.1737  0.076
+       MF - calib logloss -0.0274 [-0.0569, +0.0065];  MF - const brier -0.0126 [-0.0248, +0.0013]
+g38    const     0.287   0.3926  0.1200  0.090
+g38    raw       0.407   0.4342  0.1311  0.098
+g38    calib     0.287   0.3926  0.1200  0.090
+g38    mf        0.517   0.3567  0.1088  0.079
+       MF - calib logloss -0.0359 [-0.0688, -0.0075];  MF - const brier -0.0112 [-0.0219, -0.0013]
+sonnet const     0.257   0.5138  0.1649  0.121
+sonnet raw       0.399   0.5104  0.1625  0.155
+sonnet calib     0.257   0.5138  0.1649  0.121
+sonnet mf        0.417   0.4685  0.1505  0.079
+       MF - calib logloss -0.0454 [-0.1068, +0.0034];  MF - const brier -0.0143 [-0.0348, +0.0030]
+
+### own probes + 1 real pilot cases (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.182   0.4780  0.1561  0.075
+lite   raw       0.042   0.5237  0.1768  0.111
+lite   calib    -0.018   0.4853  0.1625  0.099
+lite   mf        0.094   0.4895  0.1644  0.070
+       MF - calib logloss +0.0043 [-0.0048, +0.0122];  MF - const brier +0.0083 [-0.0010, +0.0162]
+flash  const     0.257   0.5568  0.1863  0.074
+flash  raw       0.608   0.4843  0.1536  0.055
+flash  calib     0.614   0.5517  0.1721  0.086
+flash  mf        0.602   0.5273  0.1638  0.079
+       MF - calib logloss -0.0243 [-0.0466, -0.0009];  MF - const brier -0.0224 [-0.0514, +0.0027]
+g38    const     0.287   0.3926  0.1200  0.090
+g38    raw       0.578   0.2430  0.0710  0.035
+g38    calib     0.603   0.2654  0.0773  0.038
+g38    mf        0.618   0.2471  0.0727  0.026
+       MF - calib logloss -0.0183 [-0.0337, -0.0006];  MF - const brier -0.0473 [-0.0732, -0.0293]
+sonnet const     0.257   0.5138  0.1649  0.121
+sonnet raw       0.603   0.3205  0.0971  0.044
+sonnet calib     0.636   0.3231  0.0975  0.043
+sonnet mf        0.656   0.3172  0.0955  0.029
+       MF - calib logloss -0.0059 [-0.0198, +0.0078];  MF - const brier -0.0694 [-0.1356, -0.0312]
+
+### no probes, 2 real pilot cases per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.165   0.4751  0.1550  0.080
+lite   raw       0.069   0.5635  0.1901  0.124
+lite   calib     0.165   0.4751  0.1550  0.080
+lite   mf        0.002   0.4752  0.1558  0.083
+       MF - calib logloss +0.0001 [-0.0060, +0.0042];  MF - const brier +0.0007 [-0.0015, +0.0024]
+flash  const     0.250   0.5596  0.1874  0.080
+flash  raw       0.320   0.5735  0.1938  0.127
+flash  calib     0.250   0.5596  0.1874  0.080
+flash  mf        0.358   0.5398  0.1769  0.095
+       MF - calib logloss -0.0199 [-0.0752, +0.0335];  MF - const brier -0.0105 [-0.0314, +0.0100]
+g38    const     0.286   0.3873  0.1176  0.090
+g38    raw       0.237   0.4135  0.1242  0.127
+g38    calib     0.286   0.3873  0.1176  0.090
+g38    mf        0.385   0.3529  0.1061  0.060
+       MF - calib logloss -0.0344 [-0.0934, +0.0060];  MF - const brier -0.0115 [-0.0296, +0.0025]
+sonnet const     0.254   0.5123  0.1643  0.123
+sonnet raw       0.369   0.4915  0.1565  0.141
+sonnet calib     0.254   0.5123  0.1643  0.123
+sonnet mf        0.360   0.4517  0.1462  0.049
+       MF - calib logloss -0.0606 [-0.1665, +0.0149];  MF - const brier -0.0181 [-0.0527, +0.0082]
+
+### own probes + 2 real pilot cases (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.165   0.4751  0.1550  0.080
+lite   raw       0.083   0.5117  0.1727  0.101
+lite   calib     0.025   0.4822  0.1617  0.100
+lite   mf        0.147   0.4879  0.1643  0.066
+       MF - calib logloss +0.0056 [-0.0040, +0.0146];  MF - const brier +0.0093 [-0.0001, +0.0180]
+flash  const     0.250   0.5596  0.1874  0.080
+flash  raw       0.538   0.4926  0.1559  0.060
+flash  calib     0.524   0.5633  0.1759  0.093
+flash  mf        0.526   0.5308  0.1647  0.082
+       MF - calib logloss -0.0325 [-0.0528, -0.0103];  MF - const brier -0.0227 [-0.0510, +0.0039]
+g38    const     0.286   0.3873  0.1176  0.090
+g38    raw       0.484   0.2422  0.0709  0.029
+g38    calib     0.512   0.2660  0.0775  0.039
+g38    mf        0.526   0.2487  0.0730  0.022
+       MF - calib logloss -0.0173 [-0.0338, +0.0039];  MF - const brier -0.0446 [-0.0724, -0.0255]
+sonnet const     0.254   0.5123  0.1643  0.123
+sonnet raw       0.517   0.3202  0.0971  0.050
+sonnet calib     0.554   0.3227  0.0974  0.045
+sonnet mf        0.573   0.3199  0.0965  0.030
+       MF - calib logloss -0.0028 [-0.0159, +0.0125];  MF - const brier -0.0678 [-0.1311, -0.0265]
+
+### no probes, 4 real pilot cases per procedure (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.152   0.4658  0.1516  0.089
+lite   raw       0.160   0.5399  0.1806  0.115
+lite   calib     0.152   0.4658  0.1516  0.089
+lite   mf        0.154   0.4641  0.1513  0.041
+       MF - calib logloss -0.0016 [-0.0088, +0.0038];  MF - const brier -0.0003 [-0.0033, +0.0019]
+flash  const     0.251   0.5621  0.1887  0.081
+flash  raw       0.358   0.5480  0.1828  0.073
+flash  calib     0.251   0.5621  0.1887  0.081
+flash  mf        0.382   0.5323  0.1712  0.078
+       MF - calib logloss -0.0298 [-0.0979, +0.0366];  MF - const brier -0.0175 [-0.0426, +0.0074]
+g38    const     0.292   0.3824  0.1169  0.096
+g38    raw       0.319   0.3767  0.1105  0.102
+g38    calib     0.292   0.3824  0.1169  0.096
+g38    mf        0.386   0.3423  0.1011  0.052
+       MF - calib logloss -0.0401 [-0.1032, +0.0075];  MF - const brier -0.0158 [-0.0346, -0.0016]
+sonnet const     0.254   0.5136  0.1646  0.131
+sonnet raw       0.319   0.4304  0.1336  0.077
+sonnet calib     0.254   0.5136  0.1646  0.131
+sonnet mf        0.366   0.4214  0.1313  0.046
+       MF - calib logloss -0.0922 [-0.2286, +0.0074];  MF - const brier -0.0332 [-0.0829, +0.0030]
+
+### own probes + 4 real pilot cases (5 draws)
+agent  method      rho  logloss   brier    ece
+lite   const     0.152   0.4658  0.1516  0.089
+lite   raw       0.122   0.5054  0.1699  0.107
+lite   calib    -0.005   0.4739  0.1589  0.104
+lite   mf        0.229   0.4753  0.1597  0.070
+       MF - calib logloss +0.0014 [-0.0094, +0.0105];  MF - const brier +0.0081 [-0.0021, +0.0160]
+flash  const     0.251   0.5621  0.1887  0.081
+flash  raw       0.508   0.5024  0.1598  0.055
+flash  calib     0.487   0.5798  0.1818  0.092
+flash  mf        0.500   0.5403  0.1694  0.074
+       MF - calib logloss -0.0395 [-0.0671, -0.0128];  MF - const brier -0.0193 [-0.0499, +0.0077]
+g38    const     0.292   0.3824  0.1169  0.096
+g38    raw       0.457   0.2456  0.0730  0.030
+g38    calib     0.461   0.2669  0.0785  0.044
+g38    mf        0.488   0.2522  0.0746  0.024
+       MF - calib logloss -0.0148 [-0.0306, +0.0053];  MF - const brier -0.0423 [-0.0669, -0.0256]
+sonnet const     0.254   0.5136  0.1646  0.131
+sonnet raw       0.440   0.3263  0.0989  0.047
+sonnet calib     0.445   0.3282  0.0998  0.051
+sonnet mf        0.481   0.3229  0.0965  0.036
+       MF - calib logloss -0.0053 [-0.0212, +0.0129];  MF - const brier -0.0681 [-0.1392, -0.0251]
+done in 293s

@@ -1,0 +1,1 @@
+- 4 Nov: claude_proxy.py moved the static part (instructions, tool schemas) into the system prompt so the prompt cache reuses it (about 12x fewer billed input tokens per turn after the first); model behaviour unchanged in content. Seeded-probe runs stopped to save subscription limits; analysis compares DOC and PSEUDO on the same real tasks.

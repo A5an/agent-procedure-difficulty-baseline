@@ -1,0 +1,873 @@
+{
+ "procedure_id": "h12_university",
+ "domain": "university housing",
+ "organization": "Northbridge State University Office of Residential Life",
+ "title": "Summer stay extensions for residence hall contracts",
+ "summary": "Let a resident stay in their current room for extra nights after their contract ends, then post the nightly charge and authorize their key card, when the student, the contract and the room all qualify.",
+ "entities": {
+  "student": {
+   "key": "student_id",
+   "description": "Students who hold or have held a residence hall contract, with their enrollment, conduct and housing account standing.",
+   "fields": {
+    "student_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "enrollment_status": "enum:enrolled|graduating|on_leave|withdrawn",
+    "conduct_hold": "bool",
+    "balance_due": "number"
+   }
+  },
+  "housing_contract": {
+   "key": "contract_id",
+   "description": "Residence hall contracts: one per student per term, tied to one room.",
+   "fields": {
+    "contract_id": "str",
+    "student_id": "ref:student",
+    "room_id": "ref:room",
+    "term": "enum:fall_2025|spring_2026|summer_2026|fall_2026",
+    "start_date": "date",
+    "end_date": "date",
+    "status": "enum:active|completed|terminated|pending",
+    "extensions_used": "int"
+   }
+  },
+  "room": {
+   "key": "room_id",
+   "description": "Residence hall rooms, with the nightly rate for extension stays and the start date of the next assignment to that room, if any.",
+   "fields": {
+    "room_id": "str",
+    "building": "str",
+    "room_number": "str",
+    "nightly_rate": "number",
+    "next_assignment_start": "date"
+   }
+  },
+  "housing_charge": {
+   "key": "charge_id",
+   "description": "Charges posted to a student's housing account.",
+   "fields": {
+    "charge_id": "str",
+    "student_id": "ref:student",
+    "contract_id": "ref:housing_contract",
+    "amount": "number",
+    "charge_type": "enum:summer_extension|damage|other",
+    "posted": "date"
+   }
+  },
+  "keycard_request": {
+   "key": "request_id",
+   "description": "Requests to the access control team to keep a resident's key card working for extra nights.",
+   "fields": {
+    "request_id": "str",
+    "contract_id": "ref:housing_contract",
+    "extra_nights": "int",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_student",
+   "kind": "get",
+   "entity": "student",
+   "description": "Look up a student by student ID number. Shows enrollment status, conduct hold and housing balance due."
+  },
+  {
+   "name": "find_students_by_email",
+   "kind": "search",
+   "entity": "student",
+   "by": [
+    "email"
+   ],
+   "description": "Find students by the university email address on file."
+  },
+  {
+   "name": "get_contract",
+   "kind": "get",
+   "entity": "housing_contract",
+   "description": "Look up a housing contract by its contract number."
+  },
+  {
+   "name": "find_contracts_by_student",
+   "kind": "search",
+   "entity": "housing_contract",
+   "by": [
+    "student_id"
+   ],
+   "description": "List all housing contracts of a student, past, current and future."
+  },
+  {
+   "name": "get_room",
+   "kind": "get",
+   "entity": "room",
+   "description": "Look up a room by room ID. Shows the nightly extension rate and when the next assignment to the room starts."
+  },
+  {
+   "name": "extend_contract",
+   "kind": "update",
+   "entity": "housing_contract",
+   "args": {
+    "contract_id": {
+     "type": "ref:housing_contract",
+     "description": "The contract to extend."
+    },
+    "new_end_date": {
+     "type": "date",
+     "description": "The new contract end date: the current end date plus the number of extra nights."
+    }
+   },
+   "set": {
+    "end_date": "args.new_end_date",
+    "extensions_used": "rec.extensions_used + 1"
+   },
+   "description": "Move a contract's end date to the new end date and count one extension."
+  },
+  {
+   "name": "post_housing_charge",
+   "kind": "create",
+   "entity": "housing_charge",
+   "args": {
+    "student_id": {
+     "type": "ref:student",
+     "description": "The student whose account is charged."
+    },
+    "contract_id": {
+     "type": "ref:housing_contract",
+     "description": "The contract the charge is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The amount to charge."
+    },
+    "charge_type": {
+     "type": "enum:summer_extension|damage|other",
+     "description": "The kind of charge."
+    }
+   },
+   "fields": {
+    "student_id": "args.student_id",
+    "contract_id": "args.contract_id",
+    "amount": "args.amount",
+    "charge_type": "args.charge_type",
+    "posted": "today"
+   },
+   "description": "Post a charge to a student's housing account."
+  },
+  {
+   "name": "create_keycard_request",
+   "kind": "create",
+   "entity": "keycard_request",
+   "args": {
+    "contract_id": {
+     "type": "ref:housing_contract",
+     "description": "The contract whose key card access must be extended."
+    },
+    "extra_nights": {
+     "type": "int",
+     "description": "How many extra nights the card must keep working."
+    }
+   },
+   "fields": {
+    "contract_id": "args.contract_id",
+    "extra_nights": "args.extra_nights",
+    "created": "today"
+   },
+   "description": "Ask access control to keep the resident's key card active for the extra nights."
+  }
+ ],
+ "request": {
+  "contract_id": {
+   "type": "ref:housing_contract",
+   "description": "the housing contract for the room you want to stay in longer"
+  },
+  "nights": {
+   "type": "int",
+   "description": "how many extra nights you want to stay after your contract ends"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "contract",
+   "entity": "housing_contract",
+   "key": "req.contract_id"
+  },
+  {
+   "name": "stu",
+   "entity": "student",
+   "key": "contract.student_id"
+  },
+  {
+   "name": "room",
+   "entity": "room",
+   "key": "contract.room_id"
+  }
+ ],
+ "outcomes": {
+  "extend": {
+   "kind": "perform",
+   "description": "Extend the contract by the requested nights, post the extension charge and request key card access for the extra nights.",
+   "calls": [
+    {
+     "tool": "extend_contract",
+     "args": {
+      "contract_id": "req.contract_id",
+      "new_end_date": "add_days(contract.end_date, req.nights)"
+     }
+    },
+    {
+     "tool": "post_housing_charge",
+     "args": {
+      "student_id": "stu.student_id",
+      "contract_id": "req.contract_id",
+      "amount": "req.nights * room.nightly_rate",
+      "charge_type": "'summer_extension'"
+     }
+    },
+    {
+     "tool": "create_keycard_request",
+     "args": {
+      "contract_id": "req.contract_id",
+      "extra_nights": "req.nights"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not extend; explain which requirement is not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "contract.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only an active contract can be extended."
+  },
+  {
+   "id": "R2",
+   "when": "stu.enrollment_status not in ['enrolled', 'graduating']",
+   "outcome": "refuse",
+   "explain": "The student must be enrolled or graduating this term."
+  },
+  {
+   "id": "R3",
+   "when": "stu.conduct_hold",
+   "outcome": "refuse",
+   "explain": "Students with a conduct hold on their record cannot extend."
+  },
+  {
+   "id": "R4",
+   "when": "stu.balance_due > 250",
+   "outcome": "refuse",
+   "explain": "Students whose housing balance due is more than 250.00 cannot extend."
+  },
+  {
+   "id": "R5",
+   "when": "req.nights < 1 or req.nights > 21",
+   "outcome": "refuse",
+   "explain": "An extension must be between 1 and 21 nights."
+  },
+  {
+   "id": "R6",
+   "when": "contract.extensions_used >= 1",
+   "outcome": "refuse",
+   "explain": "A contract can be extended only once."
+  },
+  {
+   "id": "R7",
+   "when": "room.next_assignment_start != None and add_days(contract.end_date, req.nights) >= room.next_assignment_start",
+   "outcome": "refuse",
+   "explain": "If the room has a next assignment, the new end date must be before that assignment's start date."
+  }
+ ],
+ "default_outcome": "extend",
+ "policy_text": "## Purpose\nResidents whose contract is ending can ask to stay in their current room for a few extra nights (for example for a summer job, a delayed flight or graduation events). This is a summer stay extension of the existing contract. It is always in the same room; room moves are handled by a different process.\n\n## Finding the contract\nIf the resident has the contract number, look it up directly. Otherwise, find the student by student ID number or by the university email address on file, then list their contracts. A student may have several contracts (past terms, future terms); if more than one could be meant, ask which term the request is about. The extension is for the contract the resident is living under now. Ask how many extra nights they want if they have not said.\n\nNo identity questions are needed for this request beyond identifying the contract.\n\n## Checks you must make\nAlways look up the student and the room linked to the contract yourself and go by what the records say, not by what the resident believes. Decline the extension if any of the following is true:\n\n1. The contract is not active (completed, terminated or pending contracts cannot be extended).\n2. The student is not enrolled or graduating. Students who are on leave or withdrawn cannot extend.\n3. The student has a conduct hold on their record.\n4. The student's housing balance due is more than 250.00. A balance of exactly 250.00 or less is fine.\n5. The number of extra nights is less than 1 or more than 21. Requests for more than 21 nights are declined, not shortened; the resident may ask again for a number within the limit.\n6. The contract has already been extended once. Each contract can be extended only one time.\n7. The room has a next assignment and the new end date would fall on or after the date that assignment starts. The new end date must be strictly before the next assignment's start date. If the room has no next assignment, this check does not apply.\n\nThe new end date is the contract's current end date plus the number of extra nights (for example, an end date of 2026-05-23 plus 10 nights gives 2026-06-02).\n\n## Making the extension\nIf none of the reasons above applies, do these three steps in this order:\n1. Extend the contract, giving the new end date computed as above.\n2. Post a housing charge of type summer_extension to the student's account for the contract. The amount is the number of extra nights multiplied by the room's nightly rate (for example, 10 nights at 38.00 is 380.00).\n3. Create a key card request for the contract with the number of extra nights, so the resident's card keeps working.\n\nTell the resident the new end date and the amount charged.\n\n## Never\nDo not shorten or adjust a request on your own, do not waive or reduce the charge, do not make exceptions to any of the checks, and do not extend a contract other than the one the resident is asking about.",
+ "db_common": {
+  "student": [
+   {
+    "student_id": "U1990034",
+    "full_name": "Lukas Brandt",
+    "email": "l.brandt@northbridge.edu",
+    "enrollment_status": "enrolled",
+    "conduct_hold": false,
+    "balance_due": 0
+   }
+  ],
+  "housing_contract": [
+   {
+    "contract_id": "HC-26S-01001",
+    "student_id": "U1990034",
+    "room_id": "RM-HAW-101",
+    "term": "spring_2026",
+    "start_date": "2026-01-12",
+    "end_date": "2026-05-23",
+    "status": "active",
+    "extensions_used": 0
+   }
+  ],
+  "room": [
+   {
+    "room_id": "RM-HAW-101",
+    "building": "Hawthorne Hall",
+    "room_number": "101",
+    "nightly_rate": 38.0,
+    "next_assignment_start": "2026-06-15"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2041187",
+      "full_name": "Priya Raman",
+      "email": "p.raman@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": false,
+      "balance_due": 0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-04417",
+      "student_id": "U2041187",
+      "room_id": "RM-HAW-312",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-23",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-HAW-312",
+      "building": "Hawthorne Hall",
+      "room_number": "312",
+      "nightly_rate": 38.0,
+      "next_assignment_start": "2026-06-15"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-04417",
+    "nights": 10
+   },
+   "initial_request_values": {
+    "contract_id": "HC-26S-04417",
+    "nights": 21
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.email",
+     "value": "p.raman@northbridge.edu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.term",
+     "value": "spring_2026",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 10,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, a second-year biology student who is staying on campus for a short lab internship. Friendly, a bit cost-conscious.",
+   "reason_for_call": "Her spring housing ends this weekend and she wants to keep her room for a while longer while her internship runs.",
+   "task_instructions": "Give your university email and say it is about your current spring contract; you do not know the contract number. First ask to stay three more weeks (21 nights). Before the agent makes any change, say that you checked and the internship only needs ten more nights, so you want 10 nights instead. Confirm 10 nights if asked and accept the result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2203519",
+      "full_name": "Marcus Oyelaran",
+      "email": "m.oyelaran@northbridge.edu",
+      "enrollment_status": "graduating",
+      "conduct_hold": false,
+      "balance_due": 120.5
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-05902",
+      "student_id": "U2203519",
+      "room_id": "RM-BRK-108",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-22",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-BRK-108",
+      "building": "Birch Kerr House",
+      "room_number": "108",
+      "nightly_rate": 42.5,
+      "next_assignment_start": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-05902",
+    "nights": 7
+   },
+   "initial_request_values": {
+    "contract_id": "HC-26S-05902",
+    "nights": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "stu.email",
+     "value": "m.oyelaran@northbridge.edu",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a graduating senior in economics, upbeat and chatty, juggling family visits around commencement.",
+   "reason_for_call": "His family is flying in for graduation and he wants to keep his room a little past the end of his contract.",
+   "task_instructions": "Give your university email; you do not have your contract number or student ID handy. First ask for two more weeks (14 nights). Before the agent completes anything, say your parents just moved their flight earlier, so one week (7 nights) is all you need now. Stick with 7 nights and accept the result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2118842",
+      "full_name": "Hana Kobayashi",
+      "email": "h.kobayashi@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": false,
+      "balance_due": 45.0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-03318",
+      "student_id": "U2118842",
+      "room_id": "RM-LIN-221",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-24",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-LIN-221",
+      "building": "Linden Court",
+      "room_number": "221",
+      "nightly_rate": 35.0,
+      "next_assignment_start": null
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-03318",
+    "nights": 14
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-03318",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.balance_due",
+     "value": 310.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hana, a third-year engineering student, reserved and brief. She thinks she still owes a large damage bill from earlier in the year.",
+   "reason_for_call": "She wants two more weeks in her room after her contract ends while she finishes a research project.",
+   "task_instructions": "Answer in as few words as possible. In your first message give the contract number, ask for 14 extra nights, and mention you think you still owe about 310 dollars. Do not elaborate unless asked. Accept whatever the agent decides.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2310467",
+      "full_name": "Diego Alvarez",
+      "email": "d.alvarez@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": false,
+      "balance_due": 0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-06120",
+      "student_id": "U2310467",
+      "room_id": "RM-HAW-415",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-23",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-HAW-415",
+      "building": "Hawthorne Hall",
+      "room_number": "415",
+      "nightly_rate": 38.0,
+      "next_assignment_start": "2026-06-01"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-06120",
+    "nights": 10
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-06120",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 10,
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Diego, a first-year history student, polite and easygoing, waiting on his summer job to start.",
+   "reason_for_call": "He wants to stay in his room for a while after the term ends until he moves into a summer sublet.",
+   "task_instructions": "Give your contract number and say you want to stay a bit longer. Say you need 10 extra nights only when the agent asks how many. Answer questions politely and accept the agent's decision.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2007731",
+      "full_name": "Amara Nwosu",
+      "email": "a.nwosu@northbridge.edu",
+      "enrollment_status": "graduating",
+      "conduct_hold": false,
+      "balance_due": 0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-02564",
+      "student_id": "U2007731",
+      "room_id": "RM-ELM-504",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-23",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-ELM-504",
+      "building": "Elmwood Tower",
+      "room_number": "504",
+      "nightly_rate": 40.0,
+      "next_assignment_start": "2026-07-01"
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-02564",
+    "nights": 21
+   },
+   "initial_request_values": {
+    "contract_id": "HC-26S-02564",
+    "nights": 28
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-02564",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 21,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "stu.enrollment_status",
+     "value": "graduating",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.extensions_used",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She is graduating this spring and is staying on for a short research assistant job with her advisor.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She has never asked for an extension on this housing contract before.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She paid off her whole housing balance in April, so she should not owe anything.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Amara, a graduating chemistry major, organized and practical, good at negotiating politely.",
+   "reason_for_call": "She has a short research job after graduation and wants to stay in her room for most of June.",
+   "task_instructions": "Give your contract number, say you are graduating and have never extended before, and mention you paid off your balance in April. First ask for four weeks (28 nights). If the agent declines, ask what the most you can get is and then ask for 21 nights instead. Accept the result.",
+   "expected_outcome": "extend"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2265093",
+      "full_name": "Tyler Brennan",
+      "email": "t.brennan@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": true,
+      "balance_due": 0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-02775",
+      "student_id": "U2265093",
+      "room_id": "RM-BRK-305",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-23",
+      "status": "active",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-BRK-305",
+      "building": "Birch Kerr House",
+      "room_number": "305",
+      "nightly_rate": 42.5,
+      "next_assignment_start": null
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-02775",
+    "nights": 7
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-02775",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 7,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tyler, a sophomore business student, impatient and used to getting his way, in a hurry to sort this out between finals.",
+   "reason_for_call": "He wants one more week in his room after the term because his summer lease does not start until next week.",
+   "task_instructions": "In your first message give your contract number and ask for 7 extra nights. If the agent refuses, argue that it is only a week and ask for an exception at least twice before accepting the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2149920",
+      "full_name": "Sofia Marchetti",
+      "email": "s.marchetti@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": false,
+      "balance_due": 0
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-07031",
+      "student_id": "U2149920",
+      "room_id": "RM-BRK-212",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-30",
+      "status": "active",
+      "extensions_used": 1
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-BRK-212",
+      "building": "Birch Kerr House",
+      "room_number": "212",
+      "nightly_rate": 42.5,
+      "next_assignment_start": null
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-07031",
+    "nights": 14
+   },
+   "initial_request_values": {
+    "contract_id": "HC-26S-07031",
+    "nights": 30
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-07031",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 14,
+     "disclose": "upfront"
+    },
+    {
+     "fact": "contract.extensions_used",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia, a third-year architecture student, persuasive and persistent, convinced she has never extended her housing.",
+   "reason_for_call": "She has a studio project running into June and wants to keep her room longer.",
+   "task_instructions": "Give your contract number and say you have never extended your contract before. First ask for 30 extra nights. When the agent declines, ask for 14 nights instead. If that is also declined, insist once that you never extended, then accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "student": [
+     {
+      "student_id": "U2088356",
+      "full_name": "Kwame Asante",
+      "email": "k.asante@northbridge.edu",
+      "enrollment_status": "enrolled",
+      "conduct_hold": false,
+      "balance_due": 612.4
+     }
+    ],
+    "housing_contract": [
+     {
+      "contract_id": "HC-26S-08844",
+      "student_id": "U2088356",
+      "room_id": "RM-LIN-118",
+      "term": "spring_2026",
+      "start_date": "2026-01-12",
+      "end_date": "2026-05-23",
+      "status": "active",
+      "extensions_used": 0
+     },
+     {
+      "contract_id": "HC-26F-08845",
+      "student_id": "U2088356",
+      "room_id": "RM-ELM-209",
+      "term": "fall_2026",
+      "start_date": "2026-08-24",
+      "end_date": "2026-12-18",
+      "status": "pending",
+      "extensions_used": 0
+     }
+    ],
+    "room": [
+     {
+      "room_id": "RM-LIN-118",
+      "building": "Linden Court",
+      "room_number": "118",
+      "nightly_rate": 35.0,
+      "next_assignment_start": "2026-08-24"
+     },
+     {
+      "room_id": "RM-ELM-209",
+      "building": "Elmwood Tower",
+      "room_number": "209",
+      "nightly_rate": 40.0,
+      "next_assignment_start": null
+     }
+    ]
+   },
+   "request_values": {
+    "contract_id": "HC-26S-08844",
+    "nights": 12
+   },
+   "customer_facts": [
+    {
+     "fact": "req.contract_id",
+     "value": "HC-26S-08844",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.nights",
+     "value": 12,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He already has a room in Elmwood Tower lined up for the fall semester and wonders who his roommate will be.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He is thinking about getting a campus parking permit for next year.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He lived in Hawthorne Hall his first year and liked it better than Linden Court.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He might switch to a smaller meal plan in the fall but has not decided.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Kwame, a junior computer science student, fast-talking and impatient, who tends to wander onto other topics.",
+   "reason_for_call": "He wants twelve more nights in his current Linden Court room while he works a summer job on campus.",
+   "task_instructions": "Give your current contract number and ask for 12 extra nights. Along the way mention your fall room, the parking permit, your first-year dorm and the meal plan, but do not ask the agent to act on them. If refused, push back and ask for an exception at least twice, then accept.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

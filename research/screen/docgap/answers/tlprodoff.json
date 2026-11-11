@@ -1,0 +1,15 @@
+{
+ "gap_score": 8,
+ "gaps": [
+  "Which tools to call and in what order (balance lookup, offers listing, rate calculation, interest logging) is not specified; the arrow chain implies a sequence but not the exact tool names or arguments",
+  "What 'real rate' means: effective/net rate vs. the advertised rate, and how it is computed (fees, tenure, compounding, tax, customer-specific adjustments, balance tiers)",
+  "What 'log interest' means as a final action: whether it records the customer's interest in an offer, creates a lead or service request, or writes a note, and whether it needs confirmation since it is not listed among the confirm-required mutations",
+  "Which balance and which account to use when the customer has several linked accounts or products",
+  "How offers are filtered or matched to the customer: eligibility rules, minimum amounts, tenure, offer expiry relative to the simulation date 2026-07-16",
+  "Whether the customer picks a specific offer, or whether the assistant should compare offers and recommend one; how many offers to log",
+  "How to handle the customer changing their mind, being undecided, or only browsing, so that interest is not logged without consent",
+  "Edge cases: no eligible offers, zero or insufficient balance, a rate that differs from the advertised one, weak knowledge-base hits, offers with unlinked product IDs",
+  "Bank conventions for rounding, rate formats (p.a., APY vs. nominal), currency, and wording of disclosures",
+  "When to escalate or raise a service request if the logging tool fails or the offer is outside tool capabilities"
+ ]
+}

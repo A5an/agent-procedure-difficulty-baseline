@@ -1,0 +1,865 @@
+{
+ "procedure_id": "h07_school",
+ "domain": "school district transport",
+ "organization": "Maplewood Unified School District",
+ "title": "Mid-term bus service withdrawal with prorated credit",
+ "summary": "Stop a student's school bus service before the end of the term and issue a credit for the unused days, when the family account and bus route allow it.",
+ "entities": {
+  "account": {
+   "key": "account_id",
+   "description": "Family transport accounts that pay for bus service",
+   "fields": {
+    "account_id": "str",
+    "guardian_name": "str",
+    "email": "str",
+    "status": "enum:good_standing|hold|collections",
+    "balance_owed": "number"
+   }
+  },
+  "route": {
+   "key": "route_id",
+   "description": "Bus routes operated by the transport office",
+   "fields": {
+    "route_id": "str",
+    "name": "str",
+    "status": "enum:running|suspended|closed"
+   }
+  },
+  "enrollment": {
+   "key": "enrollment_id",
+   "description": "One student's bus service for one school term",
+   "fields": {
+    "enrollment_id": "str",
+    "account_id": "ref:account",
+    "route_id": "ref:route",
+    "student_name": "str",
+    "term_fee": "number",
+    "fee_paid": "number",
+    "term_start": "date",
+    "term_end": "date",
+    "term_days": "int",
+    "status": "enum:active|ended",
+    "service_end": "date"
+   }
+  },
+  "credit": {
+   "key": "credit_id",
+   "description": "Credits issued to family accounts",
+   "fields": {
+    "credit_id": "str",
+    "account_id": "ref:account",
+    "enrollment_id": "ref:enrollment",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "transport_notice": {
+   "key": "notice_id",
+   "description": "Notices to the transport office about service changes",
+   "fields": {
+    "notice_id": "str",
+    "enrollment_id": "ref:enrollment",
+    "kind": "enum:withdrawal|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_enrollment",
+   "kind": "get",
+   "entity": "enrollment",
+   "description": "Look up a transport enrollment by its enrollment number."
+  },
+  {
+   "name": "find_enrollments_by_student",
+   "kind": "search",
+   "entity": "enrollment",
+   "by": [
+    "student_name"
+   ],
+   "description": "Find transport enrollments by the student's full name."
+  },
+  {
+   "name": "get_account",
+   "kind": "get",
+   "entity": "account",
+   "description": "Look up a family transport account by its account number."
+  },
+  {
+   "name": "get_route",
+   "kind": "get",
+   "entity": "route",
+   "description": "Look up a bus route by its route number."
+  },
+  {
+   "name": "end_enrollment",
+   "kind": "update",
+   "entity": "enrollment",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment to end."
+    },
+    "end_date": {
+     "type": "date",
+     "description": "The last day of bus service."
+    }
+   },
+   "set": {
+    "status": "'ended'",
+    "service_end": "args.end_date"
+   },
+   "description": "Mark an enrollment as ended and set its last day of service."
+  },
+  {
+   "name": "create_credit",
+   "kind": "create",
+   "entity": "credit",
+   "args": {
+    "account_id": {
+     "type": "ref:account",
+     "description": "The family account that receives the credit."
+    },
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment the credit is for."
+    },
+    "amount": {
+     "type": "number",
+     "description": "The credit amount in dollars."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "enrollment_id": "args.enrollment_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Issue a credit on a family account for an enrollment."
+  },
+  {
+   "name": "create_transport_notice",
+   "kind": "create",
+   "entity": "transport_notice",
+   "args": {
+    "enrollment_id": {
+     "type": "ref:enrollment",
+     "description": "The enrollment the notice is about."
+    },
+    "kind": {
+     "type": "enum:withdrawal|other",
+     "description": "What the notice reports."
+    }
+   },
+   "fields": {
+    "enrollment_id": "args.enrollment_id",
+    "kind": "args.kind",
+    "created": "today"
+   },
+   "description": "Record a notice for the transport office about a service change."
+  }
+ ],
+ "request": {
+  "enrollment_id": {
+   "type": "ref:enrollment",
+   "description": "the transport enrollment you want stopped"
+  },
+  "end_date": {
+   "type": "date",
+   "description": "the last day you want your child to ride the bus"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "enr",
+   "entity": "enrollment",
+   "key": "req.enrollment_id"
+  },
+  {
+   "name": "acct",
+   "entity": "account",
+   "key": "enr.account_id"
+  },
+  {
+   "name": "rte",
+   "entity": "route",
+   "key": "enr.route_id"
+  }
+ ],
+ "outcomes": {
+  "withdraw": {
+   "kind": "perform",
+   "description": "End the enrollment on the requested date, issue the prorated credit, and record a withdrawal notice.",
+   "calls": [
+    {
+     "tool": "create_credit",
+     "args": {
+      "account_id": "acct.account_id",
+      "enrollment_id": "enr.enrollment_id",
+      "amount": "min(round(enr.term_fee * days_between(req.end_date, enr.term_end) / enr.term_days, 2), enr.fee_paid)"
+     }
+    },
+    {
+     "tool": "end_enrollment",
+     "args": {
+      "enrollment_id": "enr.enrollment_id",
+      "end_date": "req.end_date"
+     }
+    },
+    {
+     "tool": "create_transport_notice",
+     "args": {
+      "enrollment_id": "enr.enrollment_id",
+      "kind": "'withdrawal'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not change anything; explain which check failed.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "enr.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only an active enrollment can be withdrawn."
+  },
+  {
+   "id": "R2",
+   "when": "req.end_date <= today",
+   "outcome": "refuse",
+   "explain": "The end date must be after today; service cannot be stopped today or backdated."
+  },
+  {
+   "id": "R3",
+   "when": "req.end_date > enr.term_end",
+   "outcome": "refuse",
+   "explain": "The end date cannot be later than the term end date on the enrollment."
+  },
+  {
+   "id": "R4",
+   "when": "acct.status != 'good_standing'",
+   "outcome": "refuse",
+   "explain": "Family accounts on hold or in collections cannot change bus service."
+  },
+  {
+   "id": "R5",
+   "when": "acct.balance_owed > 100",
+   "outcome": "refuse",
+   "explain": "Family accounts owing more than 100.00 cannot withdraw service until the balance is paid."
+  },
+  {
+   "id": "R6",
+   "when": "rte.status == 'closed'",
+   "outcome": "refuse",
+   "explain": "Students on a closed route are reassigned by the transport office, so the withdrawal cannot be processed here."
+  },
+  {
+   "id": "R7",
+   "when": "rte.status == 'suspended'",
+   "outcome": "refuse",
+   "explain": "Withdrawals cannot be processed while the student's bus route is suspended."
+  }
+ ],
+ "default_outcome": "withdraw",
+ "policy_text": "## Scope\nFamilies ask us to stop a student's bus service before the end of the term and to receive a credit for the days they will not use. Before any change, find the enrollment, the family account and the bus route. Make no change unless every check below passes.\n\n## Finding the enrollment\nUse the enrollment number if the family gives it. Otherwise search by the student's full name. If exactly one enrollment matches, use it. If more than one matches, ask the family which one they mean before doing anything else.\n\n## Checks, in this order\n1. The enrollment must be active. If it has already ended, refuse.\n2. The end date must be after today. Service cannot be stopped on today's date or earlier, and it cannot be backdated. Refuse otherwise.\n3. The end date cannot be later than the term end date shown on the enrollment. Refuse otherwise.\n4. The family account must be in good standing. Accounts on hold or in collections cannot change bus service. Refuse otherwise.\n5. The balance owed on the family account must be 100.00 or less. Above 100.00, refuse until the balance is paid.\n6. The bus route must not be closed. Students on a closed route are reassigned by the transport office, so refuse and tell the family to contact the transport office.\n7. The bus route must not be suspended. Refuse otherwise.\n\nThe account status, balance and route status are those in our records. If the family believes something different, tell them what our records show and go by the records.\n\n## Credit for unused days\nThe credit is the term fee for the days left in the term after the end date, rounded to the cent, but never more than the fee already paid.\n- Remaining days = days from the end date to the enrollment's term end date.\n- Credit = term fee \u00d7 remaining days \u00f7 term days, rounded to 2 decimals; if that is more than the fee paid, use the fee paid instead.\n\nFor example, a term fee of 226.50 over 151 term days with 9 remaining days gives a credit of 13.50. If the end date is the term end date, the credit is 0.00.\n\n## When all checks pass\nMake these three changes, in this order:\n1. Create a credit on the family account for the amount computed above, linked to the enrollment.\n2. End the enrollment: set its status to ended and its service end date to the end date the family asked for.\n3. Create a withdrawal transport notice for the enrollment.\n\nThen tell the family the credit amount and the last day of service.\n\n## When a check fails\nMake no change at all. Tell the family which check stopped the request, in plain words, and what they can do next.\n\n## Never\nDo not change the credit amount, waive or reduce the balance, backdate service, move the student to another route, or change any enrollment other than the one the family asked about. Do not create a credit or a notice for a refused request.",
+ "db_common": {
+  "account": [
+   {
+    "account_id": "ACC-1050",
+    "guardian_name": "Priya Raman",
+    "email": "priya.raman@example.org",
+    "status": "good_standing",
+    "balance_owed": 0.0
+   }
+  ],
+  "route": [
+   {
+    "route_id": "RT-03",
+    "name": "Northgate Express",
+    "status": "running"
+   }
+  ],
+  "enrollment": [
+   {
+    "enrollment_id": "TR-20011",
+    "account_id": "ACC-1050",
+    "route_id": "RT-03",
+    "student_name": "Ila Raman",
+    "term_fee": 226.5,
+    "fee_paid": 226.5,
+    "term_start": "2026-01-12",
+    "term_end": "2026-06-12",
+    "term_days": 151,
+    "status": "active",
+    "service_end": "2026-06-12"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-2281",
+      "guardian_name": "Sofia Quintero",
+      "email": "sofia.quintero@example.net",
+      "status": "good_standing",
+      "balance_owed": 40.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-14",
+      "name": "Eastside Loop 14",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-40117",
+      "account_id": "ACC-2281",
+      "route_id": "RT-14",
+      "student_name": "Mateo Quintero",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "TR-40117",
+    "end_date": "2026-06-03"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-40117",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-03",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rte.status",
+     "value": "suspended",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sofia Quintero, a hospital pharmacist who is short on time and gets irritated by long phone menus.",
+   "reason_for_call": "Her son Mateo has not been riding the bus since the Eastside route was reported as suspended, and she wants the service stopped from early June with credit for the days left.",
+   "task_instructions": "Open by saying the Eastside bus has been suspended and you want it stopped. Insist the route is suspended. If the agent explains what the records show, accept that and continue. Be impatient and interrupt if the agent asks more than one question at a time.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-3318",
+      "guardian_name": "Marisol Ortega",
+      "email": "marisol.ortega@example.net",
+      "status": "good_standing",
+      "balance_owed": 130.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-22",
+      "name": "Westfield Line 22",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-51530",
+      "account_id": "ACC-3318",
+      "route_id": "RT-22",
+      "student_name": "Diego Ortega",
+      "term_fee": 226.5,
+      "fee_paid": 96.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "TR-51530",
+    "end_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-51530",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_owed",
+     "value": 130.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marisol Ortega, who owns a small bakery and runs her household accounts between deliveries. Short-tempered on the phone.",
+   "reason_for_call": "Her son Diego is starting a summer program across town, so she wants his bus stopped from early June.",
+   "task_instructions": "State the enrollment number, the last day you want, and the balance you know about in your first message. If the agent refuses, argue that the bakery pays on time and ask for an exception twice, then accept the answer and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-4470",
+      "guardian_name": "Helen Bellamy",
+      "email": "helen.bellamy@example.com",
+      "status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-31",
+      "name": "Harbor Crest 31",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-61844",
+      "account_id": "ACC-4470",
+      "route_id": "RT-31",
+      "student_name": "Tomas Bellamy",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "TR-61844",
+    "end_date": "2026-06-02"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-61844",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-02",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Helen Bellamy, who works a warehouse shift and has little patience for small talk.",
+   "reason_for_call": "Her son Tomas is moving to a carpool, so she wants his bus stopped before June ends.",
+   "task_instructions": "Give the enrollment number first. Give the last day only when the agent asks for it. Answer in as few words as possible and give nothing extra.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-5520",
+      "guardian_name": "Joanna Brandt",
+      "email": "joanna.brandt@example.com",
+      "status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-38",
+      "name": "Mill Road 38",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-70121",
+      "account_id": "ACC-5520",
+      "route_id": "RT-38",
+      "student_name": "Lucia Brandt",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     },
+     {
+      "enrollment_id": "TR-70122",
+      "account_id": "ACC-5520",
+      "route_id": "RT-38",
+      "student_name": "Ethan Brandt",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "enrollment_id": "TR-70121",
+    "end_date": "2026-06-05"
+   },
+   "request_values": {
+    "enrollment_id": "TR-70122",
+    "end_date": "2026-06-20"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-70122",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Lucia still rides the bus on Tuesdays for her after-school art club.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We got a letter from the district about next year's bus fees, and I have not read the whole thing.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We moved to a new corner last winter, so the pickup spot changed, but that was months ago.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I am also thinking about signing the kids up for the summer camp bus, though nothing is decided.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Joanna Brandt, a dental hygienist with two boys who is juggling a lot and sometimes mixes up details.",
+   "reason_for_call": "She first wants Lucia's morning ride stopped in early June, then realizes she meant Ethan's ride, which should stop after the school term is over.",
+   "task_instructions": "First ask to stop Lucia's ride from early June, using Lucia's enrollment number. When the agent asks you to confirm, say you mixed it up: it is Ethan's ride, and you want it stopped after the end of the term, with Ethan's enrollment number. Accept whatever the agent says and do not ask for anything else.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-6604",
+      "guardian_name": "Grace Oyelaran",
+      "email": "grace.oyelaran@example.org",
+      "status": "good_standing",
+      "balance_owed": 25.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-47",
+      "name": "Ridgeview 47",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-83306",
+      "account_id": "ACC-6604",
+      "route_id": "RT-47",
+      "student_name": "Noor Oyelaran",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     },
+     {
+      "enrollment_id": "TR-83307",
+      "account_id": "ACC-6604",
+      "route_id": "RT-47",
+      "student_name": "Owen Oyelaran",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "enrollment_id": "TR-83306",
+    "end_date": "2026-05-18"
+   },
+   "request_values": {
+    "enrollment_id": "TR-83306",
+    "end_date": "2026-06-04"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-83306",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-04",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Her older brother Owen rides the same bus, but he is staying on until the summer.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Noor was home sick for three days in April and had to miss the bus.",
+     "kind": "distractor"
+    },
+    {
+     "text": "We are looking at a carpool app for the fall, but nothing is set up yet.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Grace Oyelaran, a nurse who works rotating shifts and keeps her paperwork in a folder.",
+   "reason_for_call": "Noor is changing schools for the summer, so Grace wants the bus stopped early in June, and she first asks for it to start from a date last week to get the credit for the sick days.",
+   "task_instructions": "Give the enrollment number upfront. First ask that the stop start from a date last week. When the agent refuses, accept that without arguing and ask for early June instead, which is your real request. Do not argue about the other child.",
+   "expected_outcome": "withdraw"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-7718",
+      "guardian_name": "Bianca Hollis",
+      "email": "bianca.hollis@example.net",
+      "status": "hold",
+      "balance_owed": 0.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-09",
+      "name": "Lakeshore 9",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-90412",
+      "account_id": "ACC-7718",
+      "route_id": "RT-09",
+      "student_name": "Ruben Achebe",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "request_values": {
+    "enrollment_id": "TR-90412",
+    "end_date": "2026-06-01"
+   },
+   "customer_facts": [
+    {
+     "fact": "enr.student_name",
+     "value": "Ruben Achebe",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-01",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Bianca Hollis, a warm and patient office manager who is happy to answer questions.",
+   "reason_for_call": "Her stepson Ruben is leaving the district in early June, and she wants his bus stopped from that date.",
+   "task_instructions": "You do not know the enrollment number and cannot find it. Give the student's full name when asked and the last day you want. Be cooperative and accept what the agent explains.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-8041",
+      "guardian_name": "Hannah Rourke",
+      "email": "hannah.rourke@example.org",
+      "status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-52",
+      "name": "Pine Hollow 52",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-44019",
+      "account_id": "ACC-8041",
+      "route_id": "RT-52",
+      "student_name": "Jonah Rourke",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "enrollment_id": "TR-44019",
+    "end_date": "2026-05-14"
+   },
+   "request_values": {
+    "enrollment_id": "TR-44019",
+    "end_date": "2026-06-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-44019",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-06-30",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah Rourke, a pragmatic accountant who negotiates hard and expects a clear answer.",
+   "reason_for_call": "Her son Jonah's bus is no longer needed, and she first asks for the stop to begin last week, then asks for the end of June.",
+   "task_instructions": "Give the enrollment number upfront. First ask that the stop start last week. When the agent refuses, switch to asking for the end of June as your request. Give the last day only when the agent asks for it.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "account": [
+     {
+      "account_id": "ACC-9127",
+      "guardian_name": "Joyce Okafor",
+      "email": "joyce.okafor@example.com",
+      "status": "good_standing",
+      "balance_owed": 0.0
+     }
+    ],
+    "route": [
+     {
+      "route_id": "RT-36",
+      "name": "Calloway Morning",
+      "status": "running"
+     }
+    ],
+    "enrollment": [
+     {
+      "enrollment_id": "TR-15508",
+      "account_id": "ACC-9127",
+      "route_id": "RT-36",
+      "student_name": "Mina Okafor",
+      "term_fee": 226.5,
+      "fee_paid": 226.5,
+      "term_start": "2026-01-12",
+      "term_end": "2026-06-12",
+      "term_days": 151,
+      "status": "active",
+      "service_end": "2026-06-12"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "enrollment_id": "TR-15508",
+    "end_date": "2026-06-05"
+   },
+   "request_values": {
+    "enrollment_id": "TR-15508",
+    "end_date": "2026-05-29"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.enrollment_id",
+     "value": "TR-15508",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.end_date",
+     "value": "2026-05-29",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "acct.balance_owed",
+     "value": 0.0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The account is in my name, Joyce Okafor, and I pay it myself every month.",
+     "kind": "helpful"
+    },
+    {
+     "text": "Mina rides the Calloway Morning run, which is the route she takes to the middle school.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Joyce Okafor, a project manager who plans carefully and often changes plans at the last minute.",
+   "reason_for_call": "Mina is going on a school trip, so Joyce wants the bus stopped; she first asks for early June and then changes to the end of May before anything is done.",
+   "task_instructions": "First ask to stop Mina's bus from early June. Before the agent makes any change, say you have changed your mind and want it stopped at the end of May instead. Give the enrollment number and mention that the account is yours. Confirm the balance is zero if asked.",
+   "expected_outcome": "withdraw"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

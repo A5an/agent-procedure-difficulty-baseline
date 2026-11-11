@@ -1,0 +1,672 @@
+{
+ "procedure_id": "p10_retail",
+ "domain": "retail pharmacy",
+ "organization": "Maple Street Pharmacy",
+ "title": "Prescription refills",
+ "summary": "Refill a prescription for a patient when the patient account and the prescription qualify, otherwise refuse the refill or send it to a pharmacist for review.",
+ "entities": {
+  "patient": {
+   "key": "patient_id",
+   "description": "Patients with an account at the pharmacy",
+   "fields": {
+    "patient_id": "str",
+    "full_name": "str",
+    "date_of_birth": "date",
+    "phone": "str",
+    "status": "enum:active|suspended"
+   }
+  },
+  "prescription": {
+   "key": "rx_id",
+   "description": "Prescriptions on file for patients, with refill counts and fill history",
+   "fields": {
+    "rx_id": "str",
+    "patient_id": "ref:patient",
+    "drug_name": "str",
+    "prescriber_name": "str",
+    "refills_left": "int",
+    "expires_on": "date",
+    "last_filled": "date",
+    "needs_pharmacist_check": "bool"
+   }
+  },
+  "pharmacist_review": {
+   "key": "review_id",
+   "description": "Requests for a pharmacist to look at a prescription before it is filled",
+   "fields": {
+    "review_id": "str",
+    "rx_id": "ref:prescription",
+    "reason": "enum:prescriber_check|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_patient",
+   "kind": "get",
+   "entity": "patient",
+   "description": "Look up a patient account by patient number."
+  },
+  {
+   "name": "get_prescription",
+   "kind": "get",
+   "entity": "prescription",
+   "description": "Look up a prescription by its prescription number, as printed on the label."
+  },
+  {
+   "name": "find_prescriptions_by_patient",
+   "kind": "search",
+   "entity": "prescription",
+   "by": [
+    "patient_id"
+   ],
+   "description": "List all prescriptions belonging to a patient."
+  },
+  {
+   "name": "find_prescriptions_by_drug_and_prescriber",
+   "kind": "search",
+   "entity": "prescription",
+   "by": [
+    "drug_name",
+    "prescriber_name"
+   ],
+   "description": "Find prescriptions by the drug name and the prescriber's name."
+  },
+  {
+   "name": "refill_prescription",
+   "kind": "update",
+   "entity": "prescription",
+   "args": {
+    "rx_id": {
+     "type": "ref:prescription",
+     "description": "The prescription to refill."
+    }
+   },
+   "set": {
+    "refills_left": "rec.refills_left - 1",
+    "last_filled": "today"
+   },
+   "description": "Dispense one refill of the prescription: uses one refill and records today as the last fill date."
+  },
+  {
+   "name": "create_pharmacist_review",
+   "kind": "create",
+   "entity": "pharmacist_review",
+   "args": {
+    "rx_id": {
+     "type": "ref:prescription",
+     "description": "The prescription the review is about."
+    },
+    "reason": {
+     "type": "enum:prescriber_check|other",
+     "description": "Why a pharmacist should look at it."
+    }
+   },
+   "fields": {
+    "rx_id": "args.rx_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Ask a pharmacist to review a prescription before it is filled."
+  }
+ ],
+ "request": {
+  "rx_id": {
+   "type": "ref:prescription",
+   "description": "the prescription you want refilled"
+  },
+  "pickup_by": {
+   "type": "enum:patient|other_person",
+   "description": "who is collecting the refill: you yourself, or someone else picking it up for the patient"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "rx",
+   "entity": "prescription",
+   "key": "req.rx_id"
+  },
+  {
+   "name": "pt",
+   "entity": "patient",
+   "key": "rx.patient_id"
+  }
+ ],
+ "outcomes": {
+  "refill": {
+   "kind": "perform",
+   "description": "Dispense one refill of the prescription.",
+   "calls": [
+    {
+     "tool": "refill_prescription",
+     "args": {
+      "rx_id": "req.rx_id"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The prescription needs a pharmacist check: open a pharmacist review instead of refilling.",
+   "calls": [
+    {
+     "tool": "create_pharmacist_review",
+     "args": {
+      "rx_id": "rx.rx_id",
+      "reason": "'prescriber_check'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not refill; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "pt.status != 'active' or req.pickup_by == 'other_person'",
+   "outcome": "refuse",
+   "explain": "A suspended account cannot have prescriptions refilled, and a refill is only handed to the patient named on the account."
+  },
+  {
+   "id": "R2",
+   "when": "rx.refills_left <= 0 or rx.expires_on < today",
+   "outcome": "refuse",
+   "explain": "A prescription with no refills left or past its expiry date cannot be refilled and needs a new prescription from the prescriber."
+  },
+  {
+   "id": "R3",
+   "when": "rx.needs_pharmacist_check",
+   "outcome": "review",
+   "explain": "If the prescription is flagged for a pharmacist check, open a pharmacist review instead of refilling."
+  },
+  {
+   "id": "R4",
+   "when": "days_between(rx.last_filled, today) < 14",
+   "outcome": "refuse",
+   "explain": "A prescription cannot be refilled less than 14 days after its last fill."
+  }
+ ],
+ "default_outcome": "refill",
+ "policy_text": "## Who can ask\nPatients ask for refills by phone or at the counter. No date of birth or other identity check is needed for a refill in this procedure. Before changing anything, find the prescription and the patient account it belongs to.\n\n## Finding the prescription\nUse the prescription number printed on the label if the patient gives it. If they do not have the number, search by the drug name and the prescriber's name. If more than one prescription matches, ask the patient which one they mean. If nothing matches, or the patient cannot give enough to find it, do not make any change and ask them to call back with the bottle or the label.\n\n## Who is collecting\nAsk who will collect the refill: the patient themselves, or someone else picking it up for them. Refills are handed only to the patient named on the account. If someone else is collecting, refuse the refill and ask that the patient call the pharmacy themselves.\n\n## Checks, in this order\n1. The patient account must be active. If the account is suspended, refuse the refill and ask the patient to speak to the pharmacist. If the person collecting is someone other than the patient, refuse as described above.\n2. The prescription must have at least one refill left and must not be past its expiry date. If refills_left is 0 or expires_on is before today, refuse and tell the patient they need a new prescription from the prescriber.\n3. If the prescription is flagged for a pharmacist check, do not refill it. Open a pharmacist review request with reason prescriber_check and tell the patient a pharmacist will call them.\n4. The last fill must be at least 14 days ago. If the last fill was less than 14 days ago, refuse and tell the patient the earliest date they can refill it.\n\nIf all checks pass, refill the prescription once. Each refill uses one refill on the prescription and records today as the last fill date.\n\n## Never\nDo not change refill counts, expiry dates or fill dates by any other means. Do not refill more than one time per request. Do not skip the pharmacist check, the collection check or the 14-day wait for a patient who asks for an exception. Do not refill a prescription the patient did not ask for.",
+ "db_common": {
+  "patient": [
+   {
+    "patient_id": "PT-1001",
+    "full_name": "Gloria Mendes",
+    "date_of_birth": "1957-03-14",
+    "phone": "555-0141",
+    "status": "active"
+   }
+  ],
+  "prescription": [
+   {
+    "rx_id": "RX-40001",
+    "patient_id": "PT-1001",
+    "drug_name": "Lisinopril 10 mg",
+    "prescriber_name": "Dr. Helen Okafor",
+    "refills_left": 5,
+    "expires_on": "2026-12-31",
+    "last_filled": "2026-05-01",
+    "needs_pharmacist_check": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6201",
+      "full_name": "Marcus Bell",
+      "date_of_birth": "1972-08-09",
+      "phone": "555-0188",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-61001",
+      "patient_id": "PT-6201",
+      "drug_name": "Atorvastatin 20 mg",
+      "prescriber_name": "Dr. Samuel Reyes",
+      "refills_left": 2,
+      "expires_on": "2026-08-15",
+      "last_filled": "2026-04-10",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-61001",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-61001",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a sales manager who is always running late and hates waiting on hold.",
+   "reason_for_call": "He leaves for a business trip this afternoon and needs his cholesterol tablets refilled before he goes.",
+   "task_instructions": "Give the prescription number in your first message and say you are collecting it yourself. Ask for the refill right away. If the agent is slow or asks extra questions, push them to hurry up. Accept the outcome once the agent completes the refill.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6215",
+      "full_name": "Nadia Kowalczyk",
+      "date_of_birth": "1980-01-22",
+      "phone": "555-0159",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62015",
+      "patient_id": "PT-6215",
+      "drug_name": "Levothyroxine 75 mcg",
+      "prescriber_name": "Dr. Ruth Adeyemi",
+      "refills_left": 0,
+      "expires_on": "2026-09-30",
+      "last_filled": "2026-04-30",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62015",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-62015",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.refills_left",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The bottle label from the pharmacy says no refills remaining.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I picked up the last fill at the end of April, so I know it was the final one on the label.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Nadia, a school librarian who is calm, polite and well organized.",
+   "reason_for_call": "She has run out of refills on her thyroid tablets and wants to know whether one more can be dispensed.",
+   "task_instructions": "Give the prescription number and say you know there are no refills left on the label. Say you are picking it up yourself. Be cooperative and answer every question. If the agent says no, thank them and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6230",
+      "full_name": "Hannah Lindqvist",
+      "date_of_birth": "1968-06-30",
+      "phone": "555-0172",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62310",
+      "patient_id": "PT-6230",
+      "drug_name": "Metformin 500 mg",
+      "prescriber_name": "Dr. Anika Sorensen",
+      "refills_left": 3,
+      "expires_on": "2026-11-30",
+      "last_filled": "2026-03-28",
+      "needs_pharmacist_check": false
+     },
+     {
+      "rx_id": "RX-62311",
+      "patient_id": "PT-6230",
+      "drug_name": "Sertraline 50 mg",
+      "prescriber_name": "Dr. Anika Sorensen",
+      "refills_left": 1,
+      "expires_on": "2026-11-30",
+      "last_filled": "2026-03-25",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62310",
+    "pickup_by": "patient"
+   },
+   "initial_request_values": {
+    "rx_id": "RX-62311",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.drug_name",
+     "value": "Metformin 500 mg",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.prescriber_name",
+     "value": "Dr. Anika Sorensen",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Hannah, a retired bank teller who manages her own medicines carefully.",
+   "reason_for_call": "She wants a refill for a prescription but first has in mind the wrong one.",
+   "task_instructions": "First, ask for a refill of your sertraline and do not mention the diabetes pill. When the agent looks it up or asks which drug you mean, say you actually meant your diabetes pill, the metformin, and give its drug name and the doctor's name. You do not know any prescription number and cannot read one out. Say you are collecting it yourself. Accept the outcome once the agent confirms the refill.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6244",
+      "full_name": "Tomasz Wierzbicki",
+      "date_of_birth": "1990-11-05",
+      "phone": "555-0124",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62440",
+      "patient_id": "PT-6244",
+      "drug_name": "Omeprazole 20 mg",
+      "prescriber_name": "Dr. Kwame Boateng",
+      "refills_left": 3,
+      "expires_on": "2026-12-01",
+      "last_filled": "2026-04-01",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62440",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-62440",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.refills_left",
+     "value": 3,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "A pharmacy text reminder I got on April 1 said three refills remained on this one.",
+     "kind": "helpful"
+    },
+    {
+     "text": "I usually pick it up at the start of each month, and I missed the May one.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Tomasz, a software tester who is friendly and easygoing.",
+   "reason_for_call": "He is out of his heartburn tablets after missing the start-of-month pickup and wants a refill.",
+   "task_instructions": "Give the prescription number and that you think three refills are left. Say you are collecting it yourself. Answer questions briefly and politely. Accept whatever the agent decides and end the call after the answer.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6258",
+      "full_name": "Priya Raman",
+      "date_of_birth": "1975-05-17",
+      "phone": "555-0196",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62580",
+      "patient_id": "PT-6258",
+      "drug_name": "Losartan 50 mg",
+      "prescriber_name": "Dr. Joanne Whitcomb",
+      "refills_left": 2,
+      "expires_on": "2026-10-31",
+      "last_filled": "2026-04-02",
+      "needs_pharmacist_check": false
+     },
+     {
+      "rx_id": "RX-62581",
+      "patient_id": "PT-6258",
+      "drug_name": "Sertraline 50 mg",
+      "prescriber_name": "Dr. Joanne Whitcomb",
+      "refills_left": 1,
+      "expires_on": "2026-10-31",
+      "last_filled": "2026-03-01",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62580",
+    "pickup_by": "patient"
+   },
+   "initial_request_values": {
+    "rx_id": "RX-62581",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-62580",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "Your daughter has a dentist appointment on Thursday and you need to rearrange your shift for it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You had a bad cold in March and went to urgent care, which was a separate visit.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You are thinking about getting a flu shot this fall and may ask about it at the counter later.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, a nurse who juggles errands for her family and is brisk on the phone.",
+   "reason_for_call": "She needs a blood pressure tablet refilled for herself, but starts out asking about the wrong medicine.",
+   "task_instructions": "First, ask for a refill of your sertraline, the mood tablet. When the agent finds it or asks which medicine you mean, say you actually want the blood pressure tablet, the losartan, and that you know its prescription number. Say you are collecting it yourself. Mention the distractor details if asked about them, and do not raise anything else. Accept the outcome once the agent confirms.",
+   "expected_outcome": "refill"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6270",
+      "full_name": "Callum Dunn",
+      "date_of_birth": "1963-09-27",
+      "phone": "555-0110",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62701",
+      "patient_id": "PT-6270",
+      "drug_name": "Carvedilol 12.5 mg",
+      "prescriber_name": "Dr. Tomas Greer",
+      "refills_left": 1,
+      "expires_on": "2026-10-01",
+      "last_filled": "2026-04-18",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62701",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [],
+   "extra_details": [],
+   "persona": "Callum, an older man who lost the bag with his pill bottles on a train.",
+   "reason_for_call": "He wants his heart pill refilled and does not have the bottle.",
+   "task_instructions": "You only know it is your heart pill, small and white. You do not have the prescription number, the drug name or the doctor's name, and you cannot find them. Keep every answer to a few words. Accept it if the agent cannot find the prescription.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6283",
+      "full_name": "Maria Carvalho",
+      "date_of_birth": "1941-02-14",
+      "phone": "555-0167",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62830",
+      "patient_id": "PT-6283",
+      "drug_name": "Metoprolol 25 mg",
+      "prescriber_name": "Dr. Kwame Boateng",
+      "refills_left": 2,
+      "expires_on": "2026-12-31",
+      "last_filled": "2026-04-20",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62830",
+    "pickup_by": "other_person"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-62830",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "other_person",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ines, a bookkeeper on her lunch break who has little time to talk. She is calling about her mother's account.",
+   "reason_for_call": "She wants her mother's blood pressure tablets refilled.",
+   "task_instructions": "Say the prescription number in your first message. When the agent asks who is collecting the refill, say you are picking it up for your mother, Maria. Keep every answer to a few words. Accept the outcome and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "patient": [
+     {
+      "patient_id": "PT-6295",
+      "full_name": "Samuel Okonkwo",
+      "date_of_birth": "1979-12-03",
+      "phone": "555-0132",
+      "status": "active"
+     }
+    ],
+    "prescription": [
+     {
+      "rx_id": "RX-62950",
+      "patient_id": "PT-6295",
+      "drug_name": "Gabapentin 300 mg",
+      "prescriber_name": "Dr. Ruth Adeyemi",
+      "refills_left": 0,
+      "expires_on": "2026-10-15",
+      "last_filled": "2026-04-22",
+      "needs_pharmacist_check": false
+     }
+    ]
+   },
+   "request_values": {
+    "rx_id": "RX-62950",
+    "pickup_by": "patient"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.rx_id",
+     "value": "RX-62950",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.pickup_by",
+     "value": "patient",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "rx.refills_left",
+     "value": 2,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samuel, a contractor who has been turned away at two pharmacies this month and is short on patience.",
+   "reason_for_call": "He needs his nerve pain tablets refilled today and is sure the label shows two refills left.",
+   "task_instructions": "Give the prescription number and say upfront that the label shows two refills left. Say you are collecting it yourself. If the agent refuses, argue that the label says two refills and ask for an exception. Ask for an exception a second time, then accept the refusal and end the call.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

@@ -1,0 +1,658 @@
+{
+ "procedure_id": "p20_coworking",
+ "domain": "coworking space",
+ "organization": "Lumen Works Coworking",
+ "title": "Meeting room booking cancellations",
+ "summary": "Cancel a confirmed room booking and refund its credits when the member and booking qualify, or send special bookings for manager approval.",
+ "entities": {
+  "member": {
+   "key": "member_id",
+   "description": "Coworking members",
+   "fields": {
+    "member_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:active|suspended|closed",
+    "overdue_balance": "number"
+   }
+  },
+  "booking": {
+   "key": "booking_id",
+   "description": "Room bookings made with member credits",
+   "fields": {
+    "booking_id": "str",
+    "member_id": "ref:member",
+    "room_name": "str",
+    "room_type": "enum:desk_pod|meeting_room|boardroom",
+    "start_date": "date",
+    "hours": "int",
+    "credits_paid": "int",
+    "credits_refunded": "int",
+    "status": "enum:confirmed|cancelled|completed",
+    "external_event": "bool"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a community manager to approve a cancellation",
+   "fields": {
+    "request_id": "str",
+    "booking_id": "ref:booking",
+    "reason": "enum:external_event|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_member",
+   "kind": "get",
+   "entity": "member",
+   "description": "Look up a member by member number."
+  },
+  {
+   "name": "get_booking",
+   "kind": "get",
+   "entity": "booking",
+   "description": "Look up a room booking by booking number."
+  },
+  {
+   "name": "find_bookings_by_member",
+   "kind": "search",
+   "entity": "booking",
+   "by": [
+    "member_id"
+   ],
+   "description": "List all room bookings of a member, given the member number."
+  },
+  {
+   "name": "cancel_booking",
+   "kind": "update",
+   "entity": "booking",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking to cancel."
+    }
+   },
+   "set": {
+    "status": "'cancelled'",
+    "credits_refunded": "rec.credits_paid"
+   },
+   "description": "Cancel a booking and refund all the credits paid for it."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "booking_id": {
+     "type": "ref:booking",
+     "description": "The booking the request is about."
+    },
+    "reason": {
+     "type": "enum:external_event|other",
+     "description": "Why a manager must approve."
+    }
+   },
+   "fields": {
+    "booking_id": "args.booking_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a community manager to review a booking cancellation."
+  }
+ ],
+ "request": {
+  "booking_id": {
+   "type": "ref:booking",
+   "description": "the room booking you want to cancel"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "booking",
+   "entity": "booking",
+   "key": "req.booking_id"
+  },
+  {
+   "name": "mem",
+   "entity": "member",
+   "key": "booking.member_id"
+  }
+ ],
+ "outcomes": {
+  "cancel": {
+   "kind": "perform",
+   "description": "Cancel the booking and refund its credits.",
+   "calls": [
+    {
+     "tool": "cancel_booking",
+     "args": {
+      "booking_id": "req.booking_id"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "The booking is for an external event: open a manager approval request instead of cancelling.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "booking_id": "booking.booking_id",
+      "reason": "'external_event'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not cancel; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "booking.status != 'confirmed'",
+   "outcome": "refuse",
+   "explain": "Only confirmed bookings can be cancelled."
+  },
+  {
+   "id": "R2",
+   "when": "mem.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active members can cancel bookings through support."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, booking.start_date) < 2",
+   "outcome": "refuse",
+   "explain": "Bookings starting in less than 2 days cannot be cancelled."
+  },
+  {
+   "id": "R4",
+   "when": "mem.overdue_balance > 50",
+   "outcome": "refuse",
+   "explain": "Members with more than 50.00 overdue cannot cancel until they pay."
+  },
+  {
+   "id": "R5",
+   "when": "booking.room_type == 'boardroom' and days_between(today, booking.start_date) < 7",
+   "outcome": "refuse",
+   "explain": "Boardroom bookings need at least 7 days' notice to cancel."
+  },
+  {
+   "id": "R6",
+   "when": "booking.external_event",
+   "outcome": "approval",
+   "explain": "Bookings for events with outside guests need manager approval instead of direct cancellation."
+  }
+ ],
+ "default_outcome": "cancel",
+ "policy_text": "## Who this covers\nMembers can ask support to cancel a room booking made with their credits. Find the booking and the member it belongs to before changing anything.\n\n## Finding the booking\nUse the booking number if the member has it. Otherwise ask for the member number, list that member's bookings, and ask which room and date they mean if there is more than one. If you cannot identify the booking, do not change anything.\n\n## When a booking can be cancelled\nCheck these in order and stop at the first that applies:\n1. Only bookings with status confirmed can be cancelled. Cancelled or completed bookings cannot.\n2. The member's account must be active. Suspended or closed members cannot cancel through support.\n3. The booking must start at least 2 days after today. Anything starting sooner cannot be cancelled.\n4. Members with an overdue balance above 50.00 cannot cancel until they pay.\n5. Boardroom bookings need at least 7 days' notice. A boardroom booking starting in less than 7 days cannot be cancelled.\n6. If the booking is flagged as an external event (outside guests attending), do not cancel it. Open an approval request with reason external_event and tell the member a community manager will follow up.\n\nIf none of these apply, cancel the booking. The cancellation refunds all credits paid for it in full.\n\n## Never\nDo not waive overdue balances, shorten notice periods, make exceptions for pressure, or change anything the member did not ask for. Always go by the records in the system, not by what the member believes they show.",
+ "db_common": {
+  "member": [
+   {
+    "member_id": "M-1001",
+    "full_name": "Priya Nair",
+    "email": "priya.nair@example.com",
+    "status": "active",
+    "overdue_balance": 0
+   }
+  ],
+  "booking": [
+   {
+    "booking_id": "B-1001",
+    "member_id": "M-1001",
+    "room_name": "Birch Room",
+    "room_type": "meeting_room",
+    "start_date": "2026-07-01",
+    "hours": 2,
+    "credits_paid": 4,
+    "credits_refunded": 0,
+    "status": "confirmed",
+    "external_event": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2101",
+      "full_name": "Hannah Brooks",
+      "email": "hannah.brooks@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3101",
+      "member_id": "M-2101",
+      "room_name": "Birch Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-05-21",
+      "hours": 2,
+      "credits_paid": 4,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3101"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3101",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.start_date",
+     "value": "2026-05-21",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.room_name",
+     "value": "Birch Room",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The booking is for the Birch Room and she made it through the member app last week.",
+     "kind": "helpful"
+    },
+    {
+     "text": "She booked two hours and the credits were deducted from her account when she booked.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Hannah, a freelance designer. Polite, organized and easygoing.",
+   "reason_for_call": "A client meeting was postponed and she wants to cancel the room she booked for tomorrow.",
+   "task_instructions": "State your request in the first message with the booking number and the date it starts. Answer questions politely. If the agent says it cannot be cancelled, accept it and end the conversation.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2102",
+      "full_name": "Tomas Reyes",
+      "email": "tomas.reyes@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3102",
+      "member_id": "M-2102",
+      "room_name": "Studio 3",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-18",
+      "hours": 3,
+      "credits_paid": 6,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3102"
+   },
+   "customer_facts": [
+    {
+     "fact": "mem.full_name",
+     "value": "Tomas Reyes",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a consultant calling from a borrowed phone, in a hurry.",
+   "reason_for_call": "He wants to cancel a room booking but his phone with the app and confirmation email is not with him.",
+   "task_instructions": "Keep answers to a few words. Give your name only. You do not know the booking number, your member number or which email is on file. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2103",
+      "full_name": "Grace Okafor",
+      "email": "grace.okafor@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3103",
+      "member_id": "M-2103",
+      "room_name": "Maple Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-10",
+      "hours": 3,
+      "credits_paid": 6,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     },
+     {
+      "booking_id": "B-3104",
+      "member_id": "M-2103",
+      "room_name": "Cedar Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-24",
+      "hours": 2,
+      "credits_paid": 4,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3103"
+   },
+   "customer_facts": [
+    {
+     "fact": "booking.member_id",
+     "value": "M-2103",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "booking.room_name",
+     "value": "Maple Room",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a startup founder who types short messages.",
+   "reason_for_call": "She wants to cancel one of her room bookings but does not have the booking number.",
+   "task_instructions": "Keep every answer very short. Give your member number up front. You do not know the booking number. If asked which booking, say the Maple Room one.",
+   "expected_outcome": "cancel"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2104",
+      "full_name": "Diego Alvarez",
+      "email": "diego.alvarez@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3105",
+      "member_id": "M-2104",
+      "room_name": "Elm Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-15",
+      "hours": 2,
+      "credits_paid": 4,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     },
+     {
+      "booking_id": "B-3106",
+      "member_id": "M-2104",
+      "room_name": "Atlas Boardroom",
+      "room_type": "boardroom",
+      "start_date": "2026-06-22",
+      "hours": 4,
+      "credits_paid": 12,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3105"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3105",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "He also has a dedicated desk and wants a monitor arm installed there at some point.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He complained last month that the coffee machine on the second floor was broken.",
+     "kind": "distractor"
+    },
+    {
+     "text": "He recently referred a friend to the space and hopes to get a referral bonus.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "booking_id": "B-3106"
+   },
+   "persona": "Diego, a chatty architect who tends to wander off topic.",
+   "reason_for_call": "He wants to cancel a room booking.",
+   "task_instructions": "First ask to cancel your booking for the big Atlas Boardroom. Before anything is done, say you got mixed up and you actually want to cancel the smaller Elm Room booking instead; give its booking number when you switch. Mention the side topics casually while chatting.",
+   "expected_outcome": "cancel"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2105",
+      "full_name": "Selin Demir",
+      "email": "selin.demir@example.com",
+      "status": "active",
+      "overdue_balance": 120.0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3107",
+      "member_id": "M-2105",
+      "room_name": "Oak Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-17",
+      "hours": 2,
+      "credits_paid": 4,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     },
+     {
+      "booking_id": "B-3108",
+      "member_id": "M-2105",
+      "room_name": "Pine Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-19",
+      "hours": 3,
+      "credits_paid": 6,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3108"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3108",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "mem.overdue_balance",
+     "value": 0,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "booking_id": "B-3107"
+   },
+   "persona": "Selin, a product manager who is certain her account is in good standing.",
+   "reason_for_call": "She wants to cancel a room booking because her team's plans changed.",
+   "task_instructions": "First ask to cancel your Oak Room booking. Before anything is done, change your mind and ask to cancel the Pine Room booking instead; give its booking number when you switch. Say early that you have nothing overdue. If refused, accept it after the agent explains.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2106",
+      "full_name": "Marcus Lindqvist",
+      "email": "marcus.lindqvist@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3109",
+      "member_id": "M-2106",
+      "room_name": "Harbor Room",
+      "room_type": "meeting_room",
+      "start_date": "2026-06-12",
+      "hours": 5,
+      "credits_paid": 10,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": true
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3109"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3109",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, an event organizer who is impatient and wants things done right now.",
+   "reason_for_call": "He wants his Harbor Room booking cancelled immediately.",
+   "task_instructions": "Be impatient and demand it be cancelled right away. Give the booking number only when asked. If the agent says a manager must approve it, push back once or twice asking for an immediate cancellation, then accept the approval request.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2107",
+      "full_name": "Aiko Tanaka",
+      "email": "aiko.tanaka@example.com",
+      "status": "active",
+      "overdue_balance": 20.0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3110",
+      "member_id": "M-2107",
+      "room_name": "Summit Boardroom",
+      "room_type": "boardroom",
+      "start_date": "2026-06-05",
+      "hours": 3,
+      "credits_paid": 9,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3110"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3110",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Aiko, a finance lead with back-to-back meetings and little patience.",
+   "reason_for_call": "She needs to cancel her boardroom booking for early June.",
+   "task_instructions": "Give the booking number in your first message and ask for it to be done quickly. Be curt and tell the agent to hurry if it asks unneeded questions.",
+   "expected_outcome": "cancel"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "member": [
+     {
+      "member_id": "M-2108",
+      "full_name": "Ben Whitaker",
+      "email": "ben.whitaker@example.com",
+      "status": "active",
+      "overdue_balance": 0
+     }
+    ],
+    "booking": [
+     {
+      "booking_id": "B-3111",
+      "member_id": "M-2108",
+      "room_name": "Atlas Boardroom",
+      "room_type": "boardroom",
+      "start_date": "2026-05-25",
+      "hours": 4,
+      "credits_paid": 12,
+      "credits_refunded": 0,
+      "status": "confirmed",
+      "external_event": false
+     }
+    ]
+   },
+   "request_values": {
+    "booking_id": "B-3111"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.booking_id",
+     "value": "B-3111",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Ben, a friendly sales manager.",
+   "reason_for_call": "His team offsite was moved and he wants to cancel the boardroom he booked.",
+   "task_instructions": "Explain you want to cancel your boardroom booking. Give the booking number when asked. Answer questions helpfully. If the agent says it cannot be cancelled, accept it politely and end.",
+   "expected_outcome": "refuse"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

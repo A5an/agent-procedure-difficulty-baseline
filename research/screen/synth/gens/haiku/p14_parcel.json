@@ -1,0 +1,669 @@
+{
+ "procedure_id": "p14_parcel",
+ "domain": "parcel courier",
+ "organization": "Northgate Parcel Express",
+ "title": "Delivery date changes",
+ "summary": "Move the delivery date of a parcel to a date the customer asks for, when the caller is verified and the parcel can still be rescheduled.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Account holders who send or receive parcels",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "postcode": "str"
+   }
+  },
+  "parcel": {
+   "key": "parcel_id",
+   "description": "Parcels on the network, each belonging to one customer account",
+   "fields": {
+    "parcel_id": "str",
+    "customer_id": "ref:customer",
+    "description": "str",
+    "status": "enum:label_created|in_transit|out_for_delivery|delivered",
+    "delivery_date": "date"
+   }
+  },
+  "courier_note": {
+   "key": "note_id",
+   "description": "Notes added to a parcel record to explain a change",
+   "fields": {
+    "note_id": "str",
+    "parcel_id": "ref:parcel",
+    "note_type": "enum:reschedule|access_note",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer account by its customer number."
+  },
+  {
+   "name": "find_customers_by_name",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "full_name"
+   ],
+   "description": "Find customer accounts by the full name on the account."
+  },
+  {
+   "name": "get_parcel",
+   "kind": "get",
+   "entity": "parcel",
+   "description": "Look up a parcel by its parcel number."
+  },
+  {
+   "name": "find_parcels_by_customer",
+   "kind": "search",
+   "entity": "parcel",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all parcels on a customer account."
+  },
+  {
+   "name": "reschedule_parcel",
+   "kind": "update",
+   "entity": "parcel",
+   "args": {
+    "parcel_id": {
+     "type": "ref:parcel",
+     "description": "The parcel whose delivery date is changing."
+    },
+    "new_date": {
+     "type": "date",
+     "description": "The new delivery date."
+    }
+   },
+   "set": {
+    "delivery_date": "args.new_date"
+   },
+   "description": "Set the delivery date of a parcel to the given date."
+  },
+  {
+   "name": "create_courier_note",
+   "kind": "create",
+   "entity": "courier_note",
+   "args": {
+    "parcel_id": {
+     "type": "ref:parcel",
+     "description": "The parcel the note is about."
+    },
+    "note_type": {
+     "type": "enum:reschedule|access_note",
+     "description": "The kind of note."
+    }
+   },
+   "fields": {
+    "parcel_id": "args.parcel_id",
+    "note_type": "args.note_type",
+    "created": "today"
+   },
+   "description": "Add a note to a parcel record to record a change made to it."
+  }
+ ],
+ "request": {
+  "parcel_id": {
+   "type": "ref:parcel",
+   "description": "the parcel whose delivery date you want to change"
+  },
+  "new_date": {
+   "type": "date",
+   "description": "the day you want it delivered instead"
+  }
+ },
+ "claims": {
+  "postcode": {
+   "type": "str",
+   "description": "the postcode on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "parcel",
+   "entity": "parcel",
+   "key": "req.parcel_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "parcel.customer_id"
+  }
+ ],
+ "outcomes": {
+  "reschedule": {
+   "kind": "perform",
+   "description": "Set the parcel's delivery date to the requested date and add a reschedule note to the parcel.",
+   "calls": [
+    {
+     "tool": "reschedule_parcel",
+     "args": {
+      "parcel_id": "req.parcel_id",
+      "new_date": "req.new_date"
+     }
+    },
+    {
+     "tool": "create_courier_note",
+     "args": {
+      "parcel_id": "req.parcel_id",
+      "note_type": "'reschedule'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change and explain which check was not met.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.postcode != cust.postcode",
+   "outcome": "refuse",
+   "explain": "The postcode the caller gives must match the postcode on the account before any change is made."
+  },
+  {
+   "id": "R2",
+   "when": "parcel.status in ['out_for_delivery', 'delivered']",
+   "outcome": "refuse",
+   "explain": "A parcel that is out for delivery or already delivered cannot be rescheduled."
+  },
+  {
+   "id": "R3",
+   "when": "req.new_date > add_days(today, 14)",
+   "outcome": "refuse",
+   "explain": "The new delivery date must be no later than 14 days after today."
+  }
+ ],
+ "default_outcome": "reschedule",
+ "policy_text": "## Who can ask\nCustomers can ask us to change the delivery date of a parcel by phone or chat. Before changing anything, confirm the caller's identity: the postcode they give must match the postcode on the account the parcel belongs to. If it does not match, or they cannot give it, make no change.\n\n## Finding the parcel\nIf the customer has the parcel number, use it. Otherwise find the account by the full name on it, list the parcels on that account, and pick the one they mean by its description. If more than one could be it, ask a question that tells them apart. If you cannot find the account or the parcel, say that you cannot make the change and do not guess.\n\n## When a delivery date can be changed\n- The parcel must not be out for delivery and must not already be delivered. Parcels with either status cannot be rescheduled.\n- The new date must be no later than 14 days after today's date. Dates further ahead are declined, not moved to the nearest allowed day.\n\nIf these checks pass, set the parcel's delivery date to the date the customer asked for and add a courier note of type reschedule to the parcel. Then confirm the new date to the customer.\n\nIf a check fails, make no change. Tell the customer which part of the request could not be met. The customer may ask again for a date within the 14-day limit.\n\n## Never\nDo not change a parcel for a caller who has not passed the postcode check. Do not change any date the customer did not ask for, and do not bypass the 14-day limit for any customer.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "CU-1001",
+    "full_name": "Helen Marsh",
+    "postcode": "M1 4BT"
+   }
+  ],
+  "parcel": [
+   {
+    "parcel_id": "PX-70001",
+    "customer_id": "CU-1001",
+    "description": "Kitchen scale",
+    "status": "delivered",
+    "delivery_date": "2026-05-12"
+   }
+  ],
+  "courier_note": [
+   {
+    "note_id": "CN-60001",
+    "parcel_id": "PX-70001",
+    "note_type": "access_note",
+    "created": "2026-05-10"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2201",
+      "full_name": "Tomas Reyes",
+      "postcode": "E2 8HD"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-81230",
+      "customer_id": "CU-2201",
+      "description": "Ceramic planter",
+      "status": "in_transit",
+      "delivery_date": "2026-05-21"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-81230",
+    "new_date": "2026-05-26"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-81230",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-26",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "E2 8HD",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a self-employed florist who works from a small van and checks deliveries between jobs.",
+   "reason_for_call": "He wants the ceramic planter delivered on Tuesday because he will be at the shop all day that day.",
+   "task_instructions": "Lead with the parcel number, the new date and your postcode in your first message. Push for a quick answer and ask the agent to hurry if it takes more than one exchange.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2302",
+      "full_name": "Ines Carvalho",
+      "postcode": "N5 2LP"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-82044",
+      "customer_id": "CU-2302",
+      "description": "Sourdough starter kit",
+      "status": "in_transit",
+      "delivery_date": "2026-05-22"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-82044",
+    "new_date": "2026-06-12"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-82044",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-12",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "N5 2LP",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "parcel.status",
+     "value": "in_transit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "It came from the bakery supplies shop, the one I ordered from last Thursday.",
+     "kind": "helpful"
+    },
+    {
+     "text": "It is the sourdough starter kit, the box with the blue tape on it.",
+     "kind": "helpful"
+    }
+   ],
+   "initial_request_values": {
+    "parcel_id": "PX-82044",
+    "new_date": "2026-05-25"
+   },
+   "persona": "Ines, a graduate student who is juggling a research project and a part-time job at a library.",
+   "reason_for_call": "She first wants the kit on Monday, then remembers she is away at a conference until the middle of June and asks for a later date.",
+   "task_instructions": "In your first message ask for the 25th of May. If the agent has not changed anything yet, say you have just remembered you are away and ask for the 12th of June instead. Accept whatever the agent decides and do not argue.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2415",
+      "full_name": "Marcus Oyelaran",
+      "postcode": "B5 7RN"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-83110",
+      "customer_id": "CU-2415",
+      "description": "Bike helmet",
+      "status": "label_created",
+      "delivery_date": "2026-05-23"
+     },
+     {
+      "parcel_id": "PX-83111",
+      "customer_id": "CU-2415",
+      "description": "Printer toner",
+      "status": "in_transit",
+      "delivery_date": "2026-05-22"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-83110",
+    "new_date": "2026-05-28"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.full_name",
+     "value": "Marcus Oyelaran",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "B5 7RN",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "parcel.description",
+     "value": "Bike helmet",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-28",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus, a cyclist who orders kit online and rarely keeps order numbers.",
+   "reason_for_call": "He wants his bike helmet on Thursday because he will be home that day to sign for it.",
+   "task_instructions": "You do not know the parcel number. Give your full name, postcode and the item description, then the new date. Be impatient and ask the agent to be quick.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2530",
+      "full_name": "Yusuf Demir",
+      "postcode": "L14 3QZ"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-84002",
+      "customer_id": "CU-2530",
+      "description": "Lamp shade",
+      "status": "out_for_delivery",
+      "delivery_date": "2026-05-20"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-84002",
+    "new_date": "2026-05-27"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-84002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "L14 3QZ",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "parcel.status",
+     "value": "in_transit",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Yusuf, a short-tempered caterer who checks tracking only when he has to.",
+   "reason_for_call": "He wants the lamp shade moved to next Wednesday and believes it is still on the way to the depot.",
+   "task_instructions": "Give the parcel number, the new date, your postcode and say it is still in transit. Answer in one or two words where you can.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2644",
+      "full_name": "Grace Oduya",
+      "postcode": "SE15 4PX"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-85090",
+      "customer_id": "CU-2644",
+      "description": "Winter coat",
+      "status": "label_created",
+      "delivery_date": "2026-05-21"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-85090",
+    "new_date": "2026-06-15"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-85090",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "SE15 4PX",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-06-15",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, a teacher who is planning a trip and is organised about her paperwork.",
+   "reason_for_call": "She is going away for a month in June and wants the winter coat delivered after she is back.",
+   "task_instructions": "Give the parcel number and your postcode in your first message. Do not mention a new date until the agent asks when you want the parcel delivered; then say the 15th of June. Be polite and accept the answer.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2750",
+      "full_name": "Beatriz Lindqvist",
+      "postcode": "BS1 5TB"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-86011",
+      "customer_id": "CU-2750",
+      "description": "Garden hose",
+      "status": "in_transit",
+      "delivery_date": "2026-05-22"
+     },
+     {
+      "parcel_id": "PX-86012",
+      "customer_id": "CU-2750",
+      "description": "Espresso machine",
+      "status": "delivered",
+      "delivery_date": "2026-05-14"
+     },
+     {
+      "parcel_id": "PX-86013",
+      "customer_id": "CU-2750",
+      "description": "Winter boots",
+      "status": "label_created",
+      "delivery_date": "2026-05-25"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-86011",
+    "new_date": "2026-05-27"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-86011",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-27",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "BS1 5TB",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The espresso machine went back to the seller last week, so you can forget about that one.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Your sister's winter boots are coming on the same account next week and you are not worried about them.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You are annoyed that the first courier left a card without knocking on the door.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "parcel_id": "PX-86011",
+    "new_date": "2026-06-25"
+   },
+   "persona": "Beatriz, a freelance designer who works from home and keeps a tidy calendar.",
+   "reason_for_call": "She first wants the garden hose delivered in late June, then changes her mind and wants it earlier, on the 27th of May.",
+   "task_instructions": "In your first message ask for the 25th of June. If the agent has not made any change yet, say you have changed your mind and want the 27th of May instead. Give your postcode when it is first needed.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2811",
+      "full_name": "Kofi Mensah",
+      "postcode": "HA3 7LW"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-87340",
+      "customer_id": "CU-2811",
+      "description": "Vinyl records",
+      "status": "in_transit",
+      "delivery_date": "2026-05-21"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-87340",
+    "new_date": "2026-05-26"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.parcel_id",
+     "value": "PX-87340",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-26",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "HA3 7LW",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Kofi, a warehouse supervisor on rotating shifts.",
+   "reason_for_call": "He wants the records delivered on the 26th because he works a late shift the day before.",
+   "task_instructions": "Answer in as few words as possible. Give the parcel number and the new date only. Give your postcode only if asked.",
+   "expected_outcome": "reschedule"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "CU-2905",
+      "full_name": "Declan Fitzpatrick",
+      "postcode": "BS5 9HN"
+     }
+    ],
+    "parcel": [
+     {
+      "parcel_id": "PX-88203",
+      "customer_id": "CU-2905",
+      "description": "Oak bookshelf",
+      "status": "label_created",
+      "delivery_date": "2026-05-22"
+     }
+    ]
+   },
+   "request_values": {
+    "parcel_id": "PX-88203",
+    "new_date": "2026-05-30"
+   },
+   "customer_facts": [
+    {
+     "fact": "parcel.description",
+     "value": "Oak bookshelf",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_date",
+     "value": "2026-05-30",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.postcode",
+     "value": "BS5 9HN",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "You bought the bookshelf from a shop in Leeds and it took a while to arrive.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Priya, who is calling from a new mobile number after losing her phone and her paperwork.",
+   "reason_for_call": "She wants the bookshelf delivered at the end of May when her new flat is ready.",
+   "task_instructions": "You do not know the parcel number, and the account is in the name of a flatmate who has since moved out, so you cannot remember his full name. Give the item description, your postcode and the new date if asked. Say you cannot remember anything else about the account and accept what the agent says.",
+   "expected_outcome": "cannot_complete"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

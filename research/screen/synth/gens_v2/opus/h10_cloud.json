@@ -1,0 +1,1057 @@
+{
+ "procedure_id": "h10_cloud",
+ "domain": "cloud hosting billing",
+ "organization": "Stratusgate Cloud Services",
+ "title": "SLA outage service credits",
+ "summary": "Grant an SLA service credit on a customer's monthly invoice for a provider outage, or route repeat claimants to billing review, when the account, invoice and incident qualify.",
+ "entities": {
+  "billing_account": {
+   "key": "account_id",
+   "description": "Customer billing accounts",
+   "fields": {
+    "account_id": "str",
+    "company_name": "str",
+    "billing_email": "str",
+    "status": "enum:active|suspended|closed",
+    "past_due_balance": "number",
+    "lifetime_credits": "number"
+   }
+  },
+  "invoice": {
+   "key": "invoice_id",
+   "description": "Monthly invoices, one per project and billing period",
+   "fields": {
+    "invoice_id": "str",
+    "account_id": "ref:billing_account",
+    "project_name": "str",
+    "region": "str",
+    "period_start": "date",
+    "period_end": "date",
+    "compute_charges": "number",
+    "amount_due": "number",
+    "credit_applied": "number",
+    "status": "enum:issued|paid"
+   }
+  },
+  "incident": {
+   "key": "incident_id",
+   "description": "Platform incidents published on the Stratusgate status page",
+   "fields": {
+    "incident_id": "str",
+    "region": "str",
+    "start_date": "date",
+    "downtime_minutes": "int",
+    "cause": "enum:provider|scheduled_maintenance|third_party",
+    "summary": "str"
+   }
+  },
+  "service_credit": {
+   "key": "credit_id",
+   "description": "SLA service credits already granted",
+   "fields": {
+    "credit_id": "str",
+    "account_id": "ref:billing_account",
+    "invoice_id": "ref:invoice",
+    "incident_id": "ref:incident",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "credit_review": {
+   "key": "review_id",
+   "description": "Credit claims sent to the billing review team",
+   "fields": {
+    "review_id": "str",
+    "invoice_id": "ref:invoice",
+    "incident_id": "ref:incident",
+    "reason": "enum:repeat_claims|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_billing_account",
+   "kind": "get",
+   "entity": "billing_account",
+   "description": "Look up a billing account by its account ID."
+  },
+  {
+   "name": "get_invoice",
+   "kind": "get",
+   "entity": "invoice",
+   "description": "Look up an invoice by its invoice number."
+  },
+  {
+   "name": "find_invoices_by_account",
+   "kind": "search",
+   "entity": "invoice",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all invoices of a billing account."
+  },
+  {
+   "name": "get_incident",
+   "kind": "get",
+   "entity": "incident",
+   "description": "Look up a status-page incident by its incident ID."
+  },
+  {
+   "name": "find_incidents_by_region",
+   "kind": "search",
+   "entity": "incident",
+   "by": [
+    "region"
+   ],
+   "description": "List all status-page incidents recorded for a region (e.g. us-east-2)."
+  },
+  {
+   "name": "find_credits_by_account",
+   "kind": "search",
+   "entity": "service_credit",
+   "by": [
+    "account_id"
+   ],
+   "description": "List all SLA service credits already granted to a billing account."
+  },
+  {
+   "name": "create_service_credit",
+   "kind": "create",
+   "entity": "service_credit",
+   "args": {
+    "account_id": {
+     "type": "ref:billing_account",
+     "description": "The billing account receiving the credit."
+    },
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice the credit is applied to."
+    },
+    "incident_id": {
+     "type": "ref:incident",
+     "description": "The incident the credit compensates."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in USD, computed per policy."
+    }
+   },
+   "fields": {
+    "account_id": "args.account_id",
+    "invoice_id": "args.invoice_id",
+    "incident_id": "args.incident_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record a new SLA service credit for an account, invoice and incident."
+  },
+  {
+   "name": "apply_invoice_credit",
+   "kind": "update",
+   "entity": "invoice",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice to credit."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in USD."
+    }
+   },
+   "set": {
+    "credit_applied": "rec.credit_applied + args.amount",
+    "amount_due": "rec.amount_due - args.amount"
+   },
+   "description": "Apply a credit amount to an invoice: increases credit_applied and reduces amount_due by the amount."
+  },
+  {
+   "name": "record_account_credit",
+   "kind": "update",
+   "entity": "billing_account",
+   "args": {
+    "account_id": {
+     "type": "ref:billing_account",
+     "description": "The billing account."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Credit amount in USD."
+    }
+   },
+   "set": {
+    "lifetime_credits": "rec.lifetime_credits + args.amount"
+   },
+   "description": "Add a granted credit amount to the account's lifetime credit total."
+  },
+  {
+   "name": "create_credit_review",
+   "kind": "create",
+   "entity": "credit_review",
+   "args": {
+    "invoice_id": {
+     "type": "ref:invoice",
+     "description": "The invoice the claim is about."
+    },
+    "incident_id": {
+     "type": "ref:incident",
+     "description": "The incident the claim is about."
+    },
+    "reason": {
+     "type": "enum:repeat_claims|other",
+     "description": "Why the claim is sent to review."
+    }
+   },
+   "fields": {
+    "invoice_id": "args.invoice_id",
+    "incident_id": "args.incident_id",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Send a credit claim to the billing review team instead of granting it directly."
+  }
+ ],
+ "request": {
+  "invoice_id": {
+   "type": "ref:invoice",
+   "description": "the invoice you want the outage credit applied to"
+  },
+  "incident_id": {
+   "type": "ref:incident",
+   "description": "the status-page incident (outage) you are claiming a credit for"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "inv",
+   "entity": "invoice",
+   "key": "req.invoice_id"
+  },
+  {
+   "name": "acct",
+   "entity": "billing_account",
+   "key": "inv.account_id"
+  },
+  {
+   "name": "inc",
+   "entity": "incident",
+   "key": "req.incident_id"
+  }
+ ],
+ "outcomes": {
+  "credit": {
+   "kind": "perform",
+   "description": "Grant the SLA credit: record it, apply it to the invoice, and add it to the account's lifetime credits.",
+   "calls": [
+    {
+     "tool": "create_service_credit",
+     "args": {
+      "account_id": "acct.account_id",
+      "invoice_id": "inv.invoice_id",
+      "incident_id": "inc.incident_id",
+      "amount": "min(round(inv.compute_charges * (0.25 if inc.downtime_minutes >= 240 else 0.10), 2), 1000)"
+     }
+    },
+    {
+     "tool": "apply_invoice_credit",
+     "args": {
+      "invoice_id": "inv.invoice_id",
+      "amount": "min(round(inv.compute_charges * (0.25 if inc.downtime_minutes >= 240 else 0.10), 2), 1000)"
+     }
+    },
+    {
+     "tool": "record_account_credit",
+     "args": {
+      "account_id": "acct.account_id",
+      "amount": "min(round(inv.compute_charges * (0.25 if inc.downtime_minutes >= 240 else 0.10), 2), 1000)"
+     }
+    }
+   ]
+  },
+  "review": {
+   "kind": "perform",
+   "description": "The account already has two or more credits: send the claim to billing review instead of crediting.",
+   "calls": [
+    {
+     "tool": "create_credit_review",
+     "args": {
+      "invoice_id": "inv.invoice_id",
+      "incident_id": "inc.incident_id",
+      "reason": "'repeat_claims'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not grant a credit; explain the reason.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "acct.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Only active billing accounts can receive service credits."
+  },
+  {
+   "id": "R2",
+   "when": "acct.past_due_balance > 0",
+   "outcome": "refuse",
+   "explain": "Accounts with any past-due balance cannot receive service credits until it is paid."
+  },
+  {
+   "id": "R3",
+   "when": "inc.cause != 'provider'",
+   "outcome": "refuse",
+   "explain": "Only incidents caused by Stratusgate are covered; scheduled maintenance and third-party incidents are excluded."
+  },
+  {
+   "id": "R4",
+   "when": "inc.region != inv.region",
+   "outcome": "refuse",
+   "explain": "The incident must be in the same region as the invoiced project."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(inv.period_start, inc.start_date) < 0 or days_between(inc.start_date, inv.period_end) < 0",
+   "outcome": "refuse",
+   "explain": "The incident must have started within the invoice's billing period."
+  },
+  {
+   "id": "R6",
+   "when": "days_between(inc.start_date, today) > 60",
+   "outcome": "refuse",
+   "explain": "Claims must be made within 60 days of the incident start date."
+  },
+  {
+   "id": "R7",
+   "when": "inc.downtime_minutes < 45",
+   "outcome": "refuse",
+   "explain": "Incidents with less than 45 minutes of downtime do not breach the SLA."
+  },
+  {
+   "id": "R8",
+   "when": "db_count('service_credit', 'account_id', acct.account_id) >= 2",
+   "outcome": "review",
+   "explain": "If the account has already received two or more service credits, send the claim to billing review instead of crediting it."
+  }
+ ],
+ "default_outcome": "credit",
+ "policy_text": "## Purpose\nCustomers affected by a Stratusgate platform outage may claim an SLA service credit against the monthly invoice of the affected project. A claim always concerns one invoice and one status-page incident.\n\n## Identifying the invoice and incident\nAsk for the invoice number. If the customer does not have it, ask for their billing account ID and list the account's invoices with find_invoices_by_account; if there are several, ask for the billing period (or project) to pick the right one. Ask for the status-page incident ID; if they do not have it, you may list incidents for the invoice's region with find_incidents_by_region and confirm the date with the customer. If you cannot identify both the invoice and the incident, do not make any change.\n\nAlways look up the billing account behind the invoice and the account's existing service credits yourself, even if the customer does not mention them. Go by what our records say, not by what the customer believes (for example about the region of their project or how long the outage lasted).\n\n## Eligibility (check in this order)\n1. The billing account must be active. Suspended or closed accounts get no credit.\n2. The account must have no past-due balance. If any amount is past due, no credit can be granted until it is paid.\n3. Only incidents caused by Stratusgate (cause: provider) are covered. Scheduled maintenance and third-party incidents are not.\n4. The incident must be in the same region as the invoiced project.\n5. The incident must have started within the invoice's billing period (between period start and period end, inclusive).\n6. The claim must be made within 60 days of the incident start date. Older incidents are not eligible.\n7. The incident must have caused at least 45 minutes of downtime. Shorter incidents do not breach the SLA.\n8. If the account has already received two or more service credits (any time, check with find_credits_by_account), do not grant the credit yourself: open a billing review with create_credit_review, reason repeat_claims, and tell the customer the review team will follow up.\n\nIf a claim fails a check, decline it and explain why. Do not grant partial credits or exceptions.\n\n## Computing the credit\nThe credit is a percentage of the invoice's compute charges (not the total amount due), based on the incident's recorded downtime:\n- 240 minutes or more: 25% of compute charges.\n- 45 to 239 minutes: 10% of compute charges.\nRound to the cent. The credit for one incident is capped at 1000.00 USD; if the percentage gives more, use 1000.00.\n\n## Granting the credit\nWhen all checks pass, make these three calls in order with the same amount:\n1. create_service_credit for the account, invoice and incident.\n2. apply_invoice_credit on the invoice.\n3. record_account_credit on the account.\nThen tell the customer the amount credited.\n\n## Never\nDo not credit an invoice or incident other than the one the customer finally asks about, do not change the amount from the computed one, do not waive or adjust past-due balances, and do not grant credits for incidents that fail any check.",
+ "db_common": {
+  "incident": [
+   {
+    "incident_id": "INC-2604-117",
+    "region": "eu-central-1",
+    "start_date": "2026-04-14",
+    "downtime_minutes": 312,
+    "cause": "provider",
+    "summary": "Block storage controller failure affecting compute instances"
+   },
+   {
+    "incident_id": "INC-2604-088",
+    "region": "eu-central-1",
+    "start_date": "2026-04-08",
+    "downtime_minutes": 180,
+    "cause": "scheduled_maintenance",
+    "summary": "Announced network core upgrade"
+   },
+   {
+    "incident_id": "INC-2604-131",
+    "region": "eu-central-1",
+    "start_date": "2026-04-19",
+    "downtime_minutes": 25,
+    "cause": "provider",
+    "summary": "Brief API gateway errors"
+   },
+   {
+    "incident_id": "INC-2604-203",
+    "region": "us-east-2",
+    "start_date": "2026-04-22",
+    "downtime_minutes": 95,
+    "cause": "provider",
+    "summary": "Hypervisor host outage in one availability zone"
+   },
+   {
+    "incident_id": "INC-2603-041",
+    "region": "us-east-2",
+    "start_date": "2026-03-10",
+    "downtime_minutes": 400,
+    "cause": "provider",
+    "summary": "Power distribution fault in data hall"
+   },
+   {
+    "incident_id": "INC-2604-150",
+    "region": "ap-southeast-1",
+    "start_date": "2026-04-17",
+    "downtime_minutes": 520,
+    "cause": "provider",
+    "summary": "Regional DNS resolver outage"
+   },
+   {
+    "incident_id": "INC-2605-012",
+    "region": "ap-southeast-1",
+    "start_date": "2026-05-04",
+    "downtime_minutes": 30,
+    "cause": "provider",
+    "summary": "Object storage latency spike"
+   },
+   {
+    "incident_id": "INC-2604-174",
+    "region": "us-west-1",
+    "start_date": "2026-04-27",
+    "downtime_minutes": 210,
+    "cause": "provider",
+    "summary": "Load balancer fleet failure"
+   },
+   {
+    "incident_id": "INC-2605-019",
+    "region": "us-west-1",
+    "start_date": "2026-05-06",
+    "downtime_minutes": 150,
+    "cause": "provider",
+    "summary": "Database service failover loop"
+   }
+  ],
+  "billing_account": [
+   {
+    "account_id": "AC-10442",
+    "company_name": "Meridian Freight Co.",
+    "billing_email": "ap@meridianfreight.example",
+    "status": "active",
+    "past_due_balance": 0,
+    "lifetime_credits": 412.5
+   }
+  ],
+  "invoice": [
+   {
+    "invoice_id": "INV-10442-0426",
+    "account_id": "AC-10442",
+    "project_name": "dispatch-core",
+    "region": "eu-central-1",
+    "period_start": "2026-04-01",
+    "period_end": "2026-04-30",
+    "compute_charges": 1650.0,
+    "amount_due": 1428.9,
+    "credit_applied": 412.5,
+    "status": "issued"
+   }
+  ],
+  "service_credit": [
+   {
+    "credit_id": "SC-10442-01",
+    "account_id": "AC-10442",
+    "invoice_id": "INV-10442-0426",
+    "incident_id": "INC-2604-117",
+    "amount": 412.5,
+    "created": "2026-05-02"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-41870",
+      "company_name": "Larkspur Analytics GmbH",
+      "billing_email": "finance@larkspur-analytics.example",
+      "status": "active",
+      "past_due_balance": 312.4,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-41870-0426",
+      "account_id": "AC-41870",
+      "project_name": "insights-pipeline",
+      "region": "eu-central-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 2840.0,
+      "amount_due": 3120.0,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-41870-0426",
+    "incident_id": "INC-2604-117"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-41870-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-117",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Katrin Vogel, finance operations lead at a data analytics firm in Frankfurt. Polite, precise, and used to handling vendor billing.",
+   "reason_for_call": "Their data pipeline was down for hours during a storage outage in April and she wants the SLA credit on the April invoice.",
+   "task_instructions": "Open by asking for the outage credit on your April invoice and give the invoice number. Give the incident ID from the status page only when the agent asks for it. If the agent declines, ask briefly what you need to do, thank them and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-38215",
+      "company_name": "Quillmoor Games Ltd",
+      "billing_email": "billing@quillmoor.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-38215-0326",
+      "account_id": "AC-38215",
+      "project_name": "matchmaking",
+      "region": "eu-central-1",
+      "period_start": "2026-03-01",
+      "period_end": "2026-03-31",
+      "compute_charges": 4120.0,
+      "amount_due": 0,
+      "credit_applied": 0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-38215-0426",
+      "account_id": "AC-38215",
+      "project_name": "matchmaking",
+      "region": "eu-central-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 4385.0,
+      "amount_due": 4790.6,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-38215-0426",
+    "incident_id": "INC-2604-088"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-38215-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-088",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "We're moving into a new office in Leeds next month, so things are hectic.",
+     "kind": "distractor"
+    },
+    {
+     "text": "I was also going to ask about reserved instance pricing, but that can wait for another day.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Our March invoice was paid on time, no issues there.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Your support team helped us brilliantly with a migration last year.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Gareth Pryce, CTO of a small multiplayer game studio. Impatient, stressed about player complaints and convinced any downtime should be compensated.",
+   "reason_for_call": "Their matchmaking servers went offline for three hours in early April during a network event and players flooded them with complaints; he wants a credit on the April invoice.",
+   "task_instructions": "Give the invoice number and the incident ID right away and chat about your other topics along the way. If the agent refuses, argue that downtime is downtime no matter the reason and demand an exception at least twice. Then grudgingly accept and end.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-62904",
+      "company_name": "Harrowgate Supply Inc.",
+      "billing_email": "it-billing@harrowgate.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-62904-0326",
+      "account_id": "AC-62904",
+      "project_name": "erp-hosting",
+      "region": "us-east-2",
+      "period_start": "2026-03-01",
+      "period_end": "2026-03-31",
+      "compute_charges": 3310.0,
+      "amount_due": 3602.75,
+      "credit_applied": 0,
+      "status": "issued"
+     },
+     {
+      "invoice_id": "INV-62904-0426",
+      "account_id": "AC-62904",
+      "project_name": "erp-hosting",
+      "region": "us-east-2",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 3290.0,
+      "amount_due": 3581.2,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-62904-0326",
+    "incident_id": "INC-2603-041"
+   },
+   "customer_facts": [
+    {
+     "fact": "inv.account_id",
+     "value": "AC-62904",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2603-041",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.period_start",
+     "value": "2026-03-01",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Dwayne Fitch, IT manager at a regional distributor. Busy and blunt; answers in as few words as possible.",
+   "reason_for_call": "Their ERP went down during a long power-related outage in March and he only now got around to claiming the credit.",
+   "task_instructions": "Say you want an outage credit and give your account ID and the incident ID. You don't have the invoice number. Only say which billing month if asked (March). Keep every answer very short. Accept a refusal without arguing.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-55102",
+      "company_name": "Tidewater Logistics LLC",
+      "billing_email": "accounts@tidewater-log.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 120.0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-55102-0126",
+      "account_id": "AC-55102",
+      "project_name": "fleet-api",
+      "region": "us-east-2",
+      "period_start": "2026-01-01",
+      "period_end": "2026-01-31",
+      "compute_charges": 1200.0,
+      "amount_due": 0,
+      "credit_applied": 120.0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-55102-0426A",
+      "account_id": "AC-55102",
+      "project_name": "fleet-api",
+      "region": "us-east-2",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 2210.0,
+      "amount_due": 2398.4,
+      "credit_applied": 0,
+      "status": "issued"
+     },
+     {
+      "invoice_id": "INV-55102-0426B",
+      "account_id": "AC-55102",
+      "project_name": "warehouse-portal",
+      "region": "ap-southeast-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 1960.0,
+      "amount_due": 2145.3,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-2601-007",
+      "region": "us-east-2",
+      "start_date": "2026-01-15",
+      "downtime_minutes": 160,
+      "cause": "provider",
+      "summary": "Network switch failure"
+     }
+    ],
+    "service_credit": [
+     {
+      "credit_id": "SC-55102-01",
+      "account_id": "AC-55102",
+      "invoice_id": "INV-55102-0126",
+      "incident_id": "INC-2601-007",
+      "amount": 120.0,
+      "created": "2026-02-03"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "invoice_id": "INV-55102-0426A",
+    "incident_id": "INC-2604-203"
+   },
+   "request_values": {
+    "invoice_id": "INV-55102-0426B",
+    "incident_id": "INC-2604-150"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-55102-0426B",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-150",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya Raman, cloud cost analyst at a logistics company running two projects in different regions. Friendly and a little scattered.",
+   "reason_for_call": "Both of their projects were hit by outages in April and she wants a credit; she starts with the fleet API project but decides the warehouse portal outage was the one that really hurt.",
+   "task_instructions": "First ask for a credit on the fleet API invoice for the April 22 outage (give those numbers when asked). Before the agent makes any change, say you've changed your mind: you only want to claim for the warehouse portal invoice and its outage. Give that invoice number, and the incident ID when asked. Be cooperative.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-29477",
+      "company_name": "Ostrander Health Labs",
+      "billing_email": "billing@ostranderlabs.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-29477-0426",
+      "account_id": "AC-29477",
+      "project_name": "lims-prod",
+      "region": "us-east-2",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 3475.5,
+      "amount_due": 3890.1,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "invoice_id": "INV-29477-0426",
+    "incident_id": "INC-2603-041"
+   },
+   "request_values": {
+    "invoice_id": "INV-29477-0426",
+    "incident_id": "INC-2604-203"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-29477-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inc.downtime_minutes",
+     "value": 360,
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Marcus Okafor, operations director at a clinical testing lab. Businesslike, keeps notes, and believes the April outage took their system down for about six hours.",
+   "reason_for_call": "Their lab system was unavailable during outages and he wants a credit on the April invoice, expecting the larger percentage for a long outage.",
+   "task_instructions": "First ask for a credit on the April invoice for the big March power outage. When the agent declines, ask instead for the April 22 outage on the same invoice, and say it lasted about six hours, so you expect the higher rate. If the agent explains the recorded downtime gives a smaller credit, accept it.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-80651",
+      "company_name": "Vellichor Studios BV",
+      "billing_email": "admin@vellichor.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-80651-0426",
+      "account_id": "AC-80651",
+      "project_name": "render-farm",
+      "region": "eu-central-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 5120.0,
+      "amount_due": 5604.75,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "invoice_id": "INV-80651-0426",
+    "incident_id": "INC-2604-088"
+   },
+   "request_values": {
+    "invoice_id": "INV-80651-0426",
+    "incident_id": "INC-2604-117"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-80651-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-117",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Sanne de Vries, producer at an animation studio in Amsterdam whose render jobs stalled twice in April. Practical and willing to compromise.",
+   "reason_for_call": "Render deadlines slipped because of April outages and she wants a credit on the April invoice.",
+   "task_instructions": "Give the invoice number and first ask for a credit for the April 8 network event (give its incident ID). When the agent declines, ask instead for the April 14 storage outage, giving its incident ID. Accept the amount the agent states.",
+   "expected_outcome": "credit"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-47330",
+      "company_name": "Pinecrest Robotics Corp.",
+      "billing_email": "ap@pinecrest-robotics.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-47330-0426",
+      "account_id": "AC-47330",
+      "project_name": "telemetry-ingest",
+      "region": "us-west-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 1840.0,
+      "amount_due": 2010.0,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ]
+   },
+   "request_values": {
+    "invoice_id": "INV-47330-0426",
+    "incident_id": "INC-2604-203"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-47330-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-203",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.region",
+     "value": "us-east-2",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Leon Hartigan, engineering manager at a robotics startup. Assertive and certain their telemetry project runs in us-east-2.",
+   "reason_for_call": "He saw a hypervisor outage on the status page and is sure it caused the telemetry gaps his team noticed in late April.",
+   "task_instructions": "Give the invoice number and incident ID and state that your project runs in us-east-2. If refused, insist the region is us-east-2 and demand an exception at least twice before accepting and ending.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "billing_account": [
+     {
+      "account_id": "AC-73019",
+      "company_name": "Brightfern Media Inc.",
+      "billing_email": "billing@brightfern.example",
+      "status": "active",
+      "past_due_balance": 0,
+      "lifetime_credits": 615.0
+     }
+    ],
+    "invoice": [
+     {
+      "invoice_id": "INV-73019-1125",
+      "account_id": "AC-73019",
+      "project_name": "streaming-edge",
+      "region": "us-west-1",
+      "period_start": "2025-11-01",
+      "period_end": "2025-11-30",
+      "compute_charges": 2900.0,
+      "amount_due": 0,
+      "credit_applied": 290.0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-73019-0226",
+      "account_id": "AC-73019",
+      "project_name": "streaming-edge",
+      "region": "us-west-1",
+      "period_start": "2026-02-01",
+      "period_end": "2026-02-28",
+      "compute_charges": 1300.0,
+      "amount_due": 0,
+      "credit_applied": 325.0,
+      "status": "paid"
+     },
+     {
+      "invoice_id": "INV-73019-0426",
+      "account_id": "AC-73019",
+      "project_name": "streaming-edge",
+      "region": "us-west-1",
+      "period_start": "2026-04-01",
+      "period_end": "2026-04-30",
+      "compute_charges": 2980.0,
+      "amount_due": 3255.4,
+      "credit_applied": 0,
+      "status": "issued"
+     }
+    ],
+    "incident": [
+     {
+      "incident_id": "INC-2511-044",
+      "region": "us-west-1",
+      "start_date": "2025-11-18",
+      "downtime_minutes": 90,
+      "cause": "provider",
+      "summary": "CDN origin connectivity loss"
+     },
+     {
+      "incident_id": "INC-2602-019",
+      "region": "us-west-1",
+      "start_date": "2026-02-09",
+      "downtime_minutes": 300,
+      "cause": "provider",
+      "summary": "Compute control plane outage"
+     }
+    ],
+    "service_credit": [
+     {
+      "credit_id": "SC-73019-01",
+      "account_id": "AC-73019",
+      "invoice_id": "INV-73019-1125",
+      "incident_id": "INC-2511-044",
+      "amount": 290.0,
+      "created": "2025-12-04"
+     },
+     {
+      "credit_id": "SC-73019-02",
+      "account_id": "AC-73019",
+      "invoice_id": "INV-73019-0226",
+      "incident_id": "INC-2602-019",
+      "amount": 325.0,
+      "created": "2026-03-02"
+     }
+    ]
+   },
+   "initial_request_values": {
+    "invoice_id": "INV-73019-0426",
+    "incident_id": "INC-2605-019"
+   },
+   "request_values": {
+    "invoice_id": "INV-73019-0426",
+    "incident_id": "INC-2604-174"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.invoice_id",
+     "value": "INV-73019-0426",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.incident_id",
+     "value": "INC-2604-174",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "inv.region",
+     "value": "us-west-1",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The status page notice for the April 27 incident said the us-west-1 load balancers were down for about three and a half hours.",
+     "kind": "helpful"
+    },
+    {
+     "text": "All of our April compute for the streaming project ran in us-west-1.",
+     "kind": "helpful"
+    },
+    {
+     "text": "We've had a couple of outage credits from you before, one last November and one in February.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Ruth Abernathy, platform lead at an online video company. Organized, keeps the status-page emails, and thinks out loud.",
+   "reason_for_call": "Their streaming edge went dark during a load balancer failure in late April and she wants the credit on the April invoice.",
+   "task_instructions": "Give the April invoice number and mention that the project runs in us-west-1. First ask about the May 6 database outage, then, before the agent makes any change, correct yourself: the one that matters for the April invoice is the April 27 load balancer incident, and give its ID. Share your other details naturally. Accept it if the agent says the claim goes to a review team.",
+   "expected_outcome": "review"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

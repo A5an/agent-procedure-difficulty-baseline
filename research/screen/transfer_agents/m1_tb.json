@@ -1,0 +1,757 @@
+{
+ "n_rows": 134,
+ "n_factor_groups_eval": 101,
+ "n_eval_rows": 101,
+ "n_models": 46,
+ "n_harness": 40,
+ "score": {
+  "dec": {
+   "logloss": 0.3927091038157143,
+   "auc": 0.9018321033832292,
+   "mae_share": 0.042427245130467514,
+   "bias": 0.0011038188966377516
+  },
+  "mean": {
+   "logloss": 0.5472415718363639,
+   "auc": 0.8004611134284567,
+   "mae_share": 0.18185195080239525,
+   "bias": 0.015773609840539403
+  },
+  "same": {
+   "logloss": 0.3960714214770522,
+   "auc": 0.9000862228510719,
+   "mae_share": 0.047663885283248345,
+   "bias": 0.00464162223727101
+  },
+  "modonly": {
+   "logloss": 0.4050793292904344,
+   "auc": 0.8987908973150898,
+   "mae_share": 0.06576828049183228,
+   "bias": 0.04510678926409119
+  }
+ },
+ "paired_dec_minus": {
+  "mean": [
+   -0.15453246802064965,
+   -0.19131706408641166,
+   -0.12030347718785532,
+   0.8712871287128713
+  ],
+  "same": [
+   -0.003362317661337861,
+   -0.007275308874000616,
+   0.0004887844047258692,
+   0.5544554455445545
+  ]
+ },
+ "dropped": [
+  [
+   "jjagent_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "lemonharness_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "polaris_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "lemonharness_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "junie_cli_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "warp_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "warp_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "abacus_ai_desktop_multiple",
+   "model=Multiple (ambiguous)"
+  ],
+  [
+   "warp_multiple",
+   "model=Multiple (ambiguous)"
+  ]
+ ],
+ "mapping": [
+  [
+   "vix_claude_opus_4_7",
+   "vix",
+   "claude opus 4.7"
+  ],
+  [
+   "nexau_ahe_gpt_5_5",
+   "NexAU-AHE",
+   "gpt 5.5"
+  ],
+  [
+   "capy_gpt_5_5",
+   "Capy",
+   "gpt 5.5"
+  ],
+  [
+   "codex_cli_gpt_5_5",
+   "Codex CLI",
+   "gpt 5.5"
+  ],
+  [
+   "tongagents_gemini_3_1_pro",
+   "TongAgents",
+   "gemini 3.1 pro"
+  ],
+  [
+   "wozcode_claude_opus_4_7",
+   "WOZCODE",
+   "claude opus 4.7"
+  ],
+  [
+   "sageagent_gpt_5_3_codex",
+   "SageAgent",
+   "gpt 5.3 codex"
+  ],
+  [
+   "droid_gpt_5_3_codex",
+   "Droid",
+   "gpt 5.3 codex"
+  ],
+  [
+   "meta_harness_claude_opus_4_6",
+   "Meta-Harness",
+   "claude opus 4.6"
+  ],
+  [
+   "codebrain_1.5_gpt_5_3_codex",
+   "CodeBrain-1.5",
+   "gpt 5.3 codex"
+  ],
+  [
+   "codelia_gpt_5_3_codex",
+   "Codelia",
+   "gpt 5.3 codex"
+  ],
+  [
+   "capy_claude_opus_4_6",
+   "Capy",
+   "claude opus 4.6"
+  ],
+  [
+   "simple_codex_gpt_5_3_codex",
+   "Simple Codex",
+   "gpt 5.3 codex"
+  ],
+  [
+   "terminus_kira_gemini_3_1_pro",
+   "Terminus-KIRA",
+   "gemini 3.1 pro"
+  ],
+  [
+   "terminus_kira_claude_opus_4_6",
+   "Terminus-KIRA",
+   "claude opus 4.6"
+  ],
+  [
+   "mux_gpt_5_3_codex",
+   "Mux",
+   "gpt 5.3 codex"
+  ],
+  [
+   "maya_v2_claude_4_6_opus",
+   "MAYA-V2",
+   "claude opus 4.6"
+  ],
+  [
+   "tongagents_claude_opus_4_6",
+   "TongAgents",
+   "claude opus 4.6"
+  ],
+  [
+   "spoox_o_m_gpt_5_3_codex",
+   "spoox-o-m",
+   "gpt 5.3 codex"
+  ],
+  [
+   "droid_claude_opus_4_6",
+   "Droid",
+   "claude opus 4.6"
+  ],
+  [
+   "ante_gemini_3_pro",
+   "Ante",
+   "gemini 3 pro"
+  ],
+  [
+   "indusagi_coding_agent_gpt_5_3_codex",
+   "IndusAGI Coding Agent",
+   "gpt 5.3 codex"
+  ],
+  [
+   "crux_claude_opus_4_6",
+   "Crux",
+   "claude opus 4.6"
+  ],
+  [
+   "deep_agents_gpt_5_2_codex",
+   "Deep Agents",
+   "gpt 5.2 codex"
+  ],
+  [
+   "mux_claude_opus_4_6",
+   "Mux",
+   "claude opus 4.6"
+  ],
+  [
+   "clnkr_gpt_5_5",
+   "clnkr",
+   "gpt 5.5"
+  ],
+  [
+   "sageagent_gemini_3_pro",
+   "SageAgent",
+   "gemini 3 pro"
+  ],
+  [
+   "droid_gpt_5_2",
+   "Droid",
+   "gpt 5.2"
+  ],
+  [
+   "terminus_2_gpt_5_3_codex",
+   "Terminus 2",
+   "gpt 5.3 codex"
+  ],
+  [
+   "junie_cli_gemini_3_flash",
+   "Junie CLI",
+   "gemini 3 flash"
+  ],
+  [
+   "droid_claude_opus_4_5",
+   "Droid",
+   "claude opus 4.5"
+  ],
+  [
+   "codex_cli_gpt_5_2",
+   "Codex CLI",
+   "gpt 5.2"
+  ],
+  [
+   "terminus_2_claude_opus_4_6",
+   "Terminus 2",
+   "claude opus 4.6"
+  ],
+  [
+   "codebrain_1.5_gemini_3_pro",
+   "CodeBrain-1.5",
+   "gemini 3 pro"
+  ],
+  [
+   "ii_agent_gemini_3_pro",
+   "II-Agent",
+   "gemini 3 pro"
+  ],
+  [
+   "hookele_gpt_5_1_codex_mini",
+   "hookele",
+   "gpt 5.1 codex mini"
+  ],
+  [
+   "droid_gemini_3_pro",
+   "Droid",
+   "gemini 3 pro"
+  ],
+  [
+   "mux_gpt_5_2",
+   "Mux",
+   "gpt 5.2"
+  ],
+  [
+   "codex_cli_gpt_5_1_codex_max",
+   "Codex CLI",
+   "gpt 5.1 codex max"
+  ],
+  [
+   "gemini_cli_gemini_3_1_pro",
+   "Gemini CLI",
+   "gemini 3.1 pro"
+  ],
+  [
+   "letta_code_claude_opus_4_5",
+   "Letta Code",
+   "claude opus 4.5"
+  ],
+  [
+   "mux_claude_opus_4_5",
+   "Mux",
+   "claude opus 4.5"
+  ],
+  [
+   "claude_code_claude_opus_4_6",
+   "Claude Code",
+   "claude opus 4.6"
+  ],
+  [
+   "terminus_2_claude_opus_4_5",
+   "Terminus 2",
+   "claude opus 4.5"
+  ],
+  [
+   "crux_gpt_5_1_codex",
+   "Crux",
+   "gpt 5.1 codex"
+  ],
+  [
+   "grok_cli_grok_4_20_reasoning",
+   "Grok CLI",
+   "grok 4.20 reasoning"
+  ],
+  [
+   "terminus_2_gemini_3_pro",
+   "Terminus 2",
+   "gemini 3 pro"
+  ],
+  [
+   "letta_code_gemini_3_pro",
+   "Letta Code",
+   "gemini 3 pro"
+  ],
+  [
+   "goose_claude_opus_4_5",
+   "Goose",
+   "claude opus 4.5"
+  ],
+  [
+   "terminus_2_gpt_5_2",
+   "Terminus 2",
+   "gpt 5.2"
+  ],
+  [
+   "letta_code_gpt_5_1_codex",
+   "Letta Code",
+   "gpt 5.1 codex"
+  ],
+  [
+   "simplai_agent_claude_sonnet_4_6",
+   "Simplai Agent",
+   "claude sonnet 4.6"
+  ],
+  [
+   "terminus_2_glm_5",
+   "Terminus 2",
+   "glm 5"
+  ],
+  [
+   "claude_code_claude_opus_4_5",
+   "Claude Code",
+   "claude opus 4.5"
+  ],
+  [
+   "openhands_claude_opus_4_5",
+   "OpenHands",
+   "claude opus 4.5"
+  ],
+  [
+   "terminus_2_gemini_3_flash",
+   "Terminus 2",
+   "gemini 3 flash"
+  ],
+  [
+   "opencode_claude_opus_4_5",
+   "OpenCode",
+   "claude opus 4.5"
+  ],
+  [
+   "codex_cli_gpt_5",
+   "Codex CLI",
+   "gpt 5"
+  ],
+  [
+   "terminus_2_gpt_5_1",
+   "Terminus 2",
+   "gpt 5.1"
+  ],
+  [
+   "gemini_cli_gemini_3_flash",
+   "Gemini CLI",
+   "gemini 3 flash"
+  ],
+  [
+   "camel_ai_claude_sonnet_4_5",
+   "CAMEL-AI",
+   "claude sonnet 4.5"
+  ],
+  [
+   "indusagi_coding_agent_minimax_m2_7",
+   "IndusAGI Coding Agent",
+   "minimax m2.7"
+  ],
+  [
+   "codex_cli_gpt_5_codex",
+   "Codex CLI",
+   "gpt 5 codex"
+  ],
+  [
+   "openhands_gpt_5",
+   "OpenHands",
+   "gpt 5"
+  ],
+  [
+   "harness_agent_minimax_m2_7_highspeed",
+   "Harness Agent",
+   "minimax m2.7 highspeed"
+  ],
+  [
+   "terminus_2_gpt_5_codex",
+   "Terminus 2",
+   "gpt 5 codex"
+  ],
+  [
+   "terminus_2_kimi_k2_5",
+   "Terminus 2",
+   "kimi k2.5"
+  ],
+  [
+   "goose_claude_sonnet_4_5",
+   "Goose",
+   "claude sonnet 4.5"
+  ],
+  [
+   "crux_gpt_5_1_codex_mini",
+   "Crux",
+   "gpt 5.1 codex mini"
+  ],
+  [
+   "terminus_2_claude_sonnet_4_5",
+   "Terminus 2",
+   "claude sonnet 4.5"
+  ],
+  [
+   "maya_v2_claude_4_5_sonnet",
+   "MAYA-V2",
+   "claude sonnet 4.5"
+  ],
+  [
+   "cchuter_minimax_m2_5",
+   "cchuter",
+   "minimax m2.5"
+  ],
+  [
+   "openhands_claude_sonnet_4_5",
+   "OpenHands",
+   "claude sonnet 4.5"
+  ],
+  [
+   "mini_swe_agent_claude_sonnet_4_5",
+   "Mini-SWE-Agent",
+   "claude sonnet 4.5"
+  ],
+  [
+   "terminus_2_minimax_m2_5",
+   "Terminus 2",
+   "minimax m2.5"
+  ],
+  [
+   "mini_swe_agent_gpt_5_codex",
+   "Mini-SWE-Agent",
+   "gpt 5 codex"
+  ],
+  [
+   "claude_code_claude_sonnet_4_5",
+   "Claude Code",
+   "claude sonnet 4.5"
+  ],
+  [
+   "terminus_2_deepseek_v3_2",
+   "Terminus 2",
+   "deepseek v3.2"
+  ],
+  [
+   "terminus_2_claude_opus_4_1",
+   "Terminus 2",
+   "claude opus 4.1"
+  ],
+  [
+   "openhands_claude_opus_4_1",
+   "OpenHands",
+   "claude opus 4.1"
+  ],
+  [
+   "terminus_2_gpt_5_1_codex",
+   "Terminus 2",
+   "gpt 5.1 codex"
+  ],
+  [
+   "crux_minimax_m2_1",
+   "Crux",
+   "minimax m2.1"
+  ],
+  [
+   "terminus_2_kimi_k2_thinking",
+   "Terminus 2",
+   "kimi k2 thinking"
+  ],
+  [
+   "goose_claude_haiku_4_5",
+   "Goose",
+   "claude haiku 4.5"
+  ],
+  [
+   "terminus_2_gpt_5",
+   "Terminus 2",
+   "gpt 5"
+  ],
+  [
+   "mini_swe_agent_claude_opus_4_1",
+   "Mini-SWE-Agent",
+   "claude opus 4.1"
+  ],
+  [
+   "spoox_o_m_gpt_5_mini",
+   "spoox-o-m",
+   "gpt 5 mini"
+  ],
+  [
+   "claude_code_claude_opus_4_1",
+   "Claude Code",
+   "claude opus 4.1"
+  ],
+  [
+   "mini_swe_agent_gpt_5",
+   "Mini-SWE-Agent",
+   "gpt 5"
+  ],
+  [
+   "terminus_2_glm_4_7",
+   "Terminus 2",
+   "glm 4.7"
+  ],
+  [
+   "crux_glm_4_7",
+   "Crux",
+   "glm 4.7"
+  ],
+  [
+   "terminus_2_gemini_2_5_pro",
+   "Terminus 2",
+   "gemini 2.5 pro"
+  ],
+  [
+   "codex_cli_gpt_5_mini",
+   "Codex CLI",
+   "gpt 5 mini"
+  ],
+  [
+   "terminus_2_minimax_m2",
+   "Terminus 2",
+   "minimax m2"
+  ],
+  [
+   "mini_swe_agent_claude_haiku_4_5",
+   "Mini-SWE-Agent",
+   "claude haiku 4.5"
+  ],
+  [
+   "openhands_gpt_5_mini",
+   "OpenHands",
+   "gpt 5 mini"
+  ],
+  [
+   "terminus_2_minimax_m2_1",
+   "Terminus 2",
+   "minimax m2.1"
+  ],
+  [
+   "terminus_2_claude_haiku_4_5",
+   "Terminus 2",
+   "claude haiku 4.5"
+  ],
+  [
+   "terminus_2_kimi_k2_instruct",
+   "Terminus 2",
+   "kimi k2 instruct"
+  ],
+  [
+   "claude_code_claude_haiku_4_5",
+   "Claude Code",
+   "claude haiku 4.5"
+  ],
+  [
+   "dakou_agent_qwen_3_coder_480b",
+   "Dakou Agent",
+   "qwen 3 coder 480b"
+  ],
+  [
+   "openhands_grok_4",
+   "OpenHands",
+   "grok 4"
+  ],
+  [
+   "openhands_kimi_k2_instruct",
+   "OpenHands",
+   "kimi k2 instruct"
+  ],
+  [
+   "mini_swe_agent_gemini_2_5_pro",
+   "Mini-SWE-Agent",
+   "gemini 2.5 pro"
+  ],
+  [
+   "mini_swe_agent_grok_code_fast_1",
+   "Mini-SWE-Agent",
+   "grok code fast 1"
+  ],
+  [
+   "mini_swe_agent_grok_4",
+   "Mini-SWE-Agent",
+   "grok 4"
+  ],
+  [
+   "openhands_qwen_3_coder_480b",
+   "OpenHands",
+   "qwen 3 coder 480b"
+  ],
+  [
+   "little_coder_qwen3_6_35b_a3b",
+   "little-coder",
+   "qwen3.6 35b a3b"
+  ],
+  [
+   "terminus_2_glm_4_6",
+   "Terminus 2",
+   "glm 4.6"
+  ],
+  [
+   "terminus_2_gpt_5_mini",
+   "Terminus 2",
+   "gpt 5 mini"
+  ],
+  [
+   "terminus_2_qwen_3_coder_480b",
+   "Terminus 2",
+   "qwen 3 coder 480b"
+  ],
+  [
+   "terminus_2_grok_4",
+   "Terminus 2",
+   "grok 4"
+  ],
+  [
+   "little_coder_qwen3_6_35b_a3b",
+   "little-coder",
+   "qwen3.6 35b a3b"
+  ],
+  [
+   "mini_swe_agent_gpt_5_mini",
+   "Mini-SWE-Agent",
+   "gpt 5 mini"
+  ],
+  [
+   "spoox_o_m_gpt_5_nano",
+   "spoox-o-m",
+   "gpt 5 nano"
+  ],
+  [
+   "gemini_cli_gemini_2_5_pro",
+   "Gemini CLI",
+   "gemini 2.5 pro"
+  ],
+  [
+   "bash_agent_termigen_32b",
+   "Bash Agent",
+   "termigen 32b"
+  ],
+  [
+   "terminus_2_gpt_oss_120b",
+   "Terminus 2",
+   "gpt oss 120b"
+  ],
+  [
+   "mini_swe_agent_gemini_2_5_flash",
+   "Mini-SWE-Agent",
+   "gemini 2.5 flash"
+  ],
+  [
+   "terminus_2_afterquery_gpt_oss_20b",
+   "Terminus 2",
+   "afterquery gpt oss 20b"
+  ],
+  [
+   "terminus_2_gemini_2_5_flash",
+   "Terminus 2",
+   "gemini 2.5 flash"
+  ],
+  [
+   "openhands_gemini_2_5_pro",
+   "OpenHands",
+   "gemini 2.5 pro"
+  ],
+  [
+   "openhands_gemini_2_5_flash",
+   "OpenHands",
+   "gemini 2.5 flash"
+  ],
+  [
+   "gemini_cli_gemini_2_5_flash",
+   "Gemini CLI",
+   "gemini 2.5 flash"
+  ],
+  [
+   "mini_swe_agent_gpt_oss_120b",
+   "Mini-SWE-Agent",
+   "gpt oss 120b"
+  ],
+  [
+   "terminus_2_grok_code_fast_1",
+   "Terminus 2",
+   "grok code fast 1"
+  ],
+  [
+   "openhands_claude_haiku_4_5",
+   "OpenHands",
+   "claude haiku 4.5"
+  ],
+  [
+   "codex_cli_gpt_5_nano",
+   "Codex CLI",
+   "gpt 5 nano"
+  ],
+  [
+   "openhands_gpt_5_nano",
+   "OpenHands",
+   "gpt 5 nano"
+  ],
+  [
+   "little_coder_qwen3_5_9b",
+   "little-coder",
+   "qwen3.5 9b"
+  ],
+  [
+   "terminus_2_gpt_5_nano",
+   "Terminus 2",
+   "gpt 5 nano"
+  ],
+  [
+   "mini_swe_agent_gpt_5_nano",
+   "Mini-SWE-Agent",
+   "gpt 5 nano"
+  ],
+  [
+   "mini_swe_agent_gpt_oss_20b",
+   "Mini-SWE-Agent",
+   "gpt oss 20b"
+  ],
+  [
+   "terminus_2_gpt_oss_20b",
+   "Terminus 2",
+   "gpt oss 20b"
+  ]
+ ]
+}

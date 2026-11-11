@@ -1,0 +1,764 @@
+{
+ "procedure_id": "p06_car",
+ "domain": "car rental",
+ "organization": "Summit Ridge Car Rental",
+ "title": "Vehicle class upgrades on booked reservations",
+ "summary": "Upgrade a booked reservation to a higher vehicle class and bill the difference, or send premium upgrades for approval, when the customer, reservation and fleet allow it.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Rental customers",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "status": "enum:active|blocked"
+   }
+  },
+  "vehicle_class": {
+   "key": "class_code",
+   "description": "Vehicle classes with their daily rates and current stock",
+   "fields": {
+    "class_code": "str",
+    "tier_rank": "int",
+    "daily_rate": "number",
+    "units_available": "int"
+   }
+  },
+  "reservation": {
+   "key": "reservation_id",
+   "description": "Car reservations",
+   "fields": {
+    "reservation_id": "str",
+    "customer_id": "ref:customer",
+    "pickup_date": "date",
+    "return_date": "date",
+    "vehicle_class": "ref:vehicle_class",
+    "status": "enum:booked|picked_up|cancelled|completed",
+    "branch": "str"
+   }
+  },
+  "upgrade_charge": {
+   "key": "charge_id",
+   "description": "Charges for the price difference of an upgrade",
+   "fields": {
+    "charge_id": "str",
+    "reservation_id": "ref:reservation",
+    "amount": "number",
+    "created": "date"
+   }
+  },
+  "approval_request": {
+   "key": "request_id",
+   "description": "Requests for a branch manager to approve a premium upgrade",
+   "fields": {
+    "request_id": "str",
+    "reservation_id": "ref:reservation",
+    "new_class": "ref:vehicle_class",
+    "reason": "enum:luxury_upgrade|other",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer by customer number."
+  },
+  {
+   "name": "find_customer_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find customers by the email address on file."
+  },
+  {
+   "name": "get_reservation",
+   "kind": "get",
+   "entity": "reservation",
+   "description": "Look up a reservation by its reservation number."
+  },
+  {
+   "name": "find_reservations_by_customer",
+   "kind": "search",
+   "entity": "reservation",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all reservations of a customer."
+  },
+  {
+   "name": "get_vehicle_class",
+   "kind": "get",
+   "entity": "vehicle_class",
+   "description": "Look up a vehicle class (economy, compact, suv, van, luxury) with its daily rate and units available."
+  },
+  {
+   "name": "upgrade_reservation",
+   "kind": "update",
+   "entity": "reservation",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation to upgrade."
+    },
+    "new_class": {
+     "type": "ref:vehicle_class",
+     "description": "The vehicle class to move the reservation to."
+    }
+   },
+   "set": {
+    "vehicle_class": "args.new_class"
+   },
+   "description": "Change the vehicle class of a reservation."
+  },
+  {
+   "name": "create_upgrade_charge",
+   "kind": "create",
+   "entity": "upgrade_charge",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation being charged."
+    },
+    "amount": {
+     "type": "number",
+     "description": "Total price difference for the whole rental, rounded to 2 decimals."
+    }
+   },
+   "fields": {
+    "reservation_id": "args.reservation_id",
+    "amount": "args.amount",
+    "created": "today"
+   },
+   "description": "Record the upgrade charge for a reservation."
+  },
+  {
+   "name": "create_approval_request",
+   "kind": "create",
+   "entity": "approval_request",
+   "args": {
+    "reservation_id": {
+     "type": "ref:reservation",
+     "description": "The reservation the request is about."
+    },
+    "new_class": {
+     "type": "ref:vehicle_class",
+     "description": "The class requested."
+    },
+    "reason": {
+     "type": "enum:luxury_upgrade|other",
+     "description": "Why approval is needed."
+    }
+   },
+   "fields": {
+    "reservation_id": "args.reservation_id",
+    "new_class": "args.new_class",
+    "reason": "args.reason",
+    "created": "today"
+   },
+   "description": "Open a request for a branch manager to approve an upgrade."
+  }
+ ],
+ "request": {
+  "reservation_id": {
+   "type": "ref:reservation",
+   "description": "the reservation you want upgraded"
+  },
+  "new_class": {
+   "type": "ref:vehicle_class",
+   "description": "the vehicle class you want to move to (economy, compact, suv, van or luxury)"
+  }
+ },
+ "claims": {},
+ "bindings": [
+  {
+   "name": "res",
+   "entity": "reservation",
+   "key": "req.reservation_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "res.customer_id"
+  },
+  {
+   "name": "cur",
+   "entity": "vehicle_class",
+   "key": "res.vehicle_class"
+  },
+  {
+   "name": "new",
+   "entity": "vehicle_class",
+   "key": "req.new_class"
+  }
+ ],
+ "outcomes": {
+  "upgrade": {
+   "kind": "perform",
+   "description": "Move the reservation to the new class and record the price difference as a charge.",
+   "calls": [
+    {
+     "tool": "upgrade_reservation",
+     "args": {
+      "reservation_id": "req.reservation_id",
+      "new_class": "req.new_class"
+     }
+    },
+    {
+     "tool": "create_upgrade_charge",
+     "args": {
+      "reservation_id": "req.reservation_id",
+      "amount": "round((new.daily_rate - cur.daily_rate) * days_between(res.pickup_date, res.return_date), 2)"
+     }
+    }
+   ]
+  },
+  "approval": {
+   "kind": "perform",
+   "description": "Luxury upgrades need manager approval: open an approval request instead of upgrading.",
+   "calls": [
+    {
+     "tool": "create_approval_request",
+     "args": {
+      "reservation_id": "req.reservation_id",
+      "new_class": "req.new_class",
+      "reason": "'luxury_upgrade'"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Do not upgrade; explain why.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "cust.status != 'active'",
+   "outcome": "refuse",
+   "explain": "Blocked customers cannot upgrade."
+  },
+  {
+   "id": "R2",
+   "when": "res.status != 'booked'",
+   "outcome": "refuse",
+   "explain": "Only reservations that are still booked (not yet picked up, cancelled or completed) can be upgraded."
+  },
+  {
+   "id": "R3",
+   "when": "days_between(today, res.pickup_date) < 2",
+   "outcome": "refuse",
+   "explain": "Upgrades must be requested at least 2 days before pickup."
+  },
+  {
+   "id": "R4",
+   "when": "new.tier_rank <= cur.tier_rank",
+   "outcome": "refuse",
+   "explain": "The new class must be a higher tier than the current class."
+  },
+  {
+   "id": "R5",
+   "when": "new.units_available < 1",
+   "outcome": "refuse",
+   "explain": "The requested class must have at least one unit available."
+  },
+  {
+   "id": "R6",
+   "when": "new.class_code == 'luxury'",
+   "outcome": "approval",
+   "explain": "Upgrades to luxury need manager approval, so an approval request is opened instead."
+  }
+ ],
+ "default_outcome": "upgrade",
+ "policy_text": "## Who can ask\nCustomers can ask to upgrade the vehicle class of an existing reservation by phone or chat. Find the reservation and the customer it belongs to before changing anything.\n\n## Finding the reservation\nUse the reservation number if the customer has it. Otherwise find the customer by the email address on file, then list their reservations and ask which one they mean if there are several. If the customer cannot give a reservation number or the email on file, you cannot identify the booking: do not guess and make no change; offer to transfer to a human agent if appropriate. Always go by what the system shows, not by what the customer remembers about the booking.\n\n## When an upgrade is allowed\n- The customer account must be active. Blocked customers cannot upgrade.\n- The reservation must still be booked. Reservations already picked up, cancelled or completed cannot be upgraded.\n- The upgrade must be requested at least 2 days before the pickup date. Closer than that, decline.\n- The new class must be a higher tier than the reservation's current class (compare the tier rank). Same or lower tier is declined.\n- The new class must have at least one unit available.\n- Upgrades to the luxury class need manager approval. Do not upgrade; open an approval request with reason luxury_upgrade for the reservation and the luxury class, and tell the customer a manager will follow up.\n\n## Doing the upgrade\nIf everything is fine and the new class is not luxury, first change the reservation to the new class, then record an upgrade charge. The charge is the difference between the new and current daily rates multiplied by the number of rental days (days from pickup date to return date), rounded to 2 decimals.\n\n## Never\nDo not waive or discount the charge, do not make exceptions to the timing, tier or availability rules, do not upgrade without the customer asking, and do not change anything else on the booking.",
+ "db_common": {
+  "vehicle_class": [
+   {
+    "class_code": "economy",
+    "tier_rank": 1,
+    "daily_rate": 35,
+    "units_available": 5
+   },
+   {
+    "class_code": "compact",
+    "tier_rank": 2,
+    "daily_rate": 42,
+    "units_available": 3
+   },
+   {
+    "class_code": "suv",
+    "tier_rank": 3,
+    "daily_rate": 65,
+    "units_available": 2
+   },
+   {
+    "class_code": "van",
+    "tier_rank": 3,
+    "daily_rate": 80,
+    "units_available": 0
+   },
+   {
+    "class_code": "luxury",
+    "tier_rank": 4,
+    "daily_rate": 110,
+    "units_available": 1
+   }
+  ],
+  "customer": [
+   {
+    "customer_id": "C-1000",
+    "full_name": "Hana Berg",
+    "email": "hana.berg@example.com",
+    "status": "active"
+   }
+  ],
+  "reservation": [
+   {
+    "reservation_id": "R-1000",
+    "customer_id": "C-1000",
+    "pickup_date": "2026-07-01",
+    "return_date": "2026-07-05",
+    "vehicle_class": "economy",
+    "status": "booked",
+    "branch": "Seattle Downtown"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2001",
+      "full_name": "Tomas Novak",
+      "email": "tomas.n@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2001",
+      "customer_id": "C-2001",
+      "pickup_date": "2026-06-15",
+      "return_date": "2026-06-20",
+      "vehicle_class": "compact",
+      "status": "booked",
+      "branch": "Portland Airport"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2001",
+    "new_class": "suv"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_class",
+     "value": "suv",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "cust.full_name",
+     "value": "Tomas Novak",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Tomas, a terse man calling from a borrowed phone.",
+   "reason_for_call": "He wants a bigger car for an upcoming trip but lost the confirmation email and cannot remember which email address he used to book.",
+   "task_instructions": "Keep answers very short. Say you want a bigger, sport-utility style car instead of your current one and give your name if asked. You do not have the reservation number and do not know which email was used. Accept it if the agent cannot help.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2002",
+      "full_name": "Sofia Reyes",
+      "email": "sofia.reyes@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2021",
+      "customer_id": "C-2002",
+      "pickup_date": "2026-06-12",
+      "return_date": "2026-06-17",
+      "vehicle_class": "compact",
+      "status": "booked",
+      "branch": "Denver Airport"
+     },
+     {
+      "reservation_id": "R-2022",
+      "customer_id": "C-2002",
+      "pickup_date": "2026-08-01",
+      "return_date": "2026-08-04",
+      "vehicle_class": "economy",
+      "status": "booked",
+      "branch": "Denver Downtown"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2021",
+    "new_class": "suv"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2021",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "suv",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She also has a separate August booking for a weekend trip that she does not want to change.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She has rented from the company for about six years.",
+     "kind": "distractor"
+    },
+    {
+     "text": "She once got a flat tire on a previous rental and the roadside service was quick.",
+     "kind": "distractor"
+    }
+   ],
+   "initial_request_values": {
+    "new_class": "luxury"
+   },
+   "persona": "Sofia, a cheerful event planner who chats a lot.",
+   "reason_for_call": "She needs more room for colleagues and equipment on her June trip.",
+   "task_instructions": "First give your June reservation number and ask for the top premium class. Before the agent does anything, change your mind: say that is too pricey and you want a sport-utility vehicle instead. Mention your side stories naturally but make clear only the June booking matters.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2003",
+      "full_name": "Marcus Bell",
+      "email": "marcus.bell@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2031",
+      "customer_id": "C-2003",
+      "pickup_date": "2026-05-21",
+      "return_date": "2026-05-25",
+      "vehicle_class": "economy",
+      "status": "booked",
+      "branch": "Austin Airport"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2031",
+    "new_class": "suv"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2031",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "suv",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.pickup_date",
+     "value": "2026-06-20",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "new_class": "luxury"
+   },
+   "persona": "Marcus, a relaxed accountant who booked a while ago and remembers details loosely.",
+   "reason_for_call": "He wants a roomier car for his trip, which he believes is a month away.",
+   "task_instructions": "Give your reservation number and first ask for the top premium class. Then say that is too much and ask for a sport-utility vehicle instead. State that you pick the car up on June 20. If the agent says the pickup date is actually sooner and the upgrade cannot be made, accept that and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2004",
+      "full_name": "Priya Nair",
+      "email": "priya.nair@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2041",
+      "customer_id": "C-2004",
+      "pickup_date": "2026-05-21",
+      "return_date": "2026-05-25",
+      "vehicle_class": "compact",
+      "status": "booked",
+      "branch": "Chicago Midway"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2041",
+    "new_class": "suv"
+   },
+   "customer_facts": [
+    {
+     "fact": "cust.email",
+     "value": "priya.nair@example.com",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "suv",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.pickup_date",
+     "value": "2026-05-21",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Priya, an impatient consultant rushing to a family event.",
+   "reason_for_call": "She wants a larger sport-utility vehicle instead of her current small car for a trip that starts tomorrow but does not have the reservation number handy.",
+   "task_instructions": "Give your email and say you want a sport-utility vehicle. If the agent refuses, argue that it is an emergency and ask for an exception at least twice before accepting.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2005",
+      "full_name": "Elena Rossi",
+      "email": "elena.rossi@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2051",
+      "customer_id": "C-2005",
+      "pickup_date": "2026-06-03",
+      "return_date": "2026-06-08",
+      "vehicle_class": "economy",
+      "status": "booked",
+      "branch": "Boston Logan"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2051",
+    "new_class": "compact"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2051",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "compact",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Elena, a friendly teacher planning a summer drive.",
+   "reason_for_call": "She wants a little more comfort and luggage space for a long drive.",
+   "task_instructions": "State your reservation number and that you want to move up one step to a mid-size car in your first message. Answer politely.",
+   "expected_outcome": "upgrade"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2006",
+      "full_name": "Jonas Weber",
+      "email": "jonas.weber@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2061",
+      "customer_id": "C-2006",
+      "pickup_date": "2026-06-25",
+      "return_date": "2026-06-28",
+      "vehicle_class": "suv",
+      "status": "booked",
+      "branch": "Miami Airport"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2061",
+    "new_class": "luxury"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2061",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "luxury",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Jonas, an impatient executive who wants things done quickly.",
+   "reason_for_call": "He wants a nicer car for a client trip.",
+   "task_instructions": "Give your reservation number and say you want an upgrade, but do not name the class until the agent asks which one; then say the top premium class. Be curt and hurry the agent. If the agent says a manager must approve it, grumble but accept.",
+   "expected_outcome": "approval"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2007",
+      "full_name": "Aisha Khan",
+      "email": "aisha.khan@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2071",
+      "customer_id": "C-2007",
+      "pickup_date": "2026-06-10",
+      "return_date": "2026-06-14",
+      "vehicle_class": "economy",
+      "status": "booked",
+      "branch": "Denver Airport"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2071",
+    "new_class": "van"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2071",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "van",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.pickup_date",
+     "value": "2026-06-10",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.branch",
+     "value": "Denver Airport",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "She is traveling with five family members and a lot of luggage.",
+     "kind": "helpful"
+    },
+    {
+     "text": "The booking is at the Denver Airport branch and starts on June 10.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Aisha, a warm, well-organized mother planning a family trip.",
+   "reason_for_call": "She needs a large people-carrier so the whole family fits.",
+   "task_instructions": "Give your reservation number, the class you want, your pickup date and branch, and mention the family size. Be polite; if that class cannot be given, accept and end the call.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2008",
+      "full_name": "Diego Alvarez",
+      "email": "diego.alvarez@example.com",
+      "status": "active"
+     }
+    ],
+    "reservation": [
+     {
+      "reservation_id": "R-2081",
+      "customer_id": "C-2008",
+      "pickup_date": "2026-06-09",
+      "return_date": "2026-06-12",
+      "vehicle_class": "compact",
+      "status": "booked",
+      "branch": "San Diego Airport"
+     }
+    ]
+   },
+   "request_values": {
+    "reservation_id": "R-2081",
+    "new_class": "suv"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.reservation_id",
+     "value": "R-2081",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_class",
+     "value": "suv",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "res.pickup_date",
+     "value": "2026-06-02",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Diego, a man of few words who is sure his trip starts June 2.",
+   "reason_for_call": "He wants a sport-utility vehicle for a camping trip.",
+   "task_instructions": "Give reservation number, say you want a sport-utility vehicle, and say your pickup is June 2. Answer in a few words. If the agent says the pickup date is different, just accept it and go on.",
+   "expected_outcome": "upgrade"
+  }
+ ],
+ "_check": {
+  "round_accepted": 1,
+  "rounds_used": 2,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}

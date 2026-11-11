@@ -1,0 +1,825 @@
+{
+ "procedure_id": "p12_online",
+ "domain": "online clothing store",
+ "organization": "Harborline Apparel",
+ "title": "Size exchanges for delivered orders",
+ "summary": "Exchange a delivered clothing item for another size when the customer's identity and the item both qualify.",
+ "entities": {
+  "customer": {
+   "key": "customer_id",
+   "description": "Online shop customer accounts",
+   "fields": {
+    "customer_id": "str",
+    "full_name": "str",
+    "email": "str",
+    "billing_postcode": "str",
+    "account_status": "enum:good|suspended|closed"
+   }
+  },
+  "order": {
+   "key": "order_id",
+   "description": "Orders placed by customers",
+   "fields": {
+    "order_id": "str",
+    "customer_id": "ref:customer",
+    "status": "enum:placed|shipped|delivered|cancelled",
+    "placed_date": "date"
+   }
+  },
+  "order_item": {
+   "key": "item_id",
+   "description": "Individual items within an order",
+   "fields": {
+    "item_id": "str",
+    "order_id": "ref:order",
+    "product_name": "str",
+    "size": "enum:XS|S|M|L|XL",
+    "exchange_count": "int",
+    "is_final_sale": "bool"
+   }
+  },
+  "exchange_label": {
+   "key": "label_id",
+   "description": "Courier pickup labels for item exchanges",
+   "fields": {
+    "label_id": "str",
+    "item_id": "ref:order_item",
+    "method": "enum:courier_pickup",
+    "created": "date"
+   }
+  },
+  "warehouse_task": {
+   "key": "task_id",
+   "description": "Pick tasks for the warehouse",
+   "fields": {
+    "task_id": "str",
+    "item_id": "ref:order_item",
+    "task": "enum:pick_size",
+    "created": "date"
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "get_customer",
+   "kind": "get",
+   "entity": "customer",
+   "description": "Look up a customer account by customer number."
+  },
+  {
+   "name": "find_customers_by_email",
+   "kind": "search",
+   "entity": "customer",
+   "by": [
+    "email"
+   ],
+   "description": "Find customer accounts by the email address on the account."
+  },
+  {
+   "name": "get_order",
+   "kind": "get",
+   "entity": "order",
+   "description": "Look up an order by order number."
+  },
+  {
+   "name": "find_orders_by_customer",
+   "kind": "search",
+   "entity": "order",
+   "by": [
+    "customer_id"
+   ],
+   "description": "List all orders placed by a customer account."
+  },
+  {
+   "name": "get_order_item",
+   "kind": "get",
+   "entity": "order_item",
+   "description": "Look up an item within an order by item number."
+  },
+  {
+   "name": "find_items_by_product",
+   "kind": "search",
+   "entity": "order_item",
+   "by": [
+    "product_name"
+   ],
+   "description": "List all order items with the exact product name."
+  },
+  {
+   "name": "find_items_by_order",
+   "kind": "search",
+   "entity": "order_item",
+   "by": [
+    "order_id"
+   ],
+   "description": "List all items in an order."
+  },
+  {
+   "name": "change_item_size",
+   "kind": "update",
+   "entity": "order_item",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item to change."
+    },
+    "size": {
+     "type": "enum:XS|S|M|L|XL",
+     "description": "The new size for the item."
+    }
+   },
+   "set": {
+    "size": "args.size",
+    "exchange_count": "rec.exchange_count + 1"
+   },
+   "description": "Change the size of an item and count one exchange against it."
+  },
+  {
+   "name": "create_exchange_label",
+   "kind": "create",
+   "entity": "exchange_label",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item the courier will collect."
+    }
+   },
+   "fields": {
+    "item_id": "args.item_id",
+    "method": "'courier_pickup'",
+    "created": "today"
+   },
+   "description": "Create a courier pickup label so the customer's original item can be collected."
+  },
+  {
+   "name": "create_warehouse_task",
+   "kind": "create",
+   "entity": "warehouse_task",
+   "args": {
+    "item_id": {
+     "type": "ref:order_item",
+     "description": "The item whose new size must be picked."
+    }
+   },
+   "fields": {
+    "item_id": "args.item_id",
+    "task": "'pick_size'",
+    "created": "today"
+   },
+   "description": "Create a warehouse task to pick the new size of an item for shipping."
+  }
+ ],
+ "request": {
+  "item_id": {
+   "type": "ref:order_item",
+   "description": "the item from your order you want to exchange"
+  },
+  "new_size": {
+   "type": "enum:XS|S|M|L|XL",
+   "description": "the size you want instead"
+  }
+ },
+ "claims": {
+  "billing_postcode": {
+   "type": "str",
+   "description": "the billing postcode on your account"
+  }
+ },
+ "bindings": [
+  {
+   "name": "item",
+   "entity": "order_item",
+   "key": "req.item_id"
+  },
+  {
+   "name": "ord",
+   "entity": "order",
+   "key": "item.order_id"
+  },
+  {
+   "name": "cust",
+   "entity": "customer",
+   "key": "ord.customer_id"
+  }
+ ],
+ "outcomes": {
+  "exchange": {
+   "kind": "perform",
+   "description": "Change the item to the requested size, create a courier pickup exchange label for it, and create a warehouse task to pick the new size.",
+   "calls": [
+    {
+     "tool": "change_item_size",
+     "args": {
+      "item_id": "req.item_id",
+      "size": "req.new_size"
+     }
+    },
+    {
+     "tool": "create_exchange_label",
+     "args": {
+      "item_id": "req.item_id"
+     }
+    },
+    {
+     "tool": "create_warehouse_task",
+     "args": {
+      "item_id": "req.item_id"
+     }
+    }
+   ]
+  },
+  "refuse": {
+   "kind": "refuse",
+   "description": "Make no change to the item, order, label or warehouse records; explain the reason to the customer.",
+   "calls": []
+  }
+ },
+ "rules": [
+  {
+   "id": "R1",
+   "when": "claim.billing_postcode != cust.billing_postcode",
+   "outcome": "refuse",
+   "explain": "The caller must give the billing postcode on the account before any change."
+  },
+  {
+   "id": "R2",
+   "when": "cust.account_status != 'good'",
+   "outcome": "refuse",
+   "explain": "Only accounts in good standing can exchange items."
+  },
+  {
+   "id": "R3",
+   "when": "ord.status != 'delivered'",
+   "outcome": "refuse",
+   "explain": "Only items from delivered orders can be exchanged."
+  },
+  {
+   "id": "R4",
+   "when": "item.is_final_sale or req.new_size == item.size",
+   "outcome": "refuse",
+   "explain": "Final sale items cannot be exchanged, and the new size must differ from the current size."
+  },
+  {
+   "id": "R5",
+   "when": "days_between(ord.placed_date, today) > 30 or item.exchange_count >= 1",
+   "outcome": "refuse",
+   "explain": "An exchange must be requested within 30 days of the order date, and an item can be exchanged only once."
+  }
+ ],
+ "default_outcome": "exchange",
+ "policy_text": "## Who can ask\nCustomers can ask to exchange an item from one of their orders for a different size, by chat or phone. Before changing anything, find the item, the order it belongs to and the customer account for that order. Then confirm the caller's identity: the billing postcode they give must match the billing postcode on the account. If it does not match, or they cannot give it, make no change.\n\n## Finding the item\nUse the item number if the customer has it. Otherwise search by product name. If more than one item has that name, use the size the customer says the item is to pick the right one. If you still cannot tell which item they mean, ask for more detail. If you cannot identify the item, make no change and tell the customer you cannot find it.\n\n## When an exchange is allowed\n- The customer's account must be in good standing. Suspended or closed accounts cannot exchange items.\n- The order must be delivered. Items from orders that are placed, shipped or cancelled cannot be exchanged yet.\n- Final sale items cannot be exchanged. The new size must also be different from the size the item already is.\n- An exchange must be requested within 30 days of the order date. Items from older orders are not exchanged.\n- Each item can be exchanged once. If it has already been exchanged, decline.\n\nWhen all of these hold, change the item to the size the customer asked for, create a courier pickup exchange label for the item, and create a warehouse pick task for the new size. Tell the customer that a courier will collect the original item and the new size will be sent out.\n\nIf any of these fails, make no change to the order, item, label or warehouse records. Explain in plain words which condition is not met.\n\n## Never\nDo not waive the postcode check, the 30-day limit, the final sale rule or the one-exchange limit. Do not change an item's size, or create labels or tasks, unless every check passes. Do not change anything the customer did not ask for. Go by the order and account records in the system, even if the customer remembers the order status or date differently.",
+ "db_common": {
+  "customer": [
+   {
+    "customer_id": "C-1001",
+    "full_name": "Helen Osei",
+    "email": "helen.osei@example.com",
+    "billing_postcode": "94107",
+    "account_status": "good"
+   }
+  ],
+  "order": [
+   {
+    "order_id": "O-50110",
+    "customer_id": "C-1001",
+    "status": "delivered",
+    "placed_date": "2026-04-02"
+   }
+  ],
+  "order_item": [
+   {
+    "item_id": "I-60110",
+    "order_id": "O-50110",
+    "product_name": "Linen Wrap Dress",
+    "size": "S",
+    "exchange_count": 0,
+    "is_final_sale": false
+   }
+  ]
+ },
+ "cases": [
+  {
+   "case_id": "c1",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-2214",
+      "full_name": "Maya Lindqvist",
+      "email": "maya.l@example.com",
+      "billing_postcode": "98101",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-61872",
+      "customer_id": "C-2214",
+      "status": "delivered",
+      "placed_date": "2026-05-02"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-72035",
+      "order_id": "O-61872",
+      "product_name": "Cotton Utility Jacket",
+      "size": "M",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-72035",
+    "new_size": "L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-72035",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "98101",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "item_id": "I-72035",
+    "new_size": "XL"
+   },
+   "persona": "Maya, a graphic designer who buys her weekday wardrobe online. Brisk and friendly.",
+   "reason_for_call": "The jacket is comfortable in the shoulders but a little tight through the chest, so she wants the next size up.",
+   "task_instructions": "In your first message, give the item number from your order, your billing postcode, and ask for size XL. When the agent asks about the size or reads back the details, say that you actually want L, not XL. Accept the result and thank the agent.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c2",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-3380",
+      "full_name": "Samir Abadi",
+      "email": "samir.a@example.com",
+      "billing_postcode": "60614",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-62210",
+      "customer_id": "C-3380",
+      "status": "shipped",
+      "placed_date": "2026-05-08"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-72410",
+      "order_id": "O-62210",
+      "product_name": "Rib-Knit Cardigan",
+      "size": "S",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-72410",
+    "new_size": "M"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-72410",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "60614",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.status",
+     "value": "delivered",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Samir, a secondary school teacher who types short messages between classes.",
+   "reason_for_call": "The cardigan arrived and is too small in the arms, so he wants it in medium instead of small.",
+   "task_instructions": "Answer only what is asked, in a few words. Early on, say that the cardigan was delivered last week. Give the item number, your billing postcode, and ask for medium in your first message. Do not elaborate.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c3",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-4475",
+      "full_name": "Priya Raman",
+      "email": "priya.raman@example.com",
+      "billing_postcode": "30309",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-63011",
+      "customer_id": "C-4475",
+      "status": "delivered",
+      "placed_date": "2026-04-28"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-73150",
+      "order_id": "O-63011",
+      "product_name": "Linen Wrap Dress",
+      "size": "L",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-73150",
+    "new_size": "M"
+   },
+   "customer_facts": [
+    {
+     "fact": "claim.billing_postcode",
+     "value": "30309",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.product_name",
+     "value": "Linen Wrap Dress",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "item.size",
+     "value": "L",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "initial_request_values": {
+    "item_id": "I-73150",
+    "new_size": "S"
+   },
+   "persona": "Priya, a nurse who shops on her lunch break and does not keep order emails.",
+   "reason_for_call": "The dress fits too loosely at the waist, so she wants the medium instead of the large she bought.",
+   "task_instructions": "You do not know the item number and cannot find it in any email. Give the product name Linen Wrap Dress and say the size you bought is large. Give your billing postcode in your first message. First ask for a small. Before any change is made, switch to a medium and say that is what you want. Accept the outcome.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c4",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-5528",
+      "full_name": "Ellis Brandt",
+      "email": "ellis.brandt@example.com",
+      "billing_postcode": "02139",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-64402",
+      "customer_id": "C-5528",
+      "status": "delivered",
+      "placed_date": "2026-05-10"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-74401",
+      "order_id": "O-64402",
+      "product_name": "Pleated Trousers",
+      "size": "M",
+      "exchange_count": 0,
+      "is_final_sale": true
+     },
+     {
+      "item_id": "I-74402",
+      "order_id": "O-64402",
+      "product_name": "Silk Scarf",
+      "size": "M",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-74401",
+    "new_size": "L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-74401",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "02139",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The silk scarf in the same box fits you perfectly and you are keeping it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "Your last order in December arrived a day late and you were annoyed about it.",
+     "kind": "distractor"
+    },
+    {
+     "text": "You also wonder whether the gift card you were given can be checked, but you will ask about that separately if this does not work.",
+     "kind": "distractor"
+    }
+   ],
+   "persona": "Ellis, a software tester who is used to pushing back on companies.",
+   "reason_for_call": "The trousers are too short in the leg, so he wants the next size up.",
+   "task_instructions": "In your first message, give the item number, your billing postcode, and ask for size L. When refused, argue that the trousers should not count as a sale item and ask for an exception. Ask a second time, then accept and end the call. Only mention the scarf, the December order, or the gift card if the agent brings them up.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c5",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-6093",
+      "full_name": "Nadia Costa",
+      "email": "nadia.costa@example.com",
+      "billing_postcode": "77002",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-65120",
+      "customer_id": "C-6093",
+      "status": "shipped",
+      "placed_date": "2026-05-12"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-75233",
+      "order_id": "O-65120",
+      "product_name": "Wool Blend Coat",
+      "size": "S",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-75233",
+    "new_size": "M"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-75233",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "77002",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.status",
+     "value": "shipped",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [
+    {
+     "text": "The coat is from your spring order, and the label inside says Wool Blend Coat.",
+     "kind": "helpful"
+    },
+    {
+     "text": "You placed the order on May 12th and the confirmation email came the same day.",
+     "kind": "helpful"
+    }
+   ],
+   "persona": "Nadia, a project manager who orders several sizes and keeps the one that fits.",
+   "reason_for_call": "The coat is too big in the shoulders, so she wants the medium.",
+   "task_instructions": "Keep answers short. Early on, say the coat shows as shipped on your order page. Give the item number, your billing postcode, and the size you want in your first message. Mention the coat name and order date only if asked or if it fits naturally. Accept any refusal without argument.",
+   "expected_outcome": "refuse"
+  },
+  {
+   "case_id": "c6",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-7147",
+      "full_name": "Oliver Grant",
+      "email": "oliver.g@example.com",
+      "billing_postcode": "10025",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-66015",
+      "customer_id": "C-7147",
+      "status": "delivered",
+      "placed_date": "2026-05-06"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-76019",
+      "order_id": "O-66015",
+      "product_name": "Canvas Chore Shirt",
+      "size": "M",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-76019",
+    "new_size": "L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-76019",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "10025",
+     "disclose": "if_asked"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Oliver, a warehouse worker who wears work shirts every day. Cooperative and easygoing.",
+   "reason_for_call": "The shirt is a little snug across the back, so he wants the next size up, large.",
+   "task_instructions": "Be cooperative and answer questions fully. Give the item number and the size you want in your first message. Do not volunteer your billing postcode; give it only when the agent asks for it.",
+   "expected_outcome": "exchange"
+  },
+  {
+   "case_id": "c7",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-8061",
+      "full_name": "Grace Adeyemi",
+      "email": "grace.a@example.com",
+      "billing_postcode": "33130",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-67001",
+      "customer_id": "C-8061",
+      "status": "delivered",
+      "placed_date": "2026-05-14"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-77001",
+      "order_id": "O-67001",
+      "product_name": "Fleece Half-Zip",
+      "size": "M",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-77001",
+    "new_size": "L"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.new_size",
+     "value": "L",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "33130",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Grace, an older customer who does not keep track of her orders and does not remember exact product names.",
+   "reason_for_call": "A fleece she bought last month is too tight across the chest, so she wants the large.",
+   "task_instructions": "Be cooperative. Give your billing postcode and say you want a large in your first message. You do not know the item number, and you cannot remember the exact name of the fleece; you only know it is a fleece pullover. If the agent cannot find the item, accept that politely and end the call.",
+   "expected_outcome": "cannot_complete"
+  },
+  {
+   "case_id": "c8",
+   "db": {
+    "customer": [
+     {
+      "customer_id": "C-9302",
+      "full_name": "Felix Moreau",
+      "email": "felix.m@example.com",
+      "billing_postcode": "80202",
+      "account_status": "good"
+     }
+    ],
+    "order": [
+     {
+      "order_id": "O-68340",
+      "customer_id": "C-9302",
+      "status": "delivered",
+      "placed_date": "2026-05-01"
+     }
+    ],
+    "order_item": [
+     {
+      "item_id": "I-78344",
+      "order_id": "O-68340",
+      "product_name": "Denim Overshirt",
+      "size": "L",
+      "exchange_count": 0,
+      "is_final_sale": false
+     }
+    ]
+   },
+   "request_values": {
+    "item_id": "I-78344",
+    "new_size": "M"
+   },
+   "customer_facts": [
+    {
+     "fact": "req.item_id",
+     "value": "I-78344",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "req.new_size",
+     "value": "M",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "claim.billing_postcode",
+     "value": "80202",
+     "disclose": "upfront"
+    },
+    {
+     "fact": "ord.placed_date",
+     "value": "2026-03-30",
+     "disclose": "upfront"
+    }
+   ],
+   "extra_details": [],
+   "persona": "Felix, a freelance photographer who is convinced the store is trying to avoid honouring exchanges.",
+   "reason_for_call": "The overshirt is too big through the body, so he wants a medium.",
+   "task_instructions": "Be pushy and impatient. In your first message, give the item number and your billing postcode, and say the overshirt was ordered at the end of March so the window has closed. Ask for a medium. If the agent checks the date and says the order is still within the window, accept it, but insist once more that you were sure it had expired. Keep it short.",
+   "expected_outcome": "exchange"
+  }
+ ],
+ "_check": {
+  "round_accepted": 0,
+  "rounds_used": 1,
+  "cases_ok": 8,
+  "cases_dropped": []
+ }
+}
