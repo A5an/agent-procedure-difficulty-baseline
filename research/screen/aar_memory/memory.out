@@ -1,0 +1,96 @@
+cases 830, procedures 70, in memory pool 66, targets 28, agents 28
+noise floor: Brier of the true test rate = 0.1572
+
+## In-domain memory: all other procedures  (28 target procedures, 28 agents, 30 probe draws)
+method                                   Brier    skill vs Prior n=0 [95% CI]  regret0.5  regret0.7
+CaseMemory|n=0                          0.1981    +0.083 [+0.030, +0.138]     0.0305     0.0267
+Prior|n=0                               0.2161    +0.000 [+0.000, +0.000]     0.0473     0.0418
+ProcMemory|n=0                          0.1956    +0.095 [+0.058, +0.134]     0.0307     0.0245
+CaseMemory|n=1                          0.1955    +0.095 [+0.043, +0.147]     0.0302     0.0249
+Probes only (k+1)/(n+2)|n=1             0.2281    -0.056 [-0.087, -0.008]     0.0550     0.0448
+Probes+Prior(m=2)|n=1                   0.2131    +0.014 [-0.019, +0.049]     0.0520     0.0340
+Probes+Prior(m=4)|n=1                   0.2086    +0.035 [+0.015, +0.057]     0.0442     0.0332
+Probes+Prior(m=8)|n=1                   0.2098    +0.029 [+0.019, +0.041]     0.0444     0.0340
+Probes+ProcMemory(m=2)|n=1              0.2036    +0.058 [+0.013, +0.107]     0.0439     0.0305
+Probes+ProcMemory(m=4)|n=1              0.1951    +0.097 [+0.056, +0.141]     0.0317     0.0247
+Probes+ProcMemory(m=8)|n=1              0.1934    +0.105 [+0.068, +0.144]     0.0298     0.0229
+CaseMemory|n=2                          0.1935    +0.105 [+0.056, +0.160]     0.0282     0.0236
+Probes only (k+1)/(n+2)|n=2             0.2158    +0.001 [-0.038, +0.053]     0.0543     0.0399
+Probes+Prior(m=2)|n=2                   0.2073    +0.041 [+0.000, +0.087]     0.0365     0.0315
+Probes+Prior(m=4)|n=2                   0.2030    +0.061 [+0.032, +0.093]     0.0363     0.0287
+Probes+Prior(m=8)|n=2                   0.2048    +0.052 [+0.035, +0.073]     0.0383     0.0291
+Probes+ProcMemory(m=2)|n=2              0.2020    +0.065 [+0.014, +0.121]     0.0318     0.0327
+Probes+ProcMemory(m=4)|n=2              0.1938    +0.103 [+0.062, +0.150]     0.0297     0.0244
+Probes+ProcMemory(m=8)|n=2              0.1916    +0.113 [+0.072, +0.157]     0.0274     0.0215
+CaseMemory|n=4                          0.1906    +0.118 [+0.069, +0.173]     0.0260     0.0235
+Probes only (k+1)/(n+2)|n=4             0.2035    +0.058 [+0.012, +0.113]     0.0398     0.0289
+Probes+Prior(m=2)|n=4                   0.1998    +0.075 [+0.031, +0.132]     0.0313     0.0274
+Probes+Prior(m=4)|n=4                   0.1967    +0.090 [+0.052, +0.135]     0.0308     0.0258
+Probes+Prior(m=8)|n=4                   0.1984    +0.082 [+0.055, +0.115]     0.0320     0.0268
+Probes+ProcMemory(m=2)|n=4              0.1974    +0.086 [+0.033, +0.146]     0.0287     0.0249
+Probes+ProcMemory(m=4)|n=4              0.1915    +0.114 [+0.065, +0.169]     0.0272     0.0230
+Probes+ProcMemory(m=8)|n=4              0.1892    +0.124 [+0.082, +0.171]     0.0255     0.0204
+paired differences:
+  Brier(Prior|n=0) - Brier(ProcMemory|n=0) = +0.0205 [+0.0123, +0.0289]  (positive: first is better)
+  Brier(Prior|n=0) - Brier(CaseMemory|n=0) = +0.0180 [+0.0064, +0.0301]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(Probes+ProcMemory(m=4)|n=1) = +0.0134 [+0.0082, +0.0186]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(CaseMemory|n=1) = +0.0131 [+0.0045, +0.0211]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(Probes+ProcMemory(m=4)|n=2) = +0.0092 [+0.0054, +0.0127]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(CaseMemory|n=2) = +0.0095 [+0.0024, +0.0155]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(Probes+ProcMemory(m=4)|n=4) = +0.0052 [+0.0032, +0.0074]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(CaseMemory|n=4) = +0.0061 [+0.0021, +0.0101]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(ProcMemory|n=0) = +0.0130 [+0.0075, +0.0187]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(ProcMemory|n=0) = +0.0074 [+0.0025, +0.0124]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(Probes+ProcMemory(m=4)|n=1) = +0.0079 [+0.0045, +0.0113]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(Probes+ProcMemory(m=4)|n=2) = +0.0029 [+0.0005, +0.0053]  (positive: first is better)
+
+## New domain: memory holds only procedures of other domains  (28 target procedures, 28 agents, 30 probe draws)
+method                                   Brier    skill vs Prior n=0 [95% CI]  regret0.5  regret0.7
+CaseMemory|n=0                          0.2274    -0.024 [-0.071, +0.027]     0.0492     0.0401
+Prior|n=0                               0.2221    +0.000 [+0.000, +0.000]     0.0547     0.0460
+ProcMemory|n=0                          0.2150    +0.032 [+0.013, +0.059]     0.0454     0.0394
+CaseMemory|n=1                          0.2735    -0.232 [-0.310, -0.144]     0.0550     0.0702
+Probes only (k+1)/(n+2)|n=1             0.2281    -0.027 [-0.064, +0.019]     0.0550     0.0448
+Probes+Prior(m=2)|n=1                   0.2159    +0.028 [-0.005, +0.065]     0.0530     0.0360
+Probes+Prior(m=4)|n=1                   0.2125    +0.043 [+0.023, +0.068]     0.0457     0.0356
+Probes+Prior(m=8)|n=1                   0.2146    +0.034 [+0.022, +0.047]     0.0509     0.0371
+Probes+ProcMemory(m=2)|n=1              0.2127    +0.043 [+0.002, +0.093]     0.0518     0.0326
+Probes+ProcMemory(m=4)|n=1              0.2079    +0.064 [+0.034, +0.102]     0.0436     0.0314
+Probes+ProcMemory(m=8)|n=1              0.2089    +0.059 [+0.034, +0.090]     0.0436     0.0305
+CaseMemory|n=2                          0.2402    -0.081 [-0.156, -0.005]     0.0397     0.0400
+Probes only (k+1)/(n+2)|n=2             0.2158    +0.028 [-0.017, +0.083]     0.0543     0.0399
+Probes+Prior(m=2)|n=2                   0.2088    +0.060 [+0.018, +0.113]     0.0383     0.0321
+Probes+Prior(m=4)|n=2                   0.2057    +0.074 [+0.043, +0.110]     0.0392     0.0298
+Probes+Prior(m=8)|n=2                   0.2086    +0.061 [+0.042, +0.083]     0.0405     0.0328
+Probes+ProcMemory(m=2)|n=2              0.2070    +0.068 [+0.018, +0.125]     0.0364     0.0318
+Probes+ProcMemory(m=4)|n=2              0.2025    +0.088 [+0.049, +0.133]     0.0362     0.0280
+Probes+ProcMemory(m=8)|n=2              0.2041    +0.081 [+0.052, +0.120]     0.0369     0.0285
+CaseMemory|n=4                          0.2138    +0.037 [-0.025, +0.107]     0.0341     0.0356
+Probes only (k+1)/(n+2)|n=4             0.2035    +0.084 [+0.033, +0.142]     0.0398     0.0289
+Probes+Prior(m=2)|n=4                   0.2004    +0.098 [+0.045, +0.155]     0.0324     0.0274
+Probes+Prior(m=4)|n=4                   0.1982    +0.108 [+0.066, +0.159]     0.0324     0.0266
+Probes+Prior(m=8)|n=4                   0.2011    +0.095 [+0.067, +0.128]     0.0340     0.0286
+Probes+ProcMemory(m=2)|n=4              0.1996    +0.101 [+0.047, +0.165]     0.0314     0.0270
+Probes+ProcMemory(m=4)|n=4              0.1964    +0.116 [+0.069, +0.166]     0.0310     0.0241
+Probes+ProcMemory(m=8)|n=4              0.1979    +0.109 [+0.072, +0.151]     0.0310     0.0251
+paired differences:
+  Brier(Prior|n=0) - Brier(ProcMemory|n=0) = +0.0071 [+0.0027, +0.0129]  (positive: first is better)
+  Brier(Prior|n=0) - Brier(CaseMemory|n=0) = -0.0053 [-0.0165, +0.0061]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(Probes+ProcMemory(m=4)|n=1) = +0.0046 [+0.0019, +0.0082]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(CaseMemory|n=1) = -0.0611 [-0.0746, -0.0455]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(Probes+ProcMemory(m=4)|n=2) = +0.0032 [+0.0012, +0.0057]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(CaseMemory|n=2) = -0.0345 [-0.0439, -0.0245]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(Probes+ProcMemory(m=4)|n=4) = +0.0018 [+0.0008, +0.0033]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(CaseMemory|n=4) = -0.0156 [-0.0209, -0.0103]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=1) - Brier(ProcMemory|n=0) = -0.0025 [-0.0056, +0.0004]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(ProcMemory|n=0) = -0.0093 [-0.0136, -0.0052]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=2) - Brier(Probes+ProcMemory(m=4)|n=1) = -0.0022 [-0.0040, -0.0002]  (positive: first is better)
+  Brier(Probes+Prior(m=4)|n=4) - Brier(Probes+ProcMemory(m=4)|n=2) = -0.0043 [-0.0060, -0.0026]  (positive: first is better)
+
+## Stream: memory starts empty, procedures arrive in random order (40 orders), n = 0 probes and n = 2 probes
+procedures already in memory                       Prior|n=0                ProcMemory|n=0                CaseMemory|n=0         Probes+Prior(m=4)|n=2    Probes+ProcMemory(m=4)|n=2                CaseMemory|n=2
+0-4                                                   0.2564                        0.2645                        0.2439                        0.2250                        0.2287                        0.2578
+5-9                                                   0.2217                        0.2238                        0.2302                        0.2023                        0.2041                        0.2253
+10-19                                                 0.2228                        0.2181                        0.2211                        0.2064                        0.2049                        0.2116
+20-34                                                 0.2154                        0.2037                        0.2087                        0.2021                        0.1978                        0.2016
+35-65                                                 0.2158                        0.1977                        0.2011                        0.2019                        0.1949                        0.1963
