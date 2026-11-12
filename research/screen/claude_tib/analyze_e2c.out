@@ -1,0 +1,22 @@
+
+=== agent haiku: 50 families, 300 probes with both customers
+  disagree               +0.270  [+0.200, +0.343]
+  rho_haiku_customer     +0.649  [+0.403, +0.834]
+  rho_sonnet_customer    +0.363  [+0.088, +0.621]
+  rho_mean               +0.619  [+0.391, +0.803]
+  rho sonnet - haiku customer  [-0.596, +0.038]
+  6 of 6 under haiku_customer  : 22 families, real 116/132 = 0.88
+  6 of 6 under sonnet_customer : 26 families, real 120/156 = 0.77
+  6 of 6 under both            : 15 families, real 84/90 = 0.93
+  families whose 6-of-6 status changes: 18
+
+=== agent sonnet: 50 families, 300 probes with both customers
+  disagree               +0.293  [+0.213, +0.377]
+  rho_haiku_customer     +0.733  [+0.532, +0.881]
+  rho_sonnet_customer    +0.402  [+0.100, +0.647]
+  rho_mean               +0.661  [+0.425, +0.840]
+  rho sonnet - haiku customer  [-0.625, -0.048]
+  6 of 6 under haiku_customer  : 25 families, real 135/150 = 0.90
+  6 of 6 under sonnet_customer : 26 families, real 125/156 = 0.80
+  6 of 6 under both            : 16 families, real 95/96 = 0.99
+  families whose 6-of-6 status changes: 19

@@ -1,0 +1,114 @@
+{
+ "haiku": {
+  "families": 50,
+  "probes": 300,
+  "point": {
+   "disagree": 0.27,
+   "rho_haiku_customer": 0.6493578934459194,
+   "rho_sonnet_customer": 0.3626096208344794,
+   "rho_mean": 0.6186946148248337
+  },
+  "ci": {
+   "disagree": [
+    0.20000000000000004,
+    0.34333333333333327
+   ],
+   "rho_haiku_customer": [
+    0.4030732750015579,
+    0.8342906673134931
+   ],
+   "rho_sonnet_customer": [
+    0.08794780775519223,
+    0.6207379855828001
+   ],
+   "rho_mean": [
+    0.39063985540050267,
+    0.8034521328518262
+   ],
+   "sonnet-haiku": [
+    -0.5955238487951399,
+    0.03848463277146084
+   ]
+  },
+  "six_of_six": {
+   "haiku_customer": {
+    "families": 22,
+    "real": [
+     116,
+     132
+    ]
+   },
+   "sonnet_customer": {
+    "families": 26,
+    "real": [
+     120,
+     156
+    ]
+   },
+   "both": {
+    "families": 15,
+    "real": [
+     84,
+     90
+    ]
+   }
+  },
+  "six_changed": 18
+ },
+ "sonnet": {
+  "families": 50,
+  "probes": 300,
+  "point": {
+   "disagree": 0.29333333333333333,
+   "rho_haiku_customer": 0.7333549577728115,
+   "rho_sonnet_customer": 0.4022699342965737,
+   "rho_mean": 0.6614868862387404
+  },
+  "ci": {
+   "disagree": [
+    0.21333333333333332,
+    0.37666666666666665
+   ],
+   "rho_haiku_customer": [
+    0.531935913842323,
+    0.8813241699878503
+   ],
+   "rho_sonnet_customer": [
+    0.09990811517851295,
+    0.6467233662471848
+   ],
+   "rho_mean": [
+    0.4249532411204993,
+    0.839553979549421
+   ],
+   "sonnet-haiku": [
+    -0.6246783527284923,
+    -0.04821030920995836
+   ]
+  },
+  "six_of_six": {
+   "haiku_customer": {
+    "families": 25,
+    "real": [
+     135,
+     150
+    ]
+   },
+   "sonnet_customer": {
+    "families": 26,
+    "real": [
+     125,
+     156
+    ]
+   },
+   "both": {
+    "families": 16,
+    "real": [
+     95,
+     96
+    ]
+   }
+  },
+  "six_changed": 19
+ }
+}
