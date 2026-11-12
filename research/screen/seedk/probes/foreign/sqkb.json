@@ -1,0 +1,386 @@
+[
+ {
+  "id": "foreign_sqkb_00",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_33701EE2; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Smt. Radhika Vemuri, a 50-year-old shop owner from Visakhapatnam holding recurring deposit accounts with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering closing your 1-year recurring deposit early, but want to check the premature closure policy and payout quote first, leading you to keep the deposit and change its renewal instruction instead.",
+    "known_info": "You are Smt. Radhika Vemuri, customer already logged in (id CUST_33701EE2). Do not volunteer account/deposit IDs until the assistant asks for that specific detail. You have a 1-year recurring deposit with a \u20b915,000 monthly installment (RD625499). If asked for the deposit ID, provide RD625499.",
+    "unknown_info": "The bank's premature closure penalty policy for recurring deposits, the exact quote/payout if closed today, and whether the renewal instruction gets successfully updated.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy and penalty rules for premature closure of a recurring deposit. Step 2: Next, ask for the premature closure quote to see the payout if you were to close your 1-year \u20b915,000 monthly recurring deposit today (provide deposit ID RD625499 only when asked). Step 3: Once the quote is provided, decide against closing early due to the penalty; instead, ask to change the maturity instruction of the deposit to renew both principal and interest. Step 4: When the assistant asks for confirmation to update the renewal instruction, explicitly confirm. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_33701EE2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb0_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD625499"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb0_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD625499",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for recurring deposit premature closure rules, provide a premature closure quote for RD625499, and upon the customer deciding against closure, ask for confirmation before updating the maturity instruction to renew principal and interest."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqkb_01",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_24208F60; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 27-year-old IT support engineer in Hyderabad with an active one-year fixed deposit who wants to make an informed decision about breaking his deposit vs altering its maturity renewal.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering breaking your fixed deposit early, so you want to check the premature closure penalty policy, get an exact closure quote, and then decide to update your maturity renewal instruction instead.",
+    "known_info": "You are Ravi Kumar Reddy, already authenticated (customer id CUST_24208F60). Do not volunteer your account, deposit, or card IDs until the assistant specifically asks for them. Your fixed deposit ID is FD244123, which is currently set to renew principal and interest. If the premature closure penalty is steep, your plan is to let it run to maturity but change the instruction to not renew.",
+    "unknown_info": "The bank's exact premature closure penalty policy, the net payout quote if closed today, and whether the renewal instruction can be updated without penalty.",
+    "task_instructions": "Step 1: Ask what the bank's policy and penalty are for premature closure of a fixed deposit. Step 2: Ask for a quote on what payout you would receive if you closed your fixed deposit today (provide deposit ID FD244123 only when asked). Step 3: Seeing the penalty and reduced payout, decide against closing early; instead, ask to update the maturity instruction on FD244123 so that it does not renew upon maturity (select no renewal). Explicitly confirm the update when the assistant asks. Do this strictly in order \u2014 do not let the assistant skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_24208F60"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "fixed deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb1_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD244123"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb1_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD244123",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the fixed deposit premature closure penalty policy, quote the premature closure payout for deposit FD244123 using get_deposit_closure_quote, and after customer confirmation, update the deposit's renewal instruction to no_renewal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqkb_02",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_018217FD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anita Nair, a 42-year-old hospitality staff member who holds a 1-year fixed deposit and wants to understand the financial implications of breaking it early versus letting it mature.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Inquire about bank policy on premature FD closure penalties and renewal rules, get a premature closure quote for FD410494, and then make an informed decision to keep the deposit until maturity while updating the maturity instruction to no renewal.",
+    "known_info": "You are Anita Nair, customer ID CUST_018217FD. You have a fixed deposit of \u20b91,00,000 (FD410494) maturing in October 2026. Do not volunteer your account ID, customer ID, or deposit ID until the assistant specifically asks for it.",
+    "unknown_info": "The exact premature closure penalty rate, the exact payout amount if closed today, and the available renewal options.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy regarding premature closure penalties and auto-renewal rules on fixed deposits.\nStep 2: Ask for a premature closure quote for your fixed deposit (provide deposit ID FD410494 only when the assistant asks for it).\nStep 3: After the assistant provides the quote and explains the penalty, state that you would prefer not to lose interest to the premature penalty and will let the deposit run until its maturity date, but you want to change its maturity instruction so that it does not auto-renew.\nStep 4: When the assistant asks for your explicit confirmation to update the maturity instruction of FD410494 to no renewal, reply affirmatively to confirm.\nDo this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_018217FD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "fixed deposit premature closure penalty and auto renewal policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb2_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD410494"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb2_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD410494",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for deposit premature closure and renewal policy, fetches a closure quote for FD410494, and upon the customer's informed decision and confirmation, updates the deposit renewal instruction to no_renewal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqkb_03",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_BC6DAADD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 43-year-old carpenter from Mysuru who holds an active fixed deposit and wants to understand closure terms before making a financial decision.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering premature closure of your fixed deposit, but after learning the policy and getting a penalty quote, you make an informed decision to keep it until maturity and change its renewal instruction to no renewal instead.",
+    "known_info": "You are Ramesh Kumar (customer ID CUST_BC6DAADD). Do not volunteer account or deposit IDs until the assistant specifically asks for them. You have a fixed deposit of \u20b975,000 (deposit ID FD214685) linked to savings account SB6240361279, currently set to renew principal and interest.",
+    "unknown_info": "The bank's exact premature withdrawal penalty policy, the premature closure payout quote for your FD today, and confirmation of the updated maturity instruction.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy and penalty rules for premature withdrawal or early closure of fixed deposits. Step 2: Say that you are thinking of breaking your \u20b975,000 fixed deposit and ask for a premature closure quote to see the payout you would get today (provide deposit ID FD214685 only when asked). Step 3: Once the assistant quotes the payout and penalty, state that you do not want to lose money to the penalty and will let the deposit run until maturity; ask instead to change the maturity instruction on FD214685 so that it does not auto-renew. Step 4: When the assistant asks for your confirmation to update the renewal instruction, give explicit affirmative confirmation. Strictly follow this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BC6DAADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature closure penalty fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb3_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD214685"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb3_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD214685",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for premature closure policy, retrieves the premature closure quote for FD214685, and updates the renewal instruction to no renewal only after receiving the customer's explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqkb_04",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_E312514A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arjun Chatterjee, a 23-year-old private tutor from Kolkata with an active fixed deposit, seeking to understand closure penalties and adjust renewal settings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the bank's policy on premature fixed deposit closure, get a quote for closing your FD today, and then make an informed decision to keep the FD until maturity while switching its maturity instruction to no renewal.",
+    "known_info": "You are Arjun Chatterjee, customer already logged in (id CUST_E312514A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your fixed deposit ID is FD385192. Your preferred new maturity instruction is no renewal.",
+    "unknown_info": "The exact premature closure penalty policy of the bank, the net payout quote for breaking the deposit today, and the confirmation of the renewal instruction update.",
+    "task_instructions": "Step 1: Ask about the bank's policy and rules regarding premature withdrawal or closure penalty for fixed deposits. Step 2: Next, ask for a closure payout quote on your fixed deposit to see what you would get if closed today (provide deposit ID FD385192 only when asked). Step 3: Having reviewed the penalty and payout, decide against premature closure; instead, ask to change the deposit's maturity instruction to 'no renewal' so it pays out upon maturity rather than renewing. Step 4: When the assistant asks for confirmation to update the maturity instruction, reply with clear confirmation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E312514A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb4_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "fixed deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb4_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD385192"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb4_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD385192",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the bank's premature closure policy via the knowledge base, provide a closure quote for FD385192, and upon customer confirmation, update the deposit's renewal instruction to no renewal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqkb_05",
+  "description": {
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "notes": "family=sqkb; customer_id=CUST_CC00E497; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Mita Roy, a 68-year-old lab technician from Kolkata holding a recurring deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering closing your recurring deposit early, but first want to know the premature closure policy and get a closure quote. After seeing the penalty and payout, you make an informed decision not to close it early, and instead update the maturity instruction to no renewal.",
+    "known_info": "You are Mita Roy, customer ID CUST_CC00E497. You have a recurring deposit linked to your savings account. Do not volunteer account, deposit, or card IDs until the assistant specifically asks for them. If asked, your deposit ID is RD125894.",
+    "unknown_info": "The exact bank policy and penalty for closing an RD prematurely, today's closure quote payout, and the current renewal instruction.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy and penalty rules for premature closure of recurring deposits. Step 2: Next, ask for a closure quote to see how much you would receive if you closed your recurring deposit today (provide deposit ID RD125894 only when asked). Step 3: Once the assistant provides the quote and penalty details, state that you do not want to close it early and suffer a penalty. Instead, ask to change the maturity instruction so it does not renew upon maturity (set to no renewal). Step 4: When the assistant asks for your confirmation to change the maturity instruction to no renewal, reply with explicit confirmation. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC00E497"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqkb5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature closure policy recurring deposit penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsqkb5_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD125894"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqkb5_2",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD125894",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for RD premature closure rules, retrieves the deposit closure quote for RD125894, and after the customer decides against early closure, asks for confirmation and updates the renewal instruction on RD125894 to no_renewal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

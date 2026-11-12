@@ -1,0 +1,524 @@
+[
+ {
+  "id": "k5_tlrdmat_00",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_D049C89E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramaswamy Krishnan, a 53-year-old college professor planning his savings systematically.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b95000/month for 24 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Ramaswamy Krishnan, customer already logged in (id CUST_D049C89E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 5000; tenure 24 months; source savings SB9987730704.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b95000/month for 24 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 5000/month for 24 months from savings SB9987730704 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D049C89E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9987730704"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat0_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5tlrdmat0_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB9987730704",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9987730704"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings balance, retrieve the RD rate card, calculate the RD maturity value for \u20b95,000/month for 24 months, confirm and book the RD from the savings account, and then re-check the balance to show the first installment debited."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrdmat_01",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_9897FF72; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Natvarlal Patel, a self-employed plumber checking his account balance and planning to open a recurring deposit to build his savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b94000/month for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Rajesh Natvarlal Patel, customer already logged in (id CUST_9897FF72). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 4000; tenure 12 months; source savings SB6883948682.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b94000/month for 12 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 4000/month for 12 months from savings SB6883948682 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9897FF72"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6883948682"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat1_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 4000,
+      "rate": 6.5,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlrdmat1_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 4000,
+      "tenure_months": 12,
+      "source_account": "SB6883948682"
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6883948682"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings balance, retrieve the RD rate, calculate maturity for \u20b94,000/month for 12 months, book the RD from account SB6883948682 only after customer confirmation, and check the updated balance showing the initial installment debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrdmat_02",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_DF4D7E24; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 49-year-old IT Support Engineer based in Chennai, holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b95000/month for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_DF4D7E24). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 5000; tenure 12 months; source savings SB2474661890.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b95000/month for 12 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 5000/month for 12 months from savings SB2474661890 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DF4D7E24"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2474661890"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat2_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 6.5,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlrdmat2_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB2474661890",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2474661890"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, fetch RD interest rates, calculate the projected maturity value for a 12-month \u20b95,000 monthly RD at 6.5%, confirm and book the recurring deposit from SB2474661890, and re-fetch the updated account balance reflecting the first installment debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrdmat_03",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_2842FE97; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 65-year-old senior citizen and IT support engineer with a single active savings account in Jaipur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b92500/month for 36 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Sunita Sharma (senior citizen), customer already logged in (id CUST_2842FE97). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 2500; tenure 36 months; source savings SB2140772044.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b92500/month for 36 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 2500/month for 36 months from savings SB2140772044 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2842FE97"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2140772044"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat3_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 2500,
+      "rate": 7.5,
+      "tenure_months": 36
+     }
+    },
+    {
+     "action_id": "k5tlrdmat3_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 2500,
+      "source_account": "SB2140772044",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2140772044"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, fetches current RD rates, computes the maturity value for \u20b92,500 over 36 months at the senior citizen rate of 7.5%, books the RD only after explicit customer confirmation, and checks the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrdmat_04",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_5C21DF85; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a dairy owner in Jaipur managing her business savings and looking to start a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b92500/month for 24 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_5C21DF85). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 2500; tenure 24 months; source savings SB6783705814.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b92500/month for 24 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 2500/month for 24 months from savings SB6783705814 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5C21DF85"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6783705814"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat4_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 2500,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5tlrdmat4_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 2500,
+      "source_account": "SB6783705814",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6783705814"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the savings account balance, look up RD rates, calculate RD maturity using the retrieved rate, book the recurring deposit after explicit user confirmation, and fetch the account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrdmat_05",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "notes": "family=tlrdmat; customer_id=CUST_D484FF6D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priyanka Sharma, a 28-year-old school teacher who wants to carefully check her balance and projected RD returns before committing to a new recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b94000/month for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Priyanka Sharma, customer already logged in (id CUST_D484FF6D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 4000; tenure 12 months; source savings SB7653068969.",
+    "unknown_info": "Your available balance, today's RD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's RD interest rate. Step 3: then ask the agent to work out what \u20b94000/month for 12 months would mature to at that rate. Step 4: only after seeing that number, book the RD: 4000/month for 12 months from savings SB7653068969 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the first installment debited. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D484FF6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrdmat5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7653068969"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrdmat5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat5_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 4000,
+      "rate": 6.5,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlrdmat5_3",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 4000,
+      "source_account": "SB7653068969",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlrdmat5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7653068969"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings account balance, fetch RD interest rates, calculate the RD maturity value for \u20b94,000/month over 12 months at the active rate, book the RD after obtaining explicit confirmation, and then check the account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

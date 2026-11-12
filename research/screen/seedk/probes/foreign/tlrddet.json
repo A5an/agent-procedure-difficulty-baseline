@@ -1,0 +1,446 @@
+[
+ {
+  "id": "foreign_tlrddet_00",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_B1141140; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Radhika Sharma, a police constable based in Hyderabad who wants to check her savings balance, review her recurring deposit details, check the payout if closed prematurely, and ultimately change the RD maturity instruction to not renew.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review savings balance and recurring deposit status, check premature closure quote, and update RD renewal instruction.",
+    "known_info": "You are Radhika Sharma (customer ID CUST_B1141140). You have an active savings account and a recurring deposit. Do not volunteer account or deposit numbers (such as SB2730486719 or RD584257) unless the assistant specifically asks for them.",
+    "unknown_info": "Your current savings account balance, RD accumulated balance and installments paid, premature closure payout and penalty, and confirmation of renewal instruction update.",
+    "task_instructions": "Step 1: Ask the assistant for the current balance of your savings account. Step 2: Next, ask about the current status and accumulated balance of your recurring deposit (RD). Step 3: Ask for a closure quote to see how much you would receive if you closed the RD today. Step 4: After seeing the quote, state that you do not want to close it early, but instead want to change its maturity instruction so it does not renew upon maturity (no renewal). Step 5: When the assistant asks for your confirmation to change the renewal instruction on the RD, confirm clearly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B1141140"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2730486719"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet0_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD584257"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet0_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD584257"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet0_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD584257",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account balance, fetches the details of recurring deposit RD584257, provides a closure quote for that deposit, and upon customer confirmation, updates the maturity renewal instruction to no_renewal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlrddet_01",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_F07866E1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Gupta, a 35-year-old agri-trader from Lucknow who maintains a savings account and recurring deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, review your recurring deposit status, check the payout if prematurely closed, and ultimately update the maturity renewal instruction.",
+    "known_info": "You are Anjali Gupta, customer ID CUST_F07866E1. Do not volunteer account or deposit IDs until the assistant asks for them or references them. You have a savings account and an active Recurring Deposit.",
+    "unknown_info": "Your exact account balance, RD accumulated amount and status, premature closure quote amount, and current maturity instruction.",
+    "task_instructions": "Step 1: Ask the assistant for your savings account balance. Step 2: Once the balance is given, ask about the current status and details of your recurring deposit. Step 3: Next, ask what payout amount you would receive if you were to close this recurring deposit today. Step 4: After hearing the closure quote, decide not to close it early; instead, ask to update its maturity instruction so that both principal and interest renew automatically upon maturity. When the assistant summarizes and asks for your confirmation to update the renewal instruction, confirm affirmatively. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F07866E1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7742429723"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet1_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD337343"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet1_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD337343"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet1_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD337343",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the customer's savings account balance, look up the recurring deposit details, provide a premature closure quote for RD337343, seek confirmation before updating the maturity instruction, and update the RD renewal instruction to renew principal and interest."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlrddet_02",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_CD3A1C80; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Aditi Kumari, a 33-year-old IT Product Manager living in Patna, who likes keeping close track of her savings and deposits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, review your recurring deposit status, see what you would get if you closed it today, and then update its maturity instruction instead of closing it.",
+    "known_info": "You are Aditi Kumari, logged in under customer ID CUST_CD3A1C80. You hold a savings account (SB6223038482) and a recurring deposit (RD401820). Do not volunteer account or deposit IDs until the assistant specifically asks for them.",
+    "unknown_info": "Your current savings account balance, the exact number of RD installments paid so far, the premature closure payout amount, and whether the renewal instruction is currently set to renew.",
+    "task_instructions": "Step 1: Ask the assistant to check your savings account balance (provide your account ID SB6223038482 only when asked).\nStep 2: Ask the assistant to check the status and details of your recurring deposit (provide deposit ID RD401820 only when asked).\nStep 3: Ask for a closure quote to see how much you would receive if you were to close this recurring deposit today.\nStep 4: After hearing the closure quote, state that you do not want to close it early, but you want to update its maturity instruction so that both principal and interest are renewed upon maturity. When the assistant asks for confirmation to update the renewal instruction, confirm clearly.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CD3A1C80"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6223038482"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet2_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD401820"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet2_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD401820"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet2_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD401820",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the balance for account SB6223038482, fetches details and a closure quote for RD401820, and updates the deposit's renewal instruction to renew_principal_interest only after obtaining explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlrddet_03",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_5AC73D79; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Amit Kumar, an affluent government officer residing in Gurugram, reviewing his savings and recurring deposit portfolio.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, review recurring deposit status and premature closure payout, then change the RD renewal instruction instead of closing.",
+    "known_info": "You are Amit Kumar, customer already logged in (id CUST_5AC73D79). Do not volunteer account or deposit IDs until the assistant asks for that specific detail. You hold a savings account and an active recurring deposit with the bank.",
+    "unknown_info": "Your current savings account balance, RD accumulated amount and tenure details, today's closure quote and penalty, and the confirmation of the renewal instruction change.",
+    "task_instructions": "Step 1: Ask the assistant for the current balance in your savings account. Step 2: Once provided, ask to check the current status and accumulated details of your recurring deposit. Step 3: Ask for a quote of how much you would receive if you closed the recurring deposit today. Step 4: Upon hearing the closure payout, state that you do not want to close it early, but want to set its maturity instruction to renew principal and interest ('renew_principal_interest'). Step 5: When the assistant asks for your explicit confirmation to update the deposit renewal instruction, confirm affirmatively. Follow this exact sequence without jumping ahead. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5AC73D79"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8093963077"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet3_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD793929"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet3_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD793929"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet3_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD793929",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up Amit Kumar's savings account balance, fetch details for RD793929, retrieve a deposit closure quote for it, and then, after obtaining explicit confirmation, update the RD's renewal instruction to renew_principal_interest without closing the deposit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlrddet_04",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_33701EE2; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Smt. Radhika Vemuri, a 50-year-old retail shop owner from Visakhapatnam reviewing her bank savings and recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your savings account balance, check the status of your \u20b915,000/month recurring deposit, check its closure quote, and change its renewal instruction.",
+    "known_info": "You are Smt. Radhika Vemuri, already logged in (customer ID CUST_33701EE2). You hold a savings account (SB6618491645) and an active 12-month recurring deposit of \u20b915,000 per month (RD625499). Do not volunteer account IDs, deposit IDs, or technical terms unless explicitly requested by the assistant.",
+    "unknown_info": "The current available balance of your savings account, the current accumulated amount and installment count on your \u20b915,000/month RD, the payout if closed today, and whether the renewal instruction is successfully updated.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account. Do not provide the account ID unless asked.\nStep 2: Ask the assistant to check the status, number of installments paid, and total accumulated amount of your recurring deposit of \u20b915,000 per month. Do not provide the deposit ID unless asked.\nStep 3: Ask the assistant what amount you would receive if you closed this recurring deposit today.\nStep 4: After receiving the quote, state that you do not want to close it prematurely, but instead want to change its maturity instruction so that both principal and interest are renewed upon maturity. When the assistant asks for your explicit confirmation to update the renewal instruction, confirm affirmatively.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_33701EE2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6618491645"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet4_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD625499"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet4_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD625499"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet4_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD625499",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account balance, looks up the status of the \u20b915,000/month recurring deposit (RD625499), provides a premature closure quote, and updates the deposit renewal instruction to renew principal and interest only after receiving explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlrddet_05",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_BE85B587; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Menon, a 32-year-old self-employed cab driver living in Kochi.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inspect your recurring deposit progress, check how much you'd get if you closed it early, and then update its renewal instruction instead.",
+    "known_info": "You are Arun Menon, customer already logged in (id CUST_BE85B587). You have a savings account and an active recurring deposit. Do not volunteer account or deposit IDs until the assistant asks for them.",
+    "unknown_info": "Your current savings balance, your RD's total accumulated amount and installments paid, the payout quote if closed prematurely today, and the confirmation of the renewal instruction change.",
+    "task_instructions": "Step 1: Ask the assistant for the current balance of your savings account. Do not provide account numbers unless requested.\nStep 2: Once the balance is provided, ask to check the status and details of your recurring deposit (RD), including how many installments have been paid.\nStep 3: Ask what payout you would receive if you closed the RD today.\nStep 4: After receiving the closure quote, state that you do not want to close it early, but instead want to set its maturity instruction to automatically renew both principal and interest upon maturity. When the assistant asks for your confirmation to update the renewal instruction, confirm clearly.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BE85B587"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlrddet5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6144912984"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet5_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD205289"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet5_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD205289"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlrddet5_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD205289",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the savings account balance, retrieve the RD details, provide an early closure quote without closing the deposit, and update the RD renewal instruction to renew principal and interest only after receiving the customer's explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

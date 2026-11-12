@@ -1,0 +1,374 @@
+[
+ {
+  "id": "foreign_tlreqstat_00",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_582645B1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vikram Singh, a retail store manager checking on his savings account and tracking down an overdue service request.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account details, check the status of an existing service request that was due yesterday, and raise an escalation complaint about the delay.",
+    "known_info": "You are Vikram Singh, already authenticated (customer ID CUST_582645B1). You hold a savings account (SB5033530740) and have an open service request (SR-30453142) regarding a statement charge query. Do not volunteer account IDs, request reference IDs, or internal category names until the assistant asks for them.",
+    "unknown_info": "The current status of your open service request and the reference ID of the follow-up complaint.",
+    "task_instructions": "Step 1: Ask the assistant to pull up the details of your savings account. Do not provide the account number upfront; provide it only if asked.\nStep 2: Ask the assistant to check the status of the service request you previously raised regarding a query on your statement charges. Provide the request ID SR-30453142 only when asked.\nStep 3: After the assistant confirms the request is still open despite the resolution date having passed, ask to raise an escalation / follow-up complaint about the delay on this request.\nStep 4: Explicitly confirm the request when the assistant asks for your confirmation.\nStep 5: Acknowledge the confirmation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_582645B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB5033530740"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat0_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-30453142"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat0_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5033530740",
+      "category": "service_quality",
+      "description": "Follow-up complaint regarding delayed resolution of service request SR-30453142"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, checks the status of service request SR-30453142, and after receiving explicit confirmation, raises a follow-up service request linked to account SB5033530740."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlreqstat_01",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_94392A85; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Ramesh Patel, a 58-year-old hospitality worker in Surat with an active savings account, following up on an unresolved service request that is past its estimated turnaround date.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account details, check the status of an earlier service request, and register an escalation / chase-up complaint because the turnaround date has passed without resolution.",
+    "known_info": "You are Anjali Ramesh Patel, customer ID CUST_94392A85. Do not volunteer account IDs, card numbers, or service request reference IDs until the assistant specifically asks for them. Your savings account is SB8124895476 and your open service request reference is SR-29376834 (raised regarding a statement charge query).",
+    "unknown_info": "The current status and ETA details of service request SR-29376834, and confirmation of the newly raised escalation complaint.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your savings account. Do not provide the account ID unless specifically asked. Step 2: Once the account details are provided, ask the assistant to check the status of your previous service request regarding the statement charge query. When asked for the reference number, provide SR-29376834. Step 3: When the assistant informs you that the request is still open and its estimated resolution date of 2026-07-15 has already passed, express your dissatisfaction and ask to raise an escalation / follow-up complaint to chase this up. Step 4: When the assistant asks for your confirmation to register the follow-up complaint, confirm clearly with 'Yes, please proceed'. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_94392A85"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8124895476"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat1_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-29376834"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat1_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8124895476",
+      "category": "service_quality",
+      "description": "Follow-up and escalation for service request SR-29376834 which is past its estimated completion date"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, looks up the status of service request SR-29376834, informs the customer of its overdue status, and upon explicit confirmation, files a follow-up escalation service request linked to the customer's account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlreqstat_02",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_CB25B793; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Singh, a 28-year-old store manager from Kolkata who holds a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the balance on your savings account, check the status of an existing service request regarding a statement charge, and escalate with a follow-up complaint because its resolution date has passed.",
+    "known_info": "You are Rajesh Kumar Singh, logged in as CUST_CB25B793. Your savings account is SB6546777117. You previously submitted a service request with ticket reference SR-73837009. Do not volunteer your account number, request ID, or internal category names until the assistant asks for them.",
+    "unknown_info": "Your current savings account balance, the latest status/ETA of request SR-73837009, and the confirmation of the follow-up complaint registration.",
+    "task_instructions": "Step 1: Ask the assistant to check the available balance of your savings account. Reveal your account ID only if the assistant asks. Step 2: Once the balance is provided, ask the assistant to check the status of your existing service request about a statement charge query; provide the reference number SR-73837009 when prompted. Step 3: When the assistant informs you that request SR-73837009 remains open past its estimated resolution date of 2026-07-15, express your dissatisfaction with the delay and ask to raise a follow-up complaint / chase-up request for your savings account. Step 4: When the assistant asks for your confirmation to register the complaint, confirm clearly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CB25B793"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6546777117"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat2_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-73837009"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat2_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6546777117",
+      "category": "service_quality",
+      "description": "Follow-up complaint regarding delayed resolution for service request SR-73837009"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, looks up the status of service request SR-73837009, and upon the customer's confirmation, logs a follow-up complaint under service_quality for the overdue request linked to account SB6546777117."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlreqstat_03",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_C79521D9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karthik Ramaswamy, a 21-year-old wholesale trader from Coimbatore with a savings and a current account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account details, verify the status of an existing service request, and raise a follow-up complaint because its resolution ETA has passed.",
+    "known_info": "You are Karthik Ramaswamy, customer ID CUST_C79521D9. You have a savings account (SB4260742442) and a pending service request (SR-14066307) logged on 2026-07-10 regarding a statement charge. Do not volunteer account IDs or request IDs until the assistant asks for them.",
+    "unknown_info": "The current status of service request SR-14066307 and confirmation of the follow-up complaint registration.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your savings account. Do not volunteer the account ID unless the assistant asks to clarify between your accounts.\nStep 2: Ask the assistant to check the status of your existing service request. Provide the request ID SR-14066307 only when asked.\nStep 3: Point out that the ETA (2026-07-15) has passed with the request still open, and ask the assistant to register a follow-up complaint / chase-up request for the delay.\nStep 4: When the assistant asks for your explicit confirmation to raise the follow-up request, give a clear affirmative response. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C79521D9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4260742442"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat3_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-14066307"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat3_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4260742442",
+      "category": "service_quality",
+      "description": "Follow-up complaint for delayed service request SR-14066307"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, checks the status of service request SR-14066307, and upon explicit confirmation, raises a follow-up complaint under service_quality for the delayed request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlreqstat_04",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_2C04574E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 27-year-old college professor at University of Delhi with a savings account at the New Delhi Main Branch.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your savings account, follow up on an overdue service request regarding a statement charge query, and raise an escalation complaint for the service delay.",
+    "known_info": "You are Priya Sharma (customer ID CUST_2C04574E). You have a savings account (SB9927720152) and a previously raised service request (SR-78448491) regarding a statement charge query. Do not volunteer account IDs, request IDs, or category codes until the assistant specifically asks for them.",
+    "unknown_info": "The current status and resolution timeline of your previous service request SR-78448491, and the confirmation of the follow-up complaint.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your savings account. Step 2: Inquire about the status of the service request you previously submitted regarding a statement charge on your account. When the assistant asks for the service request number, provide SR-78448491. Step 3: Once the assistant informs you that the request is still open despite the ETA (2026-07-15) having passed, ask the assistant to register a formal follow-up complaint/escalation regarding the delay. Step 4: When the assistant explains the action and asks for your confirmation, reply affirmatively with 'Yes, please proceed.' Step 5: After receiving confirmation of the escalated request, end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2C04574E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat4_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB9927720152"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat4_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-78448491"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat4_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9927720152",
+      "category": "service_quality",
+      "description": "Customer escalation regarding delayed resolution of service request SR-78448491 for statement charge query"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, checks the status of request SR-78448491, and upon learning it is overdue, asks for confirmation and registers an escalation complaint under service quality."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlreqstat_05",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_929C991C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 50-year-old sales executive holding a primary savings account, following up on an overdue service query.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account details, check the status of an existing service request, and raise a follow-up complaint to chase it up because the resolution deadline has passed.",
+    "known_info": "You are Ravi Kumar, logged in with customer ID CUST_929C991C. Your savings account ID is SB7606984368. Your pending service request reference ID is SR-67160631. Do not volunteer account or request IDs until the assistant asks for them.",
+    "unknown_info": "The current status and resolution date of the service request, and confirmation of the new chase-up complaint being logged.",
+    "task_instructions": "Step 1: Ask the assistant to look up the details of your savings account. Do not volunteer the account ID unless asked.\nStep 2: Next, ask to check the status of your existing service request regarding a statement charge. When the assistant asks for the reference ID, provide SR-67160631.\nStep 3: When informed that the request is still open past its July 15 deadline, express concern about the delay and ask the assistant to register a follow-up escalation complaint to chase it up.\nStep 4: When the assistant asks for your confirmation to raise the escalation request, clearly confirm with 'Yes, please proceed'.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_929C991C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlreqstat5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7606984368"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat5_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-67160631"
+     }
+    },
+    {
+     "action_id": "foreigntlreqstat5_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7606984368",
+      "category": "service_quality",
+      "description": "Complaint chase-up and escalation for service request SR-67160631 pending past its resolution date."
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, checks the status of request SR-67160631, and upon the customer's explicit confirmation, raises a service quality request to escalate and chase up the overdue issue."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

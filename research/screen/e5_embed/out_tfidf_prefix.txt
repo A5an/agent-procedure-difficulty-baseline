@@ -1,0 +1,40 @@
+similarity: tfidf_prefix
+============================== TauIndianBank, 50 families, 6 real tasks each
+
+agent g38: real success 0.657
+  doc: probe success 0.719, probes 299
+    real success by probe successes k (families, real successes/cases, rate, CP lower bound): k=6: 17 fam 74/102 = 0.73 (lb 0.64); k=5: 11 fam 51/66 = 0.77 (lb 0.67); k=4: 5 fam 17/30 = 0.57 (lb 0.40); k=3: 9 fam 38/54 = 0.70 (lb 0.59); k=2: 4 fam 10/24 = 0.42 (lb 0.25); k=1: 3 fam 7/18 = 0.39 (lb 0.20); k=0: 1 fam 0/6 = 0.00 (lb 0.00)
+  seeded: probe success 0.707, probes 300
+    real success by probe successes k (families, real successes/cases, rate, CP lower bound): k=6: 18 fam 98/108 = 0.91 (lb 0.85); k=5: 15 fam 62/90 = 0.69 (lb 0.60); k=4: 2 fam 8/12 = 0.67 (lb 0.39); k=3: 4 fam 10/24 = 0.42 (lb 0.25); k=2: 2 fam 4/12 = 0.33 (lb 0.12); k=1: 5 fam 14/30 = 0.47 (lb 0.31); k=0: 4 fam 1/24 = 0.04 (lb 0.00)
+
+TIB / g38  (always-agent success 0.657)
+estimator                Brier | target 0.90: none  %proc %case  succ  held  CPlb CP>=t  BSlb BS>=t | target 0.85: none  %proc %case  succ  held  CPlb CP>=t  BSlb BS>=t
+const (0 probes)        0.2315 |               1.00  0.00  0.00   nan   nan   nan  0.00   nan  0.00 |               1.00  0.00  0.00   nan   nan   nan  0.00   nan  0.00 | 
+knn text (0 probes)     0.2313 |               0.74  0.04  0.04 0.802  0.23 0.563  0.00 0.689  0.04 |               0.55  0.10  0.10 0.798  0.30 0.600  0.01 0.673  0.06 | 
+doc raw                 0.2393 |               1.00  0.00  0.00 0.589  0.00 0.480  0.00 0.407  0.00 |               0.97  0.01  0.01 0.596  0.00 0.486  0.00 0.400  0.00 | 
+doc bb                  0.2166 |               1.00  0.00  0.00 0.589  0.00 0.480  0.00 0.392  0.00 |               0.97  0.01  0.01 0.596  0.00 0.486  0.00 0.398  0.00 | 
+doc bb_knn              0.2147 |               0.52  0.07  0.07 0.868  0.46 0.652  0.00 0.779  0.07 |               0.25  0.15  0.15 0.855  0.58 0.671  0.02 0.748  0.19 | 
+doc mf                  0.2303 |               0.92  0.02  0.02 0.603  0.00 0.442  0.00 0.347  0.00 |               0.84  0.04  0.04 0.595  0.00 0.435  0.00 0.329  0.00 | 
+seeded raw              0.1775 |               0.86  0.05  0.05 0.855  0.00 0.756  0.00 0.759  0.00 |               0.41  0.22  0.22 0.880  0.90 0.782  0.00 0.786  0.02 | 
+seeded bb               0.1713 |               0.86  0.05  0.05 0.855  0.00 0.756  0.00 0.760  0.00 |               0.41  0.22  0.22 0.880  0.90 0.782  0.00 0.786  0.02 | 
+seeded bb_knn           0.1699 |               0.28  0.15  0.15 0.910  0.58 0.735  0.01 0.839  0.20 |               0.09  0.33  0.33 0.891  0.77 0.773  0.10 0.815  0.25 | 
+seeded mf               0.1700 |               0.53  0.11  0.11 0.860  0.22 0.706  0.00 0.707  0.00 |               0.28  0.24  0.24 0.894  0.92 0.775  0.00 0.804  0.11 | 
+
+agent flash: real success 0.680
+  doc: probe success 0.625, probes 299
+    real success by probe successes k (families, real successes/cases, rate, CP lower bound): k=6: 15 fam 80/90 = 0.89 (lb 0.82); k=5: 5 fam 24/30 = 0.80 (lb 0.64); k=4: 5 fam 18/30 = 0.60 (lb 0.43); k=3: 8 fam 41/48 = 0.85 (lb 0.74); k=2: 11 fam 29/66 = 0.44 (lb 0.34); k=1: 6 fam 12/36 = 0.33 (lb 0.20)
+  seeded: probe success 0.740, probes 300
+    real success by probe successes k (families, real successes/cases, rate, CP lower bound): k=6: 24 fam 134/144 = 0.93 (lb 0.89); k=5: 5 fam 23/30 = 0.77 (lb 0.61); k=4: 5 fam 13/30 = 0.43 (lb 0.28); k=3: 8 fam 23/48 = 0.48 (lb 0.35); k=2: 4 fam 9/24 = 0.38 (lb 0.21); k=1: 1 fam 0/6 = 0.00 (lb 0.00); k=0: 3 fam 2/18 = 0.11 (lb 0.02)
+
+TIB / flash  (always-agent success 0.680)
+estimator                Brier | target 0.90: none  %proc %case  succ  held  CPlb CP>=t  BSlb BS>=t | target 0.85: none  %proc %case  succ  held  CPlb CP>=t  BSlb BS>=t
+const (0 probes)        0.2246 |               1.00  0.00  0.00   nan   nan   nan  0.00   nan  0.00 |               1.00  0.00  0.00   nan   nan   nan  0.00   nan  0.00 | 
+knn text (0 probes)     0.2513 |               0.39  0.12  0.12 0.875  0.57 0.684  0.02 0.766  0.28 |               0.25  0.18  0.18 0.869  0.58 0.698  0.11 0.758  0.37 | 
+doc raw                 0.2028 |               0.86  0.06  0.06 0.776  0.00 0.668  0.00 0.598  0.00 |               0.63  0.17  0.17 0.792  0.00 0.692  0.00 0.622  0.00 | 
+doc bb                  0.1919 |               0.74  0.09  0.09 0.804  0.00 0.690  0.00 0.598  0.00 |               0.52  0.21  0.21 0.808  0.21 0.706  0.00 0.626  0.00 | 
+doc bb_knn              0.1960 |               0.14  0.19  0.19 0.908  0.64 0.755  0.04 0.815  0.35 |               0.05  0.29  0.29 0.881  0.59 0.756  0.20 0.772  0.39 | 
+doc mf                  0.1861 |               0.72  0.08  0.08 0.739  0.00 0.599  0.00 0.490  0.00 |               0.53  0.19  0.19 0.786  0.00 0.675  0.00 0.591  0.00 | 
+seeded raw              0.1472 |               0.67  0.17  0.17 0.887  0.43 0.809  0.00 0.792  0.00 |               0.19  0.45  0.45 0.892  0.87 0.821  0.25 0.816  0.23 | 
+seeded bb               0.1472 |               0.67  0.17  0.17 0.887  0.43 0.809  0.00 0.793  0.00 |               0.19  0.45  0.45 0.892  0.87 0.821  0.25 0.816  0.23 | 
+seeded bb_knn           0.1495 |               0.07  0.35  0.35 0.935  0.79 0.839  0.14 0.869  0.42 |               0.01  0.51  0.51 0.909  0.85 0.834  0.45 0.840  0.43 | 
+seeded mf               0.1491 |               0.65  0.18  0.18 0.885  0.40 0.804  0.00 0.785  0.00 |               0.19  0.46  0.46 0.891  0.86 0.820  0.25 0.815  0.23 | 

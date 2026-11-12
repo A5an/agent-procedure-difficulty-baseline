@@ -1,0 +1,384 @@
+[
+ {
+  "id": "foreign_edgbmatelig_00",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_2DBECF91; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 64-year-old farmer and senior citizen from Gurugram holding an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review all your standing mandates, cancel the active life insurance mandate, and verify that you have no active mandates left while your paused SIP mandate remains untouched.",
+    "known_info": "You are Ramesh Kumar Sharma, customer ID CUST_2DBECF91. You have a savings account SB1851704851. You have two mandates: an active one for Sentinel Life Premium (\u20b92,400/month) and a paused one for SIP - Mutual Fund (\u20b95,000/month). Do not volunteer account, mandate, or card IDs until the assistant specifically asks for them.",
+    "unknown_info": "Mandate IDs MND16310194 and MND45239367 \u2014 state them only if the assistant asks for clarification or mandate ID.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates. Step 2: Once the mandates are listed, ask to cancel the active one (Sentinel Life Premium). When the assistant asks for your confirmation to cancel it, clearly confirm that you want to proceed. Step 3: After cancellation is confirmed, ask the assistant to check your active mandates to verify that the active list is now empty. Step 4: Ask the assistant to check your paused mandates to verify that your paused SIP mandate remains untouched. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2DBECF91"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND16310194"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig0_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all standing mandates, asks for customer confirmation before permanently cancelling the active Sentinel Life Premium mandate (MND16310194), and then verifies both that no active mandates remain and that the paused SIP mandate (MND45239367) is unaffected."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmatelig_01",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_789CCAAA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Moumita Hazarika, a 56-year-old HNI Product Manager residing in Guwahati, holding active savings and current accounts.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your standing mandates, cancel the only active mandate (StreamFlix), and verify that no active mandates remain while your paused mandates are untouched.",
+    "known_info": "You are Moumita Hazarika, already authenticated (customer ID CUST_789CCAAA). You have an active mandate for StreamFlix and some paused mandates on your account. Do not volunteer account or mandate IDs upfront until asked.",
+    "unknown_info": "Mandate ID MND47752580 \u2014 provide or confirm it only if the assistant asks for specific mandate details after listing them.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates across all statuses. Step 2: Once the mandates are listed, ask to cancel the active one (StreamFlix). When the assistant asks for your confirmation to cancel it, confirm affirmatively. Step 3: Once cancelled, ask the assistant to list your active mandates to verify that none are left active. Step 4: Then ask the assistant to check your paused mandates to confirm that they remain untouched. Do these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_789CCAAA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND47752580"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig1_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list all mandates, seek explicit confirmation before cancelling the active StreamFlix mandate (MND47752580), execute the cancellation, and verify through subsequent mandate lookups that the active list is empty and paused mandates remain intact."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmatelig_02",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_E312514A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arjun Chatterjee, a 23-year-old self-employed private tutor from Kolkata.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review all your standing mandates, cancel the active NovaTel Postpaid mandate, and then verify that there are no active mandates left while your paused SIP mandate remains untouched.",
+    "known_info": "You are Arjun Chatterjee, customer ID CUST_E312514A. You have a savings account SB3246714283. You have an active mandate for NovaTel Postpaid of \u20b9399 and a paused mandate for SIP - Mutual Fund of \u20b95,000. Do not volunteer mandate IDs or account IDs until the agent mentions or asks for them.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates across all statuses.\nStep 2: Once the assistant lists your mandates (NovaTel Postpaid and SIP - Mutual Fund), ask to cancel the active NovaTel Postpaid mandate. When the assistant asks for your confirmation to cancel it, explicitly confirm by saying yes.\nStep 3: After the cancellation is confirmed, ask the assistant to list your active mandates to verify that the active list is now empty.\nStep 4: Then ask the assistant to check your paused mandates to verify that your paused mandate (SIP - Mutual Fund) is still intact and untouched.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E312514A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig2_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND66005914"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig2_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig2_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve all mandates showing the active NovaTel Postpaid and paused SIP mandates, request confirmation before cancelling the active mandate MND66005914, cancel it upon confirmation, and then verify that no active mandates remain while the paused mandate remains intact."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmatelig_03",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_C3FC5398; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Venkatesh, a college professor from Chennai reviewing and cleaning up recurring debits on her bank profile.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review all standing mandates, cancel the active mobile postpaid mandate, verify that there are no active mandates left, and confirm the paused insurance mandate remains untouched.",
+    "known_info": "You are Ananya Venkatesh, logged in as customer CUST_C3FC5398. You have a savings account SB1399693309. You know you have a couple of mandates set up (a NovaTel Postpaid active debit of \u20b9399 and a paused Sentinel Life insurance debit of \u20b92,400). Do not volunteer account IDs, mandate IDs, or backend terms upfront; only provide mandate or account IDs if explicitly requested.",
+    "unknown_info": "Exact mandate IDs (MND45916017, MND39715392) unless the assistant quotes them or asks for confirmation.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates. Step 2: Once the assistant lists them, ask to cancel the active NovaTel Postpaid mandate. When the assistant asks for confirmation to cancel it, explicitly confirm. Step 3: Once cancellation is confirmed, ask the assistant to check your active mandates to verify that the active list is now empty. Step 4: After the assistant confirms no active mandates exist, ask to check your paused mandates to verify the paused Sentinel Life mandate is still intact and untouched. Do these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C3FC5398"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig3_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgbmatelig3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND45916017"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig3_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig3_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all standing mandates, prompts for explicit confirmation before cancelling the active NovaTel mandate MND45916017, and then verifies that the active mandate list is empty and the paused Sentinel Life mandate MND39715392 remains intact."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmatelig_04",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_5E0DE53F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Dr. Sreelatha Menon, a 67-year-old college professor and affluent retail banking customer from Thiruvananthapuram.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review all standing mandates, cancel the active NovaTel postpaid mandate, verify that no active mandates remain, and verify that the paused insurance mandate is untouched.",
+    "known_info": "You are Dr. Sreelatha Menon (senior citizen), customer already logged in (id CUST_5E0DE53F). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. You have an active mandate for NovaTel Postpaid (\u20b9399) and a paused mandate for Sentinel Life Premium (\u20b92,400).",
+    "unknown_info": "Mandate IDs MND92573840 and MND59490901 \u2014 provide them only if the agent asks after looking up your mandates.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Once the assistant lists them, ask to cancel the active mandate for NovaTel Postpaid. When the assistant asks for your confirmation to cancel it, explicitly confirm. Step 3: Once the cancellation is confirmed, ask the assistant to check your active mandates to verify that none are active. Step 4: Then ask the assistant to check your paused mandates to verify that the paused Sentinel Life Premium mandate is untouched and still paused. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5E0DE53F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig4_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND92573840"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig4_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig4_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all standing mandates, ask for confirmation before canceling the active NovaTel mandate (MND92573840), cancel it, verify that the active mandates list is now empty, and verify that the paused Sentinel Life mandate remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmatelig_05",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_1F2F2038; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 42-year-old school teacher from Gurugram who wants to manage his standing mandates and review recurring payments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check all your standing mandates, cancel the active insurance mandate, verify that your active mandates list is now empty, and ensure that your paused electricity mandate remains untouched.",
+    "known_info": "You are Rajesh Kumar, already logged in (customer ID CUST_1F2F2038). Do not volunteer account or mandate IDs until the assistant asks for or presents them. You know you have an active mandate for Sentinel Life Premium and a paused mandate for Electricity Autopay.",
+    "unknown_info": "Mandate IDs (MND21811103 for Sentinel Life Premium and MND33819713 for Electricity Autopay) or account number SB3209789499 \u2014 provide them only if specifically asked.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Once the assistant lists them, ask to cancel the active mandate for Sentinel Life Premium. When the assistant asks for your confirmation to cancel it, explicitly confirm. Step 3: Once cancellation is confirmed, ask the assistant to check your active mandates to verify that the active list is now empty. Step 4: Next, ask the assistant to check your paused mandates to verify that the paused electricity bill mandate remains untouched and paused. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1F2F2038"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmatelig5_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND21811103"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig5_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "foreignedgbmatelig5_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list all mandates, confirm before cancelling active mandate MND21811103, and then verify that active mandates are empty and paused mandate MND33819713 is untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

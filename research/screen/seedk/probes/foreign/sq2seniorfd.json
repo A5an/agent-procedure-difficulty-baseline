@@ -1,0 +1,531 @@
+[
+ {
+  "id": "foreign_sq2seniorfd_00",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_16784415; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Padmavathi Devi, a 65-year-old retired private tutor residing in Visakhapatnam who holds an active savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about senior citizen fixed deposit benefits, check the FD rate for 12 months, open a new FD of \u20b91,00,000, and verify the post-booking account balance.",
+    "known_info": "You are Padmavathi Devi, customer already logged in (id CUST_16784415). You are 65 years old and eligible as a senior citizen. Do not volunteer account/card/deposit/mandate ids until the assistant asks for that specific detail. Your linked savings account is SB9413996572. You want to invest \u20b91,00,000 in a fixed deposit for a tenure of 12 months.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Ask the assistant to check the available balance in your savings account (provide account number SB9413996572 only if asked). Step 2: Inquire about the special benefits and additional interest rates offered to senior citizens for fixed deposits. Step 3: Ask for the fixed deposit interest rate for a 12-month tenure with a principal amount of \u20b91,00,000. Step 4: Instruct the assistant to book a fixed deposit of \u20b91,00,000 for 12 months debited from your savings account, and provide clear explicit confirmation when the assistant summarizes the booking details and asks for your consent. Step 5: After the fixed deposit is successfully opened, ask to check your savings account balance again to verify the debit. Insist on following these steps in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_16784415"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9413996572"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd0_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000.0,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000.0,
+      "source_account": "SB9413996572",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9413996572"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, searches knowledge base for senior citizen FD benefits, retrieves the 12-month FD rate card, confirms with the customer before booking the \u20b91,00,000 FD, and checks the updated account balance upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2seniorfd_01",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_0AF1CF79; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Agarwal, a 59-year-old wholesale trader who is exploring senior citizen benefits for fixed deposits and wants to check her balance, research policies and rates, book an FD, and check her updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about senior citizen fixed deposit benefits, check the 12-month FD rate, book a \u20b92,00,000 FD, and check the balance afterwards.",
+    "known_info": "You are Sunita Agarwal, customer already logged in (id CUST_0AF1CF79). Do not volunteer account or product IDs until the assistant asks for that specific detail. Your primary savings account is SB3151129228. You want to check your balance, learn about senior citizen benefits on fixed deposits, check the 12-month FD rate, book a \u20b92,00,000 FD for 12 months, and verify your account balance after booking.",
+    "unknown_info": "Account ID SB3151129228 \u2014 give it only if the assistant asks which account you want to use.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account (provide account ID SB3151129228 only if asked). Step 2: Ask what benefits, schemes, or extra interest senior citizens receive on fixed deposits. Step 3: Ask for the fixed deposit interest rate for a 12-month tenure. Step 4: Ask to open a cumulative fixed deposit of \u20b92,00,000 for 12 months using your savings account. When the assistant asks for your confirmation to book the FD, explicitly confirm the booking. Step 5: Once the deposit is created, ask to check the updated balance of your savings account to ensure the money was debited. Insist on following these steps in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0AF1CF79"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3151129228"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd1_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 200000,
+      "tenure_months": 12,
+      "source_account": "SB3151129228"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3151129228"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the savings account balance, search the knowledge base for senior citizen FD benefits, retrieve the 12-month FD rate from the rate card, create the \u20b92,00,000 12-month FD only after obtaining explicit customer confirmation, and finally retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2seniorfd_02",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_BAB98DC9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 75-year-old self-employed carpenter and senior citizen customer seeking to verify his savings balance, learn about senior citizen fixed deposit benefits, check the rate for a 1-year tenure, book a \u20b950,000 fixed deposit, and verify his remaining balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about senior citizen fixed deposit benefits, look up deposit rates for a 12-month FD, book a \u20b950,000 FD, and check the balance again.",
+    "known_info": "You are Ramesh Kumar Sharma, customer ID CUST_BAB98DC9, aged 75. You have a savings account SB1367413977. Do not volunteer your account ID or other IDs until the assistant asks for it. You plan to invest \u20b950,000 for a 12-month fixed deposit.",
+    "unknown_info": "Exact current FD interest rate card and bank policy on senior citizen additional interest rate benefits.",
+    "task_instructions": "Step 1: Ask the assistant to check the balance of your savings account (provide account ID SB1367413977 only if asked). Step 2: Once the balance is shared, ask what senior citizen benefits or interest rate rules apply for fixed deposits. Step 3: After the assistant explains the senior citizen benefit policy, ask for the fixed deposit rate for \u20b950,000 for a 12-month tenure. Step 4: After the rate is provided, ask to book a 12-month fixed deposit of \u20b950,000 from your savings account. When the assistant presents the booking summary and asks for confirmation, reply explicitly with 'Yes, please proceed with booking the FD.' Step 5: Once the deposit is created, ask to check your savings account balance again to confirm the debit. Complete each step in order without skipping or combining. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BAB98DC9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1367413977"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd2_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB1367413977",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1367413977"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, searches the knowledge base for senior citizen deposit rules, retrieves the 12-month FD rate card, confirms with the customer before booking the \u20b950,000 FD, and checks the updated account balance after creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2seniorfd_03",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_751E1D9F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajinder Kaur, a 71-year-old retired government school teacher from Amritsar, careful with her savings and looking to understand senior citizen fixed deposit benefits before booking an FD.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about senior citizen fixed deposit benefits, check the 1-year FD interest rate, book a \u20b950,000 FD, and check the updated balance.",
+    "known_info": "You are Rajinder Kaur, logged in under customer ID CUST_751E1D9F. You hold a savings account in Amritsar Main Branch. Do not volunteer account numbers or deposit details until specifically requested by the assistant. You wish to book a cumulative fixed deposit of \u20b950,000 for a 12-month tenure with no auto-renewal.",
+    "unknown_info": "Account number SB7897189324 \u2014 provide it only if the assistant asks which account to inspect or debit.",
+    "task_instructions": "Step 1: Ask the assistant to check your current savings account balance. Do not provide your account number unless asked.\nStep 2: Ask what benefits or additional interest rate senior citizens receive on fixed deposits under bank policy.\nStep 3: Ask for the authoritative interest rate for a 12-month fixed deposit of \u20b950,000.\nStep 4: Request to open a 12-month fixed deposit of \u20b950,000 debited from your savings account with cumulative payout and no renewal. When the assistant presents the summary and asks for your explicit confirmation, reply with a clear 'yes' to proceed.\nStep 5: After the fixed deposit is booked, ask the assistant to check your savings account balance again to confirm the debit. Complete the steps strictly in this sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_751E1D9F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7897189324"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd3_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000.0,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd3_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 50000.0,
+      "source_account": "SB7897189324",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7897189324"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, searches the knowledge base for senior citizen FD rules, retrieves the official rate card for a 12-month \u20b950,000 FD, seeks explicit confirmation before creating the FD, books the deposit, and verifies the final account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2seniorfd_04",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_EA968191; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vijay Kumar Reddy, a 78-year-old retired IT product manager living in Hyderabad, methodical and cautious about his finances, wanting to verify his balance and senior citizen terms before investing.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about senior citizen fixed deposit benefits, check the current 1-year FD rate, book an FD of \u20b95,00,000, and verify the updated account balance.",
+    "known_info": "You are Vijay Kumar Reddy, customer ID CUST_EA968191, logged in. You have a savings account ending in 0653 (SB4326150653) and a current account. Do not volunteer account numbers until asked. You want to check your savings account balance first, understand the senior citizen perks on fixed deposits, check the rate for a 12-month tenure, open a 12-month fixed deposit for \u20b95,00,000 from your savings account, and finally verify your remaining savings balance.",
+    "unknown_info": "Exact interest rates and policy details for senior citizen fixed deposits; ask the virtual assistant to look them up.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account (provide account number SB4326150653 if asked).\nStep 2: Ask what special benefits or additional interest rates the bank offers to senior citizens on fixed deposits.\nStep 3: Ask for the authoritative interest rate card for a 12-month (1 year) Fixed Deposit.\nStep 4: Request to book a cumulative 12-month Fixed Deposit for \u20b95,00,000 debited from your savings account. When the assistant presents the summary and asks for your confirmation, reply with an explicit confirmation to proceed.\nStep 5: After the fixed deposit is booked, ask to check your savings account balance again to confirm the debit went through properly.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EA968191"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4326150653"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd4_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit interest rate benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 500000.0,
+      "source_account": "SB4326150653",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4326150653"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for senior citizen deposit benefits, fetches the FD rate card for 12 months, confirms and books the \u20b95,00,000 FD, and then checks the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2seniorfd_05",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_34E78AA0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Smt. Ganga Menon, a 73-year-old retired electrician from Thiruvananthapuram. Thorough, cautious with money, and keen on making sure senior citizen benefits are applied to her savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current savings balance, inquire about senior citizen fixed deposit benefits, check FD interest rates, book a \u20b91,00,000 FD for 12 months, and verify the updated account balance.",
+    "known_info": "You are Smt. Ganga Menon, logged in under customer ID CUST_34E78AA0. You have a single savings account SB2339018993. Do not volunteer your account ID unless specifically asked. You wish to book a fixed deposit of \u20b91,00,000 for a tenure of 12 months with cumulative payout.",
+    "unknown_info": "Exact senior citizen interest rate premium or current FD rate card \u2014 you want the assistant to look these up from bank policy and rate cards.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance in your savings account.\nStep 2: Ask what special benefits or extra interest rate senior citizens receive on fixed deposits.\nStep 3: Ask to see the fixed deposit interest rate for a 12-month tenure.\nStep 4: Request to book a fixed deposit of \u20b91,00,000 for 12 months from your savings account with cumulative interest payout. When the assistant summarizes the booking details and asks for your confirmation, provide explicit confirmation.\nStep 5: After the fixed deposit is successfully created, ask to check your savings account balance again to ensure the funds were debited properly.\nInsist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_34E78AA0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2seniorfd5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2339018993"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2seniorfd5_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit additional interest rate benefits"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2seniorfd5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd5_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 100000,
+      "source_account": "SB2339018993",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2seniorfd5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2339018993"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, searches bank policy for senior citizen FD perks, fetches current FD interest rates, seeks explicit confirmation before creating the FD for \u20b91,00,000, and checks the post-booking account balance upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

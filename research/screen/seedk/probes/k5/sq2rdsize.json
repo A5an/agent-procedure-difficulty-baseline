@@ -1,0 +1,572 @@
+[
+ {
+  "id": "k5_sq2rdsize_00",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_AEE2E45B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 36-year-old bank manager with an active savings account who wants to start disciplined recurring savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b910000/month for 24 months from savings \u2014 only after confirming funds, rate, the maturity projection, and the early-closure penalty, with the debited balance shown after.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_AEE2E45B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 10000; tenure 24 months; source savings SB5288560102.",
+    "unknown_info": "Your available balance, the RD rate, the maturity projection, the penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would be worth at maturity for \u20b910000/month over 24 months. Step 4: then ask what the penalty is if you break an RD early (knowledge search, not memory). Step 5: only after all that, book the RD: 10000/month for 24 months from savings SB5288560102 (reveal each parameter only when asked; confirm before booking). Step 6: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AEE2E45B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5288560102"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize0_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 10000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize0_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize0_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 10000,
+      "source_account": "SB5288560102",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize0_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5288560102"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings balance, retrieve the RD rate card, calculate the RD maturity value for \u20b910,000/month over 24 months at 6.8%, search the knowledge base for the premature closure penalty policy, obtain confirmation before creating the recurring deposit from account SB5288560102, and then verify the post-debit account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2rdsize_01",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_89E00F17; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A meticulous college professor who carefully evaluates balances, interest rates, returns, and penalty rules before committing to booking a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b95000/month for 24 months from savings \u2014 only after confirming funds, rate, the maturity projection, and the early-closure penalty, with the debited balance shown after.",
+    "known_info": "You are Priya Deshmukh, customer already logged in (id CUST_89E00F17). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 5000; tenure 24 months; source savings SB2679992801.",
+    "unknown_info": "Your available balance, the RD rate, the maturity projection, the penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would be worth at maturity for \u20b95000/month over 24 months. Step 4: then ask what the penalty is if you break an RD early (knowledge search, not memory). Step 5: only after all that, book the RD: 5000/month for 24 months from savings SB2679992801 (reveal each parameter only when asked; confirm before booking). Step 6: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_89E00F17"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2679992801"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize1_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize1_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize1_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB2679992801",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize1_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2679992801"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant verifies the customer's savings balance, fetches RD interest rates, calculates RD maturity value for \u20b95000/month over 24 months, checks premature penalty policy via knowledge search, books the RD from SB2679992801 after explicit confirmation, and fetches the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2rdsize_02",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_D0AFE3DF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kulwinder Kaur, a 56-year-old dairy business owner from Amritsar who values careful financial planning and wants all information clarified before opening a deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b910,000/month for 24 months from savings \u2014 only after confirming funds, rate, the maturity projection, and the early-closure penalty, with the debited balance shown after.",
+    "known_info": "You are Kulwinder Kaur, customer already logged in (id CUST_D0AFE3DF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 10000; tenure 24 months; source savings SB3162085576.",
+    "unknown_info": "Your available balance, the RD rate, the maturity projection, the penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would be worth at maturity for \u20b910,000/month over 24 months. Step 4: then ask what the penalty is if you break an RD early (knowledge search, not memory). Step 5: only after all that, book the RD: 10000/month for 24 months from savings SB3162085576 (reveal each parameter only when asked; confirm before booking). Step 6: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D0AFE3DF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3162085576"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize2_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 10000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize2_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize2_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 10000,
+      "source_account": "SB3162085576",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize2_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3162085576"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings balance, retrieves current RD rates, calculates maturity for a 24-month RD at \u20b910,000/month, searches the knowledge base for early closure penalties, books the RD upon customer confirmation, and verifies the updated balance after the first installment is debited."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2rdsize_03",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_86A28425; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 28-year-old school teacher living in New Delhi. She is organized, financially prudent, and insists on knowing all rates, maturity estimates, and penalty terms before committing funds to a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to open a new recurring deposit of \u20b93,000/month for 24 months from your savings account \u2014 only after verifying your current balance, confirming the RD interest rate, seeing the maturity calculation, and checking the premature closure penalty policy, followed by seeing the updated account balance after booking.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_86A28425). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment \u20b93,000; tenure 24 months; source savings account SB5943736759.",
+    "unknown_info": "Your available savings balance, the current RD interest rate, the maturity value projection, the premature closure penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings account balance (reveal account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would yield at maturity for \u20b93,000/month over 24 months. Step 4: then ask what the penalty policy is if you close an RD prematurely before maturity. Step 5: only after receiving all that information, proceed to book the RD: \u20b93,000/month for 24 months from savings SB5943736759 (reveal parameters when asked, and explicitly confirm when the agent asks for confirmation). Step 6: finally ask for your savings balance AGAIN to verify the first monthly installment has been debited. Do this strictly in order \u2014 do not let the agent jump ahead or reorder steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_86A28425"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5943736759"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize3_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 3000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize3_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize3_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 3000,
+      "source_account": "SB5943736759",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize3_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5943736759"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings balance, fetches RD interest rates, calculates maturity for \u20b93,000/month over 24 months, looks up premature closure penalty rules via knowledge search, books the RD upon explicit customer confirmation, and checks the post-booking account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2rdsize_04",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_4F7DF744; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 27-year-old government clerk living in Gurugram, meticulous about his finances and planning to set up a new recurring deposit only after thoroughly checking his balance, rates, returns, and premature closure rules.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b93000/month for 24 months from savings \u2014 only after confirming funds, rate, the maturity projection, and the early-closure penalty, with the debited balance shown after.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_4F7DF744). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 3000; tenure 24 months; source savings SB4368098829.",
+    "unknown_info": "Your available balance, the RD rate, the maturity projection, the penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would be worth at maturity for \u20b93000/month over 24 months. Step 4: then ask what the penalty is if you break an RD early (knowledge search, not memory). Step 5: only after all that, book the RD: 3000/month for 24 months from savings SB4368098829 (reveal each parameter only when asked; confirm before booking). Step 6: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4F7DF744"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4368098829"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize4_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 3000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize4_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize4_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 3000,
+      "source_account": "SB4368098829",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize4_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4368098829"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the savings account balance, query the RD interest rate card, calculate RD maturity for \u20b93,000 over 24 months at 6.8%, look up the premature withdrawal penalty in the knowledge base, confirm before booking the RD, execute create_rd, and then re-fetch the savings balance to confirm the first installment debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2rdsize_05",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_073C0A07; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 24-year-old nurse at Lakeside Hospital in Bengaluru with a linked savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new RD of \u20b93000/month for 24 months from savings \u2014 only after confirming funds, rate, the maturity projection, and the early-closure penalty, with the debited balance shown after.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_073C0A07). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Installment 3000; tenure 24 months; source savings SB2520361078.",
+    "unknown_info": "Your available balance, the RD rate, the maturity projection, the penalty policy, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current RD interest rate. Step 3: then ask what the RD would be worth at maturity for \u20b93000/month over 24 months. Step 4: then ask what the penalty is if you break an RD early (knowledge search, not memory). Step 5: only after all that, book the RD: 3000/month for 24 months from savings SB2520361078 (reveal each parameter only when asked; confirm before booking). Step 6: finally ask for the savings balance AGAIN to see the first installment debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_073C0A07"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2rdsize5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2520361078"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize5_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 3000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5sq2rdsize5_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2rdsize5_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 3000,
+      "source_account": "SB2520361078",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2rdsize5_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2520361078"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the account balance, look up the RD rate card, calculate the maturity projection for \u20b93,000/month over 24 months, search the knowledge base for the RD premature closure penalty policy, book the RD from savings account SB2520361078 after explicit confirmation, and retrieve the updated balance showing the first installment debited."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

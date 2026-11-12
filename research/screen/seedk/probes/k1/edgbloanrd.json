@@ -1,0 +1,572 @@
+[
+ {
+  "id": "k1_edgbloanrd_00",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_0BD9CE49; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Ramaswamy, a 31-year-old self-employed electrician in Chennai managing her home loan and savings prudently.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing loan commitment, inspect current RD rates, check your savings balance, understand premature closure penalty rules, open a new RD of \u20b95,000/month for 12 months, and verify your post-booking balance.",
+    "known_info": "You are logged in as Kavitha Ramaswamy (customer ID CUST_0BD9CE49). You have an existing home loan LN62183 and savings account SB4351511684. Do not volunteer loan or account IDs until the assistant asks for them. For the new RD: \u20b95,000 per month for 12 months debited from your savings account.",
+    "unknown_info": "Your loan's exact outstanding and EMI, current RD interest rates, exact savings account balance, and the bank's penalty policy for breaking an RD early.",
+    "task_instructions": "Step 1: Ask for the details and outstanding amount of your existing loan (provide loan ID LN62183 only if asked) to review your monthly commitments. Step 2: Ask what the current interest rate is for recurring deposits. Step 3: Ask for your savings account balance (provide account ID SB4351511684 only if asked) to make sure you have enough funds. Step 4: Inquire about the penalty policy if you need to close or withdraw from the recurring deposit before maturity (the assistant should look this up in the knowledge base). Step 5: Ask to open a new RD for \u20b95,000 per month for 12 months using your savings account SB4351511684, and confirm when the assistant presents the booking details. Step 6: Ask for your savings account balance again to verify that the first installment has been debited. Keep each step separate and strictly follow this sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0BD9CE49"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd0_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN62183"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd0_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4351511684"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd0_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd0_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "tenure_months": 12,
+      "source_account": "SB4351511684"
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd0_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4351511684"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's loan details, looks up current RD rates, checks the savings account balance, searches policy for RD premature closure penalties, books the requested RD after explicit confirmation, and confirms the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbloanrd_01",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_9CE04BC0; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 44-year-old railway employee with a savings account and an active home loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your existing loan details, check RD interest rates, verify your account balance, learn about the premature closure penalty for RDs, open a new recurring deposit of \u20b95,000/month for 12 months, and check your updated account balance.",
+    "known_info": "You are Sunita Devi (CUST_9CE04BC0). You hold an active home loan (LN77232) and a savings account (SB9324244233). Do not volunteer account or loan IDs until specifically asked by the assistant. You plan to open an RD of \u20b95,000 per month for 12 months.",
+    "unknown_info": "Your outstanding loan balance and EMI, current RD interest rates, current savings balance, and bank policy on RD premature closure penalty.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your existing loan (provide loan ID LN77232 only if asked). Step 2: Next, ask for the current interest rates on recurring deposits. Step 3: Next, ask for your savings account balance (provide account ID SB9324244233 only if asked). Step 4: Next, ask what the bank's penalty or rule is for premature closure of a recurring deposit. Step 5: After hearing the policy, ask to open a new Recurring Deposit of \u20b95,000 per month for 12 months using your savings account SB9324244233. When prompted to confirm the booking, provide explicit confirmation. Step 6: Finally, ask for your savings account balance again to confirm the first installment was debited. Follow each step sequentially. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9CE04BC0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd1_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN77232"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd1_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9324244233"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd1_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd1_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB9324244233",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd1_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9324244233"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up loan details for LN77232, checks RD rates, checks the balance of SB9324244233, searches the knowledge base for RD premature closure penalties, books the RD with \u20b95,000 monthly installment for 12 months after confirmation, and checks the balance of SB9324244233 again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbloanrd_02",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_3D21FABA; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Amit Rajesh Patil, a 22-year-old self-employed real estate broker in Pune holding a savings account and an active personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to set up a new Recurring Deposit of \u20b94,000/month for 12 months, but only after checking your existing loan obligations, current RD interest rates, available account balance, and premature RD closure penalty rules in sequence.",
+    "known_info": "You are Amit Rajesh Patil, customer ID CUST_3D21FABA. Do not volunteer account or loan IDs until the assistant asks for them. You have an active personal loan LN73153 and savings account SB7733783922. You want to open an RD of \u20b94,000/month for 12 months debited from your savings account.",
+    "unknown_info": "The current outstanding balance and details on your loan LN73153, today's RD interest rates, current savings balance, and bank policy on premature closure penalty for recurring deposits.",
+    "task_instructions": "Step 1: Ask for details of your existing personal loan LN73153 (provide loan ID only when asked) to see what you currently owe. Step 2: Next, ask for the current interest rate for a Recurring Deposit (RD). Step 3: Next, ask for your savings account balance (account ID SB7733783922 only when asked) to verify you can afford the monthly debits. Step 4: Next, ask what the penalty policy is if you need to close or break an RD prematurely (the assistant should look this up in the knowledge base). Step 5: Only after completing the previous four steps, ask to book a new Recurring Deposit of \u20b94,000 per month for 12 months linked to savings account SB7733783922. When the assistant presents the confirmation request, explicitly confirm the booking. Step 6: Finally, ask for your savings account balance again to check the deduction of the first installment. Insist on proceeding strictly one step at a time in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3D21FABA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd2_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN73153"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd2_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7733783922"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd2_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd2_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 4000,
+      "source_account": "SB7733783922",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd2_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7733783922"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the customer's personal loan details, fetch the current RD rate card, check the savings account balance, search the knowledge base for the RD premature closure penalty policy, seek explicit confirmation before booking the new RD, execute the creation of the RD, and finally retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbloanrd_03",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_E2F2B7B3; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a retail sales executive who wants to understand his existing loan obligations, check RD interest rates, verify his account balance, check premature closure rules, and then open a recurring deposit before checking his updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing loan details, find out current RD rates, check your account balance, understand the RD early-closure penalty policy, book a new recurring deposit of \u20b93,000/month for 12 months, and finally re-check your balance.",
+    "known_info": "You are Rahul Sharma, customer ID CUST_E2F2B7B3. You have an existing loan (LN49838) and savings account SB4721384629. Do not volunteer account or loan IDs until the assistant asks for them. You plan to book an RD with \u20b93,000 monthly installment for 12 months funded from your savings account.",
+    "unknown_info": "Outstanding loan balance, EMI, current RD interest rate card, current savings account balance, and the bank's penalty policy on premature RD closure.",
+    "task_instructions": "Step 1: Ask the assistant for the details and outstanding amount on your existing loan (provide loan ID LN49838 only if asked). Step 2: Next, ask what the current interest rate is for a Recurring Deposit (RD). Step 3: Then ask for your savings account balance (provide account ID SB4721384629 only if asked) to confirm you can afford the monthly debits. Step 4: Ask what penalty applies if you close or break an RD prematurely before maturity. Step 5: After hearing the penalty policy, ask to open an RD of \u20b93,000 per month for a tenure of 12 months from your savings account SB4721384629. When the assistant summarizes the booking and asks for your confirmation, reply with explicit confirmation. Step 6: Once the RD is created, ask to see your savings account balance again to verify the deduction of the first installment. Follow these steps one by one. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E2F2B7B3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd3_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN49838"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd3_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4721384629"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd3_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd3_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 3000,
+      "tenure_months": 12,
+      "source_account": "SB4721384629"
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd3_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4721384629"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's loan details, fetches the RD interest rate card, checks the savings account balance, searches the knowledge base for RD premature closure penalty terms, obtains explicit confirmation before calling create_rd for \u20b93,000/month over 12 months, and checks the savings account balance once more."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbloanrd_04",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_884887F6; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Amandeep Kaur, a 32-year-old restaurant owner based in Ludhiana, managing cash flow carefully before committing to any new savings product.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to set up a new Recurring Deposit of \u20b910,000/month for 12 months, but only after checking your existing personal loan obligations, RD interest rates, savings balance, and the RD premature withdrawal penalty policy.",
+    "known_info": "You are Amandeep Kaur, already logged in. Do not volunteer account or loan IDs until asked. You have an existing personal loan LN23888 and a primary savings account SB4927223514. You wish to book an RD with \u20b910,000 monthly installment for 12 months debited from your savings account.",
+    "unknown_info": "Current outstanding balance and EMI of the personal loan, current RD interest rates, available balance of your savings account, and official bank policy regarding early RD closure penalties.",
+    "task_instructions": "Step 1: Ask the assistant for the details and outstanding balance of your existing personal loan (mention the loan ID LN23888 only if asked). Step 2: Ask for today's interest rates for Recurring Deposits. Step 3: Ask for the available balance in your savings account to verify you have sufficient funds (provide SB4927223514 only if asked). Step 4: Ask what penalty applies if you close or withdraw from a Recurring Deposit prematurely. Step 5: Ask to open a Recurring Deposit of \u20b910,000 per month for a tenure of 12 months linked to your savings account SB4927223514, and provide explicit confirmation when prompted. Step 6: Finally, ask for your savings account balance again to verify the first installment debit. Follow these steps strictly one after another. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_884887F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd4_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN23888"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd4_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4927223514"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd4_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd4_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 10000,
+      "source_account": "SB4927223514",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd4_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4927223514"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's personal loan details, RD interest rate card, and savings account balance, searches the knowledge base for the RD premature closure penalty rules, confirms and books the new RD with a \u20b910,000 installment for 12 months, and checks the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbloanrd_05",
+  "description": {
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "notes": "family=edgbloanrd; customer_id=CUST_BE85B587; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Arun Menon, a 32-year-old cab driver in Kochi with an active gold loan and savings account, planning to start a new recurring deposit after reviewing his finances.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your existing loan details, check the RD interest rate, check your savings account balance, learn the RD premature closure penalty policy, book a new RD for \u20b92,000/month for 12 months, and check your updated account balance.",
+    "known_info": "You are Arun Menon (customer ID CUST_BE85B587). Do not volunteer account or loan IDs until specifically asked. Your active loan ID is LN59746. Your savings account is SB6144912984. New RD details: \u20b92,000 per month for a tenure of 12 months from your savings account.",
+    "unknown_info": "Your loan's current outstanding balance and EMI, current RD interest rates, your available savings balance, and the RD premature closure penalty policy.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your active loan (loan ID LN59746, provide it only if requested) to check your existing debt obligations. Step 2: Once loan details are provided, ask for the current interest rate for a Recurring Deposit. Step 3: Ask for your savings account balance (account ID SB6144912984, provide only if asked) to confirm you have enough funds. Step 4: Ask what penalty applies if you close or break a Recurring Deposit prematurely before maturity. Step 5: Ask to open a new Recurring Deposit of \u20b92,000 per month for 12 months linked to your savings account SB6144912984. Explicitly confirm when asked. Step 6: After the RD is booked, ask for your savings account balance again to verify the deduction of the first installment. Strictly follow these steps one by one in this exact order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BE85B587"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbloanrd5_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN59746"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd5_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6144912984"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbloanrd5_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgbloanrd5_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 2000,
+      "source_account": "SB6144912984",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgbloanrd5_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6144912984"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the customer's loan details, check RD interest rates, check the savings account balance, query the knowledge base for the RD premature penalty policy, obtain explicit confirmation before booking the RD, and finally retrieve the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,76 @@
+{
+ "task_message": [
+  "university/change_major/5",
+  "university/enroll_course/9",
+  "hotel/modify_reservation/91",
+  "library/reserve_room/0",
+  "library/reserve_room/7",
+  "library/add_book/0"
+ ],
+ "task_contradiction": [
+  "bank/open_account/2",
+  "bank/open_account/3",
+  "bank/open_account/4"
+ ],
+ "task_unwritten_condition": [
+  "hotel/modify_reservation/2",
+  "hotel/place_room_service_order/9",
+  "library/check_return_date/0",
+  "library/return_book/0",
+  "healthcare/get_claim_details/1",
+  "hotel/request_room_change/3",
+  "library/borrow_book/26"
+ ],
+ "task_missing_credentials": [
+  "bank/get_loan/0",
+  "bank/get_loan/5",
+  "bank/pay_bill/0",
+  "bank/pay_loan/0",
+  "bank/pay_loan/1",
+  "bank/set_safety_box/0",
+  "bank/transfer_funds/9",
+  "bank/set_safety_box/13"
+ ],
+ "task_env_or_grader": [
+  "dmv/update_test_status/0",
+  "bank/cancel_credit_card/9",
+  "hotel/process_guest_checkin/0"
+ ],
+ "agent_skipped_check": [
+  "bank/get_loan/1",
+  "bank/get_loan/6",
+  "bank/pay_loan/2",
+  "bank/set_safety_box/14",
+  "bank/transfer_funds/10",
+  "library/remove_book/0",
+  "library/remove_book/1"
+ ],
+ "agent_acted_against_result": [
+  "online_market/use_coupon/9",
+  "online_market/use_coupon/15",
+  "online_market/use_coupon/35",
+  "library/borrow_book/9",
+  "library/borrow_book/22",
+  "hotel/request_room_change/4",
+  "online_market/exchange_product/32"
+ ],
+ "agent_tool_misuse": [
+  "bank/pay_bill/1",
+  "bank/pay_bill/4",
+  "bank/set_safety_box/1",
+  "healthcare/schedule_appointment/4",
+  "library/reserve_room/3",
+  "library/reserve_room/11",
+  "dmv/schedule_test/6"
+ ],
+ "agent_stopped": [
+  "healthcare/update_policy/32"
+ ],
+ "unclear": [
+  "hotel/place_room_service_order/0",
+  "hotel/place_room_service_order/1",
+  "hotel/place_room_service_order/8",
+  "hotel/place_room_service_order/13",
+  "library/borrow_book/20"
+ ]
+}

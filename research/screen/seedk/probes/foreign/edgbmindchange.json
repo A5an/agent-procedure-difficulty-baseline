@@ -1,0 +1,546 @@
+[
+ {
+  "id": "foreign_edgbmindchange_00",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_50F81A22; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sujatha Rani, a 45-year-old sales executive from Visakhapatnam looking to check her account balance, compare fixed deposit tenures, book a new deposit, and verify her post-booking balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, compare FD interest rates for 12 months versus 24 months for \u20b950,000, open a 24-month FD, and verify your updated balance.",
+    "known_info": "You are Sujatha Rani, customer already logged in (customer ID CUST_50F81A22). Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail. Your savings account number is SB9957230811.",
+    "unknown_info": "Your current savings account balance, the FD interest rates for 12-month and 24-month tenures, and the balance remaining after booking the FD.",
+    "task_instructions": "Step 1: Ask for the balance of your savings account. When asked for your account number, provide SB9957230811. Step 2: Ask for the fixed deposit interest rate for a 12-month tenure on an amount of \u20b950,000. Step 3: Ask what the interest rate would be if you revise the tenure to 24 months for the same amount. Step 4: Ask to open a fixed deposit of \u20b950,000 for 24 months from your savings account. When the agent asks for explicit confirmation, reply with 'Yes, please proceed'. Step 5: Ask for your savings account balance again to confirm the amount was debited. Follow the steps strictly in order and do not combine them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_50F81A22"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9957230811"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000.0,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000.0,
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB9957230811",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9957230811"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, retrieves the FD interest rate for 12 months, retrieves the revised rate for 24 months, seeks explicit confirmation before creating the 24-month FD, and checks the balance once more after creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmindchange_01",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_B26F2E6D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 60-year-old IT Support Engineer who wants to explore FD rates and invest savings into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, check FD interest rates for two different tenures, book a new FD, and verify the updated account balance.",
+    "known_info": "You are Suresh Kumar Reddy, customer already logged in (id CUST_B26F2E6D). Do not volunteer your account number (SB8143171772) unless asked. You want to check your savings balance, check the FD rate for \u20b91,00,000 for 12 months, then check the revised tenure of 36 months, create the FD for 36 months, and re-check your balance.",
+    "unknown_info": "The current account balance, the FD interest rates for 12 months and 36 months, and the post-creation balance.",
+    "task_instructions": "Step 1: Ask for the current balance of your savings account.\nStep 2: Ask for the fixed deposit interest rate for a deposit of \u20b91,00,000 with a 12-month tenure.\nStep 3: Ask what the interest rate would be if the tenure is changed to 36 months for \u20b91,00,000.\nStep 4: Request to book the fixed deposit of \u20b91,00,000 for 36 months from your savings account. When the agent asks for your explicit confirmation, confirm clearly.\nStep 5: Ask to check your savings account balance again to verify the debit.\nFollow the steps strictly in this sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B26F2E6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000,
+      "product_type": "fd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB8143171772",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the initial balance for account SB8143171772, query deposit rates for a 12-month FD and then a 36-month FD of \u20b91,00,000, seek explicit confirmation before calling create_fd for \u20b91,00,000 over 36 months from SB8143171772, and finally check the account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmindchange_02",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_C730BA0E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Shobana Venkataraman, a 72-year-old retired Government Officer and HNI customer living in Coimbatore, who wants to check her savings account balance, compare FD rates for different tenures, and book a new fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current balance, check fixed deposit rates for 12 months, then 24 months, book an FD for 24 months, and check the balance again.",
+    "known_info": "You are Shobana Venkataraman, customer already logged in (id CUST_C730BA0E). Do not volunteer account/deposit/card IDs or internal codes until the assistant specifically asks for them. Your savings account is SB7695814131.",
+    "unknown_info": "Your current savings account balance, the fixed deposit interest rate for 12 months, the rate for 24 months, the booking confirmation of the FD, and the updated account balance post-creation.",
+    "task_instructions": "Step 1: Ask for your current account balance (provide account ID SB7695814131 only if asked). Step 2: Ask for the fixed deposit interest rate for a 12-month tenure. Step 3: Ask what the rate would be if the tenure is revised to 24 months instead. Step 4: Ask to open a fixed deposit of \u20b91,00,000 for 24 months from your savings account. When the assistant presents the details and asks for your confirmation, confirm clearly with 'Yes, please proceed'. Step 5: Ask to check your account balance again to verify the deduction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C730BA0E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000.0,
+      "source_account": "SB7695814131",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the initial balance, quote FD rates for 12 and 24 months, seek customer confirmation before opening the \u20b91,00,000 24-month FD, create the deposit, and display the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmindchange_03",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_805D3C70; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohan Sunil Sharma, a 32-year-old school teacher residing in Mumbai, looking to invest surplus funds from his savings account into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, compare fixed deposit rates for 12 and 24 months, book a fixed deposit for 24 months, and verify your updated balance.",
+    "known_info": "You are Rohan Sunil Sharma (customer ID CUST_805D3C70). Your primary savings account is SB4570933319. You want to invest \u20b91,00,000 into a fixed deposit. Do not volunteer account or deposit IDs until the assistant specifically asks for them.",
+    "unknown_info": "Your current exact available savings account balance, the fixed deposit interest rate for 12 months, the fixed deposit interest rate for 24 months, and the updated account balance after booking the deposit.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account (provide account ID SB4570933319 only if asked).\nStep 2: Inquire about the current fixed deposit interest rate for a 12-month tenure.\nStep 3: Ask what the fixed deposit rate would be for a 24-month tenure instead.\nStep 4: Request to book a fixed deposit of \u20b91,00,000 for a 24-month tenure funded from your savings account. When the assistant summarizes the booking details and asks for your confirmation, reply with explicit confirmation to proceed.\nStep 5: Ask to check your savings account balance again to ensure the \u20b91,00,000 was debited. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_805D3C70"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4570933319"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB4570933319",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4570933319"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the initial savings account balance, query FD interest rates for 12 and 24 months, seek explicit confirmation before booking the 24-month FD for \u20b91,00,000, and finally check the account balance post-creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmindchange_04",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_8F51016B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a retail banking customer looking to check her savings account balance, compare fixed deposit interest rates across two tenures, book a new deposit, and verify the updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check the 12-month FD rate, check the 24-month FD rate, open a 24-month FD for \u20b950,000, and check your balance again.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_8F51016B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account id is SB1602520859. You want to invest \u20b950,000 for a 24-month tenure.",
+    "unknown_info": "Your initial account balance, the current FD interest rates for 12 months and 24 months, and your final balance after booking the deposit.",
+    "task_instructions": "Step 1: Ask the assistant for the current balance of your savings account. Only provide the account number SB1602520859 if the assistant asks for it.\nStep 2: Ask for the fixed deposit interest rate for a 12-month tenure.\nStep 3: Ask what the fixed deposit rate would be for a revised tenure of 24 months instead.\nStep 4: Request to book a fixed deposit of \u20b950,000 for 24 months debited from your savings account. When the assistant summarizes the booking details and asks for confirmation, explicitly confirm.\nStep 5: Ask to check your savings account balance once more to confirm the deduction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8F51016B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1602520859"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB1602520859",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1602520859"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account balance for SB1602520859, looks up deposit rates for 12 months, looks up deposit rates for 24 months, books the \u20b950,000 24-month FD from SB1602520859 after obtaining confirmation, and retrieves the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbmindchange_05",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_D9C5A53D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arjun Ramesh, a 24-year-old financial analyst living in Bengaluru, looking to invest surplus funds from his savings account into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, compare FD interest rates between 12 months and 24 months, book a \u20b91,00,000 FD for 24 months, and check your updated balance.",
+    "known_info": "You are Arjun Ramesh, customer already logged in (id CUST_D9C5A53D). Do not volunteer account, deposit, or card IDs until the assistant asks for that specific detail. Your linked savings account is SB9108646028.",
+    "unknown_info": "Current FD interest rates for 12-month and 24-month tenures, and the exact account balance before and after the FD creation.",
+    "task_instructions": "Step 1: Ask for the current balance of your savings account. Step 2: Ask for the interest rate on a 12-month fixed deposit. Step 3: Change your mind about the tenure and ask for the interest rate on a revised tenure of 24 months instead. Step 4: Ask to open a fixed deposit of \u20b91,00,000 for 24 months from your savings account (provide account ID SB9108646028 only if specifically asked; confirm when prompted). Step 5: After the FD is created, ask for your savings account balance again to verify the deduction. Do not combine steps; follow them strictly in sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D9C5A53D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbmindchange5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9108646028"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbmindchange5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange5_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB9108646028",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgbmindchange5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9108646028"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, looks up the 12-month FD rate, looks up the 24-month FD rate, asks for confirmation and books the FD for \u20b91,00,000 with a 24-month tenure from account SB9108646028, and finally checks the savings balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

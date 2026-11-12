@@ -1,0 +1,578 @@
+[
+ {
+  "id": "foreign_sq2rdsize_00",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_E7B08FC8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Balwinder Singh, a 73-year-old senior citizen cab driver who wants to make an informed decision before opening a new recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your account balance, check the RD interest rate and maturity returns for a \u20b95,000 monthly deposit over 12 months, understand the premature closure penalty policy, open the recurring deposit, and verify your updated balance.",
+    "known_info": "You are Balwinder Singh, customer already logged in (id CUST_E7B08FC8). Do not volunteer account/deposit/card IDs or internal codes unless specifically asked. Your savings account is SB2064792594. You want to invest \u20b95,000 per month for a tenure of 12 months.",
+    "unknown_info": "Current account balance, 12-month RD interest rate, calculated maturity amount and interest, RD premature closure penalty rules, and balance after the first installment deduction.",
+    "task_instructions": "Step 1: Ask the assistant for your current account balance. Step 2: Once given the balance, state that you are considering a recurring deposit of \u20b95,000 per month for 12 months and ask for the current RD interest rate. Step 3: Ask the assistant to calculate the maturity amount and total interest for this RD (\u20b95,000/month for 12 months at the quoted rate). Step 4: Ask what the bank's penalty policy is if you need to close or withdraw from the recurring deposit prematurely before maturity. Step 5: After learning the penalty policy, instruct the assistant to book the RD for \u20b95,000 per month for 12 months from your savings account. When the assistant asks for confirmation to proceed with booking the RD, reply with an explicit affirmative confirmation. Step 6: After the RD is booked, ask the assistant to check your account balance again to confirm the updated balance. Follow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E7B08FC8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2064792594"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize0_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000.0,
+      "rate": 7.3,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize0_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize0_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000.0,
+      "source_account": "SB2064792594",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize0_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2064792594"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, fetch the 12-month RD interest rate, calculate maturity returns, look up premature closure penalties in the knowledge base, obtain explicit confirmation before booking the RD, and check the balance again post-booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2rdsize_01",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_551000CC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anu Suresh, a 51-year-old self-employed plumber in Thiruvananthapuram, checking her finances and carefully understanding terms before committing to a new recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings balance, check RD rates and maturity value for a 12-month deposit of \u20b95,000/month, review premature closure penalty policy, book the RD, and verify the post-booking balance.",
+    "known_info": "You are Anu Suresh (customer ID CUST_551000CC). You have a single savings account SB2417231525. You plan to deposit \u20b95,000 per month for a 12-month tenure. Do not volunteer account numbers or customer IDs unless specifically asked.",
+    "unknown_info": "Current account balance, current 12-month RD interest rate, maturity amount and interest earned, premature closure penalty rules, and updated balance after booking.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance in your savings account. Step 2: Once the balance is provided, ask for the current interest rate for a 12-month Recurring Deposit. Step 3: Ask the assistant to calculate the maturity payout if you invest \u20b95,000 per month for 12 months at that rate. Step 4: Ask what the bank's penalty policy is for premature closure of a Recurring Deposit. Step 5: Ask to open a 12-month Recurring Deposit with an installment of \u20b95,000 per month funded from your savings account. When the assistant summarizes the booking details and asks for confirmation, state 'Yes, please proceed'. Step 6: After the RD booking is confirmed, ask the assistant to check your savings account balance again to confirm the first installment deduction. Follow this order strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_551000CC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2417231525"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize1_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 6.5,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize1_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize1_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB2417231525",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize1_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2417231525"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the savings account balance, look up the 12-month RD interest rate, calculate RD maturity for \u20b95,000/month, search policy for premature RD closure penalties, book the RD only after obtaining explicit affirmative confirmation, and finally retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2rdsize_02",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_A4AFD7E0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Pradip Kumar Sarma, a 73-year-old shop owner from Guwahati looking to systematically save surplus income into a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inquire about 24-month RD rates, calculate maturity returns, understand premature withdrawal penalties, open a new RD for \u20b95,000/month, and check your updated account balance.",
+    "known_info": "You are Pradip Kumar Sarma, already authenticated (ID CUST_A4AFD7E0). Your savings account is SB6174158928. Do not volunteer account numbers or deposit IDs unless asked. You want to open a Recurring Deposit of \u20b95,000 per month for a tenure of 24 months funded from your savings account.",
+    "unknown_info": "Current account balance, interest rate for a 24-month RD, projected maturity amount, bank's RD premature closure penalty rules, and account balance after RD creation.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account. Step 2: Inquire about the current interest rate for a 24-month Recurring Deposit. Step 3: Ask the assistant to calculate the maturity amount and interest earned for an RD of \u20b95,000 per month for 24 months at that rate. Step 4: Ask what penalty or deduction applies if you close or withdraw from the recurring deposit prematurely before maturity. Step 5: Ask to open/book the 24-month RD for \u20b95,000 per month from your savings account, and provide explicit confirmation when the assistant asks to confirm the booking. Step 6: After booking is confirmed, ask to check your savings account balance again to verify the first installment was debited. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A4AFD7E0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6174158928"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize2_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 7.3,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize2_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize2_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB6174158928",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize2_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6174158928"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, looks up the 24-month RD rate, computes RD maturity, searches the knowledge base for RD premature closure penalty policy, obtains confirmation before booking the RD via create_rd, and checks the account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2rdsize_03",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_450824C5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 43-year-old self-employed private tutor from Kanpur who is planning his savings carefully and wants to check his balance, understand RD rates and premature closure penalties, and calculate returns before booking a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inquire about the interest rate for a 24-month Recurring Deposit, calculate the maturity return for a \u20b95,000 monthly installment, check the premature withdrawal penalty policy, book the RD, and verify your account balance after the initial deduction.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_450824C5). Do not volunteer account/card/deposit/mandate ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB3642025306. You want to open an RD of \u20b95,000 per month for 24 months.",
+    "unknown_info": "Your exact current available balance, the exact RD rate for 24 months, the maturity payout/interest earned, the bank's premature closure penalty policy for RDs, and the post-booking account balance.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account (do not provide your account ID unless asked).\nStep 2: After the assistant reports your balance, ask what the current interest rate is for a 24-month Recurring Deposit.\nStep 3: After hearing the rate, ask the assistant to calculate the maturity value and interest earned for an RD with a monthly installment of \u20b95,000 for 24 months at that rate.\nStep 4: Once the calculation is given, ask about the bank's penalty policy if you need to close the RD prematurely.\nStep 5: After the penalty policy is explained, ask to open/create the 24-month Recurring Deposit for \u20b95,000 per month using your savings account. When the assistant summarizes the details and asks for your confirmation, give an explicit confirmation to proceed.\nStep 6: Once the RD has been successfully booked, ask the assistant to check your savings account balance again to verify the first installment debit.\nStep 7: Conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_450824C5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3642025306"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize3_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize3_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize3_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000,
+      "source_account": "SB3642025306",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize3_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3642025306"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, fetch the 24-month RD interest rate, calculate the RD maturity amount, search the knowledge base for the RD premature closure penalty rules, request confirmation and create the RD, and then check the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2rdsize_04",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_035B7070; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rameshwar Nath Chaturvedi, a 72-year-old retired insurance agent and affluent senior citizen who manages his savings carefully and wants full clarity on interest rates, maturity returns, and premature closure penalties before booking a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings balance, look up the rate and calculate maturity for a 24-month RD of \u20b915,000 per month, check the premature withdrawal penalty policy, open the deposit, and confirm your updated balance.",
+    "known_info": "You are Rameshwar Nath Chaturvedi, customer already logged in (customer ID CUST_035B7070). You have a savings account (SB9593607291). Do not volunteer your account ID until the assistant specifically asks for it. You plan to start an RD of \u20b915,000 monthly for a 24-month tenure.",
+    "unknown_info": "Your current savings account balance, the bank's current 24-month RD interest rate, the exact maturity payout, the premature closure penalty rules, and your balance after the first installment is debited.",
+    "task_instructions": "Step 1: Ask the assistant for the current balance of your savings account (do not provide your account ID unless prompted). Step 2: Inquire about the current interest rate for a 24-month Recurring Deposit. Step 3: Ask the assistant to calculate the maturity amount and interest earned for a monthly installment of \u20b915,000 over 24 months at that rate. Step 4: Ask what the bank's policy and penalty rules are if you need to close the recurring deposit prematurely. Step 5: Tell the assistant you want to proceed with booking the 24-month RD for \u20b915,000 per month from your savings account, and provide clear affirmative confirmation when asked. Step 6: Finally, ask to check your savings account balance again to verify that the first installment was debited. Follow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_035B7070"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9593607291"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize4_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 15000,
+      "rate": 7.3,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize4_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize4_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 15000,
+      "source_account": "SB9593607291",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize4_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9593607291"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, looks up the current RD rate for 24 months, computes the maturity amount for \u20b915,000 per month, searches the knowledge base for the RD premature closure penalty policy, obtains explicit confirmation before booking the RD, and checks the post-booking account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2rdsize_05",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "notes": "family=sq2rdsize; customer_id=CUST_B2CBDE8A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 51-year-old restaurant owner from Patna who carefully evaluates savings interest rates, maturity returns, and premature withdrawal penalties before committing to a new recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, find out the current RD interest rate for 24 months, calculate the maturity return for \u20b95,000/month, check the premature closure penalty policy, book the RD, and verify your updated balance.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_B2CBDE8A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB3139975054. You want to deposit \u20b95,000 monthly for 24 months.",
+    "unknown_info": "Your savings balance before and after booking, the current 24-month RD rate, the maturity amount, and the premature closure penalty rules.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account. Step 2: Once the balance is provided, ask for the bank's recurring deposit interest rate for a 24-month tenure. Step 3: Ask to calculate the maturity amount and interest earned for an RD with a monthly installment of \u20b95,000 for 24 months using that rate. Step 4: Inquire about the bank's penalty policy if the recurring deposit is closed prematurely. Step 5: Ask to open the 24-month recurring deposit for \u20b95,000 per month from your savings account, and provide explicit confirmation when the assistant asks. Step 6: Finally, ask to check your savings account balance again to confirm that the first installment has been debited. Follow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B2CBDE8A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2rdsize5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3139975054"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize5_2",
+     "name": "calculate_rd_maturity",
+     "arguments": {
+      "monthly_installment": 5000.0,
+      "rate": 6.8,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2rdsize5_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "recurring deposit premature closure penalty policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2rdsize5_4",
+     "name": "create_rd",
+     "arguments": {
+      "monthly_installment": 5000.0,
+      "source_account": "SB3139975054",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "monthly_installment",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2rdsize5_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3139975054"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings balance, fetches the 24-month RD rate, computes the maturity value, searches the knowledge base for premature closure penalty rules, requests confirmation before booking the RD, and checks the savings balance again to show the first installment debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

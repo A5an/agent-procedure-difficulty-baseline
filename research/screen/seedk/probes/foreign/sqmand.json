@@ -1,0 +1,320 @@
+[
+ {
+  "id": "foreign_sqmand_00",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_CB0A4DF4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 26-year-old hospitality worker in Chennai, managing personal finances diligently and checking recurring standing instructions on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check all your current standing mandates, cancel the Sentinel Life Premium mandate, and then view your mandates again to verify that it has been cancelled.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_CB0A4DF4). Do not volunteer account, card, deposit, mandate, or transaction IDs until the agent asks for that specific detail. You want to cancel your Sentinel Life Premium mandate (MND84869071) for \u20b92,400 monthly.",
+    "unknown_info": "Confirmation of the mandate cancellation and the updated mandate list showing the cancelled status.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Once the assistant lists your mandates, ask to cancel the Sentinel Life Premium mandate. Do not provide the mandate ID unless the assistant asks for it. Step 3: When the assistant asks for confirmation to cancel the Sentinel Life Premium mandate, confirm clearly that you want to proceed. Step 4: After the assistant confirms the cancellation, ask to list all standing mandates again to verify the cancellation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CB0A4DF4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand0_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND84869071"
+     }
+    },
+    {
+     "action_id": "foreignsqmand0_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all standing mandates, request explicit confirmation before cancelling mandate MND84869071 for Sentinel Life Premium, cancel it upon confirmation, and then re-list all mandates so the customer can verify the cancellation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqmand_01",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_4B21397B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Saroj Rani, a 67-year-old retired pensioner from Lucknow who wants to tidy up her monthly subscriptions and autopayments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your active standing mandates, cancel the monthly StreamFlix autopay mandate that you no longer need, and then see your mandates again to verify it has been cancelled.",
+    "known_info": "You are Saroj Rani (CUST_4B21397B). You have a monthly autopay mandate for StreamFlix of \u20b9649 (mandate ID MND76631190). Do not volunteer any mandate ID or account ID until the assistant specifically asks; refer to it by the service name (StreamFlix) and amount (\u20b9649).",
+    "unknown_info": "The current status of your mandates and confirmation that the StreamFlix mandate has been cancelled.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates or autopay setups. Step 2: Request to cancel the StreamFlix mandate for \u20b9649; provide the mandate ID only if the assistant asks for it. Step 3: When the assistant asks for your confirmation to permanently cancel the mandate, explicitly confirm. Step 4: Once cancelled, ask the assistant to pull up your mandates again to verify that the mandate is cancelled. Step 5: End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4B21397B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand1_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND76631190"
+     }
+    },
+    {
+     "action_id": "foreignsqmand1_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all standing mandates using show_mandates, seek confirmation from the customer before cancelling the StreamFlix mandate (MND76631190), execute cancel_mandate upon confirmation, and call show_mandates again to confirm the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqmand_02",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_9A3B1ED3; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Geetha Rani, a 58-year-old sales executive from Mysuru reviewing and managing her recurring auto-debit instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review all standing mandates, cancel the StreamFlix recurring subscription mandate, and re-list mandates to verify cancellation.",
+    "known_info": "You are Geetha Rani, customer already logged in (id CUST_9A3B1ED3). You have recurring mandates set up on your account, including a monthly StreamFlix mandate (MND11743727) for \u20b9649. Do not volunteer account or mandate IDs until the assistant asks or quotes them. You specifically want to cancel the StreamFlix mandate.",
+    "unknown_info": "Confirmation of cancellation and the refreshed mandate listing confirming the updated status.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates set up on your profile. Step 2: Once the assistant lists your mandates, ask to cancel the StreamFlix mandate (\u20b9649 per month). When the assistant asks for confirmation, provide clear affirmative confirmation. Step 3: Once the mandate has been cancelled, ask the assistant to pull up the mandate list again to verify that StreamFlix is cancelled. Follow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9A3B1ED3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand2_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND11743727"
+     }
+    },
+    {
+     "action_id": "foreignsqmand2_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's standing mandates using show_mandates, asks for confirmation before cancelling mandate MND11743727, invokes cancel_mandate upon confirmation, and calls show_mandates again to display the updated mandate list."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqmand_03",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_F5811AF6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Aditi Prakash Bante, a 33-year-old lab technician from Nagpur who wants to review and manage her standing autopay instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your active standing mandates, cancel the NovaTel Postpaid mandate, and then check your mandates list again to confirm it has been cancelled.",
+    "known_info": "You are Aditi Prakash Bante, logged in under customer ID CUST_F5811AF6. Do not volunteer account numbers, mandate IDs (such as MND35212217 or MND80659099), or system terms unless specifically asked by the assistant. You know you have autopay mandates including one for NovaTel Postpaid of \u20b9399 and one for SIP - Mutual Fund of \u20b95,000.",
+    "unknown_info": "The current status of your mandates and confirmation that the NovaTel Postpaid mandate is successfully cancelled.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Once the assistant lists them, ask to cancel the NovaTel Postpaid mandate of \u20b9399 (do not volunteer the mandate ID unless asked). Step 3: When the assistant asks for your confirmation to cancel it, explicitly confirm by saying yes. Step 4: After the assistant confirms the cancellation, ask the assistant to list your standing mandates again to verify the cancellation. Step 5: Acknowledge the updated list and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F5811AF6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand3_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND35212217"
+     }
+    },
+    {
+     "action_id": "foreignsqmand3_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list the customer's standing mandates, ask for explicit confirmation before cancelling mandate MND35212217, execute the cancellation upon confirmation, and then fetch and show the updated list of mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqmand_04",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_73B98F5E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 47-year-old Product Manager from Chennai holding savings and current accounts with multiple autopay mandates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your standing mandates, cancel your StreamFlix autopay mandate as you have stopped using the service, and verify the cancellation by viewing your mandate list again.",
+    "known_info": "You are Rajesh Kumar (customer ID CUST_73B98F5E). Do not volunteer account or mandate IDs until the agent asks or presents them. You want to cancel the StreamFlix mandate (ID MND16015144 for \u20b9649/month).",
+    "unknown_info": "Confirmation that the StreamFlix mandate has been successfully cancelled and the updated mandate list reflecting the change.",
+    "task_instructions": "Step 1: Ask the virtual assistant to list all standing mandates on your profile. Step 2: Once the list is shown, tell the assistant you want to cancel the StreamFlix mandate (do not volunteer the mandate ID unless asked). Step 3: When the assistant asks for explicit confirmation specifying the StreamFlix mandate details, reply with clear confirmation to proceed. Step 4: After the assistant confirms the cancellation, ask to see your standing mandates again to verify the updated status. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_73B98F5E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand4_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND16015144"
+     }
+    },
+    {
+     "action_id": "foreignsqmand4_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all standing mandates on the customer profile, seek explicit confirmation before cancelling mandate MND16015144 for StreamFlix, execute cancel_mandate upon confirmation, and re-list mandates via show_mandates to verify the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqmand_05",
+  "description": {
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "notes": "family=sqmand; customer_id=CUST_0084AAED; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 38-year-old software engineer living in New Delhi. He is polite, precise, and methodical, preferring to review his active banking instructions and verify updates step by step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing standing mandates, cancel the recurring autopay instruction for StreamFlix, and review the mandate list again to ensure it has been cancelled.",
+    "known_info": "You are Rahul Sharma. You know you have an active monthly autopay subscription for StreamFlix for \u20b9649. Do not volunteer account numbers or mandate IDs until the assistant mentions them or asks for them.",
+    "unknown_info": "The specific mandate ID (MND30850431) for StreamFlix until the assistant retrieves it, and the final cancellation confirmation.",
+    "task_instructions": "Step 1: Ask the assistant to check and list your standing mandates. Step 2: Once the mandates are shown, request to cancel the mandate for StreamFlix. Do not provide the mandate ID unless asked. Step 3: When the assistant requests confirmation to cancel the StreamFlix mandate, provide explicit confirmation. Step 4: After the assistant confirms the cancellation, ask to see your mandates listed again to verify that the status has updated. Step 5: Thank the assistant and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0084AAED"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqmand5_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsqmand5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND30850431"
+     }
+    },
+    {
+     "action_id": "foreignsqmand5_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list the customer's standing mandates using show_mandates, ask for confirmation before cancelling mandate MND30850431 (StreamFlix), execute cancel_mandate upon confirmation, and then re-list the mandates with show_mandates to confirm the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,344 @@
+[
+ {
+  "id": "k1_edgamandwrong_00",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_C9249BCD; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya Mehta, a 29-year-old Product Manager residing in New Delhi, maintaining a savings account with active auto-debit mandates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your Sentinel Life Premium mandate cancelled, but you misremember its ID and will mention MND66655888 first \u2014 which is incorrect and must not be used.",
+    "known_info": "You are Priya Mehta, logged in under customer ID CUST_C9249BCD. Do not volunteer account or mandate IDs until the assistant asks. You believe your insurance mandate ID might be MND66655888 (this is wrong \u2014 do not let the agent cancel it). Payee: Sentinel Life Premium, amount \u20b92,400 monthly.",
+    "unknown_info": "The correct mandate ID (MND66655324) \u2014 only acknowledge it if the agent retrieves it from your active mandates by matching the payee name.",
+    "task_instructions": "Step 1: Ask to view your active mandates. When the assistant asks which one you want to stop, specify the payee 'Sentinel Life Premium'. If the assistant asks for a mandate ID or reference number first, provide the wrong ID (MND66655888) but immediately add that you are unsure and want them to check the active mandates list to verify. If the assistant attempts to cancel the wrong ID directly, stop them and tell them to look up and match the payee from your active mandates list first.\nStep 2: When the assistant locates the active Sentinel Life Premium mandate (MND66655324) and asks for your confirmation to cancel it, clearly confirm that you want it cancelled.\nStep 3: After the cancellation is confirmed, ask to see your active mandates again to verify that the Sentinel Life Premium mandate is no longer active. Cancel only this single mandate.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C9249BCD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND66655324"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list active mandates, identify the correct mandate ID MND66655324 for Sentinel Life Premium instead of any unverified ID provided by the customer, seek explicit confirmation before cancelling MND66655324, and re-list active mandates upon customer request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgamandwrong_01",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_9897FF72; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Natvarlal Patel, a 55-year-old self-employed plumber from Surat holding a savings account with active and paused autopay mandates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to cancel your mutual fund SIP autopay mandate, but you misremember its reference number as MND71628888 and want the assistant to list your active mandates and match by payee before cancelling.",
+    "known_info": "You are Rajesh Natvarlal Patel, customer already logged in (id CUST_9897FF72). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND71628888 (this is incorrect \u2014 do not let the agent act on it). Payee: SIP - Mutual Fund, amount \u20b95,000 monthly.",
+    "unknown_info": "The correct mandate id (MND71626732) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, explaining that you want to cancel your mutual fund SIP mandate. If asked for the mandate reference, provide MND71628888, but immediately state that you are not sure of this reference number and insist the assistant check your active mandates to match by the payee 'SIP - Mutual Fund'. If the assistant attempts to act on MND71628888 without listing, stop them and insist they verify from the list first.\nStep 2: once the assistant lists your mandates and identifies the correct mandate for 'SIP - Mutual Fund' (MND71626732), confirm and allow them to cancel it.\nStep 3: ask to see the active mandates list again to confirm that the SIP mandate is no longer active.\nDo this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9897FF72"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND71626732"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, match the payee 'SIP - Mutual Fund' to the correct mandate ID MND71626732 rather than cancelling the customer's misremembered ID, seek explicit confirmation before cancelling, cancel the mandate, and re-list active mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgamandwrong_02",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_B27FE48F; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Laxman Deshmukh, a 48-year-old IT Support Engineer based in Nagpur with a savings account and an active SIP mandate.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your SIP - Mutual Fund mandate cancelled, but you misremember its reference number and will state MND75158888 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Rajesh Laxman Deshmukh, customer already logged in (id CUST_B27FE48F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND75158888 (this is incorrect \u2014 do not let the agent act on it). Payee: SIP - Mutual Fund, amount \u20b95,000 monthly.",
+    "unknown_info": "The correct mandate id (MND75159912) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (SIP - Mutual Fund) \u2014 if you're asked for the reference number first, give the wrong one (MND75158888) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the SIP - Mutual Fund mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B27FE48F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong2_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND75159912"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong2_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates with show_mandates, avoid cancelling the incorrect ID MND75158888, identify the correct mandate ID MND75159912 matching payee SIP - Mutual Fund, obtain explicit confirmation before calling cancel_mandate, and re-list active mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgamandwrong_03",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_0CCD95BF; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Biren Chandra Bora, a 53-year-old shop owner from Guwahati managing personal and store expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to cancel your NovaTel Postpaid mandate, but you misremember its reference ID as MND13229999, which is incorrect and must not be cancelled.",
+    "known_info": "You are Biren Chandra Bora, customer ID CUST_0CCD95BF. Do not volunteer account, card, or mandate IDs upfront until asked. You believe the mandate reference might be MND13229999 (this is wrong \u2014 do not let the assistant act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The actual mandate ID (MND13226876) \u2014 only confirm it once the assistant looks up your mandates and matches NovaTel Postpaid from the list.",
+    "task_instructions": "Step 1: Ask the assistant to view your active mandates. When asked which mandate you want to cancel, state the payee is NovaTel Postpaid. If asked for a reference number, provide MND13229999 but explicitly add that you are unsure and want the assistant to check the active mandates list for NovaTel Postpaid instead.\nStep 2: Once the assistant locates the correct mandate (MND13226876) for NovaTel Postpaid and asks for confirmation to cancel it, give your explicit confirmation.\nStep 3: After cancellation, ask to see your active mandates list again to verify that the NovaTel Postpaid mandate has been removed. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0CCD95BF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong3_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND13226876"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong3_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists active mandates, resolves the customer's NovaTel Postpaid mandate to MND13226876 rather than the misremembered MND13229999, asks for confirmation before cancelling MND13226876, and re-lists the active mandates upon request to show it has been removed."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgamandwrong_04",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_0E568C45; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Vijayalakshmi Rajagopal, a 63-year-old startup founder managing recurring standing instructions on her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your Electricity Autopay mandate cancelled, but you misremember its reference number and will state MND88806111 first \u2014 that is wrong and must not be used.",
+    "known_info": "You are Vijayalakshmi Rajagopal, customer already logged in (id CUST_0E568C45). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND88806111 (this is incorrect \u2014 do not let the agent act on it). Payee: Electricity Autopay, amount \u20b91,800 monthly.",
+    "unknown_info": "The correct mandate id (MND88806808) \u2014 only acknowledge it if the agent reads it back to you after listing your active mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and explain that you want to cancel the one for Electricity Autopay. If asked for the mandate reference number, provide MND88806111 but immediately state that you are not certain about this reference and want the assistant to verify your active mandates list first. If the assistant attempts to cancel using the wrong reference number without checking, stop them and insist they inspect the list and match by payee.\nStep 2: once the assistant lists your active mandates, identifies the correct mandate (MND88806808) for Electricity Autopay (\u20b91,800/month), and asks for your confirmation to cancel it, provide clear confirmation.\nStep 3: after cancellation, ask the assistant to list your active mandates again to verify that the Electricity Autopay mandate has been removed.\nDo this strictly in order. Cancel only this mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0E568C45"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong4_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND88806808"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong4_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list the customer's active mandates, correctly match the Electricity Autopay mandate to MND88806808 rather than using the incorrect reference number provided by the customer, seek explicit confirmation, cancel mandate MND88806808, and re-list active mandates upon request to confirm removal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgamandwrong_05",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_A3B87978; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Ghosh, a 43-year-old real estate broker from Kolkata with an active savings and current account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your NovaTel Postpaid mandate cancelled, but you misremember its reference number and will state MND70829911 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Rajesh Kumar Ghosh, customer already logged in (id CUST_A3B87978). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND70829911 (this is incorrect \u2014 do not let the agent act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The correct mandate id (MND70829950) \u2014 only acknowledge it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: Ask to see your active mandates. When asked which one you want to stop, describe it by payee (NovaTel Postpaid) \u2014 if you are asked for the reference number first, give the wrong one (MND70829911) but immediately state you are not sure of it and want the agent to check the list and match by payee instead. If the agent tries to act on the wrong number, stop them and insist they find the mandate from the list.\nStep 2: Once the agent identifies the correct mandate (MND70829950) for NovaTel Postpaid from the list and asks for confirmation to cancel it, give your explicit confirmation.\nStep 3: After the cancellation, ask to see your active mandates list AGAIN to verify that NovaTel Postpaid is no longer active. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A3B87978"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgamandwrong5_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND70829950"
+     }
+    },
+    {
+     "action_id": "k1edgamandwrong5_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists active mandates, resolves the customer's wrong mandate ID by matching payee NovaTel Postpaid to MND70829950, asks for explicit confirmation before cancelling, and re-lists active mandates to verify the cancellation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

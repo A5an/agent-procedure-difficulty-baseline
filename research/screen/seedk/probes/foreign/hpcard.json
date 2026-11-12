@@ -1,0 +1,272 @@
+[
+ {
+  "id": "foreign_hpcard_00",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_2CBC89AD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohit Aggarwal, a 38-year-old product manager residing in Gurugram, who holds an active savings account and a linked RuPay debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to verify the current status and daily channel usage limits on your debit card.",
+    "known_info": "You are Rohit Aggarwal, customer already logged in (id CUST_2CBC89AD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card ID is CARD94156.",
+    "unknown_info": "Your debit card's status and current daily limits across ATM, online, and POS channels.",
+    "task_instructions": "Step 1: Ask the assistant to look up the details, status, and transaction limits of your debit card. Do not provide your card ID up front; provide CARD94156 only when the assistant asks for it. Step 2: Once the assistant provides the details and limits, acknowledge the information and end the chat. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2CBC89AD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD94156"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant prompts for the card ID when necessary, calls get_card_details with CARD94156, and clearly explains the card's status and channel limits without modifying any settings or inventing card details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpcard_01",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_FA0DD97F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Meenakshi Nair, a 60-year-old senior citizen and homemaker based in Kochi.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details, active status, and daily transaction limits on your debit card.",
+    "known_info": "You are Meenakshi Nair, customer already logged in (id CUST_FA0DD97F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card id is CARD63733.",
+    "unknown_info": "Your debit card's current status, card network, linked account, and daily ATM, online, and POS spending limits.",
+    "task_instructions": "Step 1: Ask the virtual assistant to look up the details and daily usage limits on your debit card. Do not mention your card ID up front. Step 2: When the assistant asks for the card number or card ID, provide CARD63733. Step 3: Once the assistant summarizes the card status, network, and channel limits, thank them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA0DD97F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD63733"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the card ID, looks up the card details for CARD63733 using get_card_details, and accurately reports the card status and limits without modifying any account or card settings."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpcard_02",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_572E71FF; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Sharma, a 32-year-old Data Scientist living in New Delhi. She is polite, organized, and wants to verify her card settings before making a planned high-value purchase.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status and daily transaction/withdrawal limits on your debit card.",
+    "known_info": "You are Ananya Sharma, customer already logged in (id CUST_572E71FF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card ID is CARD81399.",
+    "unknown_info": "The active status, daily ATM limit, and online and POS limits configured on your debit card.",
+    "task_instructions": "Step 1: Ask the assistant to check the details, current status, and daily limits of your debit card. Do not provide the card ID upfront.\nStep 2: When the assistant asks for your card ID or card number, provide CARD81399.\nStep 3: Once the assistant provides your card status and limit details, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_572E71FF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD81399"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the card ID, retrieves the card details using get_card_details with CARD81399, and clearly reports the status and daily limits to the customer without performing any unauthorized changes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpcard_03",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_05A9A382; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vikram Sunil Patil, a 61-year-old senior software engineer and HNI banking customer checking on his debit card's current status and channel limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status, active channels, and daily transaction limits on your debit card.",
+    "known_info": "You are Vikram Sunil Patil, customer already logged in (id CUST_05A9A382). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card id is CARD65047.",
+    "unknown_info": "The current status of your card and the specific daily limits configured across ATM, online, and POS channels.",
+    "task_instructions": "Step 1: Ask the assistant to check the details and daily transaction limits on your debit card (provide card ID CARD65047 only when asked). Step 2: Once the assistant shares the card status and limits, thank them and wrap up. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_05A9A382"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65047"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must request the card ID, retrieve the card details using get_card_details for CARD65047, and clearly explain the card status and channel limits to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpcard_04",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_DCCD6EFD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Patel, an IT Support Engineer from Ahmedabad.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to look up the status and active daily transaction limits on your debit card.",
+    "known_info": "You are Rajesh Kumar Patel, customer already logged in (id CUST_DCCD6EFD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card ID is CARD23435.",
+    "unknown_info": "Your card's current status, international transaction status, and domestic limits for ATM, online, and POS channels.",
+    "task_instructions": "Step 1: Ask the assistant to check the details and daily transaction limits of your debit card. Do not volunteer your card ID until the assistant explicitly asks for it; when asked, provide CARD23435. Step 2: Once the assistant retrieves and explains the status and transaction limits, acknowledge the details and close the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DCCD6EFD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD23435"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's card details using get_card_details for CARD23435 and clearly informs the customer of their card status and limits."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpcard_05",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_27634CA4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Vemuri, a 47-year-old restaurant owner from Visakhapatnam who holds a savings and current account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current status and daily transaction limits on your debit card before making restaurant vendor purchases.",
+    "known_info": "You are Suresh Kumar Vemuri, customer already logged in (id CUST_27634CA4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card ID is CARD72510.",
+    "unknown_info": "Current card status and configured daily spending limits across ATM, online, and POS channels.",
+    "task_instructions": "Step 1: Ask the assistant to check the status and daily spending limits on your debit card. Step 2: When the assistant asks for the card ID, provide CARD72510. Step 3: Once the assistant provides the card status and channel limits, acknowledge the information and wrap up. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_27634CA4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpcard5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD72510"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up card details for CARD72510 using get_card_details and inform the customer of its active status and channel limits without performing any state changes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

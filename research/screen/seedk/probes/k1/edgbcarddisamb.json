@@ -1,0 +1,434 @@
+[
+ {
+  "id": "k1_edgbcarddisamb_00",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_082251DC; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Madhavan Nair, a 76-year-old shop owner from Kochi who wants to carefully manage his bank cards.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have two active cards: a Mastercard Debit card and a RuPay Credit card. You want ONLY the Mastercard Debit card frozen; the RuPay Credit card must stay active and untouched.",
+    "known_info": "You are Madhavan Nair, customer already logged in (ID CUST_082251DC). Do not volunteer account/card IDs until the assistant asks for that specific detail. Your two active cards are a Mastercard Debit card (CARD96610) and a RuPay Credit card (CARD16095).",
+    "unknown_info": "Which card IDs correspond to which cards and their exact status before and after the freeze in the bank records.",
+    "task_instructions": "Step 1: Tell the assistant you want to freeze your card, but do not specify which one \u2014 let them look up and list both cards first. Step 2: Clarify that you want to freeze the Mastercard Debit card (give card ID CARD96610 only if asked), and provide explicit confirmation when asked before the assistant freezes it. Step 3: Once frozen, ask the assistant to check the Mastercard Debit card to verify that it now shows as frozen. Step 4: Then ask the assistant to check the RuPay Credit card to verify that it remains active and untouched. Do not allow steps to be merged or skipped. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_082251DC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD96610",
+       "CARD16095"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD96610",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD96610"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb0_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD16095"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both linked cards, seek customer confirmation before freezing the Mastercard Debit card CARD96610, execute toggle_card_freeze, and verify the status of both cards individually upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbcarddisamb_01",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_182BB205; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 71-year-old self-employed carpenter from Hyderabad. He is cautious, polite, and methodical about managing his banking cards.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have two active cards: a Mastercard Credit card and a Mastercard Debit card. You want ONLY the Mastercard Debit card frozen; the Mastercard Credit card must stay active.",
+    "known_info": "You are Ravi Kumar Reddy, customer already logged in (id CUST_182BB205). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your two active cards are a Mastercard Credit card (CARD74384) and a Mastercard Debit card (CARD54394) \u2014 reveal the ids only when the agent asks for them.",
+    "unknown_info": "Which of your two cards has which ID, and their status before and after the freeze.",
+    "task_instructions": "Step 1: say you want your card frozen, but don't specify which one \u2014 let the agent check and list both of your active cards. Step 2: clarify that you want to freeze the Mastercard Debit card (provide the card id only if asked); explicitly confirm the freeze when asked. Step 3: after the freeze is done, ask the agent to check the Mastercard Debit card again to verify that its status is now frozen. Step 4: then ask them to check the Mastercard Credit card as well, to verify that it remains active. Do not permit merging or reordering of these steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_182BB205"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD74384",
+       "CARD54394"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD54394",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD54394"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb1_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD74384"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up both cards, ask for confirmation before freezing the Mastercard Debit card (CARD54394) with toggle_card_freeze, and verify the status of both cards upon the customer's request to ensure CARD54394 is frozen while CARD74384 remains active."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbcarddisamb_02",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_B01FB0EC; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ananya Chandrasekaran, an affluent bank manager in Chennai who is methodical and expects clear confirmation and verification at each step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have two active cards: a VISA Debit card and a VISA Credit card. You want ONLY the VISA Debit card frozen; the VISA Credit card must stay active.",
+    "known_info": "You are Ananya Chandrasekaran, customer already logged in (id CUST_B01FB0EC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your two active cards: a VISA Debit card (CARD98714) and a VISA Credit card (CARD23463) \u2014 reveal the ids only when the agent asks for them.",
+    "unknown_info": "The specific card IDs and their current recorded status in the backend system before and after the freeze.",
+    "task_instructions": "Step 1: say you want your card frozen, but don't say which one \u2014 when the agent notices you have two active cards, let them list both. Step 2: clarify you mean the VISA Debit card (id CARD98714 only when asked); explicitly confirm when the agent asks for confirmation to freeze it. Step 3: after the freeze is completed, ask the agent to check the VISA Debit card again to verify that its status is now frozen. Step 4: then ask them to check the VISA Credit card as well, to make sure it was untouched and remains active. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B01FB0EC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD98714",
+       "CARD23463"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD98714",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD98714"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb2_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD23463"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves both linked cards, asks for confirmation before freezing the requested VISA Debit card (CARD98714), executes the freeze via toggle_card_freeze, and verifies both the frozen card and the untouched active card."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbcarddisamb_03",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_34E78AA0; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Smt. Ganga Menon, a 73-year-old self-employed electrician from Thiruvananthapuram who is cautious and methodical about her bank cards.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have two active cards: a Mastercard Debit card and a RuPay Credit card. You misplaced your Mastercard Debit card and want to temporarily freeze it, while keeping your RuPay Credit card active.",
+    "known_info": "You are Smt. Ganga Menon, customer already logged in (id CUST_34E78AA0). Do not volunteer account or card IDs until the assistant specifically asks. You hold two cards: a Mastercard Debit card (CARD21669) and a RuPay Credit card (CARD29865).",
+    "unknown_info": "The current status and details of your cards until retrieved by the assistant.",
+    "task_instructions": "Step 1: Tell the assistant you need to freeze a card because you misplaced it, but do not specify which card. Let the assistant look up and list both of your cards.\nStep 2: Tell the assistant to freeze the Mastercard Debit card. If the assistant asks for confirmation to freeze it, explicitly confirm with 'Yes, please freeze it'.\nStep 3: After the card is frozen, ask the assistant to check the Mastercard Debit card to verify that it actually shows as frozen.\nStep 4: Then ask the assistant to check your RuPay Credit card to confirm that it remains untouched and active. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_34E78AA0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD21669",
+       "CARD29865"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD21669",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD21669"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb3_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD29865"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both linked cards, seek customer confirmation before freezing the requested Mastercard Debit card (CARD21669), execute the freeze via toggle_card_freeze, and verify the status of both cards as requested."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbcarddisamb_04",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_77440081; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rameshwar Singh Rathore, a 76-year-old startup founder from Jaipur. Pragmatic, cautious, and methodical about card security.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your RuPay debit card and want to temporarily freeze it. You want the assistant to list both cards linked to your account first, freeze the RuPay debit card upon your confirmation, and verify the status of both cards afterwards.",
+    "known_info": "You are Rameshwar Singh Rathore, customer ID CUST_77440081. You have two cards: a RuPay debit card (CARD41142) and a Visa credit card (CARD23649). Do not volunteer card IDs or account details until asked.",
+    "unknown_info": "The current status and details of both cards as recorded in the bank's system before and after the freeze.",
+    "task_instructions": "Step 1: Tell the assistant that you misplaced your card and want to freeze it, but ask them to first check and list all cards linked to your profile with their current status. Do not volunteer any card IDs.\nStep 2: Once the assistant lists both cards (the RuPay debit card and the Visa credit card), instruct the assistant to freeze the RuPay debit card (provide card ID CARD41142 only if asked). When the assistant asks for your confirmation to freeze the card, provide explicit affirmative confirmation.\nStep 3: After the assistant reports the freeze is complete, ask them to check the RuPay debit card again to verify that it is now frozen.\nStep 4: Next, ask the assistant to check the Visa credit card as well, to verify its status remains unchanged. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_77440081"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41142",
+       "CARD23649"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD41142",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41142"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb4_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD23649"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up both linked cards, ask for confirmation before freezing the RuPay debit card (CARD41142), execute the freeze, and then check each card to verify their statuses."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbcarddisamb_05",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_9AB5DDE5; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Sunita Ramesh Iyer, a 65-year-old school teacher who wants to temporarily freeze her debit card while keeping her credit card operational.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have two active cards: a VISA Debit card and a Mastercard Credit card. You want ONLY the VISA Debit card frozen; the Mastercard Credit card must stay active and untouched.",
+    "known_info": "You are Sunita Ramesh Iyer, customer already logged in (id CUST_9AB5DDE5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your two active cards are a VISA Debit card (CARD49349) and a Mastercard Credit card (CARD94408) \u2014 reveal the ids only when the agent asks for them.",
+    "unknown_info": "Which card has which ID, and their exact status before and after the freeze.",
+    "task_instructions": "Step 1: Say that you need to temporarily freeze your card, without specifying which one \u2014 when the agent notices you have two active cards, let them list both. Step 2: Clarify that you want to freeze the VISA Debit card (provide the ID only if asked), and explicitly confirm when the agent asks for confirmation to freeze it. Step 3: After the agent freezes the card, ask them to check the VISA Debit card again to prove that it now shows as frozen. Step 4: Then ask them to check the Mastercard Credit card as well, to verify that it is untouched and still active. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9AB5DDE5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbcarddisamb5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD49349",
+       "CARD94408"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD49349",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD49349"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbcarddisamb5_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD94408"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists both cards, asks for confirmation before freezing the VISA debit card CARD49349, freezes it with toggle_card_freeze, and verifies the status of both cards individually upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

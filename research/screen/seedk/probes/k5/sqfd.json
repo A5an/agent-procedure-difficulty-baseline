@@ -1,0 +1,470 @@
+[
+ {
+  "id": "k5_sqfd_00",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_44E1EA12; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kamala Devi, a 76-year-old store manager and senior citizen living in Noida, meticulous about checking her account funds and rates before committing to any investments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9150000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Kamala Devi (senior citizen), customer already logged in (id CUST_44E1EA12). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 150000; tenure 12 months; source savings SB6614458775. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 150000 for 12 months from savings SB6614458775 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_44E1EA12"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6614458775"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd0_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 150000,
+      "source_account": "SB6614458775",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6614458775"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, looks up the current FD rate card, confirms details and books the FD for \u20b91,50,000 for 12 months from SB6614458775 after explicit confirmation, and finally rechecks the savings balance to confirm the debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfd_01",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_84374E05; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Savitha Gowda, a retail healthcare professional in Mysuru seeking to check her account balance, inspect FD rates, book a 1-year fixed deposit, and confirm the updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b950000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Savitha Gowda, customer already logged in (id CUST_84374E05). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 50000; tenure 12 months; source savings SB5382385209. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 50000 for 12 months from savings SB5382385209 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_84374E05"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5382385209"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd1_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "tenure_months": 12,
+      "source_account": "SB5382385209"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5382385209"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the balance of SB5382385209, retrieve the fixed deposit rate card, confirm and book an FD of \u20b950,000 for 12 months from SB5382385209, and finally retrieve the account balance again to show the post-booking debited balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfd_02",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_E7787CBF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Rao, a 71-year-old private tutor from Visakhapatnam who wants to check his balance and interest rates before opening a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9100000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Suresh Kumar Rao (senior citizen), customer already logged in (id CUST_E7787CBF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 100000; tenure 12 months; source savings SB9866211406. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 100000 for 12 months from savings SB9866211406 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E7787CBF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9866211406"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd2_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB9866211406",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9866211406"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the balance of SB9866211406, fetch the FD interest rates, book the \u20b91,00,000 12-month FD from SB9866211406 only after explicit customer confirmation, and finally retrieve the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfd_03",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_0A16BB75; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya R. Patel, a 36-year-old government officer in Surat who wants to invest some of her savings into a fixed deposit, but insists on checking her current balance and the interest rates first, then confirming the creation of the FD and checking her updated balance afterward.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9100000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Priya R. Patel, customer already logged in (id CUST_0A16BB75). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 100000; tenure 12 months; source savings SB8814862633. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 100000 for 12 months from savings SB8814862633 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0A16BB75"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8814862633"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd3_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB8814862633",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8814862633"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the balance of savings account SB8814862633, check current FD rates, create a fixed deposit for \u20b91,00,000 with a 12-month tenure from account SB8814862633 upon explicit confirmation, and finally retrieve the updated balance of account SB8814862633."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfd_04",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_EC29EE4C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajendra Kulkarni, a hospitality staff member with a single savings account at Mumbai Main Branch.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b940000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Anjali Rajendra Kulkarni, customer already logged in (id CUST_EC29EE4C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 40000; tenure 12 months; source savings SB4157189118. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 40000 for 12 months from savings SB4157189118 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EC29EE4C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4157189118"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd4_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 40000,
+      "tenure_months": 12,
+      "source_account": "SB4157189118"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4157189118"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the customer's savings account balance, then fetch the fixed deposit interest rates, obtain explicit confirmation before booking the new FD of \u20b940,000 for 12 months from SB4157189118, and finally check the updated savings balance to reflect the debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfd_05",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_C730BA0E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Shobana Venkataraman, a 72-year-old senior citizen and retired government officer living in Coimbatore, who wants to review her savings balance, check prevailing FD rates, and safely book a new fixed deposit from her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9500000 for 12 months \u2014 only after confirming funds and rates, with the debited balance shown after.",
+    "known_info": "You are Shobana Venkataraman (senior citizen), customer already logged in (id CUST_C730BA0E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 500000; tenure 12 months; source savings SB7695814131. Reveal one parameter per question.",
+    "unknown_info": "Your available balance, the current FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the current FD interest rates. Step 3: only then book the FD: 500000 for 12 months from savings SB7695814131 (reveal each parameter only when asked; confirm the plan before booking). Step 4: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C730BA0E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfd5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfd5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sqfd5_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 500000,
+      "tenure_months": 12,
+      "source_account": "SB7695814131"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sqfd5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the customer's savings account balance, then fetch FD rates, seek explicit confirmation before booking the FD of \u20b95,00,000 for 12 months from account SB7695814131, and finally verify the updated account balance after booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

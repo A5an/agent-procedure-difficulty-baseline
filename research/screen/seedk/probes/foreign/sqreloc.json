@@ -1,0 +1,460 @@
+[
+ {
+  "id": "foreign_sqreloc_00",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_9DDDDED0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 36-year-old sales executive living in Delhi who recently relocated to a new apartment.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You recently relocated and need to update your communication address, order a new cheque book, and obtain an account statement for the past month, strictly in that order.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_9DDDDED0). Your savings account is SB3099693324. Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your new communication address is: Line 1: Flat 301, Sunrise Apartments, Rohini Sector 9, City: New Delhi, State: Delhi, Pincode: 110085.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Tell the assistant you have relocated and need to update your communication address to Flat 301, Sunrise Apartments, Rohini Sector 9, New Delhi, Delhi - 110085. Provide explicit confirmation when the assistant asks to submit the update request.\nStep 2: Once the address request is logged, ask to order a new cheque book for your savings account (provide account number SB3099693324 only when asked). Confirm affirmatively when asked to place the order.\nStep 3: After the cheque book is ordered, request an official duplicate account statement for account SB3099693324 for the date range 2026-06-01 to 2026-06-30 delivered to your email. Confirm affirmatively when asked.\nStrictly maintain this order \u2014 do not allow the assistant to skip ahead or combine steps out of order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9DDDDED0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc0_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "Flat 301, Sunrise Apartments, Rohini Sector 9",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "pincode": "110085"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc0_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3099693324"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3099693324",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant logs a communication address update after confirmation, orders a cheque book for savings account SB3099693324 after confirmation, and requests a duplicate account statement for June 2026 after confirmation, in that exact order."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqreloc_01",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_E93FC0B1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karthik Rajan, a 27-year-old IT Support Engineer who has recently relocated and needs to update his communication address, followed by ordering a cheque book and requesting an official statement for his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have recently relocated and need to update your communication address, order a new cheque book for your savings account, and request an official duplicate account statement for the month of June 2026.",
+    "known_info": "You are Karthik Rajan, customer already logged in (id CUST_E93FC0B1). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your savings account is SB7310325076. Your new communication address is: Flat 402, Green Meadows, 12th Cross, Indiranagar, Bengaluru, Karnataka, 560038. Statement period requested: 2026-06-01 to 2026-06-30 via email.",
+    "unknown_info": "Whether the address update takes effect immediately or requires backend verification.",
+    "task_instructions": "Step 1: Inform the agent that you have moved and want to update your communication address to Flat 402, Green Meadows, 12th Cross, Indiranagar, Bengaluru, Karnataka, 560038. Confirm the address update when the agent asks for confirmation. Step 2: Once the address update request has been submitted, ask to order a new 25-leaf cheque book for your savings account (provide account number SB7310325076 only when asked). Confirm the cheque book order when asked. Step 3: Only after the cheque book is ordered, ask to order an official duplicate account statement for your savings account from 2026-06-01 to 2026-06-30 delivered by email. Confirm the statement request when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E93FC0B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc1_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "city": "Bengaluru",
+      "line1": "Flat 402, Green Meadows",
+      "line2": "12th Cross, Indiranagar",
+      "pincode": "560038",
+      "state": "Karnataka"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc1_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7310325076",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7310325076",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must strictly execute the relocation workflow in sequence: first confirming and logging the communication address update, then confirming and ordering the cheque book for the savings account, and finally confirming and generating the duplicate statement for June 2026."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqreloc_02",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_D1130B8B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 31-year-old Data Scientist who recently relocated to Bengaluru for work and needs to update bank records and order essential banking services in a strict sequence.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You recently relocated to Bengaluru and need to update your communication address, order a new cheque book for your savings account, and obtain an official duplicate account statement for the past month.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_D1130B8B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3425341241. Your new communication address is: Line 1: Flat 402, Green Glen Layout, Outer Ring Road, Bellandur; City: Bengaluru; State: Karnataka; Pincode: 560103.",
+    "unknown_info": "Whether the address change is immediate or requires bank verification, and the delivery timeline for the cheque book and statement.",
+    "task_instructions": "Step 1: State that you recently relocated and want to update your communication address. Provide the address details (Flat 402, Green Glen Layout, Outer Ring Road, Bellandur, Bengaluru, Karnataka, 560103) as communication address. When the assistant summarizes and asks for confirmation to update the address, explicitly reply 'Yes'. Step 2: Only after the address update request is logged, ask to order a new 25-leaf cheque book for your savings account (provide account number SB3425341241 when asked). When the assistant asks for confirmation to place the cheque book order, explicitly reply 'Yes'. Step 3: Only after the cheque book order is confirmed, request an official duplicate statement for your savings account SB3425341241 for the date range 2026-06-01 to 2026-07-01 delivered by email. When the assistant asks for confirmation, explicitly reply 'Yes'. Follow these steps strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the current step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D1130B8B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc2_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "city": "Bengaluru",
+      "line1": "Flat 402, Green Glen Layout, Outer Ring Road, Bellandur",
+      "pincode": "560103",
+      "state": "Karnataka"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc2_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3425341241",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3425341241",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-01"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must strictly handle the relocation workflow in sequence: first log the communication address update after obtaining customer confirmation, then request a 25-leaf cheque book for account SB3425341241 after confirmation, and finally order the duplicate statement for SB3425341241 from 2026-06-01 to 2026-07-01 via email after confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqreloc_03",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_2B498AED; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a retail store manager in Kanpur who recently moved to a new home and wants to update his banking records and order essential services in strict sequence.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You recently relocated and need to update your communication address, then order a new cheque book, and finally request an account statement.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (customer ID CUST_2B498AED). You hold savings account SB3943466142. Do not volunteer your account number until the assistant asks for it. Your new communication address is Line 1: Flat 302, Green Park Apartments, Line 2: Civil Lines, City: Kanpur, State: Uttar Pradesh, PIN: 208001.",
+    "unknown_info": "Whether the address update takes effect immediately or requires backend verification.",
+    "task_instructions": "Step 1: Inform the assistant that you recently moved and need to update your communication address to Flat 302, Green Park Apartments, Civil Lines, Kanpur, Uttar Pradesh, 208001. When asked to confirm the address update request, provide explicit confirmation. Step 2: Only after the address update request is submitted, ask to order a new 25-leaf cheque book for your savings account (provide account ID SB3943466142 when asked). Confirm when requested. Step 3: Only after the cheque book is ordered, request an account statement for your savings account from 2026-06-01 to 2026-06-30 delivered by email. Confirm when requested. Follow these steps strictly in this order \u2014 do not skip ahead or combine them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2B498AED"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc3_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "Flat 302, Green Park Apartments",
+      "line2": "Civil Lines",
+      "city": "Kanpur",
+      "state": "Uttar Pradesh",
+      "pincode": "208001"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc3_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3943466142",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3943466142",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30",
+      "delivery_mode": "email"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant logs a communication address update after confirmation, then orders a cheque book for account SB3943466142 after confirmation, and finally requests a duplicate statement for the specified date range after confirmation, strictly in that order."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqreloc_04",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_E312514A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arjun Chatterjee, a 23-year-old private tutor living in Kolkata who recently relocated to a new residence and needs to update his address, order a new cheque book, and obtain a duplicate statement for his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You relocated recently and need to update your communication address, request a 25-leaf cheque book for your savings account, and request an official duplicate statement for June 2026 via email.",
+    "known_info": "You are Arjun Chatterjee, customer already logged in (id CUST_E312514A). Your savings account is SB3246714283. Do not volunteer account/card/deposit IDs until the agent asks. Your new communication address is: Line 1: Flat 4B, Sunrise Heights, 15 Gariahat Road, City: Kolkata, State: West Bengal, Pincode: 700019. You want a 25-leaf cheque book for your savings account. You need an official statement for your savings account for the period 2026-06-01 to 2026-06-30 delivered by email.",
+    "unknown_info": "Whether the address update takes effect immediately or requires verification, and the exact delivery timeline.",
+    "task_instructions": "Step 1: State that you have relocated and want to update your communication address. Provide the address details (Flat 4B, Sunrise Heights, 15 Gariahat Road, Kolkata, West Bengal, 700019) and affirmatively confirm when the agent asks for confirmation to update it. Step 2: Once the address update request is logged, request a new 25-leaf cheque book for your savings account (provide account ID SB3246714283 only when asked) and confirm when prompted. Step 3: Once the cheque book request is completed, request an official duplicate account statement for your savings account from 2026-06-01 to 2026-06-30 delivered via email, and confirm when prompted. Maintain this strict order \u2014 do not skip ahead or allow the agent to reorder the requests. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E312514A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc4_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "Flat 4B, Sunrise Heights, 15 Gariahat Road",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "pincode": "700019"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc4_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3246714283",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3246714283",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30",
+      "delivery_mode": "email"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant logs an update for the customer's communication address after explicit confirmation, then requests a 25-leaf cheque book for account SB3246714283 after confirmation, and finally requests an email duplicate account statement for account SB3246714283 for 2026-06-01 to 2026-06-30 after confirmation, adhering strictly to the three-step sequence."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqreloc_05",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_E91223B9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Ramachandran, a 39-year-old agri trader from Coimbatore who is methodical and insists on handling her relocation banking tasks in strict sequence.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You recently relocated to a new residence and want to update your communication address, order a new cheque book for your savings account, and get a recent account statement sent to your email.",
+    "known_info": "You are Kavitha Ramachandran, customer already logged in (id CUST_E91223B9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3173842508. Your new communication address is Flat 3B, Green Meadows, Avinashi Road, Coimbatore, Tamil Nadu, PIN 641018.",
+    "unknown_info": "Whether the bank requires backend verification for the address change, and the request reference numbers / ETAs.",
+    "task_instructions": "Step 1: State that you have relocated and ask to update your communication address to: Flat 3B, Green Meadows, Avinashi Road, Coimbatore, Tamil Nadu, PIN 641018. Confirm the address update when asked. Step 2: Once the address update request is logged, request a new 25-leaf cheque book for your savings account (provide account ID SB3173842508 only when asked). Confirm the cheque book order when asked. Step 3: Once the cheque book is ordered, request an account statement for your savings account for the period 2026-06-01 to 2026-07-16 delivered by email. Confirm the statement request when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E91223B9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqreloc5_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "Flat 3B, Green Meadows",
+      "line2": "Avinashi Road",
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "pincode": "641018"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc5_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3173842508",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqreloc5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3173842508",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16",
+      "delivery_mode": "email"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should strictly process the relocation requests in order: first update the communication address after confirmation, then order a 25-leaf cheque book for savings account SB3173842508 after confirmation, and finally request a duplicate account statement from 2026-06-01 to 2026-07-16 via email after confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

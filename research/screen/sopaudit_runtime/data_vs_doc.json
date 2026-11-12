@@ -1,0 +1,110 @@
+{
+ "gemini-3.8-flash": {
+  "fail": 19,
+  "fail_in_mixed_procs": 17,
+  "fail_rate_perform": 0.0449438202247191,
+  "fail_rate_refuse": 0.012987012987012988,
+  "doc (procedure + its constraints text)": {
+   "auc_overall": 0.5441048619006219,
+   "auc_within_procedure": 0.5141752577319587
+  },
+  "procedure only": {
+   "auc_overall": 0.6013843375911189,
+   "auc_within_procedure": 0.15979381443298968
+  },
+  "data branch (procedure + which conditions are false)": {
+   "auc_overall": 0.7047415234401123,
+   "auc_within_procedure": 0.6572164948453608
+  },
+  "doc + data branch": {
+   "auc_overall": 0.6312445663077644,
+   "auc_within_procedure": 0.3002577319587629
+  },
+  "same request seen before (28 agents on this exact case)": {
+   "auc_overall": 0.8298669163378586,
+   "auc_within_procedure": 0.8402061855670103
+  },
+  "pairs_within": 388
+ },
+ "gemini-2.5-flash": {
+  "fail": 115,
+  "fail_in_mixed_procs": 113,
+  "fail_rate_perform": 0.2397003745318352,
+  "fail_rate_refuse": 0.09461966604823747,
+  "doc (procedure + its constraints text)": {
+   "auc_overall": 0.594632857232744,
+   "auc_within_procedure": 0.5048474479612204
+  },
+  "procedure only": {
+   "auc_overall": 0.6210532939029761,
+   "auc_within_procedure": 0.3092386655260907
+  },
+  "data branch (procedure + which conditions are false)": {
+   "auc_overall": 0.6625810105077707,
+   "auc_within_procedure": 0.45822640433418876
+  },
+  "doc + data branch": {
+   "auc_overall": 0.6071100484490027,
+   "auc_within_procedure": 0.3108069575135443
+  },
+  "same request seen before (28 agents on this exact case)": {
+   "auc_overall": 0.7969923865852891,
+   "auc_within_procedure": 0.6907613344739093
+  },
+  "pairs_within": 3507
+ },
+ "claude-sonnet": {
+  "fail": 93,
+  "fail_in_mixed_procs": 81,
+  "fail_rate_perform": 0.1797752808988764,
+  "fail_rate_refuse": 0.08348794063079777,
+  "doc (procedure + its constraints text)": {
+   "auc_overall": 0.5899425417364159,
+   "auc_within_procedure": 0.45207148659626323
+  },
+  "procedure only": {
+   "auc_overall": 0.6667119093938982,
+   "auc_within_procedure": 0.3854589764419171
+  },
+  "data branch (procedure + which conditions are false)": {
+   "auc_overall": 0.6583269239469756,
+   "auc_within_procedure": 0.6173842404549147
+  },
+  "doc + data branch": {
+   "auc_overall": 0.6837156343784403,
+   "auc_within_procedure": 0.6145410235580828
+  },
+  "same request seen before (28 agents on this exact case)": {
+   "auc_overall": 0.6982083880016288,
+   "auc_within_procedure": 0.6145410235580828
+  },
+  "pairs_within": 1231
+ },
+ "claude-haiku": {
+  "fail": 94,
+  "fail_in_mixed_procs": 94,
+  "fail_rate_perform": 0.18726591760299627,
+  "fail_rate_refuse": 0.08163265306122448,
+  "doc (procedure + its constraints text)": {
+   "auc_overall": 0.6223105426727229,
+   "auc_within_procedure": 0.5234505862646566
+  },
+  "procedure only": {
+   "auc_overall": 0.6935288668419795,
+   "auc_within_procedure": 0.2998324958123953
+  },
+  "data branch (procedure + which conditions are false)": {
+   "auc_overall": 0.681052773129333,
+   "auc_within_procedure": 0.5653266331658291
+  },
+  "doc + data branch": {
+   "auc_overall": 0.7051458283528568,
+   "auc_within_procedure": 0.4367671691792295
+  },
+  "same request seen before (28 agents on this exact case)": {
+   "auc_overall": 0.7323467009323452,
+   "auc_within_procedure": 0.7001675041876047
+  },
+  "pairs_within": 1194
+ }
+}

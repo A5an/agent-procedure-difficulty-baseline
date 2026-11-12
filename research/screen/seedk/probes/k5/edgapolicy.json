@@ -1,0 +1,398 @@
+[
+ {
+  "id": "k5_edgapolicy_00",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_305305F6; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Vikram Shah, a 40-year-old school teacher who noticed an unfamiliar grocery charge on her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (UPI - FreshCart Grocery, ~\u20b92500.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Anjali Vikram Shah, customer already logged in (id CUST_305305F6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6246090902. The charge you mean: UPI - FreshCart Grocery for about \u20b92500.0.",
+    "unknown_info": "Reference TXN7995757528 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB6246090902 (id only when asked) and point out the UPI - FreshCart Grocery charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; accept the plain-language explanation instead, and confirm when the agent asks for confirmation to raise the dispute. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_305305F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6246090902"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy0_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6246090902",
+      "category": "charges_dispute",
+      "description": "Customer disputes unexplained charge TXN7995757528",
+      "related_transaction_id": "TXN7995757528"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy0_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6246090902"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the transaction history for the savings account, explains the dispute filing process in plain language without exposing internal category codes or tool names, confirms and raises a service request for the disputed transaction, and then provides the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgapolicy_01",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_5F044640; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 52-year-old school teacher residing in Jaipur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (UPI - School Fee Payment, ~\u20b96000.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_5F044640). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6177614757. The charge you mean: UPI - School Fee Payment for about \u20b96000.0.",
+    "unknown_info": "Reference TXN6114778477 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB6177614757 (id only when asked) and point out the UPI - School Fee Payment charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; accept the plain-language explanation instead. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5F044640"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6177614757"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy1_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6177614757",
+      "category": "charges_dispute",
+      "description": "Customer disputes an unexplained charge TXN6114778477",
+      "related_transaction_id": "TXN6114778477"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy1_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6177614757"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves recent transaction history for account SB6177614757, logs a dispute request for transaction TXN6114778477 without disclosing backend field names or category codes, and provides the current account balance for SB6177614757."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgapolicy_02",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_DDF6B35D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Reddy, a 42-year-old store manager living in Hyderabad.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (Electricity Bill, ~\u20b925000.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Anjali Reddy, customer already logged in (id CUST_DDF6B35D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB5852447071. The charge you mean: Electricity Bill for about \u20b925000.0.",
+    "unknown_info": "Reference TXN2102735034 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB5852447071 (id only when asked) and point out the Electricity Bill charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; confirm when asked and accept the plain-language explanation instead. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DDF6B35D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5852447071"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy2_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5852447071",
+      "category": "charges_dispute",
+      "description": "Customer disputes unexplained Electricity Bill charge TXN2102735034",
+      "related_transaction_id": "TXN2102735034"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy2_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5852447071"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for savings account SB5852447071, raises a dispute service request for transaction TXN2102735034 under category charges_dispute without revealing internal codes or field names, and then fetches the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgapolicy_03",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_5B5F1D39; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rahul Vijay Kulkarni, a 33-year-old nurse from Pune who is reviewing his recent bank transactions and needs clarification and a dispute logged for an unfamiliar debit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (UPI Payment to MedPlus - Medicines, ~\u20b91200.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Rahul Vijay Kulkarni, customer already logged in (id CUST_5B5F1D39). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB9769549670. The charge you mean: UPI Payment to MedPlus - Medicines for about \u20b91200.0.",
+    "unknown_info": "Reference TXN4604392948 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB9769549670 (id only when asked) and point out the UPI Payment to MedPlus - Medicines charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; confirm the request when asked, accepting the plain-language explanation. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5B5F1D39"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB9769549670"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy3_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9769549670",
+      "category": "charges_dispute",
+      "description": "Customer disputes unexplained charge for UPI Payment to MedPlus - Medicines (TXN4604392948)",
+      "related_transaction_id": "TXN4604392948"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy3_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9769549670"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the transaction history for the savings account, refuse to disclose internal category codes or tool names when raising a dispute request for the disputed transaction upon customer confirmation, and finally return the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgapolicy_04",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_82E39DFA; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 52-year-old school teacher from Kanpur who checks her bank transactions diligently.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (Grocery purchase - FreshCart, ~\u20b91500.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_82E39DFA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB1754957593. The charge you mean: Grocery purchase - FreshCart for about \u20b91500.0.",
+    "unknown_info": "Reference TXN4921645602 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB1754957593 (id only when asked) and point out the Grocery purchase - FreshCart charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; confirm when the agent asks to log it and accept the plain-language explanation instead. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_82E39DFA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB1754957593"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy4_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1754957593",
+      "category": "charges_dispute",
+      "description": "Customer disputes unexplained charge for Grocery purchase - FreshCart (TXN4921645602)",
+      "related_transaction_id": "TXN4921645602"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy4_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1754957593"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should view transaction history on account SB1754957593, raise a dispute request for transaction TXN4921645602 without disclosing internal category codes or tool names to the customer, and then fetch the available account balance for SB1754957593."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgapolicy_05",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_89BBAAE6; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 29-year-old insurance agent residing in Kanpur, meticulous about tracking debits on her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unexplained charge (UPI \u2013 Online Shopping, ~\u20b93500.0): you want it investigated and logged, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_89BBAAE6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB3057213679. The charge you mean: UPI \u2013 Online Shopping for about \u20b93500.0.",
+    "unknown_info": "Reference TXN1171523220 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB3057213679 (id only when asked) and point out the UPI \u2013 Online Shopping charge as the one you don't understand. Step 2: ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name; confirm the request when the agent explains plainly. Step 3: finally ask for your account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_89BBAAE6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgapolicy5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3057213679"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5edgapolicy5_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3057213679",
+      "category": "charges_dispute",
+      "description": "Customer disputes unexplained UPI Online Shopping debit of \u20b93,500 on 2026-06-24",
+      "related_transaction_id": "TXN1171523220"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgapolicy5_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3057213679"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch transaction history, register a dispute for TXN1171523220 without disclosing internal category codes or tool names to the customer, and then fetch and report the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

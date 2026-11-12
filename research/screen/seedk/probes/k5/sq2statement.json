@@ -1,0 +1,416 @@
+[
+ {
+  "id": "k5_sq2statement_00",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_533854E9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ananya Chatterjee, a 26-year-old government clerk who keeps close track of her savings account and insists on resolving unauthorized transactions and documentation sequentially.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI - OmniMart, ~\u20b91250.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Ananya Chatterjee, customer already logged in (id CUST_533854E9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6565759361. The debit you mean: UPI - OmniMart for about \u20b91250.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN7997179382 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB6565759361 (id only when asked) and point out the UPI - OmniMart debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_533854E9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6565759361"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement0_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6565759361",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN7997179382",
+      "related_transaction_id": "TXN7997179382"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB6565759361",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches the customer's transaction history, raises an unauthorized debit dispute for the identified transaction with the customer's confirmation, and requests a duplicate account statement for the specified period."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2statement_01",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_4D16DE53; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Patel, a store manager who noticed an unfamiliar debit on his savings account and wants to review transactions, lodge a dispute, and obtain an account statement.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI - Petrol Pump, ~\u20b91200.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Rajesh Patel, customer already logged in (id CUST_4D16DE53). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB3356455432. The debit you mean: UPI - Petrol Pump for about \u20b91200.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN1532564051 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB3356455432 (id only when asked) and point out the UPI - Petrol Pump debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D16DE53"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3356455432"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement1_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3356455432",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN1532564051",
+      "related_transaction_id": "TXN1532564051"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3356455432",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's transaction history on savings account SB3356455432, log an unauthorized debit dispute for transaction TXN1532564051 with explicit confirmation, and request a duplicate statement for June 2026 after explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2statement_02",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_929C991C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 50-year-old sales executive residing in Chennai, meticulous about keeping personal records and verifying unrecognised debits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI - Doctor Consultation, ~\u20b9500.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_929C991C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB7606984368. The debit you mean: UPI - Doctor Consultation for about \u20b9500.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN9727757128 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB7606984368 (id only when asked) and point out the UPI - Doctor Consultation debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_929C991C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7606984368"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement2_1",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer disputes unauthorized debit TXN9727757128",
+      "category": "unauthorized_debit",
+      "account_id": "SB7606984368",
+      "related_transaction_id": "TXN9727757128"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7606984368",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves recent transactions for savings account SB7606984368, confirms and raises an unauthorized debit dispute for transaction TXN9727757128, and then orders a duplicate statement for June 2026 upon customer request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2statement_03",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_05A9A382; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Vikram Sunil Patil, a 61-year-old senior software engineer and HNI banking customer based in Mumbai.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI Payment - Health Supplement, ~\u20b91800.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Vikram Sunil Patil (senior citizen), customer already logged in (id CUST_05A9A382). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB2369600105. The debit you mean: UPI Payment - Health Supplement for about \u20b91800.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN4583910314 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB2369600105 (id only when asked) and point out the UPI Payment - Health Supplement debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_05A9A382"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB2369600105"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement3_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2369600105",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN4583910314",
+      "related_transaction_id": "TXN4583910314"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB2369600105",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch transaction history for SB2369600105, raise a dispute request for transaction TXN4583910314 under unauthorized_debit, and request a duplicate statement for June 2026 on the same account after proper confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2statement_04",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_C606E208; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 28-year-old government clerk in Chennai holding a savings account",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI Debit - Electricity bill, ~\u20b9800.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_C606E208). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB5042271794. The debit you mean: UPI Debit - Electricity bill for about \u20b9800.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN9135713714 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB5042271794 (id only when asked) and point out the UPI Debit - Electricity bill debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C606E208"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5042271794"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement4_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5042271794",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN9135713714",
+      "related_transaction_id": "TXN9135713714"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB5042271794",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should view transaction history for savings account SB5042271794, raise an unauthorized debit dispute for transaction TXN9135713714 upon confirmation, and order a duplicate statement for the period 2026-06-01 to 2026-06-30."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2statement_05",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_05A9A382; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Vikram Sunil Patil, a 61-year-old senior software engineer and HNI retail banking customer based in Mumbai.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted a debit you didn't make (UPI Payment - Health Supplement, ~\u20b91800.0): verify it, dispute it, then get a statement copy.",
+    "known_info": "You are Vikram Sunil Patil (senior citizen), customer already logged in (id CUST_05A9A382). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB2369600105. The debit you mean: UPI Payment - Health Supplement for about \u20b91800.0. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Reference TXN4583910314 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB2369600105 (id only when asked) and point out the UPI Payment - Health Supplement debit as one you never made. Step 2: then ask to register the dispute for that debit. Step 3: only after the dispute is logged, ask for a duplicate June 2026 statement on the same account (for your records). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_05A9A382"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2statement5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB2369600105"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sq2statement5_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2369600105",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN4583910314",
+      "related_transaction_id": "TXN4583910314"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2statement5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB2369600105",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the transaction history for savings account SB2369600105, raise a dispute request for the unauthorized debit TXN4583910314 upon explicit confirmation, and request a duplicate statement for the period 2026-06-01 to 2026-06-30 upon explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

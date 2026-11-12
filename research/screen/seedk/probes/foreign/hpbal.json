@@ -1,0 +1,272 @@
+[
+ {
+  "id": "foreign_hpbal_00",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_2A1921A5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 46-year-old government revenue officer residing in Kolkata.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current balance of your savings account.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_2A1921A5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB8372064494.",
+    "unknown_info": "Your current available balance and any hold amount on your account.",
+    "task_instructions": "1. Tell the assistant you would like to check the balance of your savings account, without giving the account number upfront.\n2. When the assistant asks for your account number, provide SB8372064494.\n3. After the assistant provides your available balance and hold details, thank them and conclude the chat. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2A1921A5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8372064494"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account number, calls get_account_balance with account ID SB8372064494, and reports the available balance and hold amount clearly."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpbal_01",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_9AB5DDE5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Ramesh Iyer, a 65-year-old school teacher living in Mumbai, checking her account balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current balance and any holds on your savings account.",
+    "known_info": "You are Sunita Ramesh Iyer, customer already logged in (id CUST_9AB5DDE5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB8327589016.",
+    "unknown_info": "Your current available balance and hold amount.",
+    "task_instructions": "1. Ask the assistant for the current balance of your savings account without mentioning your account number upfront.\n2. When the assistant asks for your account number or ID, provide SB8327589016.\n3. Once the assistant shares the balance details, thank them and end the conversation.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9AB5DDE5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8327589016"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account number, retrieves the balance for account SB8327589016 using get_account_balance, and reports the available balance of \u20b92,00,000.00 and hold amount of \u20b98,795.99."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpbal_02",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_62A9B822; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Nair, a 58-year-old government clerk from Kochi with a savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the available balance of your savings account.",
+    "known_info": "You are Rajesh Nair, customer already logged in (id CUST_62A9B822). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account ID is SB5118811017.",
+    "unknown_info": "The current available balance and any hold amount on your savings account.",
+    "task_instructions": "1. Ask the assistant to check the balance of your savings account, without volunteering your account number upfront.\n2. When asked for your account number, provide SB5118811017.\n3. Once the assistant provides your balance details, acknowledge and close the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_62A9B822"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5118811017"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account ID, retrieves the balance using get_account_balance for SB5118811017, and accurately reports the available balance to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpbal_03",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_5E6574F1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 76-year-old hospitality worker from Mumbai who wants to check the current balance of his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current available balance in your savings account.",
+    "known_info": "You are Ramesh Kumar Sharma, customer already logged in (id CUST_5E6574F1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3781132760.",
+    "unknown_info": "The current available balance of your savings account.",
+    "task_instructions": "Ask the assistant for the current balance of your savings account. Do not mention your account ID upfront. When the assistant asks for your account ID or number, provide SB3781132760. Once the assistant shares your account balance, thank them and conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5E6574F1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3781132760"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should request the account ID if not provided, call get_account_balance with account ID SB3781132760, and report the available balance accurately to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpbal_04",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_D8E9BABA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 25-year-old police constable residing in New Delhi, checking his banking details on duty.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current available balance in your savings account.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_D8E9BABA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB5291570216.",
+    "unknown_info": "Your current available balance and any hold amount on the account.",
+    "task_instructions": "1. Ask the assistant for the current balance in your savings account, without volunteering the account number upfront.\n2. When asked for the account number, provide SB5291570216.\n3. Once the assistant provides the balance details, thank them and end the interaction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D8E9BABA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5291570216"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account number, fetches the balance using get_account_balance for account SB5291570216, and communicates the available balance accurately to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpbal_05",
+  "description": {
+   "purpose": "Balance enquiry",
+   "notes": "family=hpbal; customer_id=CUST_E8E8C615; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 46-year-old self-employed electrician from Patna.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current balance of your savings account.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_E8E8C615). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB8095198349.",
+    "unknown_info": "The current available balance and hold amount in your savings account.",
+    "task_instructions": "1. Ask the assistant for the current balance in your savings account.\n2. When the assistant asks for your account number, provide SB8095198349.\n3. Once the assistant provides the balance details, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E8E8C615"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpbal5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8095198349"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask for the account number, fetch the balance using get_account_balance for account SB8095198349, and state the available balance accurately without asking for OTP/passwords or making any modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

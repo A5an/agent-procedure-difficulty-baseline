@@ -1,0 +1,427 @@
+[
+ {
+  "id": "foreign_sqclose_00",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_8A83D675; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Ramesh Wankhede, a 33-year-old farmer from Nagpur with savings and fixed deposit accounts.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your fixed deposit, get a premature closure quote, close the deposit into your savings account, and verify your updated savings balance.",
+    "known_info": "You are Rajesh Ramesh Wankhede, customer already logged in (id CUST_8A83D675). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your fixed deposit is for \u20b960,000 (id FD806004). Your savings account is SB8749116111. You want closure proceeds credited to your savings account.",
+    "unknown_info": "None. Provide the deposit ID FD806004 or savings account ID SB8749116111 only when the agent explicitly asks.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your \u20b960,000 fixed deposit (provide deposit ID FD806004 only when asked).\nStep 2: Once the details are shown, ask for a closure quote to find out how much you would receive if you close this deposit today.\nStep 3: After the assistant provides the quote, request to proceed with closing the fixed deposit and transferring the proceeds to your savings account SB8749116111 (provide savings account ID only when asked), and give clear affirmative confirmation when asked.\nStep 4: After the deposit closure is confirmed, ask to check the current balance of your savings account SB8749116111.\nFollow these steps strictly in order. Do not skip ahead or combine steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8A83D675"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD806004"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose0_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD806004"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose0_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD806004",
+      "payout_account": "SB8749116111"
+     }
+    },
+    {
+     "action_id": "foreignsqclose0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8749116111"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details of FD806004, provide a deposit closure quote for it, close FD806004 to payout account SB8749116111 after obtaining explicit confirmation, and retrieve the balance of savings account SB8749116111."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqclose_01",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_F1E516C7; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhavan Unni, a 77-year-old startup founder and HNI customer holding an active Fixed Deposit and linked savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Inquire about your active Fixed Deposit details, get an early closure payout quote, proceed with closing the FD, and check your updated savings account balance.",
+    "known_info": "You are Madhavan Unni (customer ID CUST_F1E516C7). Do not volunteer account or deposit IDs until specifically asked by the assistant. You hold a Fixed Deposit (FD978574) and your primary savings account is SB5802397153.",
+    "unknown_info": "Exact penalty details or final payout amount until the assistant calculates or quotes it.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your active Fixed Deposit. Only provide the deposit ID FD978574 if the assistant specifically asks for it.\nStep 2: Ask for a closure quote to find out how much you will receive if you close the deposit today.\nStep 3: After the assistant provides the quote, request to close the Fixed Deposit and have the proceeds deposited into your savings account. When the assistant asks for confirmation to close the deposit, give explicit confirmation.\nStep 4: Once the deposit closure is confirmed, ask the assistant to check the updated available balance in your savings account.\nDo these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F1E516C7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD978574"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose1_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD978574"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose1_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD978574",
+      "payout_account": "SB5802397153"
+     }
+    },
+    {
+     "action_id": "foreignsqclose1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5802397153"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's FD details, generates a closure quote, obtains explicit confirmation before closing the deposit, and verifies the resulting savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqclose_02",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_87610B15; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri R. Patel, a 59-year-old government clerk who maintains a savings account and a fixed deposit. She wants to check her FD, get a closure quote, close it, and check her updated savings balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check FD details, obtain a premature closure quote, close FD507126 to savings account SB5134530001, and verify the updated account balance.",
+    "known_info": "You are Madhuri R. Patel, customer already logged in (id CUST_87610B15). Do not volunteer account/deposit IDs until the assistant asks for them or if needed to specify the account. Linked savings account: SB5134530001; linked Fixed Deposit: FD507126.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit (provide deposit ID FD507126 only if asked). Step 2: Ask what payout you would receive if you close the FD today (closure quote). Step 3: When the assistant gives the quote and asks for confirmation to close, confirm clearly that you want to close FD507126 and have the proceeds credited to your savings account SB5134530001. Step 4: After the FD is closed, ask for the available balance of your savings account SB5134530001 to verify the credit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_87610B15"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD507126"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose2_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD507126"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose2_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD507126",
+      "payout_account": "SB5134530001"
+     }
+    },
+    {
+     "action_id": "foreignsqclose2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5134530001"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for FD507126, generate a closure quote, seek explicit customer confirmation before calling close_deposit, and then verify the balance of savings account SB5134530001."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqclose_03",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_92FEDB5E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Kaur, a 55-year-old IT Support Engineer living in Amritsar with a linked savings account and a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your fixed deposit details, obtain a premature closure quote, proceed with closing the deposit to your savings account, and verify your updated savings account balance.",
+    "known_info": "You are Gurpreet Kaur, customer already logged in (id CUST_92FEDB5E). Do not volunteer account/card/deposit/mandate ids until the agent asks for that specific detail. Fixed deposit id FD480806; savings account SB1174638660.",
+    "unknown_info": "None. You know which fixed deposit and savings account you want to use, but wait for the assistant to ask before revealing the IDs.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit FD480806 (provide the deposit ID only when asked). Step 2: Once the details are provided, ask for a closure quote to see the payout and penalty if you close the FD today. Step 3: After the quote is given, ask to close the deposit to your savings account SB1174638660 (provide the account ID only when asked), and confirm explicitly when the assistant asks for confirmation to close it. Step 4: Once the deposit is closed, ask to check the current balance of your savings account SB1174638660 (provide the account ID only when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_92FEDB5E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD480806"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose3_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD480806"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose3_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD480806",
+      "payout_account": "SB1174638660"
+     }
+    },
+    {
+     "action_id": "foreignsqclose3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1174638660"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the FD details for FD480806, provides a premature closure quote, closes the deposit after receiving explicit confirmation from the customer, and finally checks the balance of savings account SB1174638660."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqclose_04",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_8549BD09; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Yadav, a 40-year-old self-employed carpenter residing in Mumbai.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your fixed deposit, get a closure quote, close the deposit early, and check your savings account balance.",
+    "known_info": "You are Rajesh Kumar Yadav, customer already logged in (id CUST_8549BD09). Do not volunteer account/card/deposit/loan ids until the agent asks for that specific detail. You have a fixed deposit of \u20b950,000 (FD363763) and a savings account SB1577755507.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit. Step 2: Once details are shared, ask for a closure quote to see the payout if you close the FD today. Step 3: Instruct the assistant to proceed with closing the FD and crediting the amount to your savings account. When the assistant asks for your confirmation to close the deposit, explicitly confirm. Step 4: After the closure is completed, ask for the available balance of your savings account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8549BD09"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD363763"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose4_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD363763"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose4_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD363763",
+      "payout_account": "SB1577755507"
+     }
+    },
+    {
+     "action_id": "foreignsqclose4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1577755507"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's fixed deposit details, provide a deposit closure quote, obtain explicit customer confirmation before closing the deposit, and subsequently check the updated balance of the customer's savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqclose_05",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_1A529567; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Ramesh Patel, a 28-year-old farmer from Surat who maintains a savings account and a fixed deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check fixed deposit details, get an early closure quote, proceed with closing the FD, and verify the updated savings account balance.",
+    "known_info": "You are Priya Ramesh Patel, customer already logged in (id CUST_1A529567). Do not volunteer account or deposit IDs until the agent asks for that specific detail. You have a fixed deposit (FD360885) and a linked savings account (SB5717497674).",
+    "unknown_info": "Payout account SB5717497674 \u2014 state it only if the agent asks where the closure proceeds should go.",
+    "task_instructions": "Step 1: Ask for the details of your fixed deposit (provide FD360885 only if asked). Step 2: Once details are shared, ask for a quote on what payout you would get if you closed it today. Step 3: Instruct the assistant to go ahead and close the deposit, and when the assistant asks for your confirmation, confirm explicitly. Step 4: After the closure is confirmed, ask to check the balance of your savings account to verify the funds. Follow these steps strictly in order \u2014 do not let the agent skip ahead or reorder steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1A529567"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqclose5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD360885"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose5_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD360885"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqclose5_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD360885"
+     }
+    },
+    {
+     "action_id": "foreignsqclose5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5717497674"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's FD details, fetch the premature closure quote, request confirmation before executing the closure, close the FD, and then check the customer's savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

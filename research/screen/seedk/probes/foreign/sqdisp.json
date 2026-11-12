@@ -1,0 +1,416 @@
+[
+ {
+  "id": "foreign_sqdisp_00",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_02E4F69A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rameshwar Reddy, a 78-year-old retired police constable living in Hyderabad, vigilant about suspicious activity on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed suspicious activity and want to review your recent account transactions, permanently block your compromised debit card, and raise a formal fraud dispute for an unauthorized ATM withdrawal.",
+    "known_info": "You are Rameshwar Reddy, already logged in (customer ID CUST_02E4F69A). Do not volunteer account, card, or transaction IDs until the assistant asks for them. Your savings account is SB4707193276 and your debit card is CARD37795.",
+    "unknown_info": "The exact reference ID of the suspicious ATM transaction (TXN8209153631) until retrieved from your statement history, and the resulting service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transaction history for your savings account (provide account ID SB4707193276 only when asked).\nStep 2: Review the transactions, identify the unauthorized ATM withdrawal of \u20b92,000 on 2026-06-28, state that your debit card CARD37795 is compromised, and request to permanently block it.\nStep 3: When the assistant asks for confirmation to permanently block debit card CARD37795 due to fraud, explicitly confirm with yes.\nStep 4: Once the card is blocked, instruct the assistant to raise a dispute/complaint for the unauthorized transaction TXN8209153631 of \u20b92,000.\nStep 5: When the assistant asks for confirmation to file the dispute request for that transaction, explicitly confirm with yes.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_02E4F69A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4707193276"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp0_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD37795",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp0_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4707193276",
+      "category": "unauthorized_debit",
+      "description": "Fraud dispute for unauthorized ATM withdrawal of INR 2,000 on card CARD37795",
+      "related_transaction_id": "TXN8209153631"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves statement history for SB4707193276, seeks confirmation and permanently blocks debit card CARD37795 with reason fraud, and then seeks confirmation and logs an unauthorized debit service request for transaction TXN8209153631."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqdisp_01",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_C1F45C6F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Harjinder Kaur, a 75-year-old retail store manager from Amritsar, careful with her finances and alert to unexpected charges.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your recent transaction history, permanently block your debit card due to an unauthorized transaction, and raise a dispute for that fraudulent debit.",
+    "known_info": "You are Harjinder Kaur, customer already logged in (id CUST_C1F45C6F). You hold savings account SB8714832292 and debit card CARD95460. Do not volunteer account, card, or transaction IDs or internal category names unless asked. You did not authorize the \u20b91,800 POS debit at Grocery Mart on 2026-06-22.",
+    "unknown_info": "Specific transaction reference ID (TXN6043112322) and service request reference number until returned by the assistant.",
+    "task_instructions": "Step 1: Ask the assistant to show the recent transaction history for your savings account (do not provide the account number unless asked).\nStep 2: Once transactions are listed, call out the \u20b91,800 POS transaction on 2026-06-22 at Grocery Mart as unauthorized, state that your debit card is compromised, and ask to permanently block the debit card due to fraud.\nStep 3: When the assistant asks for confirmation to block the card, confirm clearly.\nStep 4: After the card is blocked, ask the assistant to raise a dispute or complaint for the unauthorized \u20b91,800 transaction.\nStep 5: When the assistant asks for confirmation to raise the dispute/service request, confirm affirmatively.\nDo this strictly in order \u2014 do not skip steps or allow the assistant to reorder them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C1F45C6F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8714832292"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp1_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD95460",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp1_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8714832292",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized POS transaction of INR 1800 at Grocery Mart on 2026-06-22",
+      "related_transaction_id": "TXN6043112322"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves recent transaction history for account SB8714832292, confirms and permanently blocks CARD95460 with reason 'fraud', and confirms and raises a service request with category 'unauthorized_debit' linked to transaction TXN6043112322."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqdisp_02",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_7B9302A4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Subhash Dube, a 73-year-old senior citizen and startup founder holding a savings account and an active debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed suspicious activity on your savings account: you want to inspect your recent transaction history to check an unauthorized ATM debit, permanently block the compromised debit card, and raise a fraud dispute request.",
+    "known_info": "You are Rajesh Subhash Dube, customer already logged in (id CUST_7B9302A4). Do not volunteer account/card/transaction IDs or backend category names until the assistant asks for that specific detail. Your savings account is SB5529662717 and your debit card is CARD12839.",
+    "unknown_info": "The exact transaction reference ID before viewing history, and the resulting service request ID for the dispute.",
+    "task_instructions": "Step 1: Ask the assistant to check recent transactions on your savings account (provide account ID SB5529662717 only when asked). Step 2: Once the history is shared, point out the unauthorized ATM debit of \u20b920,000 on 2026-06-24, state that your debit card is compromised, and ask to permanently block the debit card (provide card ID CARD12839 only when asked). Step 3: When the assistant asks for confirmation to permanently block card CARD12839 due to fraud, explicitly confirm yes. Step 4: After the card is blocked, ask the assistant to raise a dispute/complaint for that unauthorized \u20b920,000 ATM withdrawal (reference TXN2935581785). Step 5: When the assistant confirms the dispute details and asks for your confirmation to submit the request, explicitly confirm yes. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7B9302A4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5529662717"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp2_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD12839",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp2_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5529662717",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized ATM debit dispute for transaction TXN2935581785 of INR 20,000",
+      "related_transaction_id": "TXN2935581785"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for savings account SB5529662717, permanently blocks debit card CARD12839 with reason fraud only after explicit confirmation, and raises an unauthorized_debit service request for transaction TXN2935581785 only after explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqdisp_03",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_9AD912CA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 64-year-old government clerk who noticed an unexpected withdrawal on her account and wants to protect her funds.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to inspect your recent transactions, permanently block your compromised debit card after spotting an unauthorized ATM withdrawal, and raise a dispute for the fraudulent debit.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_9AD912CA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3956877828; your debit card is CARD92351; the unauthorized transaction you notice is an ATM withdrawal of \u20b92,000 on 2026-06-26 (TXN4765309483).",
+    "unknown_info": "The exact list of recent statement transactions until retrieved by the assistant, and the service request ID generated for the dispute.",
+    "task_instructions": "Step 1: Ask the assistant to check recent transactions on your savings account (provide account ID SB3956877828 only when asked). Step 2: Notice the unauthorized ATM withdrawal of \u20b92,000 on 2026-06-26 (TXN4765309483), declare that your debit card is compromised, and request to permanently block the debit card (provide card ID CARD92351 only when asked). Step 3: When the assistant asks for confirmation to permanently block the card due to fraud, explicitly confirm yes. Step 4: After the card is blocked, ask the assistant to raise a dispute for the unauthorized \u20b92,000 ATM transaction (TXN4765309483) and explicitly confirm the request when asked. Step 5: Acknowledge the confirmation and conclude the call. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9AD912CA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3956877828"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp3_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD92351",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp3_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3956877828",
+      "category": "unauthorized_debit",
+      "description": "Fraud dispute for unauthorized ATM withdrawal of INR 2,000 on 2026-06-26",
+      "related_transaction_id": "TXN4765309483"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches transaction history for savings account SB3956877828, permanently blocks compromised debit card CARD92351 with reason 'fraud' after explicit customer confirmation, and raises a service request with category 'unauthorized_debit' linked to transaction TXN4765309483 after confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqdisp_04",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_182BB205; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 71-year-old self-employed carpenter from Hyderabad who needs to investigate an unfamiliar transaction, block his compromised debit card, and dispute the unauthorized charge.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent transactions, permanently block a compromised debit card due to fraud, and raise an unauthorized transaction dispute.",
+    "known_info": "You are Ravi Kumar Reddy (customer ID CUST_182BB205). Do not volunteer account, card, or transaction IDs until the assistant asks for them or until relevant in that step. Your savings account is SB6520076000 and your compromised debit card is CARD54394.",
+    "unknown_info": "The exact transaction reference ID and details of the unauthorized transaction until reviewed in the history.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transaction history of your savings account (provide account ID SB6520076000 when asked). Step 2: Once the transactions are shown, identify the suspicious POS charge of \u20b91,500 on 2026-06-28, state that your debit card CARD54394 has been compromised, and request to permanently block it due to fraud. Step 3: Explicitly confirm the permanent card block when the assistant asks for confirmation. Step 4: After the card is blocked, request to raise a dispute for the unauthorized \u20b91,500 debit transaction. Step 5: Confirm raising the dispute when prompted. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_182BB205"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6520076000"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp4_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD54394",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp4_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6520076000",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized POS transaction dispute of INR 1500 on 2026-06-28",
+      "related_transaction_id": "TXN4078128892"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the transaction history for account SB6520076000, seeks confirmation and permanently blocks debit card CARD54394 for fraud, and then seeks confirmation and raises an unauthorized_debit service request for transaction TXN4078128892."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqdisp_05",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_76291AE8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 57-year-old freelance electrician with a savings account and linked debit card, cautious about his finances and reporting unexpected account debits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraudulent activity, want to review recent transactions, permanently block your compromised debit card, and dispute an unauthorized charge.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_76291AE8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB5420846415; debit card CARD90475; unauthorized POS transaction TXN4180560446 for \u20b92,100 at FreshCart on 2026-06-30.",
+    "unknown_info": "The exact complaint ticket/service request number once raised.",
+    "task_instructions": "Step 1: Ask to see recent transaction history on your savings account (provide account ID SB5420846415 only when asked). Step 2: Review the transactions, identify the unauthorized POS debit of \u20b92,100 at FreshCart, state that your card was compromised, and ask to permanently block your debit card (provide card ID CARD90475 only when asked). Step 3: Explicitly confirm the permanent block when prompted. Step 4: Once the card is blocked, request to raise a fraud dispute / complaint for the unauthorized transaction (reference TXN4180560446). Step 5: Explicitly confirm raising the dispute when prompted. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_76291AE8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqdisp5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5420846415"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp5_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD90475",
+      "reason": "fraud"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsqdisp5_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5420846415",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized POS transaction of Rs 2,100 at FreshCart",
+      "related_transaction_id": "TXN4180560446"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch transaction history for account SB5420846415, obtain confirmation to permanently block debit card CARD90475 for fraud, execute block_card, obtain confirmation to dispute transaction TXN4180560446, and register an unauthorized_debit service request via raise_request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

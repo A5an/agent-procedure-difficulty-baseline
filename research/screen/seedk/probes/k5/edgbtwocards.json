@@ -1,0 +1,512 @@
+[
+ {
+  "id": "k5_edgbtwocards_00",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_757F8510; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 45-year-old self-employed plumber based in Bengaluru with a mass retail banking relationship.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your RUPAY Credit card temporarily frozen (just misplaced, might turn up) and your MASTERCARD Debit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_757F8510). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your RUPAY Credit card (CARD75692) and your MASTERCARD Debit card (CARD89964) \u2014 reveal the ids only when asked. Reason for the block on the MASTERCARD Debit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your cards so you can be precise about which is which. Step 2: ask for the RUPAY Credit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the MASTERCARD Debit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked MASTERCARD Debit card. Step 5: finally ask the agent to pull up both cards again to confirm the RUPAY Credit one shows frozen and the MASTERCARD Debit one shows blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_757F8510"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD89964",
+       "CARD75692"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD75692",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards0_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD89964",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards0_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD89964"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards0_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD89964",
+       "CARD75692"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists both cards, freezes the Rupay credit card upon confirmation, permanently blocks the Mastercard debit card as stolen upon confirmation, submits a service request for a replacement card, and verifies the final status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbtwocards_01",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_CDD6D1CE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 59-year-old self-employed plumber from New Delhi managing his cards carefully after misplacing one and having the other stolen.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your RuPay Debit card temporarily frozen (just misplaced, might turn up) and your RuPay Credit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_CDD6D1CE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your RuPay Debit card (CARD11511) and your RuPay Credit card (CARD17453) \u2014 reveal the ids only when asked. Reason for the block on the RuPay Credit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your active cards so you can be precise about which is which. Step 2: ask for the RuPay Debit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the RuPay Credit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked RuPay Credit card. Step 5: finally ask the agent to pull up both cards again to confirm the RuPay Debit one shows frozen and the RuPay Credit one shows blocked. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CDD6D1CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD11511",
+       "CARD17453"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD11511",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards1_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD17453",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards1_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD17453"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards1_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD11511",
+       "CARD17453"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list the customer's cards, temporarily freeze the debit card CARD11511 upon confirmation, permanently block the credit card CARD17453 for reason stolen upon confirmation, raise a service request for a replacement card, and fetch the card details again to verify their statuses."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbtwocards_02",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_8F724737; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 39-year-old government clerk from Ludhiana holding an active RuPay debit card and RuPay credit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your RuPay Debit card temporarily frozen (just misplaced, might turn up) and your RuPay Credit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_8F724737). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your RuPay Debit card (CARD34138) and your RuPay Credit card (CARD94203) \u2014 reveal the ids only when asked. Reason for the block on the RuPay Credit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your active cards so you can be precise about which is which. Step 2: ask for the RuPay Debit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the RuPay Credit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked RuPay Credit card. Step 5: finally ask the agent to pull up both cards again to confirm the RuPay Debit one shows frozen and the RuPay Credit one shows blocked. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8F724737"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD34138",
+       "CARD94203"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD34138",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards2_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD94203",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards2_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD94203"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards2_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD34138",
+       "CARD94203"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, temporarily freeze the debit card upon confirmation, permanently block the credit card with reason stolen upon confirmation, raise a service request for a replacement card, and re-fetch card details to verify their updated statuses."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbtwocards_03",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_E7CAB78B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Karanveer Singh, a tech professional who misplaced his debit card and had his credit card stolen, needing distinct actions applied to each card in a precise sequence.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your VISA Debit card temporarily frozen (just misplaced, might turn up) and your MASTERCARD Credit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Karanveer Singh, customer already logged in (id CUST_E7CAB78B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your VISA Debit card (CARD50191) and your MASTERCARD Credit card (CARD57959) \u2014 reveal the ids only when asked. Reason for the block on the MASTERCARD Credit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your active cards so you can be precise about which is which. Step 2: ask for the VISA Debit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the MASTERCARD Credit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked MASTERCARD Credit card; confirm. Step 5: finally ask the agent to pull up both cards again to confirm the VISA Debit one shows frozen and the MASTERCARD Credit one shows blocked. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E7CAB78B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD50191",
+       "CARD57959"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD50191",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards3_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD57959",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards3_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD57959"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards3_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD50191",
+       "CARD57959"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists both cards, freezes the debit card after explicit confirmation, permanently blocks the credit card after explicit confirmation, raises a service request for a replacement card after confirmation, and verifies the final statuses of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbtwocards_04",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_99ED59F1; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sarojini Devi, a 75-year-old shop owner from New Delhi who is cautious and methodical about managing her bank accounts and cards.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your RUPAY Debit card temporarily frozen (just misplaced, might turn up) and your VISA Credit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Sarojini Devi (senior citizen), customer already logged in (id CUST_99ED59F1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your RUPAY Debit card (CARD42256) and your VISA Credit card (CARD75235) \u2014 reveal the ids only when asked. Reason for the block on the VISA Credit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your active cards so you can be precise about which is which. Step 2: ask for the RUPAY Debit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the VISA Credit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked VISA Credit card. Step 5: finally ask the agent to pull up both cards again to confirm the RUPAY Debit one shows frozen and the VISA Credit one shows blocked. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_99ED59F1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD42256",
+       "CARD75235"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD42256",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards4_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD75235",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards4_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD75235"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards4_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD42256",
+       "CARD75235"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, temporarily freeze the RuPay debit card CARD42256 after customer confirmation, permanently block the Visa credit card CARD75235 for reason 'stolen' after customer confirmation, raise a service request to issue a replacement credit card, and finally verify by re-fetching details of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbtwocards_05",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_17DA80EF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Patel, a 78-year-old self-employed cab driver living in Mumbai. He is cautious, speaks plainly, and wants to handle each card action one at a time to avoid any mix-up.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your MASTERCARD Debit card temporarily frozen (just misplaced, might turn up) and your MASTERCARD Credit card permanently blocked (it was stolen) \u2014 two different actions on two different cards, and they must not be swapped.",
+    "known_info": "You are Ramesh Kumar Patel (senior citizen), customer already logged in (id CUST_17DA80EF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your MASTERCARD Debit card (CARD79852) and your MASTERCARD Credit card (CARD78755) \u2014 reveal the ids only when asked. Reason for the block on the MASTERCARD Credit card: stolen.",
+    "unknown_info": "Confirmation of the freeze on one card and the permanent block on the other.",
+    "task_instructions": "Step 1: ask to see both your active cards so you can be precise about which is which. Step 2: ask for the MASTERCARD Debit one to be temporarily frozen (reversible), id only when asked; confirm. Step 3: ask for the MASTERCARD Credit one to be permanently blocked, reason stolen (id only when asked; confirm \u2014 this one cannot be undone). Step 4: ask for a replacement to be requested for the blocked MASTERCARD Credit card. Step 5: finally ask the agent to pull up both cards again to confirm the MASTERCARD Debit one shows frozen and the MASTERCARD Credit one shows blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Do not let the agent apply the wrong action to the wrong card. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_17DA80EF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbtwocards5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD79852",
+       "CARD78755"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD79852",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5edgbtwocards5_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD78755",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5edgbtwocards5_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer requests a replacement for blocked card CARD78755",
+      "category": "other"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbtwocards5_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD79852",
+       "CARD78755"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, freeze the debit card upon confirmation, permanently block the stolen credit card upon confirmation, raise a service request for a replacement card, and verify the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

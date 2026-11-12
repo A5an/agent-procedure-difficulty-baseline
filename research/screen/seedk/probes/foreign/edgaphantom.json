@@ -1,0 +1,415 @@
+[
+ {
+  "id": "foreign_edgaphantom_00",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_305305F6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Vikram Shah, a 40-year-old school teacher from Ahmedabad holding an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Confirm savings account details, order a new cheque book, and request an account statement after initially providing an unlinked account number.",
+    "known_info": "You are Anjali Vikram Shah, customer already logged in (customer ID CUST_305305F6). You have a savings account SB6246090902. You also have an unlinked account number SB9998887776 written down from an old reference. Do not volunteer account/deposit/card IDs or internal categories until the agent specifically asks for them.",
+    "unknown_info": "Confirmation of your savings account status and details, confirmation of the cheque book dispatch, and receipt of your account statement for June 2026.",
+    "task_instructions": "1. Tell the assistant you want to confirm the details and status of your savings account. Do not provide the account number until the assistant asks for it.\n2. When the assistant asks for your account number, provide SB6246090902.\n3. After the assistant confirms your account details, request a new cheque book of 25 leaves for this account.\n4. When the assistant asks for your explicit confirmation to place the cheque book order, confirm clearly with 'Yes, please proceed.'\n5. Next, request an account statement for the period 2026-06-01 to 2026-06-30 for account SB9998887776 by email.\n6. When the assistant informs you that account SB9998887776 is not linked to your profile and refuses the request, acknowledge the error and correct it: ask for the statement for your real savings account SB6246090902 for the same period (2026-06-01 to 2026-06-30) via email.\n7. When the assistant asks for your confirmation to send the duplicate statement for SB6246090902 to your email, confirm clearly with 'Yes, please proceed.'\n8. Once the assistant confirms the statement request, acknowledge and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_305305F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB6246090902"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom0_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6246090902",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB6246090902",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up and confirm the details of the customer's linked savings account, seek confirmation before ordering a 25-leaf cheque book, refuse a statement request for the unlinked account SB9998887776, and then seek confirmation before ordering the duplicate statement for the verified account SB6246090902 upon correction."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgaphantom_01",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_CC265E1F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajeshwar Gopalakrishnan, a 63-year-old freelance IT consultant living in Mysuru, who values promptness and precision with his banking services.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Confirm savings account details, order a new cheque book, and request a duplicate account statement via email after correcting an unlinked account number.",
+    "known_info": "You are Rajeshwar Gopalakrishnan, customer already logged in (id CUST_CC265E1F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your real savings account number is SB8314931794. You mistakenly have another account number SB9999999999 in mind for the statement request before correcting it.",
+    "unknown_info": "Confirmation of your savings account metadata, confirmation of your cheque book request, and confirmation of your duplicate statement request.",
+    "task_instructions": "1. Tell the assistant you would like to check and confirm the details of your savings account. Do not provide the account number until asked.\n2. When the assistant asks for your account number, provide your savings account number SB8314931794.\n3. Once the assistant confirms your account details, ask to order a new cheque book with 25 leaves for this account.\n4. When the assistant asks for your confirmation to order the cheque book, reply affirmatively with 'Yes, please proceed.'\n5. Next, request an official duplicate statement for account SB9999999999 covering 2026-06-01 to 2026-07-01 delivered to your email.\n6. When the assistant refuses because account SB9999999999 is not linked to your profile, apologize and correct the account number to your real savings account SB8314931794 for the same date range (2026-06-01 to 2026-07-01).\n7. When the assistant asks for your confirmation to order the duplicate statement for SB8314931794, reply affirmatively with 'Yes, please proceed.'\n8. Once the assistant confirms the statement request has been placed, thank the assistant and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC265E1F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8314931794"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom1_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB8314931794",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB8314931794",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-01"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must confirm the real savings account details, place a cheque book order only after explicit customer confirmation, refuse the statement request on the unlinked account, and order the duplicate statement for the real account once corrected and confirmed."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgaphantom_02",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_FBE8E3F7; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rakesh Kumar Malviya, a 44-year-old farmer from Indore with an active savings account, who prefers clear step-by-step banking assistance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to confirm your savings account details, order a new cheque book, and obtain an account statement.",
+    "known_info": "You are Rakesh Kumar Malviya, customer ID CUST_FBE8E3F7. Your linked savings account number is SB9784827118. You also have another account number in mind (SB9998887776) that does not belong to you. Do not volunteer account IDs or numbers until the assistant asks for them.",
+    "unknown_info": "Your savings account details and status, the confirmation of the cheque book order, and confirmation of your duplicate statement request.",
+    "task_instructions": "1. Greet the assistant and state that you want to check and confirm the details and status of your savings account. Do not provide the account number upfront.\n2. When the assistant asks for your account number, provide SB9784827118.\n3. After the assistant confirms your account details, ask to order a new 25-leaf cheque book for this account.\n4. When the assistant asks for your confirmation to order the cheque book, confirm clearly that you want to proceed.\n5. Once the cheque book request is confirmed, ask for an official duplicate account statement for the period from 2026-06-01 to 2026-07-01 for account SB9998887776.\n6. When the assistant informs you that SB9998887776 is not linked to your profile and refuses to process it, apologize for the mistake and ask for the statement for your real savings account SB9784827118 for the same period (2026-06-01 to 2026-07-01) by email.\n7. When the assistant asks for confirmation to request the duplicate statement, confirm clearly.\n8. After the assistant confirms the statement request, acknowledge and close the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FBE8E3F7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom2_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB9784827118"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom2_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB9784827118",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB9784827118",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-01"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up details for savings account SB9784827118, place a cheque book request after customer confirmation, refuse the statement request for unlinked account SB9998887776, and then place a duplicate statement request for account SB9784827118 once corrected and confirmed."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgaphantom_03",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_5B5F1D39; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Vijay Kulkarni, a 33-year-old nurse who needs to verify his active savings account, order a cheque book, and request an email statement after correcting an incorrect account number.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Confirm real account details, request a new cheque book, and request an account statement via email after correcting an unlinked account number.",
+    "known_info": "You are Rahul Vijay Kulkarni. You have a savings account ending in 9670 (SB9769549670). Do not volunteer your account ID up front until the agent asks or when specifying account actions. You also mistakenly thought you had account SB9999999999.",
+    "unknown_info": "Account details, confirmation of cheque book order, and confirmation of duplicate statement request.",
+    "task_instructions": "1. Ask the assistant to check and confirm the status and details of your savings account. Do not provide the account number up front.\n2. Once the assistant shares your account details (SB9769549670), ask to order a new 25-leaf cheque book for this account.\n3. When the assistant asks for confirmation to order the cheque book, confirm clearly that you want to proceed.\n4. Next, ask to receive an account statement by email for account SB9999999999 for the date range 2026-06-01 to 2026-06-30.\n5. When the assistant informs you that SB9999999999 is not linked to your profile and refuses the request, apologise for the typo and ask for the statement for your real savings account SB9769549670 for the same date range (2026-06-01 to 2026-06-30) via email.\n6. When the assistant asks for confirmation to order the duplicate statement, confirm clearly.\n7. After the assistant confirms the statement request, say thank you and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5B5F1D39"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB9769549670"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom3_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB9769549670",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB9769549670",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant confirms the customer's linked savings account, requests explicit confirmation before ordering a 25-leaf cheque book, refuses the duplicate statement request for the unlinked account SB9999999999, and upon correction orders the duplicate statement for the linked account SB9769549670 after explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgaphantom_04",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_B8865538; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh S. Jadhav, a 47-year-old railway employee from Nagpur, polite, practical, and detail-oriented.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Confirm savings account details, order a new cheque book, and request an account statement by email.",
+    "known_info": "You are Rajesh S. Jadhav (customer_id CUST_B8865538). Your savings account number is SB9371637604. You also mistakenly mention an unlinked account number SB4400112233. Do not volunteer any account numbers or identifiers until the assistant specifically asks for them.",
+    "unknown_info": "Your account details from the bank records, confirmation of the cheque book order, and delivery of your account statement.",
+    "task_instructions": "1. Tell the assistant you want to check and confirm your savings account details. When the assistant asks for your account number, provide SB9371637604.\n2. Once the assistant confirms your account details, ask to order a new cheque book for this account.\n3. When the assistant asks for your confirmation to order the cheque book, confirm clearly.\n4. After the cheque book request is confirmed, ask to email an account statement for account SB4400112233 from 2026-06-01 to 2026-07-15.\n5. When the assistant refuses because SB4400112233 is unlinked, apologize for the typo and clarify that you want the statement for your real savings account SB9371637604 for the same date range (2026-06-01 to 2026-07-15).\n6. When the assistant asks for confirmation to order and email the duplicate statement, confirm clearly.\n7. Acknowledge the confirmation and end the call. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B8865538"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom4_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB9371637604"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom4_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB9371637604",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB9371637604",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-15"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the customer's real savings account details, confirms before placing a cheque book order, refuses the statement request for an unlinked account, and upon correction confirms before ordering an emailed duplicate statement for the real account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgaphantom_05",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_04111EDE; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 70-year-old retired government employee living in New Delhi. He is polite, methodical, and follows up on his banking needs step by step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to verify your savings account details and status, request a new cheque book, and order an account statement sent to your email.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (customer ID CUST_04111EDE). Your savings account number is SB4382148271. Do not volunteer unneeded account, card, or mandate details until the agent asks or the step requires it.",
+    "unknown_info": "The current account status/metadata and reference/confirmation details of your cheque book and statement requests.",
+    "task_instructions": "1. Greet the assistant and ask to check and confirm the status and details of your savings account SB4382148271.\n2. Once the assistant confirms your account details, ask to order a new cheque book for this account.\n3. When the assistant asks for your confirmation to request the cheque book, confirm explicitly by saying 'Yes, please proceed.'\n4. After the cheque book request is placed, ask to email an account statement for account SB9998887777 from 2026-06-01 to 2026-07-15.\n5. When the assistant informs you that SB9998887777 is not linked to your profile, apologize for the mistake and ask to send the statement for your savings account SB4382148271 for that same period (2026-06-01 to 2026-07-15) via email instead.\n6. When the assistant asks for your confirmation to order the duplicate statement, confirm explicitly by saying 'Yes, please proceed.'\n7. Once the assistant completes the request, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_04111EDE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgaphantom5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4382148271"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgaphantom5_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB4382148271"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgaphantom5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4382148271",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-15"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up details for account SB4382148271, ask for confirmation before calling request_cheque_book, refuse the unlinked account SB9998887777 for statement issuance, and after the customer corrects to SB4382148271 and confirms, call request_duplicate_statement."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,266 @@
+[
+ {
+  "id": "foreign_hpkb_00",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_8A8B0D44; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 36-year-old private tutor from Hyderabad who maintains savings and fixed deposit accounts with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to understand the bank's policy and charges regarding premature withdrawal of fixed deposits.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_8A8B0D44). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The bank's policy and penalty rules for premature withdrawal of fixed deposits.",
+    "task_instructions": "1. Ask the assistant what the bank's policy and penalty are for premature withdrawal of a fixed deposit.\n2. If the assistant asks whether you want to check or close a specific linked deposit, state that you are only asking about the general bank policy.\n3. Once the assistant explains the policy, acknowledge the information and end with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8A8B0D44"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature withdrawal penalty for fixed deposits"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the bank's policy on premature withdrawal penalties for fixed deposits and clearly explains the policy to the customer without modifying any account or deposit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpkb_01",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_1AF592C4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar, a 34-year-old self-employed electrician living in Coimbatore.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to understand the bank's general policy and penalty rules regarding premature withdrawal or early closure of a fixed deposit.",
+    "known_info": "You are Arun Kumar, customer already logged in (id CUST_1AF592C4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold savings account SB3498429140 and fixed deposit FD826463.",
+    "unknown_info": "The bank's policy and penalty charges for premature withdrawal of a fixed deposit.",
+    "task_instructions": "1. Ask the assistant what the bank's policy is regarding premature withdrawal of a fixed deposit, specifically what penalty applies if an FD is broken early.\n2. Once the assistant explains the policy, acknowledge the information and thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1AF592C4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "penalty for premature withdrawal of fixed deposit"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the bank's policy on premature fixed deposit withdrawal penalty and explain the rules clearly to the customer without modifying any accounts or deposits."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpkb_02",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_81EF0EC4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Ramesh Patil, a 33-year-old self-employed carpenter in Mumbai with an active savings account and fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the bank's general policy regarding penalties for premature withdrawal of fixed deposits.",
+    "known_info": "You are Sunita Ramesh Patil, customer already logged in (id CUST_81EF0EC4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The bank's rules and penalty structure for premature closure of fixed deposits.",
+    "task_instructions": "1. Ask the assistant: 'What is the penalty for premature withdrawal of a fixed deposit?'\n2. After the assistant explains the policy from the knowledge base, acknowledge the information and conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_81EF0EC4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "penalty for premature withdrawal of a fixed deposit"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must search the bank's knowledge base to look up the fixed deposit premature withdrawal penalty policy and provide the customer with an accurate explanation without making any mutations or unconfirmed actions."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpkb_03",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_75C37E1A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a retail banking customer seeking information on banking regulations and deposit safety.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the deposit insurance coverage limit provided by DICGC on bank deposits.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_75C37E1A). Do not volunteer account/card/deposit/mandate/transaction ids or personal details unless specifically asked.",
+    "unknown_info": "The current DICGC deposit insurance coverage limit and rules under RBI guidelines.",
+    "task_instructions": "1. Ask the virtual assistant: 'What is the deposit insurance coverage limit provided by DICGC?'\n2. Once the assistant explains the coverage limit, thank them for the information.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_75C37E1A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "What is the deposit insurance coverage limit provided by DICGC?"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should call search_knowledge_base to find the DICGC insurance coverage limit and provide an accurate answer without inventing details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpkb_04",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_3C31C33E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Balwant Deshmukh, a 59-year-old railway employee residing in Nagpur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the official deposit insurance coverage limit under DICGC for bank deposits.",
+    "known_info": "You are Sunita Balwant Deshmukh, customer already logged in (id CUST_3C31C33E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The current deposit insurance coverage limit under DICGC.",
+    "task_instructions": "1. Ask the assistant what the deposit insurance coverage limit is under DICGC for bank deposits.\n2. When the assistant provides the information from the knowledge base, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3C31C33E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb4_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "DICGC deposit insurance coverage limit"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for DICGC deposit insurance coverage limits and provide an accurate explanation to the customer without making unnecessary account lookups or state changes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpkb_05",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_4B21397B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A 67-year-old retired pensioner from Lucknow inquiring about banking safety regulations.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the maximum deposit insurance coverage provided by DICGC for bank deposits.",
+    "known_info": "You are Saroj Rani, customer already logged in (id CUST_4B21397B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The DICGC deposit insurance coverage limit.",
+    "task_instructions": "1. Ask the assistant what the deposit insurance coverage limit provided by DICGC is for bank deposits.\n2. Once the assistant provides the information, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4B21397B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpkb5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "DICGC deposit insurance coverage limit"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the DICGC deposit insurance coverage limit and accurately answer the customer's question without making any changes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

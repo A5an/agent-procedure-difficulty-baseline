@@ -1,0 +1,277 @@
+[
+ {
+  "id": "foreign_hprate_00",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_5F044640; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A 52-year-old school teacher from Jaipur who is interested in starting a disciplined savings habit and wants to check the bank's RD interest rates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to enquire about the bank's Recurring Deposit (RD) interest rates.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_5F044640). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The bank's current interest rates for Recurring Deposits.",
+    "task_instructions": "1. Ask the assistant what the current interest rates are for Recurring Deposits (RD).\n2. After the assistant provides the RD interest rate details, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5F044640"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate0_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the Recurring Deposit rate card using get_deposit_loan_rates with product_type 'rd' and clearly explain the rates to the customer without inventing any figures."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hprate_01",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_7BE0F94A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priyanka Bora, a 26-year-old real estate broker looking to invest surplus monthly income into a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to enquire about the bank's current interest rates for Recurring Deposits across different tenures.",
+    "known_info": "You are Priyanka Bora, customer already logged in (id CUST_7BE0F94A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The current interest rates for Recurring Deposits (RD).",
+    "task_instructions": "1. Ask the assistant for the current interest rates on Recurring Deposits (RD) across different tenures.\n2. Once the assistant provides the rates, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7BE0F94A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate1_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the Recurring Deposit rate card using get_deposit_loan_rates with product_type 'rd' and presents the rates clearly to the customer without inventing figures."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hprate_02",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_87F68204; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Sharma, a 25-year-old real estate broker based in Kolkata",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to enquire about the bank's current Recurring Deposit interest rates.",
+    "known_info": "You are Ananya Sharma, customer already logged in (id CUST_87F68204). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The bank's current interest rates for Recurring Deposits across various tenures.",
+    "task_instructions": "1. Ask the virtual assistant for the bank's current Recurring Deposit interest rates.\n2. Once the assistant provides the interest rates, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_87F68204"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate2_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant calls get_deposit_loan_rates with product_type 'rd' and informs the customer of the current Recurring Deposit interest rates."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hprate_03",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_5B4606D6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 31-year-old self-employed real estate broker from Kolkata with an active Recurring Deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the interest rate on your recurring deposit, out of curiosity / to double-check.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_5B4606D6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your recurring deposit is RD651423.",
+    "unknown_info": "The interest rate on your recurring deposit.",
+    "task_instructions": "Ask the agent to check the interest rate on your recurring deposit (deposit id only when asked). Casual check, nothing urgent. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5B4606D6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate3_0",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD651423"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask for the recurring deposit ID, call get_rd_details with deposit_ids=['RD651423'], and accurately report the interest rate of 6.8% without inventing information or asking for authentication."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hprate_04",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_1AF592C4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar, a 34-year-old self-employed electrician from Coimbatore looking to start disciplined monthly savings and curious about recurring deposit interest rates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to inquire about the bank's current Recurring Deposit interest rates to explore starting a regular savings plan.",
+    "known_info": "You are Arun Kumar, customer already logged in (id CUST_1AF592C4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The bank's current Recurring Deposit (RD) interest rate card across tenures.",
+    "task_instructions": "1. Greet the assistant and ask for the bank's current interest rates for Recurring Deposits (RD) across different tenures.\n2. When the assistant provides the recurring deposit rate details, thank them and say that was all the information you needed.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1AF592C4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate4_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the current rate card using get_deposit_loan_rates with product_type 'rd' and accurately explain the interest rates to the customer without inventing rates."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hprate_05",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_8A6C7EFC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "29-year-old self-employed private tutor from Kochi, looking to build systematic monthly savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the bank's current Recurring Deposit (RD) interest rates.",
+    "known_info": "You are Arun Kumar Nair, customer already logged in (id CUST_8A6C7EFC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "Current interest rates offered by the bank on Recurring Deposits.",
+    "task_instructions": "1. Ask the assistant for the current interest rates on Recurring Deposits (RD).\n2. Once the assistant shares the RD rate card, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8A6C7EFC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhprate5_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the Recurring Deposit interest rates using get_deposit_loan_rates with product_type set to 'rd' and shares the rate details accurately with the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

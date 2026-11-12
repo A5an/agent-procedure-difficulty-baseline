@@ -1,0 +1,278 @@
+[
+ {
+  "id": "k5_hpservice_00",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_836AEFC8; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Meena Harishbhai Patel, a 55-year-old government clerk living in Ahmedabad.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have run out of cheque leaves in your cheque book and need a fresh one ordered.",
+    "known_info": "You are Meena Harishbhai Patel, customer already logged in (id CUST_836AEFC8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3279638906.",
+    "unknown_info": "Confirmation that a new cheque book has been requested.",
+    "task_instructions": "1. Tell the assistant you have run low on cheques and want to order a new cheque book for your savings account.\n2. When asked for your account number, provide SB3279638906.\n3. When the assistant asks for your confirmation to place the request, confirm clearly.\n4. After confirmation of the order, acknowledge and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_836AEFC8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice0_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3279638906"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask for the account number, request confirmation before initiating the request, and call request_cheque_book with account_id SB3279638906."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpservice_01",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_C730BA0E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Shobana Venkataraman, a 72-year-old retired government officer who frequently issues cheques and needs a fresh cheque book for her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You've run low on cheques and need to order a new cheque book for your savings account.",
+    "known_info": "You are Shobana Venkataraman (senior citizen), customer already logged in (id CUST_C730BA0E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB7695814131.",
+    "unknown_info": "Confirmation that a new cheque book has been requested successfully.",
+    "task_instructions": "1. Tell the assistant that you need to order a new cheque book for your savings account.\n2. When the assistant asks for your account number, provide SB7695814131.\n3. When the assistant summarizes the order and asks for your confirmation, reply affirmatively.\n4. Once the assistant confirms the cheque book has been ordered, wrap up the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C730BA0E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice1_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7695814131"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask the customer for the account number, obtain affirmative confirmation, and submit a cheque book order for account SB7695814131."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpservice_02",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_4B21397B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Saroj Rani, a 67-year-old retired pensioner living in Lucknow who uses her savings account for household and personal expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have run out of cheque leaves and need to order a new cheque book for your savings account.",
+    "known_info": "You are Saroj Rani, customer ID CUST_4B21397B. You want to order a new cheque book for your savings account. Your savings account number is SB7952208135. Do not volunteer your account number or any IDs until the assistant asks for that specific detail.",
+    "unknown_info": "Confirmation and details of the cheque book request.",
+    "task_instructions": "1. Tell the assistant that you have run out of cheques and would like to order a new cheque book for your savings account.\n2. When the assistant asks for your account number or which account to issue it for, provide account number SB7952208135.\n3. When the assistant asks for your confirmation to place the cheque book order, clearly confirm with 'Yes, please go ahead'.\n4. Once the assistant confirms the cheque book order has been successfully placed, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4B21397B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice2_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7952208135"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should identify the customer's savings account SB7952208135, seek explicit confirmation before making any changes, and call request_cheque_book with account_id SB7952208135."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpservice_03",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_FA81DF6E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Shobha Rani, a 59-year-old pharmacist from Bengaluru who maintains a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You've run low on cheques and need to order a fresh cheque book for your savings account.",
+    "known_info": "You are Shobha Rani, customer already logged in (id CUST_FA81DF6E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB6063518368.",
+    "unknown_info": "Confirmation that the cheque book request has been placed.",
+    "task_instructions": "1. Ask the assistant to order a new cheque book for your savings account. Do not mention your account number upfront.\n2. When the assistant asks for your account number, provide SB6063518368.\n3. When the assistant asks for confirmation to place the cheque book order, confirm clearly.\n4. Acknowledge the completion and end with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA81DF6E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice3_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6063518368"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account ID, seeks explicit confirmation before placing the request, and orders a new cheque book for account SB6063518368."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpservice_04",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_2CB8F462; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Suresh Kumar Tiwari, a 66-year-old college professor who maintains an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have run out of cheques and need to order a new cheque book for your savings account.",
+    "known_info": "You are Dr. Suresh Kumar Tiwari, customer already logged in (id CUST_2CB8F462). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB6816367360.",
+    "unknown_info": "Confirmation and reference details for the new cheque book order.",
+    "task_instructions": "1. Tell the assistant that you have run out of cheque leaves and would like to order a new cheque book for your savings account.\n2. If the assistant asks for your account number, provide SB6816367360.\n3. If the assistant asks for confirmation to place the cheque book order, confirm with 'Yes'.\n4. Once the request has been submitted, acknowledge the confirmation and end with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2CB8F462"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice4_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6816367360"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should confirm the action and place a cheque book order for account SB6816367360."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpservice_05",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_EF45782A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Ramesh Sharma, a 35-year-old real estate broker based in Surat, who maintains an active savings account and prefers quick, efficient banking service.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have run out of cheque leaves and need a fresh cheque book issued for your savings account.",
+    "known_info": "You are Priya Ramesh Sharma, customer already logged in (ID CUST_EF45782A). Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail. Your savings account number is SB7503168696.",
+    "unknown_info": "Confirmation of the cheque book order and dispatch details.",
+    "task_instructions": "1. Tell the assistant that you have run out of cheques and want to order a new cheque book for your savings account.\n2. When asked for the account details, provide your savings account number SB7503168696.\n3. When the assistant asks for confirmation to place the cheque book request, confirm affirmatively.\n4. Once confirmed and processed, finish the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EF45782A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpservice5_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7503168696"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for the account ID, seeks explicit confirmation before initiating the request, and calls request_cheque_book for account SB7503168696."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

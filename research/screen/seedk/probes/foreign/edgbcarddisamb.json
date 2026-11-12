@@ -1,0 +1,386 @@
+[
+ {
+  "id": "foreign_edgbcarddisamb_00",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_8BED17C9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anupama Kapoor, a 73-year-old senior citizen and IT professional who wants to inspect both of her bank cards and temporarily freeze her credit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to view both of your cards, temporarily freeze your credit card CARD50081, and verify the updated status of both cards.",
+    "known_info": "You are Anupama Kapoor, customer already logged in (id CUST_8BED17C9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your cards are debit card CARD37595 and credit card CARD50081.",
+    "unknown_info": "The active/frozen status of both cards before and after requesting the freeze.",
+    "task_instructions": "Step 1: Ask the assistant to check the details and status of both of your bank cards. Do not volunteer the card IDs until the assistant asks for them.\nStep 2: When the assistant asks for your card IDs, provide CARD37595 and CARD50081, and wait for the assistant to list the details of both cards.\nStep 3: Tell the assistant to temporarily freeze your credit card CARD50081.\nStep 4: When the assistant asks for your explicit confirmation to freeze credit card CARD50081, confirm affirmatively by saying 'Yes, please proceed with freezing the credit card.'\nStep 5: After the freeze is confirmed, ask the assistant to check and verify the status of both of your cards again to ensure the credit card is frozen and the debit card remains active. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8BED17C9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD37595",
+       "CARD50081"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD50081",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD37595",
+       "CARD50081"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up details for both cards CARD37595 and CARD50081, request explicit confirmation before temporarily freezing credit card CARD50081, call toggle_card_freeze upon confirmation, and then query get_card_details again to verify the final status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbcarddisamb_01",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_8E91A2E1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Patel, a 43-year-old government officer residing in Mumbai who holds both a debit and a credit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details and status of both of your cards, temporarily freeze your active debit card, and then verify the status of both cards.",
+    "known_info": "You are Rajesh Kumar Patel, customer already logged in (id CUST_8E91A2E1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold two cards: Debit card CARD32308 and Credit card CARD71768.",
+    "unknown_info": "The current status and limit details of both cards in the bank records.",
+    "task_instructions": "Step 1: Ask the agent to check the details and status of both of your cards (provide card IDs CARD32308 and CARD71768 only when asked). Step 2: Once the agent lists both cards, ask to temporarily freeze your debit card CARD32308. Step 3: When the agent asks for your confirmation to freeze the card, reply affirmatively to confirm. Step 4: After the card freeze is completed, ask the agent to check and verify the status of both cards again to make sure the debit card is frozen and the credit card is unchanged. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8E91A2E1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD32308",
+       "CARD71768"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD32308",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD32308",
+       "CARD71768"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for both cards CARD32308 and CARD71768, seeks explicit confirmation before freezing CARD32308, executes the freeze using toggle_card_freeze, and verifies the status of both cards with get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbcarddisamb_02",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_DEA3172F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Singh, a 25-year-old self-employed plumber from Lucknow.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status of your two cards, temporarily freeze your credit card because you misplaced it, and then verify the status of both cards.",
+    "known_info": "You are Anjali Singh, customer already logged in (id CUST_DEA3172F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have debit card CARD42738 and credit card CARD22193.",
+    "unknown_info": "The current active status and controls on the cards prior to checking.",
+    "task_instructions": "Step 1: Ask the assistant to check the status of both of your cards. Do not volunteer card IDs until asked; when asked, provide debit card CARD42738 and credit card CARD22193. Step 2: Once the assistant lists both cards, ask to temporarily freeze your credit card CARD22193 because you have misplaced it. Step 3: When the assistant asks for confirmation to freeze credit card CARD22193, confirm affirmatively. Step 4: Once confirmed and frozen, ask the assistant to verify the status of both cards to confirm the change. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DEA3172F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD42738",
+       "CARD22193"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD22193",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD42738",
+       "CARD22193"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details of both cards, asks for confirmation before temporarily freezing credit card CARD22193, executes the freeze, and verifies the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbcarddisamb_03",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_92FEDB5E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Kaur, a 55-year-old IT Support Engineer living in Amritsar. Methodical, calm, and protective of account security.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status of both your bank cards, temporarily freeze your credit card because you misplaced it, and verify that both cards reflect their correct status afterwards.",
+    "known_info": "You are Gurpreet Kaur, logged in with customer ID CUST_92FEDB5E. You have two cards: debit card CARD93567 and credit card CARD40689. Do not volunteer card IDs until the assistant asks for them.",
+    "unknown_info": "The current status and limits on both cards, and whether the freeze on the credit card has successfully taken effect.",
+    "task_instructions": "Step 1: Ask the assistant to check the details and status of both of your bank cards. When the assistant asks for your card IDs, provide CARD93567 and CARD40689.\nStep 2: After the assistant shares the details, tell the assistant that you have misplaced your credit card CARD40689 and want to temporarily freeze it.\nStep 3: When the assistant asks for your confirmation to freeze credit card CARD40689, give explicit affirmative confirmation.\nStep 4: Once confirmed frozen, ask the assistant to verify the status of both of your cards to ensure the credit card is frozen and your debit card remains active.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_92FEDB5E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD93567",
+       "CARD40689"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD40689",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD93567",
+       "CARD40689"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for both cards, asks for confirmation before temporarily freezing credit card CARD40689, executes toggle_card_freeze, and verifies the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbcarddisamb_04",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_AC28B0FF; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Vikram Deshmukh, an IT Support Engineer from Pune who holds an active savings account with a linked debit card and credit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status of both of your cards, temporarily freeze your debit card, and then verify the status of both cards.",
+    "known_info": "You are Anjali Vikram Deshmukh, customer already logged in (id CUST_AC28B0FF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have a debit card and a credit card linked to your account.",
+    "unknown_info": "The current freeze/active status and control details of your cards before lookup.",
+    "task_instructions": "Step 1: Ask the assistant to check and list the details and status of both of your cards (do not volunteer any card IDs unless asked). Step 2: Once the assistant lists your cards, ask to temporarily freeze your debit card (name the debit card CARD24421 from the details presented). Step 3: When the assistant asks for confirmation to freeze the card, provide explicit affirmative confirmation. Step 4: After the assistant confirms the card is frozen, ask the assistant to verify both cards to confirm their current status. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AC28B0FF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD24421",
+       "CARD18947"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD24421",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD24421",
+       "CARD18947"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve details for both cards (CARD24421 and CARD18947), ask for explicit confirmation before temporarily freezing the debit card (CARD24421), execute the freeze upon confirmation, and then verify the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbcarddisamb_05",
+  "description": {
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "notes": "family=edgbcarddisamb; customer_id=CUST_9DC0DFB2; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 67-year-old self-employed cab driver who wants to check his cards and temporarily freeze his credit card for security.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to view all your linked bank cards, temporarily freeze your credit card, and then check both cards again to verify their updated status.",
+    "known_info": "You are Ravi Kumar Reddy, customer already logged in (customer ID CUST_9DC0DFB2). Do not volunteer account or card IDs until the assistant brings them up or asks for them. You have a debit card and a credit card.",
+    "unknown_info": "The exact card IDs, limits, and current statuses of both cards.",
+    "task_instructions": "Step 1: Ask the assistant to list all cards linked to your profile.\nStep 2: Once the assistant lists your cards, ask to temporarily freeze your credit card CARD85931.\nStep 3: When the assistant asks for your confirmation to freeze the card, reply affirmatively ('Yes, please proceed and freeze it').\nStep 4: Once frozen, ask the assistant to verify and show the status of both of your cards to ensure the freeze took effect.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9DC0DFB2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbcarddisamb5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD86701",
+       "CARD85931"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD85931",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbcarddisamb5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD86701",
+       "CARD85931"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists both of the customer's linked cards using get_card_details, asks for confirmation before calling toggle_card_freeze with state freeze on CARD85931, and then calls get_card_details again to verify the status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

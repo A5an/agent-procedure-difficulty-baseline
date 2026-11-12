@@ -1,0 +1,16 @@
+test cases scored 233 of 233, procedures 66
+success rate of the four agents on test: 0.680
+method                                       AUC [95% CI]       Brier skill [95% CI]    success in top half
+BaseRate                          0.500 [0.500, 0.500]   +0.000 [+0.000, +0.000]    0.621 [0.621, 0.741]
+V0 Vanilla (text only)            0.508 [0.458, 0.560]   -0.185 [-0.285, -0.106]    0.698 [0.634, 0.752]
+V1 +Category                      0.574 [0.521, 0.625]   -0.108 [-0.181, -0.052]    0.731 [0.674, 0.786]
+DomainRate (no LLM)               0.567 [0.505, 0.624]   +0.009 [-0.044, +0.069]    0.713 [0.653, 0.779]
+V2 +Stats similar procedures      0.590 [0.530, 0.646]   -0.047 [-0.098, -0.001]    0.731 [0.662, 0.798]
+ProcRate (no LLM)                 0.664 [0.619, 0.708]   +0.053 [-0.001, +0.110]    0.787 [0.727, 0.846]
+V3 +Stats this procedure          0.663 [0.613, 0.713]   +0.035 [-0.026, +0.097]    0.787 [0.723, 0.845]
+Oracle                            1.000 [1.000, 1.000]   +1.000 [+1.000, +1.000]    0.983 [0.941, 1.000]
+Brier skill V1 +Category minus V0 Vanilla (text only): +0.077 [+0.028, +0.137]
+Brier skill V2 +Stats similar procedures minus V1 +Category: +0.061 [+0.009, +0.118]
+Brier skill V3 +Stats this procedure minus V2 +Stats similar procedures: +0.082 [+0.033, +0.143]
+Brier skill V3 +Stats this procedure minus ProcRate (no LLM): -0.018 [-0.053, +0.014]
+Brier skill V2 +Stats similar procedures minus DomainRate (no LLM): -0.056 [-0.127, +0.011]

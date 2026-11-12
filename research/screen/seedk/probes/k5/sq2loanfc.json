@@ -1,0 +1,380 @@
+[
+ {
+  "id": "k5_sq2loanfc_00",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_FA5C5AF0; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Agrawal, a 68-year-old restaurant owner and senior citizen who prefers reviewing loan figures carefully before requesting early payoff",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your loan, but only after seeing the current outstanding and the payoff quote.",
+    "known_info": "You are Rajesh Kumar Agrawal (senior citizen), customer already logged in (id CUST_FA5C5AF0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN25933.",
+    "unknown_info": "The current outstanding and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN25933 (id only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, ask the agent to register the foreclosure request (there is no button that closes a loan directly \u2014 it must be logged as a request). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA5C5AF0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc0_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN25933"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc0_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN25933"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc0_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN25933"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up loan details for LN25933, fetch the foreclosure quote, and register a service request to initiate loan foreclosure once confirmed."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2loanfc_01",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_8F724737; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 39-year-old government clerk from Ludhiana seeking to check his loan balance, obtain a foreclosure quote, and initiate foreclosure for his personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your loan, but only after seeing the current outstanding and the payoff quote.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_8F724737). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN45322.",
+    "unknown_info": "The current outstanding balance and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN45322 (provide the loan id only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, confirm and ask the agent to register the foreclosure request (there is no direct tool to close a loan immediately \u2014 it must be logged as a request). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8F724737"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc1_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN45322"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc1_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN45322"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN45322"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the loan details for LN45322, provide the foreclosure quote for LN45322, and after the customer confirms, raise a service request to process the loan foreclosure."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2loanfc_02",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_450824C5; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 43-year-old self-employed private tutor from Kanpur who holds a home loan with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your loan, but only after seeing the current outstanding and the payoff quote.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_450824C5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN10718.",
+    "unknown_info": "The current outstanding balance and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN10718 (id only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, ask the agent to register the foreclosure request (there is no button that closes a loan directly \u2014 it must be logged as a request). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_450824C5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc2_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN10718"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc2_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN10718"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc2_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN10718"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the loan details for LN10718, generate the foreclosure quote, and register a service request for loan foreclosure upon customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2loanfc_03",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_D13D2CAD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Shivaprasad Narayan, a 71-year-old senior citizen and lab technician from Mysuru.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your home loan, but only after checking the current outstanding balance and obtaining the foreclosure payoff quote.",
+    "known_info": "You are Shivaprasad Narayan (senior citizen), customer already logged in (id CUST_D13D2CAD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN48047.",
+    "unknown_info": "The current outstanding balance and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN48047 (provide the loan ID only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, ask the agent to register the foreclosure request (there is no button that closes a loan directly \u2014 it must be logged as a request). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D13D2CAD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc3_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN48047"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc3_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN48047"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc3_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN48047"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details of loan LN48047, fetches the foreclosure quote, and raises a service request to initiate loan foreclosure upon customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2loanfc_04",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_5AC73D79; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Amit Kumar, a 33-year-old government officer residing in Gurugram.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your loan, but only after seeing the current outstanding and the payoff quote.",
+    "known_info": "You are Amit Kumar, customer already logged in (id CUST_5AC73D79). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN83807.",
+    "unknown_info": "The current outstanding balance and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN83807 (provide the loan ID only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, ask the agent to register the foreclosure request (there is no button that closes a loan directly \u2014 it must be logged as a request), and give confirmation when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5AC73D79"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc4_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN83807"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc4_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN83807"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN83807"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the loan details for LN83807, retrieves the foreclosure payoff quote, and logs a service request for loan foreclosure upon customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2loanfc_05",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_E0F9550B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Vijay Thakre, a 38-year-old lab technician who holds a home loan with the bank and wishes to check its balance and payoff amount before initiating foreclosure.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to foreclose your loan, but only after seeing the current outstanding and the payoff quote.",
+    "known_info": "You are Anjali Vijay Thakre, customer already logged in (id CUST_E0F9550B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Loan LN87640.",
+    "unknown_info": "The current outstanding and the foreclosure payoff figure.",
+    "task_instructions": "Step 1: ask for the current details of loan LN87640 (id only when asked). Step 2: then ask for the foreclosure quote on that loan. Step 3: after hearing the total payoff, ask the agent to register the foreclosure request (there is no button that closes a loan directly \u2014 it must be logged as a request). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E0F9550B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2loanfc5_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN87640"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc5_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN87640"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2loanfc5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests foreclosure of loan LN87640"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details for loan LN87640, generates a foreclosure quote for it, and then registers a service request for loan foreclosure upon customer instruction."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

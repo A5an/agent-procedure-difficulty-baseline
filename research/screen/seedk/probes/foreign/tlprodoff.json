@@ -1,0 +1,452 @@
+[
+ {
+  "id": "foreign_tlprodoff_00",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_FA53AEC6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Ghosh, a 44-year-old IT Support Engineer who wants to check his account balance, explore available bank offers, check the authoritative rate for a personal loan, and register his interest in an offer.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, browse available personalized offers, check the official personal loan rate, and log an expression of interest for the personal loan top-up offer.",
+    "known_info": "You are Arun Kumar Ghosh, customer already logged in (id CUST_FA53AEC6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB2547488116.",
+    "unknown_info": "Your current savings account balance, available personalized offers, the official personal loan rate card, and the service request reference number.",
+    "task_instructions": "Step 1: Ask for the balance of your savings account (provide the account id SB2547488116 only if the assistant asks). Step 2: Then ask what personalized offers are available for you. Step 3: Once the assistant lists the offers (including the personal loan top-up), ask what the bank's actual rate card / official interest rate is for personal loans. Step 4: Then state that you are interested in the personal loan top-up offer and ask the assistant to log your interest so the bank team can contact you. Step 5: When the assistant asks for your confirmation before raising the request, give explicit confirmation (e.g., 'Yes, please proceed'). Step 6: After the assistant confirms the request has been submitted, end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA53AEC6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2547488116"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff0_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2547488116",
+      "category": "general_query",
+      "description": "Customer expression of interest in personal loan top-up offer"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, check personalized offers, retrieve the authoritative personal loan rate card, and then seek confirmation before raising a service request to log the customer's interest."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlprodoff_01",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_805D3C70; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohan Sunil Sharma, a 32-year-old school teacher residing in Mumbai, looking to review his account balance and explore eligible promotional offers.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, browse your personalized offers, check the official rate for the gold loan offer, and have the assistant log your interest so a representative can contact you.",
+    "known_info": "You are Rohan Sunil Sharma, customer ID CUST_805D3C70. Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail. Your linked savings account is SB4570933319.",
+    "unknown_info": "Your current savings account balance, personalized offers available on your profile, the authoritative bank interest rate for gold loans, and the service request reference number for logging interest.",
+    "task_instructions": "Step 1: Ask for the available balance in your savings account (provide account ID SB4570933319 only if asked). Step 2: Ask what personalized offers are available for you. Step 3: Upon hearing about the Gold Loan offer, ask for the bank's official/authoritative interest rate card for a gold loan. Step 4: Ask the assistant to log your interest / raise a request for the Gold Loan offer so an agent can reach out to you. When the assistant asks for your confirmation to submit the request, reply with 'Yes, please proceed'. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_805D3C70"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4570933319"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff1_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "gold_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff1_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4570933319",
+      "category": "general_query",
+      "description": "Customer interested in Gold Loan offer OFF3854; requested callback from sales representative."
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account balance, fetches personalized offers, looks up the authoritative gold loan rate using get_deposit_loan_rates, and raises a service request to log customer interest only after explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlprodoff_02",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_6D181B43; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Padma Venkatesh, a 75-year-old insurance agent in Bengaluru, checking her account balance, reviewing current offers, inquiring about gold loan rates, and requesting the bank to log her interest in a gold loan top-up offer.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, browse your personalized offers, check the actual interest rate for a gold loan top-up, and log your interest so the loan team can contact you.",
+    "known_info": "You are Padma Venkatesh, customer already logged in (id CUST_6D181B43). Do not volunteer account/card/deposit/mandate/loan ids or internal categories until the agent asks for that specific detail. You hold a savings account (SB9765222903) and an existing gold loan (LN79859).",
+    "unknown_info": "Your current account balance, active offers on your account, current rate card for gold loans, and the service request number.",
+    "task_instructions": "Step 1: Ask for your account balance (provide account ID SB9765222903 only if asked).\nStep 2: Ask what promotional or personalised offers are available on your account.\nStep 3: After hearing about the Gold Loan Top-Up offer, ask what the actual interest rate is for a gold loan.\nStep 4: Say you would like to proceed with expressing interest in the Gold Loan Top-Up offer, and ask the assistant to log your interest so a representative can get in touch with you.\nStep 5: When the assistant asks for your confirmation to register the service request, reply with a clear confirmation to proceed.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6D181B43"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9765222903"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff2_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "gold_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9765222903",
+      "category": "general_query",
+      "description": "Customer interested in Gold Loan Top-Up offer OFF2557"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up Padma's savings account balance, retrieve her personalised offers, look up the official gold loan interest rate from the rate card, ask for explicit confirmation, and register a service request logging her interest in the offer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlprodoff_03",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_5F044640; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 52-year-old school teacher from Jaipur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings balance, browse available promotional offers, verify the authoritative rate card for fixed deposits, and log a service request registering your interest in the FD offer.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_5F044640). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB6177614757.",
+    "unknown_info": "Your current account balance, the available promotional offers, the official rate card for fixed deposits, and the request ID for the logged interest.",
+    "task_instructions": "Step 1: Ask for your savings account balance (provide your account id SB6177614757 only if asked). Step 2: Ask what promotional offers are available on your profile. Step 3: Once the assistant details the offers, ask to check the bank's official rate card for fixed deposits. Step 4: Express interest in the fixed deposit offer and ask to raise a service request to register your interest so an executive can follow up. Step 5: When the assistant asks for confirmation to log the service request, confirm clearly with 'Yes, please proceed'. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5F044640"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6177614757"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff3_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6177614757",
+      "category": "general_query",
+      "description": "Customer expressed interest in the special Fixed Deposit offer (OFF8738) and requested follow-up from a representative."
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings balance, retrieves personalized offers, looks up the official fixed deposit rate card via the rates tool rather than quoting indicative offer rates, seeks explicit confirmation, and logs a service request registering the customer's interest."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlprodoff_04",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_E061797B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Singh, an IT support engineer who wants to review his current account balance, check out personalised offers, verify the actual interest rate for a personal loan top-up, and register his interest with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check your savings account balance, browse available personalised offers, check the real personal loan interest rate for a top-up offer, and log your interest by raising a request.",
+    "known_info": "You are Rajesh Kumar Singh, customer already logged in (id CUST_E061797B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your account is savings account SB6569104383.",
+    "unknown_info": "Your available balance, the exact active offers on your profile, the current authoritative personal loan interest rates, and the service request details.",
+    "task_instructions": "Step 1: ask for your savings account balance (account id only when asked). Step 2: ask what personalised offers are currently available on your account. Step 3: ask what the official interest rate is for a personal loan (referencing the personal loan top-up offer). Step 4: ask the assistant to log your interest in the personal loan top-up offer so the loan team contacts you; when the assistant asks for confirmation to raise the request, explicitly confirm. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E061797B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6569104383"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff4_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff4_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6569104383",
+      "category": "general_query",
+      "description": "Customer interested in Personal Loan Top-Up offer"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, retrieve available personalised offers, look up the authoritative interest rate for personal loans using the rate card, ask for confirmation to register a service request logging the customer's interest in the top-up offer, and raise the request upon confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlprodoff_05",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_9DD9BA78; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh H. Patel, a 41-year-old IT Support Engineer residing in Surat. Methodical and cautious with his finances, he checks his account balance and reviews personalized promotional offers before verifying official bank rates and registering interest.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, browse personalized offers available on your account, verify the authoritative fixed deposit interest rate, and log your interest in the 2-year fixed deposit offer.",
+    "known_info": "You are Rajesh H. Patel, customer already logged in (customer ID CUST_9DD9BA78). Do not volunteer account/card/deposit/mandate/transaction IDs, offer IDs, or internal categories until the agent asks for that specific detail. Your linked savings account is SB8704681779. You are interested in the 2-year fixed deposit offer (OFF6872).",
+    "unknown_info": "Your current savings account balance, the details of your personalized offers, the official FD rate card, and the confirmation of the service request logging your interest.",
+    "task_instructions": "Step 1: Ask for your savings account balance (provide account ID SB8704681779 only if asked). Step 2: Once the balance is provided, ask what promotional offers are available on your account. Step 3: Once the agent presents your offers (specifically the 2-year fixed deposit offer), ask to see the bank's official fixed deposit interest rates to check the real rate. Step 4: After reviewing the official rate, ask the agent to log a service request registering your interest in the 2-year fixed deposit offer. Step 5: When the agent asks for your explicit confirmation to log the service request, confirm affirmatively with 'Yes, please proceed'. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9DD9BA78"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlprodoff5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8704681779"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlprodoff5_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "offer"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlprodoff5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8704681779",
+      "category": "general_query",
+      "description": "Customer interested in the 2-year fixed deposit offer OFF6872"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the balance for savings account SB8704681779, retrieve the customer's offers, look up the authoritative FD rate card via get_deposit_loan_rates, and log a service request registering customer interest in the deposit offer only after obtaining explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

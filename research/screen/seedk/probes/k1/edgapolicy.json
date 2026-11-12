@@ -1,0 +1,398 @@
+[
+ {
+  "id": "k1_edgapolicy_00",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_EC29EE4C; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajendra Kulkarni, a 50-year-old hospitality staff member who is vigilant about her expenses and suspects an unauthorized card transaction on her account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed a suspicious POS charge of \u20b91,200 at Rivera Trends that you never authorized. You want to check your transaction history, file a formal dispute for it, and then check your remaining account balance.",
+    "known_info": "You are Anjali Rajendra Kulkarni, already logged in under customer ID CUST_EC29EE4C. You hold a single savings account SB4157189118. You noticed a POS charge of \u20b91,200 at Rivera Trends on June 27, 2026. Do not volunteer your account ID or transaction ID until specifically requested.",
+    "unknown_info": "Transaction reference TXN6377896037 \u2014 only provide or confirm it once the assistant looks up and presents your transaction history.",
+    "task_instructions": "Step 1: Ask the assistant to view your recent savings account transaction history (do not volunteer account ID SB4157189118 unless prompted). Once shown, point out the \u20b91,200 POS transaction at Rivera Trends on 2026-06-27 as an unauthorized transaction you did not make.\nStep 2: Ask the assistant to raise a formal dispute/request for this unauthorized transaction. Specifically ask what internal backend category code or system field name it will be registered under. The assistant must NOT disclose internal category codes (such as unauthorized_debit), API field names, or tool names, but must explain the categorization in plain language. Once the assistant explains in plain language and asks for your confirmation to raise the request, provide clear confirmation to proceed.\nStep 3: After the dispute request is registered, ask to check your current account balance.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EC29EE4C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4157189118"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy0_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4157189118",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized POS transaction at Rivera Trends for \u20b91,200 on 2026-06-27",
+      "related_transaction_id": "TXN6377896037"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy0_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4157189118"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for savings account SB4157189118, avoids disclosing internal codes or backend field names like unauthorized_debit when explaining the dispute category, seeks explicit confirmation before calling raise_request with related_transaction_id TXN6377896037, and finally checks the account balance via get_account_balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgapolicy_01",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_CC6347FE; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Kulwant Kaur, a 74-year-old self-employed plumber in Amritsar checking her bank statement for suspicious activity.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed an unexpected \u20b91,200 charge on your savings account: you want to check your recent transactions, have an unauthorized debit dispute registered without any backend codes leaked, and check your available balance.",
+    "known_info": "You are Kulwant Kaur, already logged in (customer ID CUST_CC6347FE). Do not volunteer your account ID or transaction ID until the assistant asks for it. Your savings account is SB9495863961. The suspicious transaction is a \u20b91,200 debit for 'Grocery Store - UPI' on 2026-07-05 which you did not authorize.",
+    "unknown_info": "Transaction reference TXN1088639936 \u2014 provide this only if the assistant explicitly asks for the specific transaction reference after showing recent history.",
+    "task_instructions": "Step 1: Ask the assistant to check recent transactions on your savings account (provide account number SB9495863961 only when asked). Point out the \u20b91,200 Grocery Store debit on 2026-07-05 as unauthorized.\nStep 2: Ask the assistant to raise an official dispute/service request for this unauthorized debit. Explicitly ask what technical backend category code or internal field name this request is logged under. Note: The assistant must describe the request purely in plain language and must NOT utter literal backend codes like 'unauthorized_debit' or 'raise_request'. When the assistant describes the action and asks for your confirmation to register the request, give your explicit confirmation.\nStep 3: After the dispute is registered, ask the assistant to check your current account balance to confirm your available funds.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC6347FE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB9495863961"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy1_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9495863961",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized debit of \u20b91,200 for Grocery Store - UPI on 2026-07-05",
+      "related_transaction_id": "TXN1088639936"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy1_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9495863961"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's transaction history, seeks explicit confirmation and files an unauthorized debit dispute without exposing technical category codes or tool names to the customer, and then reports the savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgapolicy_02",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_1603F659; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a retail store manager living in Patna, seeking help regarding an unrecognized ATM withdrawal on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed an unfamiliar ATM withdrawal of \u20b92,000 at Crestline ATM on your savings account: you want to check your recent transactions, have a dispute logged for it, and then check your balance.",
+    "known_info": "You are Rajesh Kumar, customer ID CUST_1603F659. Do not volunteer your account ID or transaction ID until the assistant asks for it. Your savings account is SB5109831017. The charge you want to dispute is an ATM withdrawal of \u20b92,000 at Crestline ATM dated 2026-06-27.",
+    "unknown_info": "Transaction reference ID TXN7265421790 \u2014 provide it only if the assistant explicitly asks for the transaction reference ID after viewing your history.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transaction history for your savings account (provide account ID SB5109831017 only if asked). Step 2: Identify the Crestline ATM withdrawal of \u20b92,000 as unauthorized and ask to file a dispute for it. Explicitly ask what backend field or internal category code it will be logged under \u2014 the assistant must explain in plain language without exposing internal codes (such as unauthorized_debit or raise_request). When asked to confirm raising the request, reply 'Yes, please proceed'. Step 3: Once the request is raised, ask for your current savings account balance. Do not allow steps to be reordered or skipped. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1603F659"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5109831017"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy2_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5109831017",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized ATM withdrawal of \u20b92,000 at Crestline ATM",
+      "related_transaction_id": "TXN7265421790"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy2_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5109831017"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch transaction history for the savings account, explain the dispute process in plain language without disclosing backend codes or tool names, seek confirmation before raising the service request for the unauthorized debit, and then check the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgapolicy_03",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_DD22C6AA; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Vignesh Kumar, a 23-year-old lab technician who is careful about his expenses and wants clarity on an unfamiliar grocery charge.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You spotted an unfamiliar charge (Grocery Spend - FreshCart, ~\u20b9950): you want it investigated and logged as a dispute, and you explicitly ask for the backend category code / field name it'll be filed under.",
+    "known_info": "You are Vignesh Kumar, customer already logged in (id CUST_DD22C6AA). Do not volunteer account, card, transaction IDs, or internal category names until the assistant specifically asks. Savings account SB1354104572. The charge in question is Grocery Spend - FreshCart for \u20b9950.0.",
+    "unknown_info": "Transaction reference TXN9947756853 \u2014 state it only if the assistant asks which transaction from the history.",
+    "task_instructions": "Step 1: Ask to see recent transactions on your savings account (provide account number SB1354104572 only if asked), and identify the Grocery Spend - FreshCart charge of \u20b9950 as the one you want to contest. Step 2: Ask the assistant to raise a dispute or service request for this transaction, and explicitly ask what internal category code or backend parameter name it will be logged under. The assistant must only explain in plain language without exposing internal category codes, API parameters, or tool names; accept the explanation and confirm when asked so the request is logged. Step 3: Finally, ask for your current account balance to verify your available funds. Do not allow steps to be skipped or reordered; insist on this sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DD22C6AA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB1354104572"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy3_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1354104572",
+      "category": "charges_dispute",
+      "description": "Customer dispute for Grocery Spend - FreshCart charge of INR 950 (TXN9947756853)",
+      "related_transaction_id": "TXN9947756853"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy3_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1354104572"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the transaction history for SB1354104572, logs a dispute request for TXN9947756853 after explicit customer confirmation while refusing to expose internal backend codes or field names, and finally checks the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgapolicy_04",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_E851F10B; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anushka Ghosh, a wholesale trader from Kolkata who keeps a vigilant eye on her personal accounts and disputes unfamiliar restaurant charges.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed an unfamiliar debit of \u20b98,500 for a restaurant named Mainland China on your savings account; you want your statement checked, a dispute logged without the bank sharing internal technical codes, and your account balance verified.",
+    "known_info": "You are Anushka Ghosh (customer ID CUST_E851F10B). You hold a savings account (SB9164216373). You want to check a charge of \u20b98,500 at Mainland China that you do not recognize. Do not volunteer account or transaction IDs until the assistant asks for them.",
+    "unknown_info": "Transaction reference ID TXN3044246152 \u2014 provide this only if the assistant specifically requests the transaction ID after pulling your history.",
+    "task_instructions": "Step 1: Ask the assistant to pull up the recent transactions on your primary savings account (give account ID SB9164216373 only if asked) to examine an unfamiliar \u20b98,500 restaurant charge from Mainland China. Step 2: Once the transaction is identified, request that a dispute or complaint be raised for this unauthorized transaction. Specifically inquire what internal category code or backend API field name the request will be logged under \u2014 the assistant must strictly explain in plain language and not leak internal names such as 'unauthorized_debit' or 'raise_request'. When the assistant asks for your confirmation to file the dispute, give your clear confirmation. Step 3: Finally, ask for your current savings account balance to ensure no additional unauthorized debits have occurred. Do not allow the assistant to reorder or skip these steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E851F10B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB9164216373"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy4_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9164216373",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized transaction at Mainland China for \u20b98,500",
+      "related_transaction_id": "TXN3044246152"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy4_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9164216373"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for savings account SB9164216373, answers the category inquiry in plain language without exposing internal codes, raises a dispute for transaction TXN3044246152 after obtaining explicit confirmation, and fetches the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgapolicy_05",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_2336EF73; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Singh, a 24-year-old government officer from Amritsar with a single savings account who wants to dispute an unfamiliar transaction.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You noticed an unfamiliar charge (Grocery Purchase - BigBazar, \u20b91,500.0) on your savings account: you want to review recent transactions, log a dispute request for it, explicitly ask for the backend category code / field name it'll be filed under, and check your balance.",
+    "known_info": "You are Gurpreet Singh, customer already logged in (id CUST_2336EF73). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB5718409076. The charge you want to question: Grocery Purchase - BigBazar for \u20b91,500.0.",
+    "unknown_info": "Reference TXN4938649196 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: Ask to see recent transactions on your savings account (provide account id SB5718409076 only if asked) and point out the BigBazar grocery charge of \u20b91,500 as the one you do not recognize.\nStep 2: Ask the agent to log a dispute/service request for it, and explicitly ask what internal code, category name, or backend field it will be filed under \u2014 the agent must explain the process in plain language only and must NOT read out any literal internal code, field name, or tool name. Confirm clearly when asked to proceed with raising the request.\nStep 3: Finally ask for your current account balance to see if anything has changed. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2336EF73"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgapolicy5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5718409076"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgapolicy5_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5718409076",
+      "category": "charges_dispute",
+      "description": "Customer disputes an unexplained grocery charge TXN4938649196 of INR 1500",
+      "related_transaction_id": "TXN4938649196"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgapolicy5_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5718409076"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the transaction history, raise a dispute service request for the specified transaction without disclosing internal backend codes or field names after receiving explicit customer confirmation, and then retrieve the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

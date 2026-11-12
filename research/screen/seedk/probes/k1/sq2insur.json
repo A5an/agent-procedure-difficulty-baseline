@@ -1,0 +1,374 @@
+[
+ {
+  "id": "k1_sq2insur_00",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_3022AE3E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Menon, a 44-year-old financial analyst who holds a health insurance policy through the bank and wants to check its status and claim procedure before initiating a claim.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to start a claim on policy POL962019, but only after confirming it is active and hearing the claim process.",
+    "known_info": "You are Anjali Menon, customer already logged in (id CUST_3022AE3E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your policy ID is POL962019.",
+    "unknown_info": "The policy status and sum assured, and the claim process rules (from the knowledge base).",
+    "task_instructions": "Step 1: Ask the assistant to check the status and details of your health insurance policy to confirm it is active (provide the policy ID POL962019 only when asked). Step 2: Once the details are confirmed, ask what the claim process and rules are (the assistant must search the knowledge base). Step 3: After the process is explained, ask the assistant to log a service request to start your claim for policy POL962019. When the assistant asks for your confirmation to raise the request, confirm affirmatively. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3022AE3E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur0_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL962019"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur0_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur0_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests to initiate claim on health insurance policy POL962019"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the details for policy POL962019, search the knowledge base for the insurance claim process, and raise a service request to start the claim after getting explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_sq2insur_01",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_19F46380; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rohit Rajesh Kulkarni, a 25-year-old software engineer living in Pune holding a life insurance policy through the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Verify life insurance policy status, understand the claim submission process, and raise a claim request.",
+    "known_info": "You are Rohit Rajesh Kulkarni, logged in under customer ID CUST_19F46380. You hold a Harbor Life policy (ID: POL681181). Do not volunteer account or policy IDs until specifically asked.",
+    "unknown_info": "Your policy's current active status and the specific procedure for filing an insurance claim.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your life insurance policy to ensure it is active. Provide policy ID POL681181 only if the assistant asks for it.\nStep 2: Once the assistant confirms the policy details, ask what the claim process and policy rules are for filing a claim.\nStep 3: After the assistant explains the claim process from the bank's policy, ask them to start an insurance claim request for your policy.\nStep 4: When the assistant asks for your explicit confirmation to log the service request, reply with 'Yes, please proceed'.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_19F46380"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur1_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL681181"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur1_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests to initiate a claim on insurance policy POL681181"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the details for policy POL681181, search the knowledge base to explain the insurance claim process, obtain the customer's affirmative confirmation, and submit a service request to initiate the claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_sq2insur_02",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_D1130B8B; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 31-year-old data scientist from Jaipur who holds an active term life insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to start a claim on policy POL624556, but only after confirming it's active and hearing the process.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_D1130B8B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL624556.",
+    "unknown_info": "The policy status/premium, and the claim process (from the knowledge base).",
+    "task_instructions": "Step 1: ask for the details of policy POL624556 (provide the policy ID only when asked) to confirm it is active. Step 2: then ask what the claim process is (the agent must answer from a knowledge base search, not memory). Step 3: only then ask the agent to log a service request to start your claim, and provide confirmation when prompted. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D1130B8B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur2_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL624556"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur2_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur2_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests claim process assistance for policy POL624556"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up insurance policy POL624556 using get_insurance_details, search the knowledge base for the insurance claim process, and then raise a service request using raise_request only after obtaining explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_sq2insur_03",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_FDC897B1; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 46-year-old nurse at Chennai Central Hospital holding a health insurance policy through the bank",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your health insurance policy POL134865, understand the bank's claim policy and procedure, and initiate an insurance claim.",
+    "known_info": "You are Ravi Kumar (customer ID CUST_FDC897B1). Your health insurance policy ID is POL134865. Do not volunteer the policy ID or other account numbers until the assistant asks for them.",
+    "unknown_info": "The active status and details of your policy, and the bank's claim filing procedure from the knowledge base.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your health insurance policy to confirm it is active (provide policy ID POL134865 only when asked). Step 2: Once the details are confirmed, ask what the claim process and policy is (the assistant must consult the knowledge base). Step 3: Ask the assistant to raise a service request to start the insurance claim for your policy, explicitly confirm when asked, and end the conversation once confirmed. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FDC897B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur3_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL134865"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur3_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur3_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Initiate insurance claim for health insurance policy POL134865"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's insurance policy details using the provided ID, searches the knowledge base for the insurance claim process, and raises a service request to start the claim only after explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_sq2insur_04",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_FC8C7D56; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Manjunath Gowda, a 52-year-old farmer from Mysuru who holds an active life insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to initiate a claim on your insurance policy POL466415, but need to check its active status first, understand the claim process, and then have a service request raised.",
+    "known_info": "You are Manjunath Gowda, customer already logged in (id CUST_FC8C7D56). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your policy number is POL466415.",
+    "unknown_info": "The exact current status and details of your policy, the claim submission process and requirements from the bank's knowledge base, and the service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your insurance policy to confirm it is active (provide policy ID POL466415 only when asked).\nStep 2: Ask what the bank's policy and process is for filing an insurance claim (the assistant must consult the knowledge base).\nStep 3: Ask the assistant to log a service request to start your insurance claim, and give clear confirmation when asked.\nFollow these steps strictly in order \u2014 do not skip ahead or combine steps. If the assistant tries to proceed prematurely, insist on completing the current step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FC8C7D56"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur4_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL466415"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur4_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Initiate insurance claim for policy POL466415"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for policy POL466415, search the knowledge base for the insurance claim process, seek explicit confirmation from the customer, and raise a service request to start the claim under category 'other'."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_sq2insur_05",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_4EE77D9E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Sunil Pawar, a 68-year-old nurse in Pune holding a senior citizen health insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check health insurance policy details, understand the claim filing policy, and initiate an insurance claim.",
+    "known_info": "You are Rajesh Sunil Pawar (customer ID CUST_4EE77D9E). Your health insurance policy ID is POL895650. Do not volunteer account or policy numbers until asked.",
+    "unknown_info": "Current policy details and status, the claim process documented in the knowledge base, and the generated service request ID.",
+    "task_instructions": "Step 1: Ask the assistant to check the status and details of your health insurance policy, providing policy ID POL895650 when prompted. Step 2: Once the details are provided, ask what the bank's policy and process are for filing an insurance claim. Step 3: Once the process is explained, ask the assistant to raise a service request to start your insurance claim on policy POL895650. When the assistant summarizes and asks for your explicit confirmation, reply with 'Yes, please proceed'. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4EE77D9E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1sq2insur5_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL895650"
+      ]
+     }
+    },
+    {
+     "action_id": "k1sq2insur5_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1sq2insur5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Initiate insurance claim for policy POL895650"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch policy details for POL895650, search the knowledge base for claim guidelines, and submit a service request to start the claim only after receiving explicit confirmation from the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

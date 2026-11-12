@@ -1,0 +1,404 @@
+[
+ {
+  "id": "k1_edgaphantom_00",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_61AF5E8A; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ramesh K. Patel, a 42-year-old insurance agent in Surat, practical and organized, needing banking services for his active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You believe you might have an old secondary savings account at an Ahmedabad branch that isn't showing up; once the assistant clarifies only your Surat savings account is active on file, you want to order a new cheque book and get a June 2026 duplicate statement for that account.",
+    "known_info": "You are Ramesh K. Patel. You think you might have an older account opened years ago in Ahmedabad, but you don't recall its number. Do not volunteer account numbers or personal identifiers unless specifically asked.",
+    "unknown_info": "Your actual linked account number SB7252994408. Reveal or confirm it only after the assistant looks up your records and presents the account on file.",
+    "task_instructions": "Step 1: Ask the assistant to check what accounts are currently linked to your profile, mentioning that you vaguely remember an old Ahmedabad branch account and want to see if it is still listed. Step 2: When the assistant verifies that only your Surat savings account (SB7252994408) is on file, accept this and confirm you want to proceed with that active account. Step 3: Ask to order a standard cheque book for this account. When the assistant asks for confirmation, explicitly confirm. Step 4: After the cheque book request is placed, ask for an official duplicate account statement for the month of June 2026 (from 2026-06-01 to 2026-06-30) for this account. If confirmation is requested, confirm clearly. Follow the steps strictly in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_61AF5E8A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7252994408"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom0_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7252994408"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7252994408",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant verifies the customer's linked savings account SB7252994408, clarifies that no other account is linked, and upon explicit confirmation orders a cheque book and generates a duplicate statement for June 2026."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaphantom_01",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_B27FE48F; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Laxman Deshmukh, a 48-year-old IT Support Engineer residing in Nagpur, organized and clear in his banking requests.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You vaguely recall an old, possibly-closed bank account from a previous job that might still be active; once the assistant checks and confirms only your primary savings account is on file, you want to order a cheque book and obtain a statement for June 2026 for that account.",
+    "known_info": "You are Rajesh Laxman Deshmukh, logged in under customer ID CUST_B27FE48F. Do not volunteer account IDs, card numbers, or internal category names until the assistant asks or states them first. You remember having an old savings account years ago at another branch, but you have no details or records of it and want to know if it is linked to your profile.",
+    "unknown_info": "Your actual linked account number (SB1259753251) \u2014 do not disclose it until the assistant identifies the accounts on your profile.",
+    "task_instructions": "Step 1: Ask the assistant to check what accounts are currently linked to your profile, mentioning that you vaguely remember an old account and want to know if it is on record. Accept the assistant's confirmation that only your active savings account is linked.\nStep 2: Once the linked account is confirmed, ask the assistant to issue a new cheque book for that savings account. When the assistant asks for confirmation, provide affirmative confirmation.\nStep 3: After the cheque book is ordered, request an official duplicate statement for that same savings account for June 2026 (from 2026-06-01 to 2026-06-30). When asked to confirm, provide affirmative confirmation.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B27FE48F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB1259753251"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom1_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB1259753251"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB1259753251",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's linked account details, clarify that only account SB1259753251 is on record, order a cheque book for that account after explicit confirmation, and order a duplicate statement for June 2026 after explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaphantom_02",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_70550DC4; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Nair, a 48-year-old software engineer based in Kochi, Kerala.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You believe you might still have an old savings account from another branch, but want to check what account is active on file. Once the assistant confirms only your Kochi savings account is linked, you want to order a cheque book for it and obtain an official duplicate statement for June 2026.",
+    "known_info": "You are Rajesh Nair, customer ID CUST_70550DC4. Do not volunteer your account number or other IDs until specifically asked. You vaguely recall an old account you might have opened years ago, but have no number or details for it. You want a cheque book and a June 2026 duplicate statement (2026-06-01 to 2026-06-30) for your verified active account.",
+    "unknown_info": "Your exact linked account number (SB2720206889) \u2014 only acknowledge or confirm it after the assistant looks it up and states it.",
+    "task_instructions": "Step 1: Ask the assistant to check what accounts are linked to your profile, mentioning that you think you might have an old second account from another branch. Accept the assistant's clarification that only one active savings account is linked on file.\nStep 2: Ask to order a new cheque book for your confirmed linked savings account. When the assistant asks for confirmation, provide explicit confirmation.\nStep 3: Next, request an official duplicate account statement for June 2026 (from 2026-06-01 to 2026-06-30) for this same account. When prompted for confirmation, confirm.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_70550DC4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom2_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB2720206889"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom2_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB2720206889"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB2720206889",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's linked account details, clarify that only account SB2720206889 is on file, order a cheque book for SB2720206889 after receiving explicit confirmation, and request a duplicate statement for SB2720206889 for 2026-06-01 to 2026-06-30 after receiving confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaphantom_03",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_0A16BB75; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya R. Patel, a 36-year-old government officer from Surat, precise and methodical in managing her banking affairs.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Confirm active accounts on file while checking about an old unlinked account, then order a cheque book and a June 2026 statement for the confirmed account.",
+    "known_info": "You are Priya R. Patel. You believe you might have an old savings account from an earlier posting in Ahmedabad, but you are not sure of its details or whether it is still open. Do not volunteer specific account IDs or numbers until the assistant lists your accounts or asks for clarification.",
+    "unknown_info": "Your actual linked account number (SB8814862633) \u2014 allow the assistant to check your profile and state what account is linked before confirming it.",
+    "task_instructions": "Step 1: Ask the assistant to check what bank accounts are currently linked to your profile, mentioning that you vaguely remember an old account from Ahmedabad and want to know if it is still there. Accept the assistant's confirmation that only your Surat savings account is on record.\nStep 2: Request a new cheque book for your confirmed active savings account. Provide the account ID if requested, and provide explicit confirmation when asked before the order is placed.\nStep 3: Request a duplicate account statement for the month of June 2026 (from 2026-06-01 to 2026-06-30) for that same account, confirming if asked.\nFollow the steps strictly in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0A16BB75"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8814862633"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom3_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB8814862633"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB8814862633",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's linked account details, clarifies that no separate Ahmedabad account exists on the profile, and then places the cheque book request and duplicate statement request for account SB8814862633 after appropriate confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaphantom_04",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_BC6DAADD; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 43-year-old self-employed carpenter from Mysuru who prefers straightforward banking assistance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You vaguely recall an old, possibly-closed account at another branch that is NOT actually linked to your profile; once the agent confirms only your real account is on file, you want a cheque book and a June 2026 statement for that account.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (customer ID CUST_BC6DAADD). Do not volunteer account/card/deposit/mandate IDs or internal categories until the agent asks for that specific detail. You are not sure of any details of the old account (no number, no branch name you are confident of) \u2014 you genuinely do not know if it exists in the bank's records.",
+    "unknown_info": "Your real linked account (SB6240361279) \u2014 reveal or confirm it only once the agent tells you what account(s) are actually on file for you.",
+    "task_instructions": "Step 1: Ask the agent to check what accounts are actually linked to your profile, mentioning a vague old account you are unsure about \u2014 do not insist it must exist; accept the agent's explanation that only your current savings account is linked and the old one is not on record.\nStep 2: Once that is confirmed, ask for a new cheque book on your real savings account (provide or confirm the account ID only when asked). When the agent asks for confirmation to order the cheque book, confirm clearly.\nStep 3: Then ask for a duplicate account statement for June 2026 (from 2026-06-01 to 2026-06-30) on the same real account. When the agent asks for confirmation, confirm clearly.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BC6DAADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom4_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB6240361279"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom4_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6240361279"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB6240361279",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's linked accounts, confirm that only savings account SB6240361279 exists, request a cheque book for SB6240361279 upon explicit confirmation, and request a duplicate statement for SB6240361279 covering 2026-06-01 to 2026-06-30."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaphantom_05",
+  "description": {
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "notes": "family=edgaphantom; customer_id=CUST_2997FD5C; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "32-year-old restaurant owner from Patna",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You vaguely recall an old, possibly-closed account at another branch that is not actually linked to your profile; once the assistant confirms only your real account is on file, you want a cheque book and a June 2026 statement for that account.",
+    "known_info": "You are Ankita Kumari. You are already logged in. Do not volunteer account, card, deposit, or transaction IDs until the assistant asks for that specific detail. You are not sure about any details of the old account (no account number or specific branch you are confident of) \u2014 you genuinely do not know if it exists in the bank's records.",
+    "unknown_info": "Your real linked account ID (SB4123127393) \u2014 reveal it only once the assistant tells you what account is actually on file for you and asks you to confirm.",
+    "task_instructions": "Step 1: Ask the assistant to check what accounts are currently on your file, mentioning a vague old account you are unsure about \u2014 do not insist it must exist; accept the assistant's explanation that only your current savings account is linked and the old one is not on record.\nStep 2: Once that is confirmed, ask for a new cheque book for your active savings account (provide the account ID only when asked). Confirm when the assistant asks for your confirmation before placing the request.\nStep 3: Then ask for an official duplicate account statement for June 2026 (2026-06-01 to 2026-06-30) for that same savings account to be sent to your email, and confirm if asked.\nPerform these steps strictly in order \u2014 do not let the assistant skip ahead or reorder the steps; if it tries, insist on the correct step first. Do not ask the assistant to guess at or search further for the old account's details. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2997FD5C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaphantom5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4123127393"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgaphantom5_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB4123127393"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgaphantom5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4123127393",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's linked accounts, clarify that only savings account SB4123127393 is registered, and upon customer confirmation, order a cheque book and issue a duplicate statement for June 2026 for that account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

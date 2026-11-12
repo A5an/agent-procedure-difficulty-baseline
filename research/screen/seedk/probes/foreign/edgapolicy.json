@@ -1,0 +1,398 @@
+[
+ {
+  "id": "foreign_edgapolicy_00",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_6644B36B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anju Suresh, a 21-year-old self-employed cab driver in Kochi with a single active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your recent transactions, report a failed mobile recharge transaction that was debited from your account, and then check your current account balance.",
+    "known_info": "You are Anju Suresh, customer already logged in (id CUST_6644B36B). Do not volunteer account numbers, transaction IDs, or backend category names until asked or until the agent lists the transactions. You have a savings account where a \u20b9299 mobile recharge was debited on July 2, 2026, but the recharge failed with NovaTel.",
+    "unknown_info": "The exact transaction reference number (TXN7580333593) \u2014 let the agent retrieve it from transaction history first.",
+    "task_instructions": "Step 1: Ask the assistant to show the recent transaction history for your savings account.\nStep 2: Once the assistant lists your recent transactions, identify the mobile recharge of \u20b9299 on July 2, 2026, and explain that the recharge failed with NovaTel but the money was deducted. Ask the assistant to register a service request or complaint for this failed transaction to investigate and refund it.\nStep 3: When the assistant asks for your explicit confirmation to log the service request, confirm clearly.\nStep 4: Once the request is registered and the assistant provides the confirmation or ticket reference, ask for the current available balance of your savings account.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6644B36B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6340514046"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy0_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6340514046",
+      "category": "failed_transaction",
+      "description": "Failed mobile recharge transaction of \u20b9299 on 2026-07-02",
+      "related_transaction_id": "TXN7580333593"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy0_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6340514046"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for account SB6340514046, confirms with the customer without exposing internal category codes before raising a service request for failed transaction TXN7580333593, and finally retrieves the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgapolicy_01",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_E2825A5F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramaswamy Narayanan, a 66-year-old retired railway employee living in Coimbatore. He speaks politely and clearly, monitoring his savings account diligently.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent transactions, raise a formal dispute for an unrecognized transaction at Lotus Pharmacy, and then check his current account balance.",
+    "known_info": "You are Ramaswamy Narayanan (customer ID CUST_E2825A5F). You have a single savings account with the bank. Do not volunteer account, card, transaction IDs, or backend category codes until asked or confirmed. You notice an unauthorized charge of \u20b91,500 at Lotus Pharmacy on July 3, 2026.",
+    "unknown_info": "The exact transaction reference ID (TXN5394586627) before seeing the transaction list; let the assistant retrieve the history first.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transaction history of your savings account. Do not provide the account number unless asked.\nStep 2: When the assistant lists your recent transactions, point out the \u20b91,500 debit for Lotus Pharmacy on 2026-07-03 and state that you never authorized this purchase. Ask the assistant to lodge an official dispute/complaint for this unauthorized debit. Do not mention internal API names or codes.\nStep 3: When the assistant asks for your confirmation to register the dispute for that transaction, reply affirmatively to confirm.\nStep 4: After the assistant confirms the dispute request has been logged and gives you the reference details, ask for your current available account balance.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E2825A5F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB2888459069"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy1_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2888459069",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized transaction dispute for Lotus Pharmacy purchase of INR 1500 on 2026-07-03",
+      "related_transaction_id": "TXN5394586627"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy1_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2888459069"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves recent transaction history, confirms and raises an unauthorized transaction dispute without disclosing internal backend codes, and then provides the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgapolicy_02",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_4D16DE53; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Patel, a 43-year-old store manager from Surat with a savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your recent transactions, report an unauthorized debit of \u20b9450 to MealDash by raising a complaint, and then check your remaining account balance.",
+    "known_info": "You are Rajesh Patel, customer already logged in (id CUST_4D16DE53). Do not volunteer account, transaction, or card IDs or internal backend categories upfront unless asked. You know you have a savings account and noticed an unfamiliar \u20b9450 payment to MealDash on July 4, 2026 that you did not authorize.",
+    "unknown_info": "The exact transaction reference ID (TXN2784471400) \u2014 let the assistant retrieve your transactions and identify it from your description; only confirm it once the assistant mentions it.",
+    "task_instructions": "Step 1: Ask the assistant to show the recent transactions on your savings account.\nStep 2: When the assistant lists your recent transactions, point out the \u20b9450 debit to MealDash on 2026-07-04, explain that you did not make or authorize it, and ask to register a dispute or formal complaint for it. Do not mention internal codes or system field names.\nStep 3: When the assistant summarizes the dispute details and asks for your confirmation to raise the request, explicitly confirm with 'Yes, please proceed'.\nStep 4: Once the service request is registered, ask the assistant to check the current available balance on your savings account.\nStep 5: Acknowledge the balance. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D16DE53"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3356455432"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy2_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3356455432",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized UPI transaction of INR 450 to MealDash on 2026-07-04",
+      "related_transaction_id": "TXN2784471400"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy2_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3356455432"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the transaction history for SB3356455432, seek explicit confirmation without disclosing internal category codes like 'unauthorized_debit', raise a service request for TXN2784471400, and finally check and report the balance of SB3356455432."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgapolicy_03",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_859E4583; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Rajan, a retail sales executive based in Chennai reviewing his bank statements.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your recent statement entries, report an unrecognized fuel charge, and then check your current account balance.",
+    "known_info": "You are Arun Kumar Rajan, customer ID CUST_859E4583. Your savings account number is SB8774786984. Do not volunteer your account number or transaction ID until the agent explicitly asks for it. You noticed an unauthorized debit of \u20b92,800 at Sunrise Petroleum on 30th June 2026.",
+    "unknown_info": "Backend system codes or internal category names such as 'unauthorized_debit' or 'raise_request'.",
+    "task_instructions": "Step 1: Ask the assistant to show your recent transaction history. If the assistant asks for your account number, provide SB8774786984.\nStep 2: When the transactions are displayed, state that you did not authorize the fuel payment of \u20b92,800 at Sunrise Petroleum on 30th June 2026 and ask to raise a dispute/complaint for it. When the assistant summarizes the dispute and asks for your confirmation to file it, confirm clearly.\nStep 3: Once the request is raised, ask the assistant to check your current available account balance.\nDo these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_859E4583"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8774786984"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy3_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8774786984",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized debit of \u20b92,800 at Sunrise Petroleum Petrol Pump on 2026-06-30",
+      "related_transaction_id": "TXN7665149971"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy3_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8774786984"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches the customer's transaction history, seeks explicit customer confirmation before raising a service request for the unauthorized transaction without disclosing internal category names or API fields, and finally checks and reports the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgapolicy_04",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_5C21DF85; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 41-year-old dairy owner in Jaipur. She is diligent about her finances and expects professional, plain-language service without technical or internal jargon.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your recent savings account transactions, raise a dispute for an unauthorized electricity bill debit, and then check your remaining account balance.",
+    "known_info": "You are Sunita Devi (customer ID CUST_5C21DF85). You have a savings account with the bank. Do not volunteer account numbers, transaction IDs, or backend category codes up front. You notice an unauthorized debit of \u20b92,400 dated 2026-06-26 for Jaipur Vidyut electricity bill once the history is presented.",
+    "unknown_info": "The exact transaction reference ID (TXN5524263418) until the assistant looks up your transactions, and the current balance until retrieved.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transactions on your savings account. Do not provide your account ID unless asked.\nStep 2: Once the assistant shares your transaction history, state that you do not recognize or authorize the \u20b92,400 debit on 2026-06-26 for Jaipur Vidyut electricity bill, and ask to raise a formal dispute/complaint for this unauthorized charge. If asked for confirmation, explicitly say yes to register the dispute.\nStep 3: Once the request is lodged, ask the assistant for your current available account balance.\nDo these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5C21DF85"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6783705814"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy4_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6783705814",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized debit dispute for transaction TXN5524263418 of \u20b92,400 on 2026-06-26",
+      "related_transaction_id": "TXN5524263418"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy4_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6783705814"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the transaction history for the savings account, confirm and raise a service request for the unauthorized debit without revealing internal category codes or tool names, and then report the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgapolicy_05",
+  "description": {
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "notes": "family=edgapolicy; customer_id=CUST_87610B15; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri R. Patel, a 59-year-old government clerk in Surat, checking her account activity and disputing an unfamiliar UPI transaction without using any technical jargon.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent transactions, raise a formal dispute for an unrecognized UPI charge seen in the statement, and check the remaining account balance.",
+    "known_info": "You are Madhuri R. Patel (customer ID CUST_87610B15). You have a savings account with the bank. Do not volunteer your account number (SB5134530001), transaction IDs (TXN5808450850), or backend category names (like unauthorized_debit or raise_request) unless the assistant specifically asks for them.",
+    "unknown_info": "The exact internal reference numbers or backend parameters; let the assistant retrieve your account history, map the disputed transaction, and look up your balance.",
+    "task_instructions": "Step 1: Ask to see the recent transactions on your savings account. If asked for your account number, provide SB5134530001.\nStep 2: Once the assistant lists the transactions, point out the \u20b92,500 UPI debit to Grand Bazaar Supermarket on 2026-07-03 and state that you never made or authorized this payment. Ask the assistant to file a complaint or dispute for this charge. Do not use internal category codes.\nStep 3: When the assistant summarizes the dispute details and asks for your confirmation to register the service request, confirm explicitly.\nStep 4: Once the request reference is provided, ask for the current available balance of your savings account.\nDo this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_87610B15"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgapolicy5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5134530001"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgapolicy5_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5134530001",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized UPI debit of \u20b92,500 to Grand Bazaar Supermarket on 2026-07-03",
+      "related_transaction_id": "TXN5808450850"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgapolicy5_2",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5134530001"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account transaction history, obtains explicit confirmation before registering an unauthorized debit request without disclosing internal category codes, and then reports the current account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

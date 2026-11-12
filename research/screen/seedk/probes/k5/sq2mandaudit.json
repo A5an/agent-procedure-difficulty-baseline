@@ -1,0 +1,428 @@
+[
+ {
+  "id": "k5_sq2mandaudit_00",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_2CB8F462; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 66-year-old college professor and senior citizen reviewing and cleaning up recurring automatic debits on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the StreamFlix and Sentinel Life Premium mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Dr. Suresh Kumar Tiwari (senior citizen), customer already logged in (id CUST_2CB8F462). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND86957107 pays StreamFlix \u20b9649 monthly. Mandate MND14697071 pays Sentinel Life Premium \u20b92400 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the StreamFlix one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm StreamFlix is gone but Sentinel Life Premium is still there. Step 4: only then ask to cancel the Sentinel Life Premium one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2CB8F462"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND86957107"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit0_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND14697071"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit0_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, cancel the StreamFlix mandate upon explicit customer confirmation, show active mandates again, cancel the Sentinel Life Premium mandate upon explicit customer confirmation, and list active mandates one final time."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2mandaudit_01",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_A4BA0731; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 69-year-old police constable from Hyderabad managing his bank mandates methodically.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the NovaTel Postpaid and SIP - Mutual Fund mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Ravi Kumar Reddy (senior citizen), customer already logged in (id CUST_A4BA0731). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND28934714 pays NovaTel Postpaid \u20b9399 monthly. Mandate MND56030976 pays SIP - Mutual Fund \u20b95000 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the NovaTel Postpaid one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm NovaTel Postpaid is gone but SIP - Mutual Fund is still there. Step 4: only then ask to cancel the SIP - Mutual Fund one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A4BA0731"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND28934714"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit1_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND56030976"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit1_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists active mandates, seeks confirmation and cancels the NovaTel Postpaid mandate, re-lists active mandates, seeks confirmation and cancels the SIP mandate, and lists active mandates one last time to confirm both are gone."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2mandaudit_02",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_058139BD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Madhavlal Chandrakant Patel, a 73-year-old senior citizen and IT Product Manager living in Ahmedabad.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the Electricity Autopay and StreamFlix mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Madhavlal Chandrakant Patel (senior citizen), customer already logged in (id CUST_058139BD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND49413635 pays Electricity Autopay \u20b91800 monthly. Mandate MND18500917 pays StreamFlix \u20b9649 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the Electricity Autopay one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm Electricity Autopay is gone but StreamFlix is still there. Step 4: only then ask to cancel the StreamFlix one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_058139BD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit2_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND49413635"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit2_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit2_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND18500917"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit2_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, confirm and cancel the Electricity Autopay mandate, list active mandates again to verify its removal, confirm and cancel the StreamFlix mandate, and list active mandates a final time to verify that both have been cancelled."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2mandaudit_03",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_7DD4B301; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Ramachandran, a 34-year-old dairy farm owner from Chennai managing farm expenses and personal subscriptions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the StreamFlix and SIP - Mutual Fund mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Kavitha Ramachandran, customer already logged in (id CUST_7DD4B301). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND25264809 pays StreamFlix \u20b9649 monthly. Mandate MND79856188 pays SIP - Mutual Fund \u20b95000 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the StreamFlix one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm StreamFlix is gone but SIP - Mutual Fund is still there. Step 4: only then ask to cancel the SIP - Mutual Fund one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7DD4B301"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit3_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND25264809"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit3_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit3_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND79856188"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit3_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, confirm and cancel the StreamFlix mandate upon confirmation, re-list active mandates, confirm and cancel the SIP - Mutual Fund mandate upon confirmation, and finally verify the updated mandate list."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2mandaudit_04",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_D5BF8A56; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A methodical college professor who wants to audit and cancel his recurring auto-debit mandates sequentially, verifying the updated list after each individual cancellation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the StreamFlix and Electricity Autopay mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Ravikumar Sundar, customer already logged in (id CUST_D5BF8A56). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND12660922 pays StreamFlix \u20b9649 monthly. Mandate MND94597376 pays Electricity Autopay \u20b91800 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the StreamFlix one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm StreamFlix is gone but Electricity Autopay is still there. Step 4: only then ask to cancel the Electricity Autopay one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D5BF8A56"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit4_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND12660922"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit4_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit4_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND94597376"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit4_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list active mandates, confirm and cancel the StreamFlix mandate upon explicit user confirmation, list active mandates again to verify, confirm and cancel the Electricity Autopay mandate upon explicit user confirmation, and list active mandates a final time to confirm none remain."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2mandaudit_05",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_2546450E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 51-year-old insurance agent in Bengaluru, careful about tracking recurring expenses and systematically auditing active mandates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want BOTH the Sentinel Life Premium and StreamFlix mandates cancelled, one at a time, with the active list re-checked after each cancellation.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_2546450E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND89260439 pays Sentinel Life Premium \u20b92400 monthly. Mandate MND84816265 pays StreamFlix \u20b9649 monthly.",
+    "unknown_info": "The active mandate list before, between, and after both cancellations.",
+    "task_instructions": "Step 1: ask to see your active mandates. Step 2: ask to cancel the Sentinel Life Premium one (mandate id only when asked; confirm). Step 3: ask for the active list AGAIN \u2014 confirm Sentinel Life Premium is gone but StreamFlix is still there. Step 4: only then ask to cancel the StreamFlix one (id only when asked; confirm). Step 5: ask for the active list ONE MORE TIME to confirm both are gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY these two, in this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2546450E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2mandaudit5_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND89260439"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit5_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit5_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND84816265"
+     }
+    },
+    {
+     "action_id": "k5sq2mandaudit5_4",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists active mandates, seeks confirmation before cancelling the Sentinel Life Premium mandate, re-checks active mandates, seeks confirmation before cancelling the StreamFlix mandate, and finally confirms the updated list of active mandates."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

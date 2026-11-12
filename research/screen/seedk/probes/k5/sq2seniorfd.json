@@ -1,0 +1,518 @@
+[
+ {
+  "id": "k5_sq2seniorfd_00",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_83F06B6A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Deshmukh, a 63-year-old government clerk from Pune. She is detail-oriented, cautious with her savings, and wants each step verified sequentially before booking her fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to open a new Fixed Deposit of \u20b9100000 for 12 months, but only after checking your current balance, verifying senior citizen benefits, and seeing today's FD rate card, followed by checking your updated balance after booking.",
+    "known_info": "You are Sunita Deshmukh (senior citizen), customer already logged in (id CUST_83F06B6A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 100000; tenure 12 months; source savings account SB2424808201.",
+    "unknown_info": "Your available balance, the senior-citizen FD interest rate benefit, today's FD rates, and the debited balance after booking.",
+    "task_instructions": "Step 1: ask for your savings account balance (provide account id only if asked). Step 2: then ask if there is an extra FD interest rate benefit for senior citizens (the agent must check bank policy/knowledge base). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 100000 for 12 months from savings SB2424808201 (provide details only when prompted, and explicitly confirm when the agent asks for confirmation before booking). Step 5: finally ask for the savings account balance again to verify the debit. Keep strictly to this order \u2014 do not skip steps or allow the assistant to combine them out of sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_83F06B6A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2424808201"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd0_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "tenure_months": 12,
+      "source_account": "SB2424808201"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2424808201"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for senior citizen FD benefits, retrieves FD rates, confirms and books a \u20b91,00,000 12-month FD from SB2424808201, and finally checks the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2seniorfd_01",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_0E7C159F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Meenaben Kantilal Patel, a 76-year-old retired government clerk living in Ahmedabad, looking to park some savings into a fixed deposit step by step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b950000 for 12 months, but only after confirming funds, the senior-citizen benefit, and today's rate, with the debited balance shown after.",
+    "known_info": "You are Meenaben Kantilal Patel (senior citizen), customer already logged in (id CUST_0E7C159F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 50000; tenure 12 months; source savings SB5052992929.",
+    "unknown_info": "Your available balance, the senior-citizen FD benefit, today's rate, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask whether you get an extra FD rate as a senior citizen (the agent must check the knowledge base, not memory). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 50000 for 12 months from savings SB5052992929 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0E7C159F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5052992929"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd1_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB5052992929",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5052992929"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for senior citizen FD benefits, checks the current FD rate card, confirms and books the \u20b950,000 FD for 12 months from SB5052992929, and finally checks the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2seniorfd_02",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_2BE8E848; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 74-year-old retired consultant, Rameshbhai Chandrakant Patel, who is methodical, cautious, and insists on verifying his funds, senior-citizen entitlements, and interest rates before committing to booking a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9150000 for 12 months, but only after confirming funds, the senior-citizen benefit, and today's rate, with the debited balance shown after.",
+    "known_info": "You are Rameshbhai Chandrakant Patel (senior citizen), customer already logged in (id CUST_2BE8E848). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 150000; tenure 12 months; source savings SB9274967891.",
+    "unknown_info": "Your available balance, the senior-citizen FD benefit, today's rate, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask whether you get an extra FD rate as a senior citizen (the agent must check the knowledge base, not memory). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 150000 for 12 months from savings SB9274967891 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2BE8E848"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9274967891"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd2_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 150000,
+      "source_account": "SB9274967891",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9274967891"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for senior citizen FD benefits, checks the current FD rate card, confirms and creates the FD from the customer's savings account, and then re-checks the savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2seniorfd_03",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_1AD39311; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 66-year-old retired railway employee looking to invest part of her savings into a fixed deposit, wanting to verify her balance, check senior citizen benefits and rates first.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9120000 for 12 months, but only after confirming funds, the senior-citizen benefit, and today's rate, with the debited balance shown after.",
+    "known_info": "You are Shobha Menon (senior citizen), customer already logged in (id CUST_1AD39311). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 120000; tenure 12 months; source savings SB5449468211.",
+    "unknown_info": "Your available balance, the senior-citizen FD benefit, today's rate, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask whether you get an extra FD rate as a senior citizen (the agent must check the knowledge base, not memory). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 120000 for 12 months from savings SB5449468211 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1AD39311"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5449468211"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd3_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 120000,
+      "source_account": "SB5449468211",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5449468211"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the account balance, searches knowledge base for senior citizen FD benefits, fetches current FD rates, books the requested FD after obtaining explicit confirmation, and checks the balance again to show the debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2seniorfd_04",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_0E568C45; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Vijayalakshmi Rajagopal, a 63-year-old startup founder and HNI senior citizen who manages her finances methodically, checking balances, policy benefits, and rates before booking fixed deposits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9150000 for 12 months, but only after confirming funds, the senior-citizen benefit, and today's rate, with the debited balance shown after.",
+    "known_info": "You are Vijayalakshmi Rajagopal (senior citizen), customer already logged in (id CUST_0E568C45). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 150000; tenure 12 months; source savings SB6159776784.",
+    "unknown_info": "Your available balance, the senior-citizen FD benefit, today's rate, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings account balance (account id only when asked). Step 2: then ask whether you get an extra FD rate or benefit as a senior citizen (the agent must check the knowledge base, not memory). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 150000 for 12 months from savings SB6159776784 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Strictly maintain this order \u2014 if the agent attempts to skip ahead or combine steps, insist on completing each step in turn. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0E568C45"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6159776784"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd4_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 150000,
+      "tenure_months": 12,
+      "source_account": "SB6159776784"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6159776784"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, queries the knowledge base for senior citizen FD benefits, retrieves the latest FD rate card, confirms and books the new fixed deposit with affirmative consent, and finally verifies the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2seniorfd_05",
+  "description": {
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "notes": "family=sq2seniorfd; customer_id=CUST_3DE3B4E8; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Meenaben Chandrakant Shah, a 72-year-old retail store manager who is meticulous about verifying her account balance, senior citizen benefits, and interest rates before booking a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9100000 for 12 months, but only after confirming funds, the senior-citizen benefit, and today's rate, with the debited balance shown after.",
+    "known_info": "You are Meenaben Chandrakant Shah (senior citizen), customer already logged in (id CUST_3DE3B4E8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 100000; tenure 12 months; source savings SB5134783746.",
+    "unknown_info": "Your available balance, the senior-citizen FD benefit, today's rate, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask whether you get an extra FD rate as a senior citizen (the agent must check the knowledge base, not memory). Step 3: then ask for today's FD rate card. Step 4: only then book the FD: 100000 for 12 months from savings SB5134783746 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3DE3B4E8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2seniorfd5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5134783746"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2seniorfd5_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2seniorfd5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd5_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB5134783746",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2seniorfd5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5134783746"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the savings account balance, search the knowledge base for senior citizen deposit interest benefits, fetch current fixed deposit rates, obtain explicit confirmation before booking the \u20b91,00,000 12-month FD from savings account SB5134783746, and finally check the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

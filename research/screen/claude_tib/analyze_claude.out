@@ -1,0 +1,80 @@
+
+=== agent haiku: real success 0.697 over 300 cases, 50 families
+  k0       families 50, probes  299, probe success 0.669, families with fewer than 6 probes: 1
+  k1       families 28, probes  164, probe success 0.841, families with fewer than 6 probes: 1
+  k2       families 50, probes  300, probe success 0.790
+  k5       families 50, probes  299, probe success 0.793, families with fewer than 6 probes: 1
+  foreign  families 50, probes  300, probe success 0.707
+  -- families: all50 (50)
+     rho k0       +0.477  [+0.190, +0.711]
+     rho k2       +0.649  [+0.403, +0.834]
+     rho k5       +0.788  [+0.617, +0.911]
+     rho foreign  +0.304  [+0.012, +0.559]
+     diff k5-k0       +0.311  [+0.039, +0.601]
+     diff k2-k0       +0.173  [-0.135, +0.502]
+     diff k5-k2       +0.139  [-0.043, +0.341]
+     diff k2-foreign  +0.346  [+0.053, +0.660]
+     diff foreign-k0       -0.173  [-0.405, +0.050]
+     monotone in k: True
+  -- families: k1_28 (28)
+     rho k0       +0.452  [+0.078, +0.791]
+     rho k1       +0.575  [+0.221, +0.847]
+     rho k2       +0.565  [+0.176, +0.858]
+     rho k5       +0.697  [+0.391, +0.917]
+     rho foreign  +0.367  [+0.002, +0.676]
+     diff k5-k0       +0.245  [-0.176, +0.658]
+     diff k2-k0       +0.113  [-0.271, +0.515]
+     diff k5-k2       +0.132  [-0.089, +0.381]
+     diff k2-foreign  +0.198  [-0.212, +0.597]
+     diff foreign-k0       -0.085  [-0.359, +0.206]
+     diff k1-k0       +0.123  [-0.279, +0.546]
+     diff k2-k1       -0.011  [-0.378, +0.343]
+     diff k5-k1       +0.121  [-0.219, +0.471]
+     monotone in k: False
+  k0       probes passed -> real success: 6: 15 fam 77/90 = 0.86; 5: 7 fam 37/42 = 0.88; 4: 7 fam 28/42 = 0.67; 3: 10 fam 35/60 = 0.58; 2: 7 fam 24/42 = 0.57; 1: 3 fam 6/18 = 0.33; 0: 1 fam 2/6 = 0.33
+  k1       probes passed -> real success: 6: 15 fam 78/90 = 0.87; 5: 6 fam 24/36 = 0.67; 4: 3 fam 7/18 = 0.39; 2: 3 fam 13/18 = 0.72; 0: 1 fam 0/6 = 0.00
+  k2       probes passed -> real success: 6: 22 fam 116/132 = 0.88; 5: 12 fam 53/72 = 0.74; 4: 9 fam 33/54 = 0.61; 3: 1 fam 1/6 = 0.17; 2: 3 fam 6/18 = 0.33; 0: 3 fam 0/18 = 0.00
+  k5       probes passed -> real success: 6: 25 fam 137/150 = 0.91; 5: 9 fam 39/54 = 0.72; 4: 6 fam 18/36 = 0.50; 3: 5 fam 12/30 = 0.40; 2: 1 fam 2/6 = 0.33; 1: 1 fam 1/6 = 0.17; 0: 3 fam 0/18 = 0.00
+  foreign  probes passed -> real success: 6: 17 fam 80/102 = 0.78; 5: 9 fam 39/54 = 0.72; 4: 7 fam 28/42 = 0.67; 3: 8 fam 40/48 = 0.83; 2: 5 fam 17/30 = 0.57; 1: 3 fam 4/18 = 0.22; 0: 1 fam 1/6 = 0.17
+  Brier (raw probe success rate as the forecast of each real case): k0 0.2022, k1 0.1806, k2 0.1639, k5 0.1485, foreign 0.2267
+  E2 (partial): {'probes_both': 52, 'disagree': 8, 'pass_flash_sim': 40, 'pass_pro_sim': 44, 'families_complete': 8, 'rho_flash_sim_on_these': 0.883191366892423, 'rho_pro_sim_on_these': 0.45291081365783836}
+
+=== agent sonnet: real success 0.693 over 300 cases, 50 families
+  k0       families 50, probes  299, probe success 0.669, families with fewer than 6 probes: 1
+  k1       families 28, probes  164, probe success 0.823, families with fewer than 6 probes: 1
+  k2       families 50, probes  300, probe success 0.760
+  k5       families 50, probes  299, probe success 0.726, families with fewer than 6 probes: 1
+  foreign  families 50, probes  300, probe success 0.670
+  -- families: all50 (50)
+     rho k0       +0.446  [+0.194, +0.659]
+     rho k2       +0.733  [+0.533, +0.881]
+     rho k5       +0.730  [+0.561, +0.863]
+     rho foreign  +0.533  [+0.298, +0.721]
+     diff k5-k0       +0.284  [+0.050, +0.535]
+     diff k2-k0       +0.288  [+0.037, +0.550]
+     diff k5-k2       -0.004  [-0.161, +0.160]
+     diff k2-foreign  +0.200  [-0.057, +0.492]
+     diff foreign-k0       +0.088  [-0.136, +0.293]
+     monotone in k: False
+  -- families: k1_28 (28)
+     rho k0       +0.513  [+0.148, +0.792]
+     rho k1       +0.421  [+0.037, +0.775]
+     rho k2       +0.789  [+0.529, +0.953]
+     rho k5       +0.770  [+0.539, +0.936]
+     rho foreign  +0.408  [+0.038, +0.707]
+     diff k5-k0       +0.257  [-0.069, +0.634]
+     diff k2-k0       +0.276  [-0.041, +0.650]
+     diff k5-k2       -0.019  [-0.227, +0.158]
+     diff k2-foreign  +0.381  [+0.059, +0.758]
+     diff foreign-k0       -0.105  [-0.365, +0.120]
+     diff k1-k0       -0.092  [-0.480, +0.320]
+     diff k2-k1       +0.368  [+0.077, +0.666]
+     diff k5-k1       +0.349  [+0.082, +0.620]
+     monotone in k: False
+  k0       probes passed -> real success: 6: 16 fam 83/96 = 0.86; 5: 6 fam 30/36 = 0.83; 4: 8 fam 29/48 = 0.60; 3: 8 fam 26/48 = 0.54; 2: 6 fam 17/36 = 0.47; 1: 6 fam 23/36 = 0.64
+  k1       probes passed -> real success: 6: 16 fam 81/96 = 0.84; 5: 3 fam 15/18 = 0.83; 4: 5 fam 16/30 = 0.53; 3: 1 fam 0/6 = 0.00; 1: 1 fam 6/6 = 1.00; 0: 2 fam 6/12 = 0.50
+  k2       probes passed -> real success: 6: 25 fam 135/150 = 0.90; 5: 6 fam 24/36 = 0.67; 4: 7 fam 27/42 = 0.64; 3: 3 fam 9/18 = 0.50; 2: 4 fam 13/24 = 0.54; 1: 3 fam 0/18 = 0.00; 0: 2 fam 0/12 = 0.00
+  k5       probes passed -> real success: 6: 22 fam 121/132 = 0.92; 5: 8 fam 33/48 = 0.69; 4: 6 fam 24/36 = 0.67; 3: 5 fam 17/30 = 0.57; 2: 1 fam 4/6 = 0.67; 1: 4 fam 9/24 = 0.38; 0: 4 fam 0/24 = 0.00
+  foreign  probes passed -> real success: 6: 15 fam 78/90 = 0.87; 5: 9 fam 42/54 = 0.78; 4: 9 fam 39/54 = 0.72; 3: 4 fam 16/24 = 0.67; 2: 7 fam 17/42 = 0.40; 1: 4 fam 12/24 = 0.50; 0: 2 fam 4/12 = 0.33
+  Brier (raw probe success rate as the forecast of each real case): k0 0.2250, k1 0.2212, k2 0.1522, k5 0.1559, foreign 0.2050
+  E2 (partial): {'probes_both': 51, 'disagree': 15, 'pass_flash_sim': 32, 'pass_pro_sim': 31, 'families_complete': 8, 'rho_flash_sim_on_these': 0.79008947172521, 'rho_pro_sim_on_these': 0.21917808219178078}

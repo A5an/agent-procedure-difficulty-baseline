@@ -1,0 +1,130 @@
+{
+ "gemini-3.8-flash": {
+  "n": 806,
+  "fail_rate": 0.02357320099255583,
+  "auc_proc_history": 0.6546846786598007,
+  "auc_proc_x_precheck(AC)": 0.6517086872199558,
+  "auc_precheck_only(AC) refuse": 0.47652644954189793,
+  "commit_A": {
+   "flagged_share": 0.1935483870967742,
+   "recall_all_failures": 0.5263157894736842,
+   "recall_agent_fault": 0.5,
+   "false_alarm_on_successes": 0.1855146124523507,
+   "success_if_flagged_go_to_human": 0.988833746898263
+  },
+  "commit_decision_only_A": {
+   "flagged_share": 0.15260545905707196,
+   "recall_agent_fault": 0.2857142857142857,
+   "false_alarm_on_successes": 0.14866581956797967
+  },
+  "commit_AC": {
+   "flagged_share": 0.12406947890818859,
+   "recall_all_failures": 0.5789473684210527,
+   "recall_agent_fault": 0.5714285714285714,
+   "false_alarm_on_successes": 0.11308767471410419,
+   "success_if_flagged_go_to_human": 0.9900744416873449
+  },
+  "commit_decision_only_AC": {
+   "flagged_share": 0.04094292803970223,
+   "recall_agent_fault": 0.35714285714285715,
+   "false_alarm_on_successes": 0.03303684879288437
+  }
+ },
+ "gemini-2.5-flash": {
+  "n": 806,
+  "fail_rate": 0.14267990074441686,
+  "auc_proc_history": 0.6617315799408545,
+  "auc_proc_x_precheck(AC)": 0.6406782860378784,
+  "auc_precheck_only(AC) refuse": 0.4092053105140628,
+  "commit_A": {
+   "flagged_share": 0.24689826302729528,
+   "recall_all_failures": 0.7913043478260869,
+   "recall_agent_fault": 0.8073394495412844,
+   "false_alarm_on_successes": 0.15629522431259044,
+   "success_if_flagged_go_to_human": 0.9702233250620348
+  },
+  "commit_decision_only_A": {
+   "flagged_share": 0.19106699751861042,
+   "recall_agent_fault": 0.5871559633027523,
+   "false_alarm_on_successes": 0.12590448625180897
+  },
+  "commit_AC": {
+   "flagged_share": 0.21712158808933002,
+   "recall_all_failures": 0.9217391304347826,
+   "recall_agent_fault": 0.926605504587156,
+   "false_alarm_on_successes": 0.09985528219971057,
+   "success_if_flagged_go_to_human": 0.988833746898263
+  },
+  "commit_decision_only_AC": {
+   "flagged_share": 0.11910669975186104,
+   "recall_agent_fault": 0.6330275229357798,
+   "false_alarm_on_successes": 0.03183791606367583
+  }
+ },
+ "claude-sonnet": {
+  "n": 806,
+  "fail_rate": 0.11538461538461539,
+  "auc_proc_history": 0.8519733369527515,
+  "auc_proc_x_precheck(AC)": 0.8620323033072433,
+  "auc_precheck_only(AC) refuse": 0.433146330060776,
+  "commit_A": {
+   "flagged_share": 0.22952853598014888,
+   "recall_all_failures": 0.5376344086021505,
+   "recall_agent_fault": 0.5135135135135135,
+   "false_alarm_on_successes": 0.18934081346423562,
+   "success_if_flagged_go_to_human": 0.9466501240694789
+  },
+  "commit_decision_only_A": {
+   "flagged_share": 0.15260545905707196,
+   "recall_agent_fault": 0.14864864864864866,
+   "false_alarm_on_successes": 0.15007012622720897
+  },
+  "commit_AC": {
+   "flagged_share": 0.1662531017369727,
+   "recall_all_failures": 0.5913978494623656,
+   "recall_agent_fault": 0.5540540540540541,
+   "false_alarm_on_successes": 0.11079943899018233,
+   "success_if_flagged_go_to_human": 0.9528535980148883
+  },
+  "commit_decision_only_AC": {
+   "flagged_share": 0.05334987593052109,
+   "recall_agent_fault": 0.16216216216216217,
+   "false_alarm_on_successes": 0.033660589060308554
+  }
+ },
+ "claude-haiku": {
+  "n": 806,
+  "fail_rate": 0.11662531017369727,
+  "auc_proc_history": 0.8646680014343773,
+  "auc_proc_x_precheck(AC)": 0.8562559765718384,
+  "auc_precheck_only(AC) refuse": 0.42366423619411897,
+  "commit_A": {
+   "flagged_share": 0.23076923076923078,
+   "recall_all_failures": 0.48936170212765956,
+   "recall_agent_fault": 0.47619047619047616,
+   "false_alarm_on_successes": 0.19662921348314608,
+   "success_if_flagged_go_to_human": 0.9404466501240695
+  },
+  "commit_decision_only_A": {
+   "flagged_share": 0.1575682382133995,
+   "recall_agent_fault": 0.23809523809523808,
+   "false_alarm_on_successes": 0.14606741573033707
+  },
+  "commit_AC": {
+   "flagged_share": 0.1687344913151365,
+   "recall_all_failures": 0.5319148936170213,
+   "recall_agent_fault": 0.5119047619047619,
+   "false_alarm_on_successes": 0.12078651685393259,
+   "success_if_flagged_go_to_human": 0.9454094292803971
+  },
+  "commit_decision_only_AC": {
+   "flagged_share": 0.05334987593052109,
+   "recall_agent_fault": 0.2261904761904762,
+   "false_alarm_on_successes": 0.028089887640449437
+  }
+ },
+ "precheck_accuracy": {
+  "A": 0.7816377171215881,
+  "AC": 0.6774193548387096
+ }
+}

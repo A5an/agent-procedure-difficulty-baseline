@@ -1,0 +1,284 @@
+[
+ {
+  "id": "k5_hprate_00",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_89E00F17; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Deshmukh, a 39-year-old college professor at University of Mumbai inquiring about deposit options.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You're casually curious about current Recurring Deposit interest rates, around a 12-month tenure.",
+    "known_info": "You are Priya Deshmukh, customer already logged in (id CUST_89E00F17). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You're asking about a roughly 12-month tenure.",
+    "unknown_info": "Today's Recurring Deposit interest rate for about 12 months.",
+    "task_instructions": "1. Ask the agent for the current Recurring Deposit interest rate for a 12-month tenure.\n2. Once the agent shares the rate, thank them and mention that you are just checking and not looking to open an account right now.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_89E00F17"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate0_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the current recurring deposit interest rate for a 12-month tenure using get_deposit_loan_rates and provides the information to the customer without attempting to book an RD."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hprate_01",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_4AF7E62A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Agarwal, a 26-year-old wholesale trader in Lucknow looking into short-to-medium term savings options.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You're casually curious about current Recurring Deposit interest rates, around a 36-month tenure.",
+    "known_info": "You are Priya Agarwal, customer already logged in (id CUST_4AF7E62A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You are asking about the interest rate for a 36-month tenure.",
+    "unknown_info": "Today's Recurring Deposit interest rate for a 36-month tenure.",
+    "task_instructions": "1. Ask the assistant for the current Recurring Deposit interest rate for a 36-month tenure.\n2. Acknowledge the rate provided and say that you were just checking and do not wish to book a deposit right now.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4AF7E62A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate1_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant queries get_deposit_loan_rates for product_type 'rd' and tenure_months 36 and provides the current RD rate without attempting to create an RD or alter customer data."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hprate_02",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_DDF6B35D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Reddy, a 42-year-old store manager living in Hyderabad.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the bank's current interest rate for a 12-month Recurring Deposit.",
+    "known_info": "You are Anjali Reddy, customer already logged in (id CUST_DDF6B35D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You are looking for RD rates for a 12-month tenure.",
+    "unknown_info": "The bank's current Recurring Deposit interest rate for a 12-month tenure.",
+    "task_instructions": "1. Ask the assistant what the current interest rate is for a 12-month Recurring Deposit.\n2. Clarify that you are only enquiring about the rate and do not want to book or open an RD today.\n3. After the assistant shares the rate, acknowledge the information and end the chat. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DDF6B35D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate2_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the current rate card for an RD with a 12-month tenure using get_deposit_loan_rates and communicate the rate clearly to the customer without initiating deposit creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hprate_03",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_AEE1C321; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anil Gupta, a 36-year-old wholesale trader based in New Delhi.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You're casually curious about current Recurring Deposit interest rates, around a 36-month tenure.",
+    "known_info": "You are Anil Gupta, customer already logged in (id CUST_AEE1C321). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You are asking about a roughly 36-month tenure.",
+    "unknown_info": "Today's Recurring Deposit interest rate for about 36 months.",
+    "task_instructions": "1. Ask the assistant for the current Recurring Deposit interest rate for a tenure of around 36 months.\n2. When the assistant provides the rate, thank them and clarify that you are just checking rates and do not wish to open a deposit today.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AEE1C321"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate3_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up and provides the current Recurring Deposit interest rate for a 36-month tenure using get_deposit_loan_rates without initiating any deposit booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hprate_04",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_9A142FF3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 33-year-old government officer from Chennai, who is planning his savings and wants to check current RD rates without committing to opening an account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You're casually curious about current Recurring Deposit interest rates, around a 36-month tenure.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_9A142FF3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You're asking about a roughly 36-month tenure.",
+    "unknown_info": "Today's Recurring Deposit interest rate for about 36 months.",
+    "task_instructions": "1. Ask the assistant for the current Recurring Deposit interest rate for around 36 months. Just exploring your options \u2014 you're not booking or opening anything today.\n2. Once the assistant provides the rate information, acknowledge it and wrap up the conversation.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9A142FF3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate4_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant calls get_deposit_loan_rates with product_type 'rd' and tenure_months 36 to retrieve and report the current RD interest rate without initiating any booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hprate_05",
+  "description": {
+   "purpose": "Recurring Deposit rate enquiry",
+   "notes": "family=hprate; customer_id=CUST_50F81A22; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sujatha Rani, a retail sales executive exploring savings options to build up regular savings through a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Enquiring about current Recurring Deposit interest rates for a 12-month tenure.",
+    "known_info": "You are Sujatha Rani, customer already logged in (customer ID: CUST_50F81A22). You are interested in knowing the Recurring Deposit interest rate for a 12-month tenure. Do not volunteer account, card, or deposit IDs unless asked.",
+    "unknown_info": "The bank's current Recurring Deposit interest rate for a 12-month tenure.",
+    "task_instructions": "1. Greet the assistant and ask what the current interest rate is for a 12-month Recurring Deposit (RD).\n2. After the assistant provides the rate, acknowledge the information and clarify that you are only checking rates today and do not wish to open or book an RD right now.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_50F81A22"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hprate5_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "rd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the current Recurring Deposit interest rate for a 12-month tenure using get_deposit_loan_rates and answers the customer's enquiry accurately without initiating an unwanted booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,422 @@
+[
+ {
+  "id": "foreign_edgbstmtwin_00",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_10AA36E5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 54-year-old retired resident of Hyderabad holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check when your savings account was opened, view transactions for a specific timeframe (correcting the dates mid-request), and order an official statement for that same timeframe.",
+    "known_info": "You are Ravi Kumar (customer ID CUST_10AA36E5). You hold a savings account. Do not volunteer account IDs, card IDs, or transaction IDs unless specifically requested by the assistant.",
+    "unknown_info": "The exact date your savings account was opened, the transactions between June 25, 2026 and July 5, 2026, and the confirmation of the duplicate statement request.",
+    "task_instructions": "1. Ask the assistant when your savings account was opened.\n2. Once the assistant provides the opening date, ask to see your transactions from July 1, 2026 to July 5, 2026, but in the same message correct yourself and specify June 25, 2026 to July 5, 2026 instead.\n3. After the assistant displays the transactions, ask to order an official duplicate account statement for that same date window delivered to your email.\n4. If the assistant asks for confirmation to place the duplicate statement request, confirm clearly with 'Yes, please proceed.'\n5. Once the assistant confirms the statement request, acknowledge and end the conversation.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_10AA36E5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB3182378343"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin0_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3182378343",
+      "from_date": "2026-06-25",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3182378343",
+      "delivery_mode": "email",
+      "from_date": "2026-06-25",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account opening date using get_account_details, fetches transactions for the corrected window 2026-06-25 to 2026-07-05 using get_transaction_history, and orders a duplicate statement for the same window via request_duplicate_statement after obtaining customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbstmtwin_01",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_7403974F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 71-year-old retired nurse living in New Delhi. Polite, meticulous about dates, and prefers reviewing records digitally.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out when your savings account was opened, inspect transactions from a specific time period (correcting yourself mid-request), and order a duplicate statement for that exact period.",
+    "known_info": "You are Rajesh Kumar (customer ID CUST_7403974F). Do not volunteer account IDs, card numbers, or transaction IDs unless the assistant explicitly asks. Refer to your account simply as your savings account.",
+    "unknown_info": "The exact opening date of your savings account and the list of transactions between 2026-06-20 and 2026-07-05.",
+    "task_instructions": "1. Ask the assistant to tell you the opening date of your savings account.\n2. Once the assistant provides the opening date, ask to see the transactions for your savings account from 2026-06-01 to 2026-06-15, but immediately correct yourself in the same message to 2026-06-20 to 2026-07-05.\n3. After the assistant provides the transactions, ask for an official duplicate account statement for that same window (2026-06-20 to 2026-07-05) to be sent to your email.\n4. If the assistant asks for your confirmation to order the statement, confirm affirmatively with 'Yes, please proceed.'\n5. Thank the assistant and end with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7403974F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB5772742524"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin1_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5772742524",
+      "from_date": "2026-06-20",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB5772742524",
+      "delivery_mode": "email",
+      "from_date": "2026-06-20",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account opening date via get_account_details, fetches transactions using the corrected date range (2026-06-20 to 2026-07-05), and requests a duplicate statement via email for that same window upon customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbstmtwin_02",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_B79EA220; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 21-year-old dairy business owner from New Delhi who likes keeping tidy financial records for his business and household expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check when the savings account was opened, view transactions for a specific recent period after correcting the date range, and request an official duplicate account statement for that same window.",
+    "known_info": "You are Ravi Kumar (customer ID CUST_B79EA220). You have an active savings account. Do not volunteer your account number, transaction IDs, or other internal identifiers unless specifically asked.",
+    "unknown_info": "The exact date your savings account was opened, and the list of transactions for late June to early July 2026.",
+    "task_instructions": "1. Ask the assistant when your savings account was opened. Do not volunteer the account number up front.\n2. Once the assistant provides your account opening date, ask to see your transactions from 2026-06-01 to 2026-06-15, but immediately correct yourself in the same message to ask for transactions from 2026-06-20 to 2026-07-06 instead.\n3. After the assistant presents the transactions, ask for an official duplicate account statement to be emailed for that same date window.\n4. When the assistant asks for your confirmation to request the statement, confirm affirmatively.\n5. Once confirmed and completed, acknowledge and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B79EA220"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin2_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4121137715"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin2_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4121137715",
+      "from_date": "2026-06-20",
+      "to_date": "2026-07-06"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4121137715",
+      "delivery_mode": "email",
+      "from_date": "2026-06-20",
+      "to_date": "2026-07-06"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account details to report the opening date, fetches transactions using the corrected date range (2026-06-20 to 2026-07-06), asks for customer confirmation before placing the duplicate statement request, and orders the statement for that same date window upon confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbstmtwin_03",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_B9E2C67C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Gurmeet Kaur, a 77-year-old retired police constable from Ludhiana. She communicates clearly, politely, and expects straightforward assistance with her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "She wants to find out when her savings account was opened, review transactions for a specific date range after self-correcting her dates, and order an official statement for that exact period.",
+    "known_info": "You are Gurmeet Kaur, customer already logged in (id CUST_B9E2C67C). Do not volunteer account/card/deposit/loan IDs until the assistant asks or references them. You have a savings account with the bank.",
+    "unknown_info": "The exact opening date of your savings account, and the list of transactions between June 27, 2026 and July 5, 2026.",
+    "task_instructions": "1. Ask the assistant when your savings account was opened.\n2. After the assistant answers with your account opening date, ask to view transactions from July 1, 2026 to July 10, 2026, but in the very same message immediately correct yourself to request transactions from June 27, 2026 to July 5, 2026 instead.\n3. Once the assistant lists the transactions for that period, ask to have an official duplicate statement for that same date window emailed to your registered email address.\n4. When the assistant states what it is about to do and asks for your confirmation to order the duplicate statement, confirm clearly by saying yes.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B9E2C67C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8776778344"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin3_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8776778344",
+      "from_date": "2026-06-27",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB8776778344",
+      "delivery_mode": "email",
+      "from_date": "2026-06-27",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the account opening date, retrieve transactions using the customer's corrected date window (2026-06-27 to 2026-07-05), ask for explicit confirmation before requesting an official duplicate statement, and upon confirmation order the statement for that exact date window via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbstmtwin_04",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_F1493929; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Malhotra, a 60-year-old retired pensioner living in Gurugram, maintaining a savings account and a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know when your savings account was opened, review recent transactions from early July, and order an official statement for that exact period.",
+    "known_info": "You are Sunita Malhotra, customer already logged in (id CUST_F1493929). Your savings account number is SB5470058071. Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "The exact opening date of your savings account, the specific transaction records between July 1 and July 6, 2026, and the status of the statement request.",
+    "task_instructions": "1. Ask the assistant when your savings account was opened. Do not provide your account number until asked.\n2. When the assistant asks for your account number, provide SB5470058071.\n3. Once the assistant provides the account opening date, ask to see your transactions from July 1, 2026 to July 4, 2026, but immediately correct yourself in the same message to say: 'Wait, sorry, please check from July 1, 2026 to July 6, 2026 instead.'\n4. After the assistant presents the transactions for that period, ask to have an official duplicate statement emailed to you for that same window.\n5. When the assistant asks for your confirmation to submit the duplicate statement request, confirm clearly with 'Yes, please proceed.'\n6. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F1493929"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin4_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB5470058071"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin4_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5470058071",
+      "from_date": "2026-07-01",
+      "to_date": "2026-07-06"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB5470058071",
+      "delivery_mode": "email",
+      "from_date": "2026-07-01",
+      "to_date": "2026-07-06"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the account opening date using get_account_details, retrieve transaction history using get_transaction_history for the corrected window 2026-07-01 to 2026-07-06, ask for explicit confirmation before generating the statement request, and call request_duplicate_statement for that same window after the customer confirms."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbstmtwin_05",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_391D8014; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Agarwal, a 59-year-old restaurant owner based in Lucknow.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check your savings account opening date, view transactions for a specific timeframe, and order an official duplicate statement for that same window.",
+    "known_info": "You are Rajesh Kumar Agarwal (customer ID CUST_391D8014). You hold a primary savings account with the bank (ending in 1588). Do not volunteer account IDs or internal codes unless asked. You want to check your savings account opening date, see transactions between 2026-06-25 and 2026-07-05 (correcting yourself after initially misspeaking), and get a duplicate statement emailed for that same window.",
+    "unknown_info": "The exact opening date of your savings account and the list of transactions in that date range.",
+    "task_instructions": "1. Ask the assistant when your savings account was opened.\n2. Once the assistant provides the opening date, ask to check the transactions on your savings account from 2026-06-20 to 2026-07-05, but immediately correct yourself in the same message to 2026-06-25 to 2026-07-05.\n3. After the assistant displays the transactions, ask them to email you an official duplicate statement for that same window.\n4. When the assistant asks for your confirmation to order the duplicate statement, confirm clearly.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_391D8014"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbstmtwin5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB6045201588"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbstmtwin5_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6045201588",
+      "from_date": "2026-06-25",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignedgbstmtwin5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB6045201588",
+      "delivery_mode": "email",
+      "from_date": "2026-06-25",
+      "to_date": "2026-07-05"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the savings account details to provide the open date, retrieve the transaction history using the corrected date window (2026-06-25 to 2026-07-05), ask for confirmation before requesting a duplicate statement, and upon confirmation order the statement for that exact window."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

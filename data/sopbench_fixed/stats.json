@@ -1,0 +1,12 @@
+{
+ "stats": {
+  "dropped_unsolvable": 21,
+  "dropped_contradiction": 3,
+  "policy_lines": 1423,
+  "cases_with_policy_lines": 629,
+  "credentials_added": 19,
+  "messages_rewritten": 75,
+  "rewrites_missing_a_value": 0
+ },
+ "rewrites_missing_a_value": []
+}

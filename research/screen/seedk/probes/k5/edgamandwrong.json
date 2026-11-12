@@ -1,0 +1,344 @@
+[
+ {
+  "id": "k5_edgamandwrong_00",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_6E320845; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rituporna Borah, a 32-year-old startup founder living in Guwahati, managing her personal finances with attention to recurring subscriptions and standing instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the NovaTel Postpaid mandate cancelled, but you misremember its reference number and will state MND58387411 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Rituporna Borah, customer already logged in (id CUST_6E320845). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND58387411 (this is incorrect \u2014 do not let the agent act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The correct mandate id (MND58387488) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (NovaTel Postpaid) \u2014 if you're asked for the reference number first, give the wrong one (MND58387411) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the NovaTel Postpaid mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6E320845"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND58387488"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list active mandates, disregard the customer's incorrect mandate ID in favor of matching the payee NovaTel Postpaid to MND58387488, obtain confirmation, cancel mandate MND58387488, and re-list active mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgamandwrong_01",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_4D0E1EE7; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Nisha Raghavan, a 45-year-old government officer from Chennai who wants to manage her standing instructions and autopay debits cleanly and verify each change.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the NovaTel Postpaid mandate cancelled, but you misremember its reference number and will state MND49565500 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Nisha Raghavan, customer already logged in (id CUST_4D0E1EE7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND49565500 (this is incorrect \u2014 do not let the agent act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The correct mandate id (MND49565573) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (NovaTel Postpaid) \u2014 if you're asked for the reference number first, give the wrong one (MND49565500) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the NovaTel Postpaid mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D0E1EE7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND49565573"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, identify the correct mandate ID for NovaTel Postpaid from the list rather than using the customer's incorrect reference, seek explicit confirmation before cancellation, cancel mandate MND49565573, and re-list active mandates upon request to confirm removal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgamandwrong_02",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_F087AAC2; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Priya Ramesh, a 62-year-old self-practicing consultant doctor and HNI customer based in Bengaluru.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the Sentinel Life Premium mandate cancelled, but you misremember its reference number and will state MND96985412 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Dr. Priya Ramesh, customer already logged in (id CUST_F087AAC2). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND96985412 (this is incorrect \u2014 do not let the agent act on it). Payee: Sentinel Life Premium, amount \u20b92,400 monthly.",
+    "unknown_info": "The correct mandate id (MND96985456) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (Sentinel Life Premium) \u2014 if you're asked for the reference number first, give the wrong one (MND96985412) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the Sentinel Life Premium mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F087AAC2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong2_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND96985456"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong2_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, identify the correct mandate ID MND96985456 for Sentinel Life Premium without using the customer's incorrect reference, seek confirmation before cancelling, cancel the mandate, and re-list active mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgamandwrong_03",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_6E320845; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rituporna Borah, a 32-year-old startup founder and HNI customer living in Guwahati, who manages several recurring payments on her account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the NovaTel Postpaid mandate cancelled, but you misremember its reference number and will state MND58387412 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Rituporna Borah, customer already logged in (id CUST_6E320845). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND58387412 (this is incorrect \u2014 do not let the agent act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The correct mandate id (MND58387488) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (NovaTel Postpaid) \u2014 if you're asked for the reference number first, give the wrong one (MND58387412) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the NovaTel Postpaid mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6E320845"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong3_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND58387488"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong3_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list active mandates, identify the correct mandate MND58387488 for NovaTel Postpaid instead of using the customer's mistaken ID, seek explicit confirmation, cancel MND58387488, and re-list active mandates to verify the cancellation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgamandwrong_04",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_546D0C02; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 31-year-old dairy owner from New Delhi, meticulous about recurring debits and cautious with reference numbers.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the NovaTel Postpaid mandate cancelled, but you misremember its reference number and will state MND61881599 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_546D0C02). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND61881599 (this is incorrect \u2014 do not let the agent act on it). Payee: NovaTel Postpaid, amount \u20b9399 monthly.",
+    "unknown_info": "The correct mandate id (MND61881563) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (NovaTel Postpaid) \u2014 if you're asked for the reference number first, give the wrong one (MND61881599) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the NovaTel Postpaid mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_546D0C02"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong4_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND61881563"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong4_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, identify the correct mandate ID for NovaTel Postpaid instead of using the customer's misremembered ID, obtain confirmation, cancel mandate MND61881563, and re-list active mandates upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgamandwrong_05",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_5AC73D79; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Amit Kumar, a 33-year-old government officer residing in Gurugram, meticulous about his utility debits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the Electricity Autopay mandate cancelled, but you misremember its reference number and will state MND47150599 first \u2014 that is WRONG and must not be used.",
+    "known_info": "You are Amit Kumar, customer already logged in (id CUST_5AC73D79). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You believe the mandate reference is MND47150599 (this is incorrect \u2014 do not let the agent act on it). Payee: Electricity Autopay, amount \u20b91,800 monthly.",
+    "unknown_info": "The correct mandate id (MND47150587) \u2014 only reveal it if the agent reads it back to you after listing your mandates and matching by payee; otherwise let them find it themselves.",
+    "task_instructions": "Step 1: ask to see your active mandates, and when asked which one, describe it by payee (Electricity Autopay) \u2014 if you're asked for the reference number first, give the wrong one (MND47150599) but immediately say you're not fully sure of it and want the agent to confirm from the list instead. If the agent tries to act on the wrong number, stop them and insist they match by payee from the list instead. Step 2: once the agent identifies the correct mandate from the list, confirm and let them cancel it (give the correct id only if they read it back and ask you to confirm). Step 3: ask for the active list AGAIN and confirm the Electricity Autopay mandate is gone. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Cancel ONLY this one mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5AC73D79"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgamandwrong5_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND47150587"
+     }
+    },
+    {
+     "action_id": "k5edgamandwrong5_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list active mandates, resolve the Electricity Autopay mandate to its correct ID MND47150587 rather than using the incorrect number provided by the customer, seek explicit confirmation before cancelling MND47150587, and list active mandates again to verify the cancellation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]
