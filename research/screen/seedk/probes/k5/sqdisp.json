@@ -1,0 +1,416 @@
+[
+ {
+  "id": "k5_sqdisp_00",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_A2146127; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A cautious senior IT professional checking her account statement, alarmed by an unfamiliar purchase debit, insisting on blocking her card and registering a dispute.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (UPI - OmniMart purchase, ~\u20b92500.0): verify it, block the card, then dispute.",
+    "known_info": "You are Anjali Rajesh Kulkarni (senior citizen), customer already logged in (id CUST_A2146127). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6123817047; card CARD32731. The debit you mean: UPI - OmniMart purchase for about \u20b92500.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN1748640366 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB6123817047 (id only when asked) and point out the UPI - OmniMart purchase debit as one you never made. Step 2: then ask to permanently block card CARD32731 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A2146127"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6123817047"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp0_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD32731",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp0_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6123817047",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN1748640366",
+      "related_transaction_id": "TXN1748640366"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch transaction history for account SB6123817047, permanently block card CARD32731 with reason 'stolen' after obtaining explicit confirmation, and file an unauthorized debit service request for transaction TXN1748640366."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqdisp_01",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_EC6EE6F1; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali R. Sharma, a 32-year-old nurse residing in Mysuru",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (UPI - OmniMart Online Shopping, ~\u20b92500.0): verify it, block the card, then dispute.",
+    "known_info": "You are Anjali R. Sharma, customer already logged in (id CUST_EC6EE6F1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB7213778154; card CARD85649. The debit you mean: UPI - OmniMart Online Shopping for about \u20b92500.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN8786692657 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB7213778154 (id only when asked) and point out the UPI - OmniMart Online Shopping debit as one you never made. Step 2: then ask to permanently block card CARD85649 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EC6EE6F1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7213778154"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp1_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD85649",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp1_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7213778154",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN8786692657",
+      "related_transaction_id": "TXN8786692657"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should first retrieve transaction history for account SB7213778154, permanently block card CARD85649 with reason stolen upon confirmation, and then raise a service request disputing unauthorized transaction TXN8786692657."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqdisp_02",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_D9BF8E6C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramaswamy Palanisamy, a 72-year-old electrician and senior citizen living in Chennai. He is polite, speaks directly, and is concerned about unexpected charges on his account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (Grocery Purchase - Supermarket, ~\u20b93500.0): verify it, block the card, then dispute.",
+    "known_info": "You are Ramaswamy Palanisamy (senior citizen), customer already logged in (id CUST_D9BF8E6C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6233505182; card CARD95492. The debit you mean: Grocery Purchase - Supermarket for about \u20b93500.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN7447126344 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB6233505182 (id only when asked) and point out the Grocery Purchase - Supermarket debit as one you never made. Step 2: then ask to permanently block card CARD95492 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D9BF8E6C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6233505182"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp2_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD95492",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp2_2",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer disputes unauthorized debit TXN7447126344",
+      "category": "unauthorized_debit",
+      "account_id": "SB6233505182",
+      "related_transaction_id": "TXN7447126344"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks transaction history for SB6233505182, permanently blocks card CARD95492 with reason stolen after explicit confirmation, and raises an unauthorized debit dispute for transaction TXN7447126344."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqdisp_03",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_67A45E41; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 75-year-old self-employed cab driver living in Bhopal, checking on an unrecognized transaction on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (UPI - Fuel refill, ~\u20b91500.0): verify it, block the card, then dispute.",
+    "known_info": "You are Ramesh Kumar Sharma (senior citizen), customer already logged in (id CUST_67A45E41). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB3820151376; card CARD87196. The debit you mean: UPI - Fuel refill for about \u20b91500.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN1947619264 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB3820151376 (id only when asked) and point out the UPI - Fuel refill debit as one you never made. Step 2: then ask to permanently block card CARD87196 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_67A45E41"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3820151376"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp3_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD87196",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp3_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3820151376",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN1947619264",
+      "related_transaction_id": "TXN1947619264"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves recent transactions for account SB3820151376, blocks card CARD87196 with reason stolen after explicit confirmation, and raises an unauthorized debit dispute for TXN1947619264."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqdisp_04",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_7ECE0BBE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mehta, a 52-year-old software engineer living in Gurugram, meticulous about account security and reporting an unrecognized transaction.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (UPI - OmniMart Purchase, ~\u20b915000.0): verify it, block the card, then dispute.",
+    "known_info": "You are Rajesh Kumar Mehta, customer already logged in (id CUST_7ECE0BBE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB3845981806; card CARD59108. The debit you mean: UPI - OmniMart Purchase for about \u20b915000.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN4348675733 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB3845981806 (id only when asked) and point out the UPI - OmniMart Purchase debit as one you never made. Step 2: then ask to permanently block card CARD59108 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7ECE0BBE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3845981806"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp4_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD59108",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp4_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3845981806",
+      "category": "unauthorized_debit",
+      "description": "Customer disputes unauthorized debit TXN4348675733 for \u20b915,000",
+      "related_transaction_id": "TXN4348675733"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for the savings account, seeks confirmation and permanently blocks debit card CARD59108 due to theft, and registers an unauthorized debit dispute referencing transaction TXN4348675733."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqdisp_05",
+  "description": {
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "notes": "family=sqdisp; customer_id=CUST_F8F90AF2; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Rani, a 41-year-old self-employed agri trader based in Lucknow holding an affluent relationship with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You suspect fraud on a debit (Grocery shopping, ~\u20b93500.0): verify it, block the card, then dispute.",
+    "known_info": "You are Sunita Rani, customer already logged in (id CUST_F8F90AF2). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB4541209934; card CARD90760. The debit you mean: Grocery shopping for about \u20b93500.0. Reason for the block: stolen.",
+    "unknown_info": "Reference TXN1673617499 \u2014 give it only if the agent asks which transaction after showing history.",
+    "task_instructions": "Step 1: ask to see recent transactions on savings SB4541209934 (id only when asked) and point out the Grocery shopping debit as one you never made. Step 2: then ask to permanently block card CARD90760 (id only when asked; reason stolen; confirm). Step 3: only after the block, ask to register the dispute for that debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F8F90AF2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqdisp5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4541209934"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp5_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD90760",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sqdisp5_2",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer disputes unauthorized debit TXN1673617499",
+      "category": "unauthorized_debit",
+      "account_id": "SB4541209934",
+      "related_transaction_id": "TXN1673617499"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch transaction history for savings account SB4541209934, confirm and permanently block card CARD90760 due to theft, and then raise an unauthorized debit dispute service request for transaction TXN1673617499."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

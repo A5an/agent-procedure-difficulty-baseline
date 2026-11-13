@@ -1,0 +1,130 @@
+[
+ {
+  "id": "k1_edgbmatelig_00",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_5F044640; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 52-year-old school teacher from Jaipur who keeps meticulous track of his autopay bills and investments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the Electricity Autopay mandate cancelled (it is the one still actively debiting you); the SIP - Mutual Fund mandate is already paused and must be left exactly as it is \u2014 do not cancel it.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_5F044640). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND54295517 pays Electricity Autopay (\u20b91,800/month) and is currently active. Mandate MND74168353 pays SIP - Mutual Fund (\u20b95,000/month) and is currently paused.",
+    "unknown_info": "The current status of both mandates on the system before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once the agent confirms the Electricity Autopay one is the active one, ask to cancel ONLY that one (provide mandate id only when asked; explicitly confirm when the agent asks for confirmation). Step 3: ask for the list of active mandates again to confirm none remain. Step 4: ask the agent to also check the paused mandates list, to make sure the SIP - Mutual Fund one is still there, untouched. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. Do not let the agent cancel the SIP - Mutual Fund mandate under any circumstance. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5F044640"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbmatelig0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND54295517"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig0_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all mandates, cancel only the active Electricity Autopay mandate (MND54295517) after obtaining explicit confirmation, verify that the active mandate list is now empty, and verify that the paused SIP mandate (MND74168353) remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbmatelig_01",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_FA53AEC6; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "A meticulous customer reviewing standing instructions who wants to cancel their active mobile bill autopay, verify that no active mandates remain, and ensure their paused electricity autopay is left intact.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the active NovaTel Postpaid mandate cancelled, leaving the paused Electricity Autopay mandate untouched, and you want to verify that no active mandates remain and the paused one is still intact.",
+    "known_info": "You are Arun Kumar Ghosh, customer already logged in (customer ID CUST_FA53AEC6). Do not volunteer account or mandate IDs until the assistant asks for them. You know you have an active NovaTel Postpaid mandate (MND93644448) for \u20b9399 and a paused Electricity Autopay mandate (MND41431299) for \u20b91,800.",
+    "unknown_info": "The exact current status and details of your mandates as recorded in the bank system before deciding to proceed with cancellation.",
+    "task_instructions": "Step 1: Ask the assistant to list all your mandates (both active and paused) so you can review them. Step 2: Once the assistant lists them, confirm that NovaTel Postpaid is the active one and instruct the assistant to cancel ONLY that active NovaTel Postpaid mandate. When asked for confirmation, clearly confirm the cancellation. Step 3: Ask the assistant to check your active mandates to verify that the active list is now empty. Step 4: Ask the assistant to check your paused mandates to verify that the Electricity Autopay mandate remains paused and untouched. Maintain this exact sequence; do not allow any changes to the Electricity Autopay mandate. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA53AEC6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbmatelig1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND93644448"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k1edgbmatelig1_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all mandates, confirm and cancel the active NovaTel Postpaid mandate (MND93644448), verify that there are no active mandates left, and verify that the paused Electricity Autopay mandate (MND41431299) remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

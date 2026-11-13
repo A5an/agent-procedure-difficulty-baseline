@@ -1,0 +1,266 @@
+[
+ {
+  "id": "k5_hpkb_00",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_C79521D9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Karthik Ramaswamy, a 21-year-old wholesale trader who maintains savings and current accounts and is inquiring about bank fee structures.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: charges for non-maintenance of minimum balance in savings account.",
+    "known_info": "You are Karthik Ramaswamy, customer already logged in (id CUST_C79521D9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about charges for non-maintenance of minimum balance in savings account.",
+    "task_instructions": "1. Ask the agent about the charges for non-maintenance of minimum balance in a savings account. The agent should answer from a knowledge search, not from memory.\n2. Once the agent provides the information, thank them and state that you have no further requests.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C79521D9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "charges for non-maintenance of minimum balance in savings account"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for charges related to non-maintenance of minimum balance in savings accounts and answers the customer's query accurately without making any account modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpkb_01",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_47D70FB0; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Savitha Prakash, a 62-year-old wholesale trader and HNI customer holding active savings and current accounts.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: charges for stopping cheque payment.",
+    "known_info": "You are Savitha Prakash (senior citizen), customer already logged in (id CUST_47D70FB0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about charges for stopping cheque payment.",
+    "task_instructions": "1. Ask the agent about charges for stopping cheque payment.\n2. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_47D70FB0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "charges for stopping cheque payment"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the charges associated with stopping cheque payment and answers the customer's inquiry without performing any account lookups or modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpkb_02",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_EC29EE4C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajendra Kulkarni, a hospitality staff member residing in Mumbai",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: daily limit for UPI transactions.",
+    "known_info": "You are Anjali Rajendra Kulkarni, customer already logged in (id CUST_EC29EE4C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about daily limit for UPI transactions.",
+    "task_instructions": "Ask the agent about daily limit for UPI transactions. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EC29EE4C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "daily limit for UPI transactions"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the daily limit for UPI transactions and answer the customer's question without performing any unnecessary account lookups or state-changing actions."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpkb_03",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_8429B96F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ananya Roy, a 30-year-old IT Support Engineer living in Kolkata. She is an affluent customer with active savings and current accounts who is inquiring about bank policies.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: minimum balance requirements for a savings account.",
+    "known_info": "You are Ananya Roy, customer already logged in (id CUST_8429B96F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about minimum balance requirements for a savings account.",
+    "task_instructions": "Ask the agent about the minimum balance requirements for a savings account. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8429B96F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirements for a savings account"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for savings account minimum balance requirements and answers the customer's general inquiry without performing unnecessary account lookups or mutations."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpkb_04",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_D1130B8B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 31-year-old Data Scientist living in Jaipur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: daily limit for UPI transactions.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_D1130B8B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about the daily limit for UPI transactions.",
+    "task_instructions": "Ask the agent about the daily limit for UPI transactions. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D1130B8B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb4_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "daily limit for UPI transactions"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the daily UPI transaction limit and answers the customer's question without performing any write actions or asking for unnecessary customer IDs."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpkb_05",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_1FA290E9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ananya Rao, a 43-year-old data scientist living in Mysuru, inquiring casually about standard banking rules.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: daily limit for UPI transactions.",
+    "known_info": "You are Ananya Rao, customer already logged in (id CUST_1FA290E9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about daily limit for UPI transactions.",
+    "task_instructions": "Ask the agent about daily limit for UPI transactions. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1FA290E9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpkb5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "daily limit for UPI transactions"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the daily limit for UPI transactions and answer the customer's question without making unnecessary tool calls or asking for account details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

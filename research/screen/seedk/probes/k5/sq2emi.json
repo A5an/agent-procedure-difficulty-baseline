@@ -1,0 +1,434 @@
+[
+ {
+  "id": "k5_sq2emi_00",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_72C22A6F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rashmi Hitesh Shah, a railway employee based in Ahmedabad who is reviewing her existing loan commitments while evaluating affordability for a new home loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9500000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Rashmi Hitesh Shah, customer already logged in (id CUST_72C22A6F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN56623. Desired new loan: \u20b9500000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN56623 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9500000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_72C22A6F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi0_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN56623"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi0_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi0_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's existing loan details, queries the rate card for home loans, computes the EMI for \u20b95,00,000 over 60 months at 8.5%, and consults the knowledge base for the multi-loan eligibility policy without initiating any write operations."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2emi_01",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_CDF7B856; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Madhuben D. Shah, a 70-year-old railway employee who already has an active personal loan",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9500000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Madhuben D. Shah (senior citizen), customer already logged in (id CUST_CDF7B856). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN52150. Desired new loan: \u20b9500000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN52150 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9500000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CDF7B856"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi1_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN52150"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi1_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi1_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the customer's existing loan details, retrieve the home loan rate card, calculate the EMI for a \u20b95,00,000 loan over 60 months, and search the knowledge base regarding multiple loan eligibility policy without initiating any loan application."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2emi_02",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_71266E5D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali R. Sharma, a 70-year-old senior citizen and Data Scientist in Nagpur holding an existing home loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9800000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Anjali R. Sharma, customer already logged in (id CUST_71266E5D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN51368. Desired new loan: \u20b9800000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN51368 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9800000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_71266E5D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi2_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN51368"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi2_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 800000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi2_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up existing loan details for LN51368, fetch current home loan rates, calculate the EMI for \u20b98,00,000 over 60 months using the authoritative rate, and search the knowledge base for multi-loan eligibility policy without initiating any loan application."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2emi_03",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_30EA82CA; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a railway employee inquiring about loan affordability.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9800000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_30EA82CA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN80906. Desired new loan: \u20b9800000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN80906 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9800000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_30EA82CA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi3_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN80906"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi3_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 800000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi3_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "Look up existing home loan details, retrieve the current home loan rate card, calculate the EMI for the requested \u20b98,00,000 over 60 months, and check the knowledge base regarding multiple loan eligibility policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2emi_04",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_A86A2754; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mehta, a 50-year-old Data Scientist living in New Delhi",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9800000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Rajesh Kumar Mehta, customer already logged in (id CUST_A86A2754). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN63848. Desired new loan: \u20b9800000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN63848 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9800000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A86A2754"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi4_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN63848"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi4_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 800000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi4_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's existing personal loan details, looks up the current interest rate for a home loan, calculates the EMI for the desired \u20b98,00,000 loan over 60 months, and searches the knowledge base for multiple loan eligibility policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2emi_05",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_B8D86697; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 37-year-old government clerk residing in Coimbatore with an active personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if a new \u20b9500000 home loan over 60 months is affordable, given your existing loan \u2014 informational only, you are not applying yet.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_B8D86697). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Existing loan LN10244. Desired new loan: \u20b9500000 home loan, 60 months.",
+    "unknown_info": "Your existing loan's EMI/outstanding, today's rate for the new loan, the computed EMI, and the multi-loan eligibility policy.",
+    "task_instructions": "Step 1: ask for the details of your existing loan LN10244 (id only when asked) \u2014 you want to see what you already pay. Step 2: then ask for today's rate on a home loan. Step 3: then ask the agent to work out the EMI for \u20b9500000 over 60 months at that rate. Step 4: finally ask whether the bank allows holding two loans at once (knowledge search, not memory). Do NOT ask the agent to apply for anything \u2014 this is only a feasibility check. The order matters \u2014 if the agent tries to jump to a later step early, push back and make it complete the earlier one first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B8D86697"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2emi5_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN10244"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2emi5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2emi5_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "k5sq2emi5_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "eligibility for holding multiple loans"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's existing loan details, queries the rate card for home loans, computes the EMI for \u20b95,00,000 across 60 months at that rate, and searches the knowledge base for multiple-loan eligibility policy without initiating any loan application."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

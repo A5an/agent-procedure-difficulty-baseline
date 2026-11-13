@@ -1,0 +1,452 @@
+[
+ {
+  "id": "k5_tlprodoff_00",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_C1EA44D3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Savithri Ramesh, a 67-year-old senior professional holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to browse deposit offers you may be eligible for, then confirm the real rate (not just the indicative offer figure), then log interest in one.",
+    "known_info": "You are Savithri Ramesh (senior citizen), customer already logged in (id CUST_C1EA44D3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB1399559185.",
+    "unknown_info": "Your balance, the products/offers list, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in a deposit offer. When the agent asks for confirmation to raise the request, provide clear confirmation. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C1EA44D3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1399559185"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff0_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1399559185",
+      "category": "general_query",
+      "description": "Customer interested in Senior Citizen FD offer"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account balance, looks up deposit offers, checks current authoritative FD rates, and upon customer confirmation, registers a service request to log interest in the deposit offer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlprodoff_01",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_9C3BDF42; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sneha Rani, a dairy owner from Hyderabad who wants to check her savings balance, explore deposit offers, verify authoritative FD rates, and register interest in an offer.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to browse deposit offers you may be eligible for, then confirm the real rate (not just the indicative offer figure), then log interest in one.",
+    "known_info": "You are Sneha Rani, customer already logged in (id CUST_9C3BDF42). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB5228335300.",
+    "unknown_info": "Your balance, the products/offers list, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in the deposit offer, and confirm if asked. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9C3BDF42"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5228335300"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff1_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff1_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5228335300",
+      "category": "general_query",
+      "description": "Customer interested in fixed deposit offer"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the customer's savings account balance, look up available deposit offers, retrieve authoritative FD rates from the rate card, and finally log the customer's interest in the deposit offer via a service request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlprodoff_02",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_2A9607E9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Manpreet Kaur, a 54-year-old shop owner and affluent retail banking customer.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to browse deposit offers you may be eligible for, then confirm the real rate (not just the indicative offer figure), then log interest in one.",
+    "known_info": "You are Manpreet Kaur, customer already logged in (id CUST_2A9607E9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB9845613856.",
+    "unknown_info": "Your balance, the products/offers list, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in a deposit offer, and provide affirmative confirmation when asked before the request is submitted. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2A9607E9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9845613856"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff2_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9845613856",
+      "category": "general_query",
+      "description": "Customer wants to be contacted about a deposit offer"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's savings account balance, fetch available deposit products and offers, retrieve the authoritative fixed deposit rate card, and after seeking explicit confirmation, raise a service request to log interest in the deposit offer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlprodoff_03",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_D81677F9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 73-year-old Chartered Accountant and senior citizen from Gurugram, Haryana.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings balance, browse deposit offers you may be eligible for, check today's actual FD rate, and log your interest in an offer.",
+    "known_info": "You are Sunita Devi (senior citizen), customer already logged in (id CUST_D81677F9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB3029266867.",
+    "unknown_info": "Your savings balance, available deposit products and offers, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in a deposit offer. Confirm if the agent asks before logging it. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D81677F9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3029266867"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff3_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff3_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants to be contacted about a deposit offer",
+      "category": "general_query",
+      "account_id": "SB3029266867"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's savings account balance, retrieve available deposit products and offers, check the official fixed deposit rate card, and register a service request logging the customer's interest in the deposit offer after obtaining explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlprodoff_04",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_D5E1B0A0; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 46-year-old self-employed electrician living in New Delhi with a savings account at the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to browse deposit offers you may be eligible for, then confirm the real rate (not just the indicative offer figure), then log interest in one.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_D5E1B0A0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB2831261965.",
+    "unknown_info": "Your balance, the products/offers list, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in a deposit offer. Confirm if asked before lodging the request. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D5E1B0A0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2831261965"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff4_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff4_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants to be contacted about a deposit offer",
+      "category": "general_query",
+      "account_id": "SB2831261965"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings balance, fetches available deposit products and offers, checks current official FD rates, and raises a service request to log the customer's interest."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlprodoff_05",
+  "description": {
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "notes": "family=tlprodoff; customer_id=CUST_EE85E41B; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita R. Patil, a 74-year-old pharmacist from Pune, managing her savings and seeking reliable deposit options.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to browse deposit offers you may be eligible for, then confirm the real rate (not just the indicative offer figure), then log interest in one.",
+    "known_info": "You are Sunita R. Patil (senior citizen), customer already logged in (id CUST_EE85E41B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB9590538281.",
+    "unknown_info": "Your balance, the products/offers list, and today's actual FD rate.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask what deposit products and offers are available to you. Step 3: then ask for today's actual FD rate, since the offer figures are only indicative. Step 4: only after hearing the real rate, ask the agent to log your interest in a deposit offer and confirm when asked. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EE85E41B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlprodoff5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9590538281"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlprodoff5_1",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "deposit"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlprodoff5_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants to be contacted about a deposit offer",
+      "category": "general_query",
+      "account_id": "SB9590538281"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the account balance, fetch deposit products and offers, look up the authoritative FD rate card rather than quoting rates from the offer details, and log the customer's interest as a service request only after receiving explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

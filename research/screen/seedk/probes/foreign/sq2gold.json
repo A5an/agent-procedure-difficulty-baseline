@@ -1,0 +1,422 @@
+[
+ {
+  "id": "foreign_sq2gold_00",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_47757693; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vikram Yadav, a 24-year-old freelance graphic designer in Hyderabad with savings account SB5201041380.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check today's gold rate, find out your maximum gold loan eligibility for 40 grams of 22 karat gold, check the bank's gold loan policy, and apply for the gold loan.",
+    "known_info": "You are Vikram Yadav, customer already logged in (customer ID CUST_47757693). You have 40 grams of 22 karat gold jewellery to pledge. Your linked savings account is SB5201041380. Do not volunteer your account ID or other specific details until the assistant asks.",
+    "unknown_info": "Today's gold rate per gram, your maximum loan eligibility under the bank's LTV cap, and the bank's gold loan policy details.",
+    "task_instructions": "Step 1: Ask the assistant for today's gold rate for 22 karat gold. Step 2: Once the assistant provides the rate, ask how much loan you can get against 40 grams of 22 karat gold based on today's rate and bank LTV limits. Step 3: Ask about the bank's gold loan policy regarding repayment and guidelines. Step 4: Ask to apply for the gold loan for that eligible amount, providing your savings account ID if asked. Step 5: When the assistant asks for your explicit confirmation to submit the application, confirm affirmatively. You will not allow the steps to be reordered or merged \u2014 insist on proceeding step by step. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_47757693"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold0_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold0_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40.0,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6500.0
+     }
+    },
+    {
+     "action_id": "foreignsq2gold0_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5201041380",
+      "category": "general_query",
+      "description": "Application for gold loan against 40 grams of 22 karat gold collateral"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up today's 22K gold rate, calculate the maximum loan eligibility for 40 grams of 22K gold, search the knowledge base for gold loan policy, and submit a service request for the gold loan application only after obtaining explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2gold_01",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_CC532584; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohit Sunil Mehta, a 31-year-old data scientist residing in Mumbai, looking to borrow against personal gold jewelry.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out today's gold rate for 22 karat gold, calculate your maximum loan eligibility for 50 grams, check the bank's gold loan policy on tenure and repayment, and then apply for the loan.",
+    "known_info": "You are Rohit Sunil Mehta, customer already logged in (id CUST_CC532584). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB7226783742. You have 50 grams of 22 karat gold.",
+    "unknown_info": "Today's gold rate, maximum loan LTV eligibility amount, and bank policy regarding gold loan tenure and repayment options.",
+    "task_instructions": "Step 1: Ask for today's bank gold rate per gram for 22 karat gold.\nStep 2: Once the rate is provided, ask how much loan you can get against 50 grams of 22 karat gold (LTV eligibility).\nStep 3: After the eligible loan amount is calculated, ask about the bank's gold loan policy regarding repayment terms and maximum tenure.\nStep 4: After the policy details are explained, ask to apply for a gold loan for that eligible amount against your savings account. When the assistant asks for your confirmation to submit the application, confirm clearly with 'Yes, please proceed'.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC532584"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold1_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold1_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "gold_rate_per_gram": 6500.0,
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold1_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy repayment terms and tenure"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold1_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7226783742",
+      "category": "general_query",
+      "description": "Application for gold loan against 50 grams of 22k gold"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches the current 22k gold rate, calculates maximum eligible LTV loan sizing for 50 grams, searches the knowledge base for gold loan tenure and repayment policy, and raises a service request to apply for the gold loan only after obtaining explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2gold_02",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_1F860D07; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri Devi, a 61-year-old store manager in Hyderabad who wants to pledge 22-karat gold jewelry for a gold loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check today's gold rate, compute maximum loan eligibility based on LTV for 50 grams of 22-karat gold, check the bank's gold loan policy, and apply for the loan.",
+    "known_info": "You are Madhuri Devi (customer ID CUST_1F860D07). You have 50 grams of 22-karat gold jewelry and hold savings account SB3682856096. Do not volunteer your account ID or other IDs until the assistant specifically asks for them.",
+    "unknown_info": "Today's gold rate per gram for 22 karat, maximum LTV loan eligibility amount, and bank policy on gold loan LTV and repayment options.",
+    "task_instructions": "Step 1: Ask what today's gold rate is for 22 karat gold. Step 2: Once the rate is given, ask to calculate your maximum loan eligibility under the bank's LTV cap for 50 grams of 22 karat gold at that rate of 6500 per gram. Step 3: Ask about the bank's gold loan policy regarding LTV cap and repayment options. Step 4: Ask to apply for the gold loan for that eligible loan amount, providing your savings account ID SB3682856096 only when asked, and explicitly confirm when asked before the request is submitted. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1F860D07"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold2_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold2_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "gold_rate_per_gram": 6500,
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold2_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy LTV cap"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3682856096",
+      "category": "general_query",
+      "description": "Application for gold loan against 50 grams of 22 karat gold"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the 22-karat gold rate, calculates the LTV loan eligibility for 50 grams of gold, searches the knowledge base for gold loan policy, and after receiving explicit customer confirmation, submits a service request to apply for the gold loan linked to the customer's savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2gold_03",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_B27FE48F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Laxman Deshmukh, a 48-year-old IT Support Engineer residing in Nagpur. He is methodical, polite, and prefers to understand the rates, loan eligibility limits, and repayment policy clearly before submitting a gold loan application.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out today's gold rate for 22 karat gold, calculate your eligible gold loan amount for 50 grams of 22k gold under the bank's LTV cap, check the bank's gold loan policy, and apply for the loan.",
+    "known_info": "You are Rajesh Laxman Deshmukh, customer already logged in (ID CUST_B27FE48F). Do not volunteer your account ID or other IDs until specifically asked by the assistant. You have 50 grams of 22 karat gold jewellery to pledge, and your savings account is SB1259753251. You expect the gold rate to be \u20b96,000 per gram.",
+    "unknown_info": "The exact maximum loan amount calculated under the bank's LTV cap and the specific gold loan policy terms regarding repayment and tenure.",
+    "task_instructions": "Step 1: Ask the assistant for today's bank gold rate per gram for 22 karat gold. Step 2: Once the rate is provided, ask the assistant to calculate your maximum eligible loan amount under the bank's LTV cap for 50 grams of 22 karat gold at \u20b96,000 per gram. Step 3: Next, ask what the bank's gold loan policy is regarding repayment options and tenure. Step 4: After the assistant explains the policy, ask to proceed with applying for a gold loan against your 50 grams of gold linked to your savings account (provide account ID SB1259753251 only when asked). When the assistant asks for your confirmation to submit the application, confirm clearly. You will not allow the steps to be reordered or merged \u2014 insist on completing them one at a time. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B27FE48F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold3_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold3_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "gold_rate_per_gram": 6000.0,
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold3_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1259753251",
+      "category": "general_query",
+      "description": "Application for gold loan against 50 grams of 22 karat gold"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the gold rate for 22 karat gold, calculate the maximum loan amount under LTV guidelines for 50 grams of gold, search the knowledge base for gold loan policy, and, after receiving the customer's explicit confirmation, submit the gold loan application request linked to the savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2gold_04",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_2DADAF7A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rashmi Kumari, a self-employed carpenter from Hyderabad seeking working capital for her workshop by pledging 22 karat gold jewellery.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check today's 22K gold rate, determine your eligible loan amount for 50 grams of gold, check gold loan policy terms, and then apply by submitting an application request.",
+    "known_info": "You are Rashmi Kumari, customer already logged in (id CUST_2DADAF7A). You have a savings account SB9136537334. You have 50 grams of 22 karat gold jewellery to pledge. Do not volunteer your account ID or internal codes until asked.",
+    "unknown_info": "Today's 22K gold rate, your exact LTV loan eligibility amount for 50 grams, and the bank's gold loan policy details regarding tenure and repayment.",
+    "task_instructions": "Step 1: Ask the assistant for today's bank gold rate per gram for 22 karat gold. Step 2: Once the rate is given, ask what maximum loan amount you can get for 50 grams of 22 karat gold. Step 3: Next, ask about the bank's gold loan policy regarding maximum tenure and repayment options. Step 4: After hearing the policy, ask to proceed with applying for the gold loan. When the assistant summarizes the request and asks for confirmation, provide your clear confirmation. Insist on following these steps in order without combining or skipping them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2DADAF7A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold4_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold4_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50.0,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6850.0
+     }
+    },
+    {
+     "action_id": "foreignsq2gold4_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy tenure repayment"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold4_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9136537334",
+      "category": "general_query",
+      "description": "Customer application request for gold loan against 50 grams of 22 karat gold"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the 22K gold rate, calculate LTV eligibility for 50 grams of 22 karat gold, search the knowledge base for gold loan policy, and raise a service request for the loan application only after receiving explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2gold_05",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "notes": "family=sq2gold; customer_id=CUST_C9C4CE6D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Sundar, a 22-year-old software engineer living in Coimbatore with a primary savings account at the bank, looking to pledge gold jewelry for liquidity.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out today's 22k gold rate, check your maximum eligible loan amount for 40 grams of 22k gold, understand the bank's gold loan policy (tenure and repayment options), and submit an application for the loan.",
+    "known_info": "You are Ananya Sundar, already authenticated under customer ID CUST_C9C4CE6D. You hold a savings account (SB2793454444). You possess 40 grams of 22 karat gold jewelry. Do not volunteer account IDs or internal details until the assistant asks for them.",
+    "unknown_info": "Today's gold rate per gram for 22 karat gold, the exact eligible loan amount after the bank's LTV cap is applied, the bank's gold loan repayment and tenure policy, and the application request reference number.",
+    "task_instructions": "Step 1: Ask the assistant for today's gold rate for 22 karat gold.\nStep 2: After receiving the rate, state that you have 40 grams of 22 karat gold jewelry and ask for your maximum eligible loan amount under the bank's LTV cap.\nStep 3: Once the eligible amount is given, ask about the bank's gold loan policy regarding available repayment schemes and loan tenure.\nStep 4: After hearing the policy details, state that you want to apply for the gold loan against your savings account (provide account ID SB2793454444 only if requested).\nStep 5: When the assistant asks for your confirmation to submit the application request, confirm clearly to proceed. Follow the steps strictly in order and do not allow reordering. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C9C4CE6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2gold5_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold5_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40,
+      "gold_rate_per_gram": 6850.0,
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "foreignsq2gold5_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "gold loan policy repayment options tenure"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2gold5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2793454444",
+      "category": "general_query",
+      "description": "Application for gold loan against 40 grams of 22 karat gold jewelry"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up today's 22k gold rate, calculate the customer's maximum loan eligibility using calculate_gold_loan_ltv for 40 grams of 22k gold, consult the knowledge base for gold loan repayment and tenure policy, ask for explicit confirmation before submitting, and raise a service request for the gold loan application linked to account SB2793454444."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

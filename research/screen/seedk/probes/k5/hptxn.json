@@ -1,0 +1,278 @@
+[
+ {
+  "id": "k5_hptxn_00",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_1FA290E9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ananya Rao, an IT data scientist who wants to quickly review recent transactions on her savings account without making any changes or disputes.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Ananya Rao, customer already logged in (id CUST_1FA290E9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3703310699.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "Ask the agent to show your recent transactions on your savings account (account id only when asked). You're just browsing, not disputing anything. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1FA290E9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3703310699"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up recent transactions for savings account SB3703310699 using get_transaction_history and display them clearly to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hptxn_01",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_4D16DE53; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Patel, a 43-year-old store manager who wants to check his recent account activity.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Rajesh Patel, customer already logged in (id CUST_4D16DE53). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB3356455432.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "1. Ask the agent to show your recent transactions on your savings account (provide your account id only if asked).\n2. Once the agent lists your recent transactions, thank them and state you do not need anything else.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D16DE53"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3356455432"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves and displays recent transactions for Rajesh Patel's savings account SB3356455432 using get_transaction_history."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hptxn_02",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_F7FB0C02; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Amandeep Singh, a 40-year-old nurse residing in Amritsar, who wants a quick check of recent account activity on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Amandeep Singh, customer already logged in (id CUST_F7FB0C02). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB1108409145.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "1. Ask the agent to show your recent transactions on your savings account (provide account id only when asked).\n2. Review the transaction summary provided by the agent.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F7FB0C02"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB1108409145"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves and displays recent transaction history for savings account SB1108409145 using get_transaction_history."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hptxn_03",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_E8E8C615; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a self-employed electrician who holds a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_E8E8C615). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB8095198349.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "1. Ask the assistant to show the recent transactions on your savings account.\n2. When asked for your account number, provide SB8095198349.\n3. Review the transaction summary provided by the assistant and acknowledge it without disputing anything.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E8E8C615"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8095198349"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant asks for or resolves the savings account ID SB8095198349 and retrieves the recent transaction history using get_transaction_history without performing any mutations or transfers."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hptxn_04",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_B26F2E6D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 60-year-old IT support engineer living in Visakhapatnam.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Suresh Kumar Reddy (senior citizen), customer already logged in (id CUST_B26F2E6D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB8143171772.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "Ask the agent to show your recent transactions on your savings account (account id only when asked). You're just browsing, not disputing anything. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B26F2E6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8143171772"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves and displays recent transaction history for savings account SB8143171772 without asking for unnecessary authentication or attempting unauthorized changes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hptxn_05",
+  "description": {
+   "purpose": "Recent transaction history",
+   "notes": "family=hptxn; customer_id=CUST_FDC897B1; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 46-year-old nurse residing in Chennai, who wants to check recent transaction activity on his savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to skim your recent account activity, no particular transaction in mind.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_FDC897B1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB4165566539.",
+    "unknown_info": "Your recent transactions.",
+    "task_instructions": "1. Ask the agent to show your recent transactions on your savings account. Do not provide the account ID upfront unless asked.\n2. If the agent asks for your account number or clarifies which account, provide SB4165566539.\n3. Review the transactions provided, acknowledge them without raising any disputes, and end the conversation.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FDC897B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hptxn5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4165566539"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant calls get_transaction_history for the customer's savings account SB4165566539 and presents the recent statement entries clearly without asking for unnecessary authentication or modifying any state."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

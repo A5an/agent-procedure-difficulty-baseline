@@ -1,0 +1,452 @@
+[
+ {
+  "id": "k5_sq2cardblk_00",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_58EAE119; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Prerna Sunil Sharma, a 45-year-old police constable from Nagpur who lost her debit card and needs it checked, blocked, replaced, and verified.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost your debit card; you want to check its status, permanently block it, request a replacement card, and verify that it shows blocked.",
+    "known_info": "You are Prerna Sunil Sharma, customer already logged in (id CUST_58EAE119). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD15612. Reason: lost.",
+    "unknown_info": "Card status before and after the block, and replacement request reference number.",
+    "task_instructions": "Step 1: ask for the current status of your debit card CARD15612 (provide the ID only when asked). Step 2: only after hearing the status, ask to permanently block that card with reason lost (confirm when asked). Step 3: then ask for a replacement card to be requested. Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Do this strictly in order \u2014 if the agent tries to skip or combine steps, insist on following the sequence. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_58EAE119"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD15612"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk0_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD15612",
+      "reason": "lost"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk0_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Request replacement for blocked card CARD15612"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk0_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD15612"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the status of CARD15612 using get_card_details, seek confirmation and permanently block it using block_card with reason 'lost', place a replacement request using raise_request, and verify the blocked status by calling get_card_details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2cardblk_01",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_058139BD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 73-year-old senior citizen whose debit card was stolen. He is methodical and wants to verify the current status of the card, permanently block it, request a replacement, and verify that the system reflects the blocked status.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your card was stolen; you want a permanent block, a replacement, and proof it's blocked.",
+    "known_info": "You are Madhavlal Chandrakant Patel (senior citizen), customer already logged in (id CUST_058139BD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD35979. Reason: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD35979 (id only when asked). Step 2: only after hearing it, ask to permanently block that card, reason stolen (confirm when asked). Step 3: then ask for a replacement card to be requested. Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_058139BD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD35979"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk1_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD35979",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD35979"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk1_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD35979"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the status of card CARD35979, confirms and permanently blocks it due to theft, logs a service request for a replacement card, and retrieves the card details once more to verify that its status is blocked."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2cardblk_02",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_D5BF8A56; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravikumar Sundar, a 39-year-old college professor from Coimbatore who is methodical and cautious.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost your debit card while travelling; you want to check its status, permanently block it, request a replacement, and verify proof that it is blocked.",
+    "known_info": "You are Ravikumar Sundar, customer already logged in (id CUST_D5BF8A56). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD89711. Reason: lost.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD89711 (id only when asked). Step 2: only after hearing it, ask to permanently block that card, reason lost (confirm when asked). Step 3: then ask for a replacement card to be requested. Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D5BF8A56"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD89711"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk2_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD89711",
+      "reason": "lost"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk2_2",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer requests a replacement for blocked card CARD89711",
+      "category": "other"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk2_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD89711"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of CARD89711, confirms before permanently blocking it with reason 'lost', registers a replacement request, and then checks the card details again to confirm the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2cardblk_03",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_04B8D21C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A farmer from Delhi who wants to check on her debit card, permanently block it because it was stolen, request a replacement, and verify that the card status is indeed blocked.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your card was stolen; you want a permanent block, a replacement, and proof it's blocked.",
+    "known_info": "You are Priya Ramesh Chaudhary, customer already logged in (id CUST_04B8D21C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD15050. Reason: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD15050 (id only when asked). Step 2: only after hearing it, ask to permanently block that card, reason stolen (confirm when asked). Step 3: then ask for a replacement card to be requested. Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_04B8D21C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD15050"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk3_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD15050",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk3_2",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer requests a replacement for blocked card CARD15050",
+      "category": "other"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk3_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD15050"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the card details to show its current status, ask for confirmation before permanently blocking card CARD15050 with reason stolen, raise a service request for a replacement card, and fetch the card details again to verify the blocked status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2cardblk_04",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_836AEFC8; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Meena Harishbhai Patel, a 55-year-old government clerk from Ahmedabad who wants her lost debit card blocked and replaced methodically.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost your card while travelling; you want a permanent block, a replacement, and proof it's blocked.",
+    "known_info": "You are Meena Harishbhai Patel, customer already logged in (id CUST_836AEFC8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD70022. Reason: lost.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD70022 (id only when asked). Step 2: only after hearing it, ask to permanently block that card, reason lost (confirm when asked). Step 3: then ask for a replacement card to be requested. Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_836AEFC8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD70022"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk4_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD70022",
+      "reason": "lost"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD70022"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk4_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD70022"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of CARD70022, permanently blocks it with reason 'lost' after customer confirmation, raises a service request for a replacement card, and verifies the blocked status by fetching the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2cardblk_05",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_D1B430C7; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 25-year-old Data Scientist based in New Delhi. She is systematic, security-conscious, and insists on following each step in sequence and verifying results.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your card was stolen; you want a permanent block, a replacement, and proof it's blocked.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_D1B430C7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD22614. Reason: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD22614 (id only when asked). Step 2: only after hearing it, ask to permanently block that card, reason stolen (confirm when asked). Step 3: then ask for a replacement card to be requested (confirm when asked). Step 4: finally ask the agent to pull the card details AGAIN to prove it now shows blocked. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D1B430C7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2cardblk5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD22614"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2cardblk5_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD22614",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k5sq2cardblk5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Customer requests a replacement for blocked card CARD22614"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5sq2cardblk5_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD22614"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of card CARD22614, permanently blocks it with reason stolen after explicit confirmation, raises a service request for a replacement card, and verifies the blocked status by fetching card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

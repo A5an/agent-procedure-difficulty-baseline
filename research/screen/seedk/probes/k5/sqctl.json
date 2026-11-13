@@ -1,0 +1,422 @@
+[
+ {
+  "id": "k5_sqctl_00",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_A11E2BC5; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Karthik Venkatesh, a 30-year-old Data Scientist living in Coimbatore, holding an active debit card with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b950000, verified before and after.",
+    "known_info": "You are Karthik Venkatesh, customer already logged in (id CUST_A11E2BC5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD62272. Desired online domestic limit: \u20b950000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on card CARD62272 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b950000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A11E2BC5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62272"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl0_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD62272",
+      "online": {
+       "domestic": {
+        "enabled": true,
+        "daily_limit": 50000
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62272"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the current card controls using get_card_details, seeks confirmation before updating the online domestic limit to \u20b950,000 using set_card_controls, and then verifies the updated controls with get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqctl_01",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_D9BF8E6C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramaswamy Palanisamy, a 72-year-old self-employed electrician living in Chennai.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b920000, verified before and after.",
+    "known_info": "You are Ramaswamy Palanisamy (senior citizen), customer already logged in (id CUST_D9BF8E6C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD95492. Desired online domestic limit: \u20b920000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on card CARD95492 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b920000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D9BF8E6C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95492"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl1_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD95492",
+      "online": {
+       "domestic": {
+        "daily_limit": 20000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95492"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the current controls on card CARD95492, seeks explicit confirmation before setting the online domestic daily limit to \u20b920,000, updates the control via set_card_controls, and verifies the update by retrieving the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqctl_02",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_D0AFE3DF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kulwinder Kaur, a 56-year-old dairy business owner from Amritsar managing her debit card controls.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b950000, verified before and after.",
+    "known_info": "You are Kulwinder Kaur, customer already logged in (id CUST_D0AFE3DF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD62631. Desired online domestic limit: \u20b950000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on debit card CARD62631 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b950000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D0AFE3DF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62631"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl2_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD62631",
+      "online": {
+       "domestic": {
+        "daily_limit": 50000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62631"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's card controls, seek explicit confirmation before updating the online domestic daily limit to \u20b950,000, and then fetch the card details again to confirm the update."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqctl_03",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_C1C330F9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "23-year-old Financial Analyst from Kochi, meticulous and security-conscious about card spending limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b920000, verified before and after.",
+    "known_info": "You are Ananya Menon, customer already logged in (id CUST_C1C330F9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD87235. Desired online domestic limit: \u20b920,000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on card CARD87235 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b920,000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C1C330F9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD87235"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl3_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD87235",
+      "online": {
+       "domestic": {
+        "daily_limit": 20000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD87235"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the current card controls for CARD87235, ask for confirmation before setting the online domestic limit to \u20b920,000, and query the card details again to verify the updated controls."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqctl_04",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_F4EDD33F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Singh, a 56-year-old plumber from Amritsar who wants to check and adjust the security controls on his debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b920000, verified before and after.",
+    "known_info": "You are Gurpreet Singh, customer already logged in (id CUST_F4EDD33F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD46235. Desired online domestic limit: \u20b920000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on card CARD46235 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b920000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F4EDD33F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD46235"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl4_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD46235",
+      "online": {
+       "domestic": {
+        "daily_limit": 20000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD46235"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the card controls using get_card_details, seek explicit confirmation before updating the online domestic limit to \u20b920,000 using set_card_controls, and then fetch get_card_details again to verify the update."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqctl_05",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_2CB8F462; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Suresh Kumar Tiwari, a 66-year-old college professor who values strict digital payment security and wants to check and modify his debit card's online limit in a methodical, step-by-step manner.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want the online domestic limit set to \u20b920000, verified before and after.",
+    "known_info": "You are Dr. Suresh Kumar Tiwari (senior citizen), customer already logged in (id CUST_2CB8F462). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD78276. Desired online domestic limit: \u20b920000.",
+    "unknown_info": "Current controls before, and the new limit visible after.",
+    "task_instructions": "Step 1: ask what the current controls on card CARD78276 are (id only when asked). Step 2: then ask to set the online domestic limit to \u20b920000 (confirm when asked). Step 3: then ask the agent to read the card details AGAIN to confirm the new limit is in place. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2CB8F462"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqctl5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD78276"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqctl5_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD78276",
+      "online": {
+       "domestic": {
+        "daily_limit": 20000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "k5sqctl5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD78276"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first inspect the card's controls using get_card_details, seek affirmative confirmation before modifying the domestic online limit to \u20b920,000 via set_card_controls, and then fetch card details again using get_card_details to verify the change."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

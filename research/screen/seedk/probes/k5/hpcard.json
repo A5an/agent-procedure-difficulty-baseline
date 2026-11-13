@@ -1,0 +1,272 @@
+[
+ {
+  "id": "k5_hpcard_00",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_0EC9D9FF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Menon, a 46-year-old government clerk from Kochi who wants to casually verify his debit card's status and limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to see your card's current status and limits, out of curiosity / to double-check.",
+    "known_info": "You are Rajesh Kumar Menon, customer already logged in (id CUST_0EC9D9FF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your card is CARD87296.",
+    "unknown_info": "Your card's status and limits.",
+    "task_instructions": "1. Tell the virtual assistant that you would like to check the current status and limits on your card.\n2. If the assistant asks for your card ID or which card you are referring to, provide CARD87296.\n3. After the assistant provides the status and limits for your card, thank them.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0EC9D9FF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD87296"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for card CARD87296 using get_card_details and accurately report its status and limits without executing any mutations."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpcard_01",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_4C4044EE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 69-year-old private tutor from Visakhapatnam who wants to check the status and usage limits on her debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to see your card's current status and limits, out of curiosity / to double-check.",
+    "known_info": "You are Smt. Anuradha Bhat, customer already logged in (id CUST_4C4044EE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your card is CARD65099.",
+    "unknown_info": "Your card's status and limits.",
+    "task_instructions": "1. Ask the agent to pull up the details of your card (card id only when asked). Casual check, nothing urgent.\n2. When the agent shares the details and limits, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4C4044EE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65099"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant calls get_card_details with card ID CARD65099 and accurately reports the card status and limits to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpcard_02",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_EC6EE6F1; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali R. Sharma, a 32-year-old nurse from Mysuru checking her debit card status and transaction limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to see your card's current status and limits, out of curiosity / to double-check.",
+    "known_info": "You are Anjali R. Sharma, customer already logged in (id CUST_EC6EE6F1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your card is CARD85649.",
+    "unknown_info": "Your card's status and limits.",
+    "task_instructions": "1. Ask the agent to check the current status and limits on your card.\n2. Provide your card ID (CARD85649) only if specifically asked.\n3. Once the assistant shares the card details, acknowledge and conclude.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EC6EE6F1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD85649"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details for card CARD85649 using get_card_details and presents its status and channel limits clearly to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpcard_03",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_E93FC0B1; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Karthik Rajan, a 27-year-old IT Support Engineer living in Chennai. Polite, direct, and looking to check his card information.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status and daily transaction limits on your debit card.",
+    "known_info": "You are Karthik Rajan, customer already logged in (id CUST_E93FC0B1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card is CARD97492.",
+    "unknown_info": "Your card's current status and per-channel transaction limits.",
+    "task_instructions": "1. Ask the assistant to check the details, status, and limits of your debit card.\n2. If the assistant asks for your card ID, provide CARD97492.\n3. Once the assistant shares the card status and limits, thank them and end the conversation.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E93FC0B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD97492"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the details for card CARD97492 using get_card_details and informs the customer of the card's status and limits."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpcard_04",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_9A142FF3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 33-year-old government officer from Chennai who wants to check his debit card limits and status.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to see your card's current status and limits, out of curiosity / to double-check.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_9A142FF3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your card is CARD76376.",
+    "unknown_info": "Your card's status and limits.",
+    "task_instructions": "1. Ask the assistant to check the current status and limits of your debit card without mentioning the card ID upfront.\n2. When the assistant asks for your card ID, provide CARD76376.\n3. Once the assistant shares your card's status and limit details, thank them.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9A142FF3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD76376"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask for the customer's card ID and call get_card_details with CARD76376 to provide the card's status and limits."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_hpcard_05",
+  "description": {
+   "purpose": "Card details lookup",
+   "notes": "family=hpcard; customer_id=CUST_1EDC109D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mehta, a senior IT professional who wants to verify his debit card's current status and transaction limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to see your card's current status and limits, out of curiosity / to double-check.",
+    "known_info": "You are Rajesh Kumar Mehta, customer already logged in (id CUST_1EDC109D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your card is CARD84644.",
+    "unknown_info": "Your card's status and limits.",
+    "task_instructions": "1. Ask the agent to look up the details, status, and limits on your card. 2. When the agent asks for your card ID, provide CARD84644. 3. Once the agent shares the details, acknowledge and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1EDC109D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5hpcard5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD84644"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves and shares the status, credit/available limits, and channel usage limits for card CARD84644 without performing any unauthorized state modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

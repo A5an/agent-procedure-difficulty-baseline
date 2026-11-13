@@ -1,0 +1,320 @@
+[
+ {
+  "id": "foreign_edgamandwrong_00",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_3BB5CCD4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Shobha Devi, a self-employed electrician who manages her bills through automated mandates and wants to cancel an unwanted recurring insurance debit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to cancel your monthly mandate for Sentinel Life Premium, but you mistakenly provide the ID of your SIP mandate, requiring a correction to cancel the right one and then verifying by viewing the updated mandate list.",
+    "known_info": "You are Shobha Devi, customer already logged in (id CUST_3BB5CCD4). Do not volunteer specific account or mandate IDs upfront until the assistant lists them. You want to stop the auto-debit for Sentinel Life Premium.",
+    "unknown_info": "Which mandate ID belongs to which payee until the assistant lists your mandates.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates active on your profile. Step 2: Once the assistant lists them, tell the assistant you want to cancel the mandate for 'Sentinel Life Premium', but mistakenly tell them the ID is MND67060120. Step 3: When the assistant clarifies that MND67060120 is for your SIP and that Sentinel Life Premium is actually MND32336157, confirm that you want to cancel the Sentinel Life Premium mandate MND32336157. Step 4: After the assistant confirms cancellation, ask the assistant to list your mandates again to verify the cancellation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3BB5CCD4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong0_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND32336157"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong0_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists the user's mandates, corrects the mismatched mandate ID when the user requests cancellation of Sentinel Life Premium using the SIP ID, seeks confirmation to cancel MND32336157, executes cancel_mandate on MND32336157, and then re-lists mandates upon request to show the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgamandwrong_01",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_884887F6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Amandeep Kaur, a 32-year-old restaurant owner from Ludhiana, managing business and personal recurring payments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your active mandates and cancel the mandate for NovaTel Postpaid, but you have the wrong mandate ID in mind and need the assistant to match by payee, cancel the correct one, and re-list the mandates to verify.",
+    "known_info": "You are Amandeep Kaur, already authenticated under customer ID CUST_884887F6. Do not volunteer account or mandate IDs until the assistant asks or until relevant in the step. You know you want to stop the NovaTel Postpaid autopay, but you initially believe its ID is MND26471434.",
+    "unknown_info": "Which mandate ID actually corresponds to NovaTel Postpaid vs Electricity Autopay, and the status of your mandates after cancellation.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates. Step 2: Once listed, say you want to cancel your NovaTel Postpaid mandate, but specify the ID as MND26471434. Step 3: When the assistant points out that MND26471434 is for Electricity Autopay and that NovaTel Postpaid is MND39290389, confirm explicitly that you want to cancel MND39290389 for NovaTel Postpaid. Step 4: After the assistant confirms cancellation, ask to list your mandates again to verify the cancellation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_884887F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong1_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND39290389"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong1_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list the mandates, correctly identify that NovaTel Postpaid belongs to MND39290389 rather than MND26471434, seek explicit confirmation before cancelling MND39290389, and re-list mandates when requested."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgamandwrong_02",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_CB0A4DF4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 26-year-old hospitality staff member in Chennai reviewing and managing his active standing instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to list your standing mandates, cancel the auto-debit for Sentinel Life Premium (correcting an incorrect mandate ID you had in your notes), and re-list your mandates to verify the cancellation.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_CB0A4DF4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You want to cancel the mandate for payee Sentinel Life Premium. You mistakenly noted MND57877986 in your notepad, which is actually your mutual fund SIP; Sentinel Life is MND84869071.",
+    "unknown_info": "Your complete list of mandates and confirmation that the Sentinel Life Premium mandate has been cancelled.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates linked to your account. Step 2: Once the assistant lists them, say that you want to cancel the mandate for Sentinel Life Premium; mention you thought the ID was MND57877986, but ask them to check the payee and cancel the one for Sentinel Life Premium. Step 3: When the assistant clarifies that Sentinel Life Premium is MND84869071 and asks for confirmation to cancel it, explicitly confirm. Step 4: After the mandate is cancelled, ask to view your mandates again to verify the cancellation. Step 5: Once the updated list is shown, thank the assistant and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CB0A4DF4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong2_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND84869071"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong2_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists the customer's mandates, correctly identifies that Sentinel Life Premium corresponds to MND84869071 rather than MND57877986, obtains explicit confirmation before cancelling MND84869071, and re-lists the mandates to verify the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgamandwrong_03",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_514162B2; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karthik Rajendran, a 37-year-old insurance agent from Coimbatore who maintains savings and current accounts and wants to manage his standing autopay mandates.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review your active mandates and cancel your monthly StreamFlix autopay mandate, correcting a mistaken mandate ID during the process, and then check the updated list.",
+    "known_info": "You are Karthik Rajendran, customer already logged in (id CUST_514162B2). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks or until relevant in the conversation. You have mandates for StreamFlix (MND74844025) and SIP - Mutual Fund (MND81100907).",
+    "unknown_info": "The current status and full details of all active and paused mandates until the assistant retrieves them.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Request to cancel your StreamFlix autopay mandate, but mistakenly quote the ID MND81100907. Step 3: When the mismatch is identified or in your next turn, correct the mistake by noting that MND81100907 is for your mutual fund SIP and clarify that you want to cancel the StreamFlix mandate MND74844025. Step 4: When the assistant asks for confirmation to cancel mandate MND74844025 for StreamFlix, confirm clearly with 'Yes, please cancel mandate MND74844025.' Step 5: After cancellation, ask the assistant to list your mandates again to verify that it has been cancelled. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_514162B2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong3_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND74844025"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong3_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list the customer's mandates, resolve the payee StreamFlix to the correct mandate ID MND74844025 after correcting the customer's initial erroneous ID, cancel the mandate after explicit confirmation, and re-list mandates to verify cancellation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgamandwrong_04",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_D80DD3F8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 41-year-old cab driver from Bengaluru with a savings account and fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to cancel your autopay mandate for NovaTel Postpaid, but you mistakenly think its ID is MND67541065. You want the assistant to list your mandates, match NovaTel Postpaid to the right ID, cancel it upon confirmation, and then re-list your mandates to verify.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_D80DD3F8). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. You want to cancel your recurring mandate for payee NovaTel Postpaid. You believe the mandate ID is MND67541065.",
+    "unknown_info": "The actual mandate ID for NovaTel Postpaid and your current list of standing mandates.",
+    "task_instructions": "Step 1: Ask the assistant to check your standing mandates because you want to cancel the autopay for payee 'NovaTel Postpaid', stating that you think the mandate ID is MND67541065. Step 2: When the assistant lists your mandates, points out that MND67541065 belongs to StreamFlix while NovaTel Postpaid is MND69851873, and asks for confirmation to cancel mandate MND69851873, provide explicit affirmative confirmation to cancel MND69851873. Step 3: Once the assistant confirms the cancellation, ask to see your updated list of mandates to verify that the cancellation took effect. Step 4: Acknowledge the updated list. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D80DD3F8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong4_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND69851873"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong4_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all mandates using show_mandates, identify that the mandate for NovaTel Postpaid is MND69851873 rather than the customer's mistaken ID MND67541065, obtain confirmation before canceling MND69851873, and re-list mandates via show_mandates."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgamandwrong_05",
+  "description": {
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "notes": "family=edgamandwrong; customer_id=CUST_B04ADA38; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh K. Patel, a 64-year-old startup founder and HNI client with NexGen Tech Solutions Pvt Ltd. He speaks directly and concisely, wanting to clean up an unwanted auto-debit mandate on his account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your standing mandates, cancel your Sentinel Life Premium mandate (which you confuse with another mandate ID), and view the list again to verify the cancellation.",
+    "known_info": "You are Rajesh K. Patel, customer already logged in (id CUST_B04ADA38). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail or provides them. You want to cancel the mandate for Sentinel Life Premium. You mistakenly believe its ID is MND77279320.",
+    "unknown_info": "The actual mandate ID matching Sentinel Life Premium until the assistant lists your mandates.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates. Step 2: Once the assistant lists your mandates, state that you want to cancel the Sentinel Life Premium mandate, but say you want to cancel mandate ID MND77279320. Step 3: When the assistant points out that MND77279320 is for StreamFlix and matches Sentinel Life Premium to MND35121339, confirming if you want to cancel MND35121339, give your clear affirmative confirmation to cancel MND35121339. Step 4: After the assistant confirms cancellation, ask to see your mandates list again to verify that it is updated. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B04ADA38"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgamandwrong5_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignedgamandwrong5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND35121339"
+     }
+    },
+    {
+     "action_id": "foreignedgamandwrong5_2",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists the customer's mandates, corrects the customer's mismatched mandate ID by identifying that Sentinel Life Premium corresponds to MND35121339, seeks explicit confirmation before cancelling MND35121339, and displays the refreshed mandate list upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

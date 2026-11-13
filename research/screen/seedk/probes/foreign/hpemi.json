@@ -1,0 +1,344 @@
+[
+ {
+  "id": "foreign_hpemi_00",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_AE99FF38; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 63-year-old senior Data Scientist residing in Ludhiana, who is considering taking out a new personal loan for home improvements.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the bank's current interest rate for a prospective personal loan and obtain an EMI estimate for \u20b95,00,000 over 36 months.",
+    "known_info": "You are Sunita Sharma, customer already logged in (id CUST_AE99FF38). Do not volunteer account/card/deposit/mandate/loan ids or internal categories until the agent asks for that specific detail. You are looking to borrow \u20b95,00,000 over a tenure of 36 months for a prospective personal loan, and know your existing personal loan rate is 10.75%.",
+    "unknown_info": "The bank's authoritative rate card interest rate for a new personal loan of \u20b95,00,000 for 36 months and the calculated monthly EMI amount and repayment schedule.",
+    "task_instructions": "Step 1: Ask the assistant for the current interest rate on a prospective personal loan of \u20b95,00,000 for a tenure of 36 months. Step 2: Once the assistant looks up and quotes the rate (10.75%), ask it to compute the estimated monthly EMI and total repayment for \u20b95,00,000 at 10.75% for 36 months. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, insist on checking the official rate first. Step 3: After the assistant provides the calculated EMI details, acknowledge the estimate and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AE99FF38"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi0_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan",
+      "tenure_months": 36,
+      "amount": 500000
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi0_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 10.75,
+      "tenure_months": 36
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the current rate card for a personal loan of \u20b95,00,000 for 36 months using get_deposit_loan_rates, and then calculate the estimated monthly EMI using calculate_emi."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpemi_01",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_659F6B14; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Krishnan, a 43-year-old software engineer in Bengaluru planning to apply for a personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the current interest rate and get an EMI estimate for a prospective personal loan of \u20b95,00,000 over 36 months.",
+    "known_info": "You are Priya Krishnan, customer already logged in (id CUST_659F6B14). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You are planning to apply for a personal loan of \u20b95,00,000 with a tenure of 36 months.",
+    "unknown_info": "The bank's current personal loan interest rate for that amount and tenure, and the resulting monthly EMI estimate.",
+    "task_instructions": "Step 1: Ask for the bank's current interest rate for a prospective personal loan of \u20b95,00,000 for a tenure of 36 months. Step 2: Once the assistant quotes the rate, ask for an estimated monthly EMI calculation for that loan amount and tenure based on that rate. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to answer the interest rate first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_659F6B14"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi1_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan",
+      "tenure_months": 36,
+      "amount": 500000
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi1_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 12.5,
+      "tenure_months": 36
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up the current rate card for a personal loan of \u20b95,00,000 over 36 months using get_deposit_loan_rates and then calculates the monthly EMI estimate using calculate_emi with the retrieved rate."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpemi_02",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_AEE1C321; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anil Gupta, a 36-year-old wholesale trader in New Delhi who wants an EMI estimate for a prospective personal loan for his business needs.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current interest rate and get an estimated monthly EMI for a prospective personal loan of \u20b95,00,000 for a tenure of 36 months.",
+    "known_info": "You are Anil Gupta, customer already logged in (id CUST_AEE1C321). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You are looking to take a prospective personal loan of \u20b95,00,000 for 36 months.",
+    "unknown_info": "The bank's current interest rate for a prospective personal loan, the calculated monthly EMI amount, and total interest payable.",
+    "task_instructions": "Step 1: Ask the assistant for the current interest rate on a prospective personal loan of \u20b95,00,000 for a tenure of 36 months. Step 2: Once the assistant provides the rate (11.5%), ask for an EMI estimate (monthly EMI and total interest) for that prospective loan of \u20b95,00,000 over 36 months at that 11.5% rate. The order matters \u2014 do not merge the steps or allow the assistant to skip looking up the rate card. Step 3: Acknowledge the information and finish. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AEE1C321"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi2_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan",
+      "amount": 500000,
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi2_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 11.5,
+      "tenure_months": 36
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the authoritative interest rate for a prospective personal loan via get_deposit_loan_rates and calculates the monthly EMI and interest schedule via calculate_emi without performing any state-changing actions."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpemi_03",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_DD4C4F4D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 45-year-old lab technician living in New Delhi. He holds an existing home loan with the bank and is planning to take an additional prospective home loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering taking a prospective home loan of \u20b910,00,000 for a tenure of 120 months and want to know the applicable interest rate and an EMI estimate.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_DD4C4F4D). Do not volunteer account or loan IDs unless asked. You want to explore a prospective home loan of \u20b910,00,000 with a tenure of 120 months (10 years) at the bank's home loan interest rate of 8.5%.",
+    "unknown_info": "The bank's current rate card verification for home loans and the exact monthly EMI calculation and total repayment figures.",
+    "task_instructions": "Step 1: Ask the assistant for the current interest rate for a prospective home loan of \u20b910,00,000 for a tenure of 120 months. Step 2: Once the assistant confirms the rate (8.5%), ask it to calculate the monthly EMI, total interest, and total repayment for a principal of \u20b910,00,000 over 120 months at 8.5%. Step 3: Once the assistant provides the EMI estimate and repayment details, acknowledge the figures and thank the assistant. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DD4C4F4D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi3_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "home_loan",
+      "amount": 1000000,
+      "tenure_months": 120
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi3_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 1000000,
+      "rate": 8.5,
+      "tenure_months": 120
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the current home loan rate card using get_deposit_loan_rates and then calculate the prospective loan's monthly EMI and total repayment using calculate_emi without inventing rates or balances."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpemi_04",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_5B4606D6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A self-employed real estate broker from Kolkata planning business expansion, seeking an interest rate lookup and an exact EMI estimate for a prospective personal loan before applying.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the bank's interest rate and get an EMI estimate for a prospective personal loan of \u20b95,00,000 for a tenure of 36 months.",
+    "known_info": "You are Rahul Sharma, customer ID CUST_5B4606D6. Do not volunteer account, loan, card, deposit, or mandate IDs unless specifically requested by the assistant. You are seeking a prospective personal loan of \u20b95,00,000 for a tenure of 36 months (3 years), expecting an interest rate of 11.5%.",
+    "unknown_info": "The exact rate card confirmation from the bank and the calculated monthly EMI, total interest, and total repayment figures.",
+    "task_instructions": "Step 1: Ask the assistant for the current interest rate for a prospective personal loan of \u20b95,00,000 for a tenure of 36 months. Step 2: Once the assistant provides the rate, ask it to calculate the estimated monthly EMI and total repayment for \u20b95,00,000 over 36 months at that 11.5% interest rate. Step 3: Acknowledge the EMI estimate and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5B4606D6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi4_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 500000,
+      "product_type": "personal_loan",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi4_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 11.5,
+      "tenure_months": 36
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the current rate card for a personal loan of \u20b95,00,000 for 36 months using get_deposit_loan_rates and then calculate the estimated monthly EMI using calculate_emi without inventing rates or requiring unnecessary personal data."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpemi_05",
+  "description": {
+   "purpose": "EMI estimate for a prospective loan",
+   "notes": "family=hpemi; customer_id=CUST_B8981138; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri Vemuri, a 47-year-old Chartered Accountant from Visakhapatnam. She is financially astute, courteous, and methodically requests rate information before asking for repayment calculations.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You are considering taking a prospective home loan of \u20b915,00,000 for 120 months and want to check the current interest rate and obtain an exact EMI estimate.",
+    "known_info": "You are Madhuri Vemuri, customer already logged in (id CUST_B8981138). Do not volunteer account, card, loan, or deposit IDs unless specifically asked. You are seeking an estimate for a new home loan of \u20b915,00,000 over a tenure of 120 months (10 years).",
+    "unknown_info": "The bank's current rate card interest rate for a \u20b915,00,000 home loan with a 120-month tenure, the resulting monthly EMI, and total interest payable.",
+    "task_instructions": "Step 1: Ask the assistant for the bank's current interest rate for a prospective home loan of \u20b915,00,000 for a tenure of 120 months. Do not ask for the EMI calculation yet. Step 2: Only after the assistant looks up and states the interest rate, ask it to calculate the monthly EMI and total interest for that \u20b915,00,000 loan over 120 months. The order matters \u2014 do not combine the two steps into one turn. Step 3: Once the assistant provides the EMI and interest breakdown, acknowledge the estimate and conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B8981138"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpemi5_0",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 1500000,
+      "product_type": "home_loan",
+      "tenure_months": 120
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignhpemi5_1",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 1500000,
+      "rate": 8.5,
+      "tenure_months": 120
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the authoritative rate card for a home loan of \u20b915,00,000 for 120 months using get_deposit_loan_rates, and then compute the monthly EMI and repayment figures using calculate_emi without inventing rates or modifying customer data."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

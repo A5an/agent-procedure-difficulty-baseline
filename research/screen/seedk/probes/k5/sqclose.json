@@ -1,0 +1,428 @@
+[
+ {
+  "id": "k5_sqclose_00",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_43455700; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajesh Sharma, an affluent retail banking customer with an active fixed deposit and savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Anjali Rajesh Sharma, customer already logged in (id CUST_43455700). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD816812; payout to savings SB9622095627.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD816812 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB9622095627. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_43455700"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD816812"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose0_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD816812"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose0_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD816812",
+      "payout_account": "SB9622095627"
+     }
+    },
+    {
+     "action_id": "k5sqclose0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9622095627"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the fixed deposit details, obtain the premature closure quote, ask for and receive explicit confirmation before closing the deposit to the specified savings account, and finally verify the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqclose_01",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_5D170FD5; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharad Kulkarni, a 64-year-old senior citizen and financial analyst who prefers orderly, step-by-step verification when closing her fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Sunita Sharad Kulkarni, customer already logged in (id CUST_5D170FD5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD917469; payout to savings SB2256750786.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD917469 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB2256750786. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5D170FD5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD917469"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose1_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD917469"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose1_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD917469",
+      "payout_account": "SB2256750786"
+     }
+    },
+    {
+     "action_id": "k5sqclose1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2256750786"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the FD details, fetches the premature closure quote, closes the fixed deposit to the specified savings account upon confirmation, and checks the savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqclose_02",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_61D3F05A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Anand Shah, an HNI senior citizen and startup founder living in Mumbai.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Rajesh Anand Shah (senior citizen), customer already logged in (id CUST_61D3F05A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD518512; payout to savings SB1043283142.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD518512 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB1043283142. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_61D3F05A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD518512"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose2_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD518512"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose2_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD518512",
+      "payout_account": "SB1043283142"
+     }
+    },
+    {
+     "action_id": "k5sqclose2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1043283142"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches the details of FD FD518512, retrieves the deposit closure quote, confirms closure before calling close_deposit to credit savings account SB1043283142, and finally checks the updated balance of the savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqclose_03",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_17C2AE06; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Reddy, a 40-year-old IT Support Engineer from Hyderabad, methodical and cautious about her savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Anjali Reddy, customer already logged in (id CUST_17C2AE06). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD512035; payout to savings SB8008904017.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD512035 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB8008904017. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_17C2AE06"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD512035"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose3_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD512035"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose3_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD512035",
+      "payout_account": "SB8008904017"
+     }
+    },
+    {
+     "action_id": "k5sqclose3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8008904017"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the FD details, fetches a premature closure quote, closes FD FD512035 to savings account SB8008904017 upon explicit confirmation, and checks the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqclose_04",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_7108BB7F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Aisha Rajesh Thakre, a 21-year-old pharmacist from Nagpur who values disciplined banking procedures and wants to review FD details and closure figures before closing.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Aisha Rajesh Thakre, customer already logged in (id CUST_7108BB7F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD944890; payout to savings SB1275224148.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD944890 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB1275224148. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7108BB7F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD944890"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose4_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD944890"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose4_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD944890",
+      "payout_account": "SB1275224148"
+     }
+    },
+    {
+     "action_id": "k5sqclose4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1275224148"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the details for FD FD944890, retrieve its closure quote, seek confirmation before closing it with payout directed to savings account SB1275224148, and subsequently report the updated balance of SB1275224148."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqclose_05",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "notes": "family=sqclose; customer_id=CUST_12D12BFC; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Deepa Venkatesh, a 47-year-old IT support engineer from Chennai who prefers doing things methodically step-by-step and wants to review FD details and closure figures before closing.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want an FD closed the careful way: details, quote, close, then see the credited balance.",
+    "known_info": "You are Deepa Venkatesh, customer already logged in (id CUST_12D12BFC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD321436; payout to savings SB8625550667.",
+    "unknown_info": "The quote figures, and the post-closure savings balance.",
+    "task_instructions": "Step 1: ask about FD FD321436 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB8625550667. Step 4: finally ask for the savings balance to see the payout credited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_12D12BFC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqclose5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD321436"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose5_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD321436"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqclose5_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD321436",
+      "payout_account": "SB8625550667"
+     }
+    },
+    {
+     "action_id": "k5sqclose5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8625550667"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the FD details, fetches a premature closure quote, executes closure to the linked savings account upon explicit confirmation, and checks the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

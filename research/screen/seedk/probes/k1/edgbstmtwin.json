@@ -1,0 +1,416 @@
+[
+ {
+  "id": "k1_edgbstmtwin_00",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_17C2AE06; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Reddy, a 40-year-old IT Support Engineer living in Hyderabad, holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a duplicate statement from June 1, 2026 to today \u2014 but if your account is newer than that, the correct start date is the account's actual open date, not June 1st.",
+    "known_info": "You are Anjali Reddy, customer already logged in (id CUST_17C2AE06). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB8008904017. You'd like the statement 'from June 1st, 2026' through today (2026-07-16) if that's a valid window for this account.",
+    "unknown_info": "Your account's actual open date \u2014 it may be later than June 1st, 2026.",
+    "task_instructions": "Step 1: ask the agent to check when savings account SB8008904017 was opened (provide account id only when asked). Step 2: ask to see the transactions covering the period, starting from whichever is LATER \u2014 June 1st, 2026 or the account's open date \u2014 through today. Step 3: then ask for the official duplicate statement covering that exact same corrected period. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_17C2AE06"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8008904017"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin0_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8008904017",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB8008904017",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the account opening date for SB8008904017, retrieve the transaction history for the corrected date window from 2026-06-01 to 2026-07-16, and then place a request for a duplicate statement covering the exact same period."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbstmtwin_01",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_DC7B1B03; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 32-year-old college professor living in Gurugram, meticulous about keeping records of her savings account and expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a duplicate statement from June 1, 2026 to today \u2014 but if your account is newer than that, the correct start date is the account's actual open date, not June 1st.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_DC7B1B03). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB7570828972. You'd like to check transactions and get a statement 'from June 1st, 2026' through today (2026-07-16) if that is a valid window for this account.",
+    "unknown_info": "Your account's actual open date \u2014 it may be later than June 1st, 2026.",
+    "task_instructions": "Step 1: ask the agent to check when savings SB7570828972 was opened (provide account id only when asked). Step 2: ask to see the transactions covering the period, starting from whichever is LATER \u2014 June 1st, 2026 or the account's open date \u2014 through today (2026-07-16). Step 3: then ask for the official duplicate statement covering that exact same corrected period (confirm if asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DC7B1B03"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7570828972"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin1_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7570828972",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7570828972",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant verifies the savings account opening date, checks transaction history starting from June 1, 2026 through today, and orders a duplicate statement for that exact same date range."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbstmtwin_02",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_35984E69; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Lakshmi Devi, a 77-year-old retired nurse living in Bengaluru who manages her own savings account",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a duplicate statement from April 1, 2026 to today \u2014 but if your account is newer than that, the correct start date is the account's actual open date, not April 1st.",
+    "known_info": "You are Lakshmi Devi, customer already logged in (id CUST_35984E69). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB1778467703. You'd like the statement 'from April 1st, 2026' through today (2026-07-16) if that's a valid window for this account.",
+    "unknown_info": "Your account's actual open date \u2014 it may be later than April 1st, 2026.",
+    "task_instructions": "Step 1: ask the agent to check when savings SB1778467703 was opened (account id only when asked). Step 2: ask to see the transactions covering the period, starting from whichever is LATER \u2014 April 1st, 2026 or the account's open date \u2014 through today. Step 3: then ask for the official duplicate statement covering that exact same corrected period. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_35984E69"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin2_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB1778467703"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin2_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB1778467703",
+      "from_date": "2026-04-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB1778467703",
+      "from_date": "2026-04-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the opening date of the customer's savings account, fetch the transaction history from 2026-04-01 to 2026-07-16, and request an official duplicate statement for the same date range."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbstmtwin_03",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_2400D61E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Venkatesh, a homemaker from Mysuru who wants to review her savings account's activity and obtain a statement since opening.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a duplicate statement from January 1, 2023 to today \u2014 but if your account was opened after that date, the correct start date should be the account's actual opening date.",
+    "known_info": "You are Anjali Venkatesh, customer already logged in (id CUST_2400D61E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold savings account SB4218958653. You would like your statement and transactions from January 1, 2023 through today (2026-07-16) if valid for this account, or from the account's opening date if it was opened after January 1, 2023.",
+    "unknown_info": "Your account's actual open date \u2014 it may be later than January 1, 2023.",
+    "task_instructions": "Step 1: Ask the agent to check when your savings account was opened (provide account ID SB4218958653 only if asked). Step 2: Once the agent provides the opening date, ask to see the transactions covering the period starting from whichever is later \u2014 January 1, 2023 or the account opening date \u2014 through today (2026-07-16). Step 3: Then ask for an official duplicate statement covering that exact same corrected period. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2400D61E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4218958653"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin3_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB4218958653",
+      "from_date": "2023-06-19",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4218958653",
+      "from_date": "2023-06-19",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first retrieve the account details to determine the open date (2023-06-19), fetch transaction history from that corrected start date up to 2026-07-16, and then order a duplicate account statement for the exact same date window."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbstmtwin_04",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_5426933E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajeshwar Aggarwal, a 71-year-old senior IT consultant from New Delhi who likes orderly financial record-keeping.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out when your savings account was opened, view your recent transactions starting from June 1, 2026 (or your account opening date if it is newer) up to today, and then order an official duplicate statement for that exact window.",
+    "known_info": "You are Rajeshwar Aggarwal, logged in under customer ID CUST_5426933E. Do not volunteer account numbers or other IDs until specifically asked by the assistant. You hold savings account SB1578141125. You want the window to run from June 1, 2026 to today (2026-07-16) unless the account was opened after June 1, 2026.",
+    "unknown_info": "The exact opening date of your savings account SB1578141125 until looked up by the assistant.",
+    "task_instructions": "Step 1: Ask the assistant to check when your savings account was opened (provide account ID SB1578141125 only when asked).\nStep 2: Ask to view the account's transactions starting from whichever is later \u2014 June 1, 2026 or the account's open date \u2014 through today (2026-07-16).\nStep 3: Request an official duplicate account statement covering that exact same corrected period.\nFollow these steps strictly in order. Do not skip steps or combine them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5426933E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin4_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB1578141125"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin4_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB1578141125",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB1578141125",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account opening date via get_account_details, fetches transactions from 2026-06-01 to 2026-07-16 via get_transaction_history, and orders a duplicate statement for the same date range via request_duplicate_statement."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgbstmtwin_05",
+  "description": {
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "notes": "family=edgbstmtwin; customer_id=CUST_11BF7302; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 39-year-old school teacher from Kanpur who values accuracy and wants to verify her account's history before obtaining official documentation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a duplicate statement from June 1, 2026 to today \u2014 but if your account is newer than that, the correct start date is the account's actual open date, not June 1st.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_11BF7302). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB3580807461. You'd like the statement 'from June 1st, 2026' through today (2026-07-16) if that's a valid window for this account.",
+    "unknown_info": "Your account's actual open date \u2014 it may be later than June 1st, 2026.",
+    "task_instructions": "Step 1: ask the agent to check when savings account SB3580807461 was opened (account id only when asked). Step 2: ask to see the transactions covering the period, starting from whichever is LATER \u2014 June 1st, 2026 or the account's open date \u2014 through today. Step 3: then ask for the official duplicate statement covering that exact same corrected period. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_11BF7302"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgbstmtwin5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB3580807461"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgbstmtwin5_1",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3580807461",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k1edgbstmtwin5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3580807461",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the opening date of savings account SB3580807461 using get_account_details, retrieve transaction history for the corrected date range 2026-06-01 to 2026-07-16, and issue a duplicate account statement for that exact same date range."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

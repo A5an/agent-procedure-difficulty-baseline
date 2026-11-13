@@ -1,0 +1,548 @@
+[
+ {
+  "id": "foreign_tlfdmat_00",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_182BB205; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 71-year-old self-employed carpenter and senior citizen living in Hyderabad, seeking to plan and book a new fixed deposit from his savings.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings balance, look up the FD rate for 24 months, calculate its maturity return, book the fixed deposit, and verify your updated balance.",
+    "known_info": "You are Ravi Kumar Reddy (senior citizen), customer already logged in (id CUST_182BB205). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your savings account is SB6520076000. You want to open a cumulative Fixed Deposit of \u20b950,000 for a 24-month tenure at the rate of 7.6%.",
+    "unknown_info": "The exact maturity amount returned by the calculator, the newly created FD confirmation details, and your updated savings account balance.",
+    "task_instructions": "Step 1: Ask the agent for the current available balance in your savings account (provide account id SB6520076000 only if asked).\nStep 2: Ask the agent for the fixed deposit interest rate for a tenure of 24 months for \u20b950,000.\nStep 3: After the agent provides the rate, ask the agent to calculate the maturity amount for a 24-month cumulative FD of \u20b950,000 at 7.6%.\nStep 4: Once the calculation is presented, instruct the agent that you want to book this 24-month FD for \u20b950,000 from your savings account. When the agent asks for your explicit confirmation, confirm clearly with 'Yes, please proceed with booking the FD'.\nStep 5: Finally, ask for your updated savings account balance to confirm the deduction. Do this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_182BB205"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6520076000"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000,
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat0_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 50000,
+      "rate": 7.6,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat0_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 50000,
+      "source_account": "SB6520076000",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6520076000"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings balance, retrieve the 24-month FD rate, calculate the cumulative maturity return for \u20b950,000, book the new FD after receiving explicit confirmation, and retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlfdmat_01",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_509E6569; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Shaw, a 27-year-old agri trader holding savings and current accounts in Kolkata, looking to invest surplus savings into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about 12-month FD rates, calculate maturity returns for \u20b91,00,000, book the FD, and verify the post-debit balance.",
+    "known_info": "You are Rajesh Kumar Shaw, customer already logged in (id CUST_509E6569). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have a savings account (SB5887802386).",
+    "unknown_info": "Your exact account balance, the current 12-month FD interest rate, the maturity amount, and your updated savings balance after booking.",
+    "task_instructions": "Step 1: Ask the assistant to check the balance of your savings account. Step 2: Once the balance is provided, ask for the current FD interest rate for a 12-month tenure for an amount of \u20b91,00,000. Step 3: Ask to calculate the maturity amount and interest for an FD of \u20b91,00,000 for 12 months with cumulative interest at that rate. Step 4: Request to open this 12-month FD of \u20b91,00,000 debited from your savings account. When the assistant asks for your confirmation, reply with an explicit confirmation. Step 5: After the deposit is created, ask to check your savings account balance again to verify the debit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_509E6569"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5887802386"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat1_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 100000,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB5887802386",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5887802386"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the savings account balance, query the 12-month FD rate, calculate the maturity value, confirm before booking the FD, call create_fd, and finally retrieve the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlfdmat_02",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_4D0E1EE7; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Nisha Raghavan, a 45-year-old government officer in Chennai with a substantial savings balance looking to open a new fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inquire about the 12-month FD rate for \u20b95,00,000, calculate its maturity value, book the fixed deposit after confirming, and check your updated account balance.",
+    "known_info": "You are Nisha Raghavan, customer already logged in (id CUST_4D0E1EE7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB2149020412. You plan to invest \u20b95,00,000 for 12 months with cumulative payout and no auto-renewal.",
+    "unknown_info": "Current savings account balance, the exact FD rate for a 12-month deposit of \u20b95,00,000, the calculated maturity amount and interest earned, and the post-booking account balance.",
+    "task_instructions": "Step 1: Ask the agent to check your savings account balance. Step 2: Ask for the current fixed deposit interest rate for a 12-month tenure for an amount of \u20b95,00,000. Step 3: Once the agent provides the rate (6.8%), ask to calculate the maturity amount and interest earned for \u20b95,00,000 over 12 months with cumulative payout. Step 4: Ask the agent to go ahead and book this fixed deposit for \u20b95,00,000 for 12 months from your savings account with cumulative payout and no renewal. When the agent asks for your confirmation, reply with explicit confirmation. Step 5: After the fixed deposit has been created, ask to check your savings account balance to see the updated balance after the deduction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D0E1EE7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2149020412"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 500000.0,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat2_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 500000.0,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat2_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 500000.0,
+      "source_account": "SB2149020412",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2149020412"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the savings account balance, fetch the current FD rate for \u20b95,00,000 over 12 months, calculate the maturity value, seek explicit customer confirmation before creating the fixed deposit, and verify the post-booking account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlfdmat_03",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_9CE04BC0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 44-year-old railway employee with a savings account seeking to invest surplus funds into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your current savings balance, inquire about fixed deposit rates for a 12-month tenure, calculate the expected maturity value for \u20b950,000, book the FD after confirming the details, and check your updated balance afterwards.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_9CE04BC0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB9324244233. You want to book an FD for \u20b950,000 with a tenure of 12 months.",
+    "unknown_info": "Current savings account balance, current FD interest rate for 12 months, maturity value of the deposit, and the post-booking balance.",
+    "task_instructions": "Step 1: Ask the assistant for your current savings account balance. Step 2: Once you receive the balance, ask what the current interest rate is for a 12-month fixed deposit of \u20b950,000. Step 3: Ask the assistant to calculate the maturity amount and interest earned for \u20b950,000 over 12 months at that rate. Step 4: Ask the assistant to proceed with creating the 12-month fixed deposit of \u20b950,000 from your savings account. When the assistant summarizes the booking details and asks for your confirmation, reply with explicit confirmation (e.g., 'Yes, please proceed'). Step 5: After the fixed deposit has been created, ask for your updated savings account balance to verify the debit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9CE04BC0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9324244233"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 50000,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat3_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 50000,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB9324244233",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9324244233"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings account balance, look up the 12-month FD rate, calculate the maturity value, seek explicit customer confirmation before booking the \u20b950,000 FD from account SB9324244233, and check the updated balance after booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlfdmat_04",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_E84FC978; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 32-year-old restaurant owner who maintains active savings and current accounts, looking to invest surplus savings into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current savings balance, review FD rates, calculate maturity for \u20b92,00,000 over 12 months, book the FD, and verify the post-booking account balance.",
+    "known_info": "You are Priya Sharma, logged in with customer ID CUST_E84FC978. You have a savings account (SB9444753432) and a current account (CA8133374030). Do not volunteer your account numbers or internal IDs until specifically asked by the assistant.",
+    "unknown_info": "Your current savings account balance, the bank's FD rate card, maturity calculation figures for \u20b92,00,000 for 12 months, and the updated post-booking balance.",
+    "task_instructions": "Step 1: Ask the assistant for the available balance in your savings account (do not provide the account number unless asked).\nStep 2: Ask for the bank's current interest rate card for fixed deposits (FDs).\nStep 3: Ask the assistant to calculate the maturity amount and interest earned for a cumulative fixed deposit of \u20b92,00,000 for a 12-month tenure.\nStep 4: Ask the assistant to book this 12-month cumulative FD for \u20b92,00,000 using your savings account. When the assistant presents the details and asks for your confirmation, reply with explicit confirmation to proceed.\nStep 5: After the FD is created, ask for your updated savings account balance to confirm the debit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E84FC978"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9444753432"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat4_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 200000.0,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat4_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 200000.0,
+      "source_account": "SB9444753432",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9444753432"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the savings account balance, retrieve the FD rate card, calculate the maturity value for \u20b92,00,000 at 6.8% for 12 months, obtain explicit confirmation before booking the FD, execute create_fd, and report the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlfdmat_05",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_19ED68D0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Aditi Sanjay Kulkarni, a 38-year-old pharmacist living in Pune. She holds a savings account with \u20b92,50,000 available balance and wants to invest surplus funds into a new Fixed Deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about FD interest rates, calculate maturity value, book a new FD of \u20b91,00,000 for 12 months, and verify the post-booking balance.",
+    "known_info": "You are Aditi Sanjay Kulkarni, already logged in (customer ID CUST_19ED68D0). You have a savings account SB6047459021. You plan to open a Fixed Deposit of \u20b91,00,000 for 12 months with cumulative payout and no renewal. Do not volunteer your account ID or other IDs unless specifically requested by the assistant.",
+    "unknown_info": "Your current savings account balance, the exact FD interest rate for 12 months, the maturity calculation figures, and the updated savings balance after booking.",
+    "task_instructions": "Step 1: Ask the assistant to check the available balance of your savings account. Do not volunteer your account ID unless asked.\nStep 2: Once the assistant reports your balance, ask for the current interest rate for a 12-month Fixed Deposit of \u20b91,00,000.\nStep 3: After the assistant provides the rate, ask it to calculate the maturity amount and interest earned for a 12-month cumulative FD of \u20b91,00,000.\nStep 4: Once you hear the maturity calculation, instruct the assistant to book this 12-month Fixed Deposit of \u20b91,00,000 from your savings account with cumulative payout and no renewal. When the assistant asks for your explicit confirmation, reply with 'Yes, please proceed.'\nStep 5: After the FD is successfully created, ask for your savings account balance again to verify the deduction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_19ED68D0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlfdmat5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6047459021"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000.0,
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat5_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "payout_type": "cumulative",
+      "principal_amount": 100000.0,
+      "rate": 6.5,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "foreigntlfdmat5_3",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 100000.0,
+      "source_account": "SB6047459021",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreigntlfdmat5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6047459021"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, fetches the official 12-month FD rate card, calculates the maturity amount, prompts for explicit confirmation before booking the FD, creates the FD with the specified parameters, and re-checks the savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

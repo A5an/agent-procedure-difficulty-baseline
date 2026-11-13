@@ -1,0 +1,580 @@
+[
+ {
+  "id": "foreign_sq2fdladder_00",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_BA7A8614; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anu Suresh, a school teacher seeking to re-ladder her savings by reviewing and closing an existing fixed deposit, checking new deposit rates, booking a new fixed deposit, and checking her updated account balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing fixed deposit details, get a closure quote, close it, check current fixed deposit interest rates, reinvest \u20b950,000 into a new 12-month FD, and verify your savings account balance.",
+    "known_info": "You are Anu Suresh (customer ID CUST_BA7A8614). You have a linked savings account and fixed deposit FD593234. Do not volunteer specific account or deposit IDs unless asked.",
+    "unknown_info": "The premature closure quote payout, the latest FD interest rates, and the updated savings account balance.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your existing fixed deposit (do not volunteer the deposit ID unless asked).\nStep 2: Ask for a closure quote to find out what payout you would receive if you closed the deposit today.\nStep 3: Ask to close the fixed deposit and have the proceeds credited to your savings account. When the assistant asks for your explicit confirmation, confirm affirmatively.\nStep 4: Inquire about the bank's current fixed deposit interest rates.\nStep 5: Ask to reinvest by booking a new 12-month fixed deposit of \u20b950,000 using funds from your savings account. When the assistant asks for your explicit confirmation, confirm affirmatively.\nStep 6: Ask for the available balance of your savings account. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BA7A8614"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD593234"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder0_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD593234"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder0_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD593234",
+      "payout_account": "SB2397145831"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder0_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder0_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB2397145831",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder0_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2397145831"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's FD details, generate a closure quote, confirm and close the FD, query the current FD rate card, confirm and create a new 12-month FD for \u20b950,000, and finally check the customer's savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2fdladder_01",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_CD3A1C80; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Aditi Kumari, a 33-year-old product manager from Patna managing her fixed deposit investments and restructuring her FD ladder.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current FD details, obtain a premature closure quote, close the FD into the savings account, check current FD rates, reinvest a portion into a new 12-month FD, and verify the resulting savings account balance.",
+    "known_info": "You are Aditi Kumari, customer ID CUST_CD3A1C80. You hold a fixed deposit FD738552 and savings account SB6223038482. Do not volunteer account or deposit IDs until asked.",
+    "unknown_info": "The exact closure quote amount with penalties, current interest rates for a 12-month FD, and the updated savings account balance after transactions.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit (provide deposit ID FD738552 when requested).\nStep 2: Ask for a closure quote to see the payout value if the deposit were closed today.\nStep 3: Instruct the assistant to close the deposit and transfer the proceeds to your savings account (SB6223038482 when asked). Give explicit confirmation when prompted.\nStep 4: Inquire about the current FD interest rates for a 12-month tenure to start laddering.\nStep 5: Ask to open a new fixed deposit of \u20b91,00,000 for a tenure of 12 months using savings account SB6223038482. Provide explicit confirmation when asked.\nStep 6: Request your savings account balance to check the final available funds. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CD3A1C80"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD738552"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder1_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD738552"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder1_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD738552",
+      "payout_account": "SB6223038482"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder1_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder1_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB6223038482",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder1_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6223038482"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the FD details, calculate the premature closure quote, obtain explicit customer confirmation before closing FD738552, look up current 12-month FD rates, obtain confirmation before creating the new \u20b91,00,000 FD, and finally present the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2fdladder_02",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_20676B65; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Savita Ramesh Thakre, a 61-year-old senior citizen working in hospitality in Nagpur. She manages an FD ladder across multiple tenures and wants to restructure her shortest-tenure deposit into a longer term.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to inspect your 1-year fixed deposit, get a closure quote, close it early, check current rates for a 36-month FD, reinvest \u20b950,000 into a new 36-month FD, and finally verify your savings account balance.",
+    "known_info": "You are Savita Ramesh Thakre, logged in with customer ID CUST_20676B65. Your savings account is SB2940406521 and the deposit you want to review and close is FD611526 (principal \u20b950,000). Do not volunteer account or deposit IDs until the agent asks for them. When closing, credit proceeds to your savings account. When reinvesting, you want to open a 36-month cumulative FD of \u20b950,000 with no renewal from your savings account.",
+    "unknown_info": "The exact premature closure payout quote for FD611526, the current rate for a 36-month fixed deposit, and your final savings account balance.",
+    "task_instructions": "Step 1: Ask for details of your 1-year fixed deposit of \u20b950,000 (provide deposit ID FD611526 only when asked). Step 2: Ask for a quote on what payout you would receive if you close this deposit today. Step 3: Instruct the agent to close the deposit to your savings account, and explicitly confirm when the agent asks for confirmation. Step 4: Ask for the current interest rate on a 36-month (3-year) fixed deposit. Step 5: Ask to open a new 36-month cumulative fixed deposit of \u20b950,000 funded from your savings account with no auto-renewal, confirming clearly when asked. Step 6: Finally, ask to check your savings account balance to ensure the transactions reflect properly. Strictly follow these steps in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_20676B65"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD611526"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder2_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD611526"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder2_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD611526",
+      "payout_account": "SB2940406521"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder2_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder2_4",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 50000.0,
+      "source_account": "SB2940406521",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder2_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2940406521"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for FD611526, provides a closure quote, closes the deposit to savings account SB2940406521 upon confirmation, looks up current 36-month FD interest rates, books a new \u20b950,000 36-month FD upon confirmation, and checks the customer's savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2fdladder_03",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_A7AC7BD6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Harinder Singh, a 45-year-old school teacher from Ludhiana who actively manages his savings through fixed deposit laddering.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to inspect your 1-year fixed deposit, get a closure quote, close it, check interest rates for a 36-month deposit to build an FD ladder, book a new 36-month deposit, and check your savings account balance.",
+    "known_info": "You are Harinder Singh, customer already logged in (customer ID CUST_A7AC7BD6). Do not volunteer account/card/deposit/mandate/transaction IDs until the agent asks for that specific detail. Your target fixed deposit is FD941224 and your savings account is SB2293291275. You plan to reinvest \u20b950,000 for 36 months.",
+    "unknown_info": "The premature closure payout quote for FD941224, the bank's current 36-month FD interest rate, and the final savings account balance after closure and reinvestment.",
+    "task_instructions": "Step 1: Ask for the details of your 1-year fixed deposit FD941224 (provide the deposit ID only when asked).\nStep 2: Ask for a closure quote to check the payout amount if you close FD941224 today.\nStep 3: Ask the assistant to close FD941224 and deposit the funds into your savings account SB2293291275 (provide account ID only when asked). When the assistant asks for your confirmation to close the deposit, give explicit confirmation.\nStep 4: Mention that you are setting up an FD ladder and ask for the current fixed deposit interest rate for a 36-month tenure.\nStep 5: Ask to open a new fixed deposit of \u20b950,000 for a tenure of 36 months, funding it from your savings account SB2293291275. When the assistant asks for your confirmation to book the FD, give explicit confirmation.\nStep 6: Ask for the updated balance of your savings account SB2293291275.\nDo this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A7AC7BD6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD941224"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder3_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD941224"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder3_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD941224",
+      "payout_account": "SB2293291275"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder3_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder3_4",
+     "name": "create_fd",
+     "arguments": {
+      "maturity_instruction": "no_renewal",
+      "payout_type": "cumulative",
+      "principal_amount": 50000.0,
+      "source_account": "SB2293291275",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder3_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2293291275"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details of fixed deposit FD941224, fetch its closure quote, seek customer confirmation and close the deposit, check the rate card for a 36-month FD, confirm and create a new 36-month FD of \u20b950,000 from account SB2293291275, and finally check the account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2fdladder_04",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_A86A2754; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mehta, a 50-year-old IT professional managing his fixed deposit ladder by breaking an existing deposit, checking rate cards, reinvesting into a new tenure, and verifying account balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to restructure your fixed deposit ladder by reviewing FD229395, getting a closure quote, closing it to your savings account, checking current FD rates, booking a new 12-month FD for \u20b95,00,000, and checking your savings account balance.",
+    "known_info": "You are Rajesh Kumar Mehta (customer ID CUST_A86A2754). You have fixed deposit FD229395 and savings account SB2342888093. Do not volunteer account, deposit, or product IDs until the agent asks for them.",
+    "unknown_info": "The premature closure penalty/proceeds for FD229395, current FD rate card, and final available balance in your savings account.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit (provide deposit ID FD229395 only if requested).\nStep 2: Ask for a closure quote to see how much you would receive if you close this deposit today.\nStep 3: Request to close the fixed deposit with proceeds credited to your savings account. When the assistant presents the details and asks for confirmation, explicitly confirm.\nStep 4: Ask for the bank's current fixed deposit rate card so you can reinvest the funds as part of your FD ladder.\nStep 5: Ask to open a new fixed deposit of \u20b95,00,000 for a 12-month tenure funded from your savings account (provide account ID SB2342888093 only when asked). When the assistant asks for your confirmation to book the FD, explicitly confirm.\nStep 6: Ask for the current available balance of your savings account.\nStrictly follow this order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A86A2754"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD229395"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder4_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD229395"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder4_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD229395",
+      "payout_account": "SB2342888093"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder4_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder4_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 500000.0,
+      "source_account": "SB2342888093",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder4_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2342888093"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant looks up FD229395 details, fetches its premature closure quote, confirms and closes the deposit to SB2342888093, checks current FD rates, confirms and books a new 12-month FD of \u20b95,00,000 from SB2342888093, and finally reports the savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2fdladder_05",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_1B5595E7; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Singh, a 52-year-old police constable with Kolkata Police, managing his fixed deposit ladder and savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of an existing fixed deposit, get its closure quote, close it, check new FD rates, reinvest part of the funds into a new 12-month FD, and check your updated savings account balance.",
+    "known_info": "You are Rajesh Kumar Singh, customer already logged in (id CUST_1B5595E7). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your fixed deposit is FD559650 and your linked savings account is SB5820578732.",
+    "unknown_info": "The current deposit closure quote for FD559650, the current FD interest rate for a 12-month tenure, and your updated savings account balance after closure and reinvestment.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit (provide deposit ID FD559650 only when asked). Step 2: Once details are shared, ask for a closure quote if you were to close FD559650 today. Step 3: Instruct the assistant to close FD559650 and credit the proceeds to your savings account (provide SB5820578732 if asked), and explicitly confirm the closure when asked for confirmation. Step 4: Ask for the current interest rate for booking a new 12-month fixed deposit. Step 5: Ask to open a new cumulative fixed deposit for \u20b950,000 for a tenure of 12 months debited from your savings account SB5820578732, and give explicit affirmative confirmation when asked. Step 6: Finally, ask to check the available balance of your savings account SB5820578732. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1B5595E7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2fdladder5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD559650"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder5_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD559650"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder5_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD559650",
+      "payout_account": "SB5820578732"
+     }
+    },
+    {
+     "action_id": "foreignsq2fdladder5_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder5_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB5820578732",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsq2fdladder5_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5820578732"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details of FD559650, retrieve its closure quote, seek customer confirmation before closing it to SB5820578732, check the rate card for a 12-month FD, confirm before booking the new \u20b950,000 FD, and finally display the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,375 @@
+[
+ {
+  "id": "foreign_sq2insur_00",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_05D164A8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Mona Chatterjee, a 54-year-old nurse from Kolkata who holds a life insurance policy through the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Inquire about the claim policy/process for bancassurance, inspect your linked insurance policy details, and raise a service request to start an insurance claim.",
+    "known_info": "You are Mona Chatterjee, customer already logged in (id CUST_05D164A8). Do not volunteer account, card, policy, or request IDs or internal category codes until the agent specifically asks for them. Your life insurance policy is Sentinel Life Jeevan Anand (policy ID POL612132) linked to your savings account SB9054000769.",
+    "unknown_info": "The bank's exact claim procedure, policy details on record, and the service request number generated.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy and procedure for filing an insurance claim on a policy bought through the bank. Step 2: After the assistant explains the claim process, ask them to check the details of your active insurance policy (provide policy ID POL612132 only if asked). Step 3: Ask the assistant to start/raise a request to initiate the insurance claim for your policy. When the assistant asks for confirmation to raise the request, reply with an explicit confirmation. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_05D164A8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur0_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL612132"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur0_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Initiate insurance claim for Sentinel Life Jeevan Anand policy POL612132"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the insurance claim process, retrieves the customer's insurance details using get_insurance_details, requests confirmation from the customer, and raises a service request to initiate the claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2insur_01",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_266ABC53; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Gursimran Kaur, a 26-year-old nurse in Amritsar who holds a health insurance policy through the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to understand the bank's policy for filing an insurance claim, check your health insurance policy details, and initiate a claim request.",
+    "known_info": "You are Gursimran Kaur, customer already logged in (id CUST_266ABC53). Do not volunteer account/policy IDs or internal categories until the agent asks for that specific detail. Your policy is Health Plus Indemnity Plan (policy ID POL512079) with Alpine General Insurance. You want to initiate a claim for recent medical treatment.",
+    "unknown_info": "The bank's exact procedure and policy for handling bancassurance claims, your current policy coverage/status details, and the resulting service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant what the bank's policy and process is for filing an insurance claim on a policy purchased through the bank. Step 2: Once the assistant explains the claim process, ask to check the details of your health insurance policy (provide policy ID POL512079 if asked). Step 3: After the assistant shares the policy details, ask to start an insurance claim request for this policy. Step 4: When the assistant asks for your explicit confirmation to raise the service request, confirm affirmatively. Do this strictly in order \u2014 do not skip or reorder steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_266ABC53"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur1_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL512079"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Initiate insurance claim for policy POL512079"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for insurance claim policy, fetches the customer's policy details via get_insurance_details, asks for confirmation, and raises a service request to start the claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2insur_02",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_C803E56D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vikram Suresh Patel, a 27-year-old college professor from Surat who holds an active health insurance policy through the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Inquire about the bank's insurance claim policy, check health insurance policy details, and initiate a claim request.",
+    "known_info": "You are Vikram Suresh Patel, logged in under customer ID CUST_C803E56D. You hold a health insurance policy named Secure Health Plus (policy ID POL745251). Do not volunteer your policy ID, account numbers, or backend categories unless specifically requested by the assistant.",
+    "unknown_info": "The bank's policy/process for filing insurance claims, your current policy details as recorded, and the service request ID for the claim submission.",
+    "task_instructions": "Step 1: Ask the assistant what the bank's policy and procedure is for filing an insurance claim. Step 2: Once the assistant explains the policy, ask it to look up the details of your health insurance policy (provide the policy ID POL745251 only if asked). Step 3: Ask the assistant to initiate an insurance claim request for this policy. Step 4: When the assistant asks for your confirmation to raise the request, explicitly confirm by saying yes. After the request is raised, end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C803E56D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim policy process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur2_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL745251"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur2_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Insurance claim request for health insurance policy POL745251"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for insurance claim policies, retrieve the customer's policy details using get_insurance_details, ask for explicit confirmation, and raise a service request to start the claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2insur_03",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_85D3E40B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Shanti Devi, an elderly farmer from Lucknow who holds a life insurance policy through the bank and wants to understand how to claim it and get the claim process started.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Understand the bank's policy for insurance claims, inspect your insurance policy details, and initiate a claim request.",
+    "known_info": "You are Shanti Devi, customer already logged in (id CUST_85D3E40B). Do not volunteer account/card/deposit/mandate/policy IDs or internal categories until the agent asks for that specific detail. You hold an active life insurance policy POL981926 linked to savings account SB7874464789.",
+    "unknown_info": "The bank's bancassurance claim process and rules, your current policy coverage details, and the service request reference number.",
+    "task_instructions": "Step 1: Ask the agent about the bank's policy and procedure for filing an insurance claim. Step 2: Once the agent explains the policy, ask them to check the details of your linked insurance policy (provide policy ID POL981926 only if asked). Step 3: Ask the agent to start an insurance claim request for this policy, and give a clear affirmative confirmation when the agent asks before submitting the request. Follow this sequence strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_85D3E40B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim policy process bancassurance"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur3_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL981926"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur3_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7874464789",
+      "category": "general_query",
+      "description": "Initiate insurance claim for policy POL981926"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the insurance claim policy, retrieve the customer's insurance policy details, and raise a service request to start the claim only after receiving explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2insur_04",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_34E78AA0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A 73-year-old senior citizen living in Thiruvananthapuram who has an active health insurance policy linked to her bank account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your health insurance policy details, understand the claim policy and requirements, and initiate an insurance claim.",
+    "known_info": "You are Smt. Ganga Menon, customer ID CUST_34E78AA0. You have an active health insurance policy (policy ID POL268193) and savings account SB2339018993. Do not volunteer your policy ID or account ID until the assistant specifically asks for them.",
+    "unknown_info": "Your exact policy coverage status, the claim rules and procedure, and the claim service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant to check your health insurance policy details (do not volunteer policy ID POL268193 until requested).\nStep 2: After the assistant reviews your policy details, ask about the bank's claim policy and procedure for filing a claim under this policy.\nStep 3: Once the assistant explains the claim policy, ask to start an insurance claim for your policy.\nStep 4: When the assistant asks for your explicit confirmation to raise the service request, confirm clearly with 'Yes, please proceed'.\nFollow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_34E78AA0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur4_0",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL268193"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur4_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "health insurance claim policy process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Initiate health insurance claim for policy POL268193"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's insurance policy details using get_insurance_details, search the knowledge base for the claim policy, and after receiving explicit confirmation, raise a service request to start the insurance claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2insur_05",
+  "description": {
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "notes": "family=sq2insur; customer_id=CUST_4534F661; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 47-year-old IT support engineer seeking to understand the insurance claim policy and file a claim on his life insurance policy.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check the bank's insurance claim policy, review your active insurance policy details, and initiate an insurance claim request.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_4534F661). Do not volunteer account/card/deposit/mandate/policy IDs or internal categories until the agent asks for that specific detail. Your life insurance policy is POL876313 (Harbor Life Click 2 Protect Plus).",
+    "unknown_info": "The specific policy rules/procedure for claim settlement, exact policy coverage values, and the service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant about the bank's policy and procedure for filing an insurance claim. Step 2: Once the assistant explains the claim process, ask to check the details of your active life insurance policy (provide policy ID POL876313 only if the assistant asks). Step 3: After the policy details are confirmed, ask to initiate an insurance claim request for this policy. When the assistant summarizes the action and asks for your confirmation to raise the request, reply with an explicit confirmation. Maintain this sequence strictly in order \u2014 do not allow the assistant to skip steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4534F661"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2insur5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance claim process"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2insur5_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL876313"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2insur5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Insurance claim initiation for policy POL876313"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for insurance claim policy, retrieve the customer's insurance policy details, and upon obtaining confirmation, raise a service request to start the insurance claim."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

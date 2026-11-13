@@ -1,0 +1,374 @@
+[
+ {
+  "id": "foreign_sqfrz_00",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_FDC897B1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 46-year-old nurse from Chennai who has temporarily misplaced his debit card and wants to check its status, freeze it temporarily for safety, and verify that the freeze went through.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card and want to check its current status, place a temporary freeze on it, and then verify that it is indeed frozen.",
+    "known_info": "You are Ravi Kumar, customer ID CUST_FDC897B1. You have a debit card with card ID CARD56978 linked to your savings account. Do not volunteer your card ID or account details until the assistant explicitly asks for them.",
+    "unknown_info": "Whether any unauthorized transactions have occurred, or what specific backend controls/tools are used.",
+    "task_instructions": "Step 1: Tell the assistant that you have misplaced your debit card and would like to check its current status. If the assistant asks for your card ID, provide CARD56978.\nStep 2: Once the assistant checks and reports that the card is active, ask them to place a temporary freeze on it. When the assistant asks for your explicit confirmation to freeze card CARD56978, confirm affirmatively.\nStep 3: After the assistant reports that the card has been frozen, ask them to check and verify the card's status again to ensure it is showing as frozen.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FDC897B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD56978"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD56978",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD56978"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first inspect the card's details using get_card_details with CARD56978, seek explicit confirmation before freezing the card, call toggle_card_freeze with state 'freeze', and then call get_card_details again to verify that the card is frozen."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfrz_01",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_A0EAD40F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a shop owner in Gurugram, who temporarily misplaced her debit card while managing her store and wants to quickly check its status, freeze it temporarily, and verify that the lock is in place.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card and want to check its current status, place a temporary freeze on it to avoid misuse, and then verify that it is properly frozen.",
+    "known_info": "You are Priya Sharma, already authenticated (id CUST_A0EAD40F). You have a debit card linked to your savings account. Do not volunteer account/card IDs until the assistant asks or references them. If the assistant asks which card, describe it as your debit card.",
+    "unknown_info": "The exact card ID (CARD65613) until the assistant looks it up or mentions it.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card because you seem to have misplaced it.\nStep 2: When the assistant shares the details showing it is active, ask the assistant to temporarily freeze the card. When the assistant states what it is about to do and asks for your confirmation to freeze the card, provide explicit affirmative confirmation (e.g., 'Yes, please proceed with freezing the card').\nStep 3: Once the assistant confirms the card has been frozen, ask the assistant to check the card details again to verify that the status is now frozen.\nDo this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A0EAD40F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65613"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD65613",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65613"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's debit card details (CARD65613), seeks explicit confirmation before freezing it, calls toggle_card_freeze with state 'freeze', and then checks the card details again to verify its updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfrz_02",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_7773DB22; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Kamaljit Kaur, a 71-year-old shop owner from Ludhiana who recently misplaced her debit card and wants to safely check and temporarily freeze it.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card and want to check its status, temporarily freeze it to prevent any misuse, and then verify that it has been frozen.",
+    "known_info": "You are Kamaljit Kaur, logged in under customer ID CUST_7773DB22. Your debit card ID is CARD68656. Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "Whether any unauthorized transactions have occurred or the internal mechanics of card controls \u2014 you only want to check the card, freeze it, and verify the freeze.",
+    "task_instructions": "Step 1: Tell the assistant that you have misplaced your debit card and would like to check its current status. Do not mention your card ID until the assistant asks for it. When asked, provide CARD68656.\nStep 2: After the assistant checks and reports that the card is active, ask the assistant to temporarily freeze it. When the assistant asks for your explicit confirmation to freeze the card, reply with a clear confirmation.\nStep 3: Once the assistant confirms the card is frozen, ask the assistant to check the card status again to verify that it is indeed frozen. After verification, acknowledge and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7773DB22"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD68656"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD68656",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD68656"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of card CARD68656, asks for customer confirmation before temporarily freezing it via toggle_card_freeze, and verifies the frozen status by retrieving the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfrz_03",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_81B1FBEE; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Rani, a 60-year-old retail shop owner in Gurugram, who temporarily misplaced her debit card at her shop and wants to check its status, temporarily freeze it, and verify that the freeze went through.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card and want to check its current status, place a temporary freeze on it, and then verify that it is indeed frozen.",
+    "known_info": "You are Sunita Rani, logged in as customer CUST_81B1FBEE. You hold a debit card with card ID CARD91081. Do not volunteer your card ID or account details until the assistant explicitly asks for them. You want to temporarily freeze the card, not permanently block it.",
+    "unknown_info": "None.",
+    "task_instructions": "Step 1: Tell the assistant you cannot find your debit card and ask to check its status. When the assistant asks for your card ID, provide CARD91081.\nStep 2: After the assistant checks and confirms the card is active, ask to temporarily freeze it. When the assistant asks for confirmation to freeze the card, reply affirmatively.\nStep 3: Once the assistant confirms the freeze has been placed, ask the assistant to check and verify the card status again to ensure it is frozen.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_81B1FBEE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD91081"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD91081",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD91081"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks details for card CARD91081, seeks confirmation before calling toggle_card_freeze with state 'freeze', and checks card details again to verify the card is frozen."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfrz_04",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_62A9B822; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Nair, a 58-year-old government clerk from Kochi who recently misplaced his debit card and wants to freeze it safely.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card and want to check its current status, temporarily freeze it, and verify that it is properly frozen.",
+    "known_info": "You are Rajesh Nair, customer already logged in (customer ID CUST_62A9B822). Do not volunteer account or card IDs until the assistant asks for that specific detail. Your debit card ID is CARD69564.",
+    "unknown_info": "none",
+    "task_instructions": "Step 1: Ask the assistant to check the status of your debit card. Do not volunteer the card ID until asked; when asked, provide CARD69564.\nStep 2: Once the assistant shares the card status, state that you misplaced the card and want to temporarily freeze it. When the assistant asks for confirmation to freeze card CARD69564, reply with 'Yes, please freeze it'.\nStep 3: Once the assistant confirms the card is frozen, ask them to check and verify the card details again to confirm that the status is now frozen. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_62A9B822"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD69564"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD69564",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD69564"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for card CARD69564, prompts for confirmation before temporarily freezing it, executes toggle_card_freeze upon confirmation, and then re-checks the card details to verify the frozen status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfrz_05",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_5C21DF85; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 41-year-old dairy business owner in Jaipur, practical and cautious about financial security.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced your debit card at home and want to check its current status, temporarily freeze it to prevent misuse while looking for it, and verify that the card is frozen.",
+    "known_info": "You are Sunita Devi, logged in under customer ID CUST_5C21DF85. You have a savings account and a debit card with the bank. You misplaced your card around the house. Do not volunteer the card ID (CARD28039) or account ID upfront; let the assistant look them up from your profile.",
+    "unknown_info": "Whether the card has experienced any unauthorized transactions or whether any freeze was already placed.",
+    "task_instructions": "Step 1: Tell the assistant that you misplaced your debit card somewhere at home and ask them to check its current status. Do not volunteer the card ID.\nStep 2: When the assistant reports the card's active status and asks for confirmation to freeze it, explicitly confirm that you want to temporarily freeze debit card CARD28039.\nStep 3: After the assistant confirms the card has been frozen, ask them to check and verify the card status again to make sure the freeze took effect.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5C21DF85"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfrz5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD28039"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfrz5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD28039",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignsqfrz5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD28039"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the card status, request confirmation before freezing, toggle the freeze state to 'freeze', and subsequently re-verify the card's details to confirm it is frozen."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

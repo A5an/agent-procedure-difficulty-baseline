@@ -1,0 +1,392 @@
+[
+ {
+  "id": "k5_sqrenew_00",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_58826F08; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rashmi Kalita, a 50-year-old sales executive at Keshari Retail living in Guwahati, holding an active fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: not renew at maturity (pay out everything), verified before and after.",
+    "known_info": "You are Rashmi Kalita, customer already logged in (id CUST_58826F08). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD502589. You want to not renew at maturity (pay out everything).",
+    "unknown_info": "FD details before, and the updated instruction visible after.",
+    "task_instructions": "Step 1: ask for the details of FD FD502589 (id only when asked). Step 2: then ask to set it to not renew at maturity (pay out everything) (confirm when asked). Step 3: then ask for the FD details AGAIN to confirm the new instruction is recorded. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_58826F08"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD502589"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew0_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD502589",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew0_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD502589"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up FD502589 details, seek explicit confirmation before changing the renewal instruction to 'no_renewal', call update_deposit_renewal, and verify the updated status by fetching the deposit details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqrenew_01",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_BC6DAADD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 43-year-old carpenter from Mysuru",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: renew principal plus interest, verified before and after.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_BC6DAADD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD894810. You want to renew principal plus interest.",
+    "unknown_info": "FD details before, and the updated instruction visible after.",
+    "task_instructions": "Step 1: ask for the details of FD FD894810 (id only when asked). Step 2: then ask to set it to renew principal plus interest (confirm when asked). Step 3: then ask for the FD details AGAIN to confirm the new instruction is recorded. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BC6DAADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD894810"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew1_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD894810",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew1_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD894810"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the details of fixed deposit FD894810, seek explicit confirmation before updating its maturity renewal instruction to renew principal and interest, call update_deposit_renewal upon confirmation, and re-fetch the FD details to verify the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqrenew_02",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_1EA8D8B2; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Kumari, an agri trader from Patna who holds an active fixed deposit and wants to review and adjust its maturity renewal instruction.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: renew principal plus interest, verified before and after.",
+    "known_info": "You are Priya Kumari, customer already logged in (id CUST_1EA8D8B2). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD859413. You want to renew principal plus interest.",
+    "unknown_info": "FD details before, and the updated instruction visible after.",
+    "task_instructions": "Step 1: ask for the details of FD FD859413 (id only when asked). Step 2: then ask to set it to renew principal plus interest (confirm when asked). Step 3: then ask for the FD details AGAIN to confirm the new instruction is recorded. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1EA8D8B2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD859413"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew2_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD859413",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew2_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD859413"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch details for fixed deposit FD859413, seek explicit confirmation before updating the maturity renewal instruction to renew principal plus interest, execute the update upon confirmation, and verify the updated details by fetching the deposit details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqrenew_03",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_68B3AB03; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Krishnan, a software engineer living in Bengaluru who holds an active Fixed Deposit and wishes to update its maturity instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: renew principal plus interest, verified before and after.",
+    "known_info": "You are Rajesh Krishnan, customer already logged in (id CUST_68B3AB03). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD622217. You want to renew principal plus interest at maturity.",
+    "unknown_info": "FD details before the update, and the updated maturity instruction confirmed after the change.",
+    "task_instructions": "Step 1: ask for the details of your Fixed Deposit FD622217 (provide deposit id only when asked). Step 2: then ask to change the maturity instruction to renew principal plus interest (confirm when asked). Step 3: then ask for the FD details AGAIN to verify that the new instruction is recorded. Keep the agent strictly to this sequence: each step only after the previous one is completed. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_68B3AB03"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD622217"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew3_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD622217",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew3_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD622217"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for FD FD622217, confirm with the customer before updating the renewal instruction to renew_principal_interest, execute the update, and re-fetch the FD details to verify the change."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqrenew_04",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_78A3D01F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Shobha Rani, a 73-year-old retired software engineer residing in Mysuru, who carefully tracks her fixed deposit and wants to update its renewal instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: renew principal plus interest, verified before and after.",
+    "known_info": "You are Shobha Rani, customer already logged in (id CUST_78A3D01F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD107021. You want to renew principal plus interest.",
+    "unknown_info": "FD details before, and the updated instruction visible after.",
+    "task_instructions": "Step 1: ask for the details of your fixed deposit FD107021 (provide the deposit ID only when asked). Step 2: then ask to set it to renew principal plus interest (confirm explicitly when asked). Step 3: then ask for the FD details AGAIN to confirm the new renewal instruction is recorded. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_78A3D01F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD107021"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew4_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD107021",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew4_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD107021"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's FD details, asks for explicit confirmation before updating the maturity instruction to renew principal and interest, executes the update, and then re-checks the FD details to verify the change."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqrenew_05",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_F8D508C8; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Prashant Kulkarni, a 36-year-old railway employee who holds a fixed deposit and manages his account carefully.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want FD maturity handling changed to: renew principal plus interest, verified before and after.",
+    "known_info": "You are Rajesh Prashant Kulkarni, customer already logged in (id CUST_F8D508C8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD459288. You want to renew principal plus interest at maturity.",
+    "unknown_info": "FD details before, and the updated instruction visible after.",
+    "task_instructions": "Step 1: ask for the details of FD FD459288 (id only when asked). Step 2: then ask to set it to renew principal plus interest (confirm when asked). Step 3: then ask for the FD details AGAIN to confirm the new instruction is recorded. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F8D508C8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqrenew5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD459288"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqrenew5_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD459288",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "k5sqrenew5_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD459288"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details of FD459288, seeks confirmation before updating the maturity renewal instruction to renew principal and interest, executes update_deposit_renewal, and verifies the change by retrieving the deposit details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

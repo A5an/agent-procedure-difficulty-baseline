@@ -1,0 +1,404 @@
+[
+ {
+  "id": "k5_tlacctdet_00",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_D80DD3F8; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 41-year-old self-employed cab driver based in Bengaluru.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_D80DD3F8). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB7754803401. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D80DD3F8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7754803401"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet0_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7754803401"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7754803401",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the balance for savings account SB7754803401, fetch the account details (IFSC and branch), and request a duplicate account statement for June 2026 delivered via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlacctdet_01",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_B1971D5D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 54-year-old railway employee from Kolkata who needs her savings account balance, account metadata, and an official statement copy for external documentation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are Madhurima Ghosh, customer already logged in (id CUST_B1971D5D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB4937690065. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B1971D5D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4937690065"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet1_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4937690065"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4937690065",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the savings account balance, look up the account details (branch and IFSC), and order a duplicate statement for June 2026 to be sent by email in strict sequence."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlacctdet_02",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_336DF95C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Shankar Gowda, a 60-year-old nurse residing in Bengaluru",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are Ravi Shankar Gowda, customer already logged in (id CUST_336DF95C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB4179132551. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_336DF95C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4179132551"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet2_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4179132551"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4179132551",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the savings account balance, fetches account metadata including branch and IFSC details, and orders an email duplicate statement for June 2026 in that exact order."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlacctdet_03",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_A93465FD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rameshwar Reddy, a 77-year-old IT Support Engineer living in Hyderabad, holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are Rameshwar Reddy, customer already logged in (id CUST_A93465FD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB7494116969. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A93465FD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7494116969"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet3_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7494116969"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7494116969",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the balance for savings account SB7494116969, fetch the account details including IFSC and branch, and order a duplicate statement for the period 2026-06-01 to 2026-06-30 delivered via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlacctdet_04",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_02065269; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mehta, an HNI senior citizen customer inquiring about his savings account balance, bank details, and an official duplicate statement.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are Rajesh Kumar Mehta, customer already logged in (id CUST_02065269). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB4035953338. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_02065269"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4035953338"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet4_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4035953338"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4035953338",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the balance for savings account SB4035953338, provides the account details including branch and IFSC, and then issues a duplicate statement request for June 2026 via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlacctdet_05",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_671C7DCC; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "M. Venkata Rao, a 56-year-old school teacher from Visakhapatnam who needs his savings account details and statement for documentation purposes.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need your account's IFSC/branch/holder details for an external form, plus a statement copy.",
+    "known_info": "You are M. Venkata Rao, customer already logged in (id CUST_671C7DCC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB4342988519. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Your balance, the account metadata (IFSC/branch), and the statement confirmation.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for the account's details \u2014 bank name, IFSC, branch (id only when asked). Step 3: only after hearing those, ask for a duplicate statement for June 2026 by email on the same account. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_671C7DCC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlacctdet5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4342988519"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet5_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB4342988519"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlacctdet5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4342988519",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the available balance and account details for SB4342988519, then requests a duplicate statement for June 2026 sent via email without skipping or reordering steps."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,374 @@
+[
+ {
+  "id": "k5_tlreqstat_00",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_1B5595E7; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Singh, a 52-year-old Police Constable with the Kolkata Police residing in Kolkata.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the status of a service request you raised earlier, and if it's still unresolved, you want a follow-up logged.",
+    "known_info": "You are Rajesh Kumar Singh, customer already logged in (id CUST_1B5595E7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB5820578732. The earlier request's id: SR-91781587 (give it only if asked).",
+    "unknown_info": "The status of your earlier request, and confirmation the follow-up was logged.",
+    "task_instructions": "Step 1: ask for the balance on savings SB5820578732 (id only when asked). Step 2: then ask for the status of your earlier request SR-91781587 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it, and confirm if asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1B5595E7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5820578732"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat0_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-91781587"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat0_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5820578732",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-91781587"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the balance for account SB5820578732, verify the open status of request SR-91781587, obtain the customer's confirmation, and raise a follow-up service request for the unresolved query."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlreqstat_01",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_92FEDB5E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Kaur, a 55-year-old IT Support Engineer who wants to check her savings account balance, verify the status of a pending service request, and chase it up if it has not been resolved.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the status of a service request you raised earlier, and if it's still unresolved, you want a follow-up logged.",
+    "known_info": "You are Gurpreet Kaur, customer already logged in (id CUST_92FEDB5E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB1174638660. The earlier request's id: SR-60514252 (give it only if asked).",
+    "unknown_info": "The status of your earlier request, and confirmation the follow-up was logged.",
+    "task_instructions": "Step 1: ask for the balance on savings SB1174638660 (id only when asked). Step 2: then ask for the status of your earlier request SR-60514252 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it. If the agent asks for confirmation before logging it, confirm clearly. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_92FEDB5E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1174638660"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat1_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-60514252"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat1_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1174638660",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-60514252"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the balance for savings account SB1174638660, fetch the status for request SR-60514252, and upon learning it is still open, register a follow-up service request after getting customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlreqstat_02",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_82E39DFA; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a 52-year-old school teacher from Kanpur who values clear and polite communication, checking her account balance and chasing up an open complaint.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check the status of a service request you raised earlier, and if it's still unresolved, have a follow-up request logged.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_82E39DFA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB1754957593. The earlier request's id: SR-86004151 (give it only if asked).",
+    "unknown_info": "The current balance of your savings account, the status of your earlier request SR-86004151, and confirmation that the follow-up request has been registered.",
+    "task_instructions": "Step 1: ask for the balance on savings SB1754957593 (id only when asked). Step 2: then ask for the status of your earlier request SR-86004151 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it, and confirm clearly when the agent asks for confirmation to raise it. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_82E39DFA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1754957593"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat2_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-86004151"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat2_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1754957593",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-86004151"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the balance of savings account SB1754957593, retrieves the status of service request SR-86004151, and after seeing it is open, confirms with the customer and registers a follow-up service request for account SB1754957593."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlreqstat_03",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_2F66C1BE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Karthik, a 36-year-old software engineer living in Chennai who maintains a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the status of a service request you raised earlier, and if it's still unresolved, you want a follow-up logged.",
+    "known_info": "You are Rajesh Karthik, customer already logged in (id CUST_2F66C1BE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB8523252581. The earlier request's id: SR-29339121 (give it only if asked).",
+    "unknown_info": "The status of your earlier request, and confirmation the follow-up was logged.",
+    "task_instructions": "Step 1: ask for the balance on savings SB8523252581 (id only when asked). Step 2: then ask for the status of your earlier request SR-29339121 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it. Confirm when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2F66C1BE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8523252581"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat3_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-29339121"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat3_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8523252581",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-29339121"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first fetch the balance for savings account SB8523252581, then look up the status of service request SR-29339121, and finally raise a follow-up service request after getting customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlreqstat_04",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_57005DBC; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Subramanian, a college professor in Chennai wanting to check her savings balance and follow up on an unresolved service request.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, find out the status of a service request you raised earlier, and if it is still unresolved, have a follow-up logged.",
+    "known_info": "You are Kavitha Subramanian, customer already logged in (id CUST_57005DBC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB6991079502. The earlier request's id: SR-83990827 (give it only if asked).",
+    "unknown_info": "The balance of your savings account, the status of your earlier request, and confirmation that the follow-up request was logged.",
+    "task_instructions": "Step 1: ask for the balance on savings SB6991079502 (id only when asked). Step 2: then ask for the status of your earlier request SR-83990827 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it, and confirm when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_57005DBC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6991079502"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat4_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-83990827"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat4_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6991079502",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-83990827"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the balance for account SB6991079502, looks up the status of service request SR-83990827, and upon discovering it is still open, seeks confirmation and logs a follow-up service request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlreqstat_05",
+  "description": {
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "notes": "family=tlreqstat; customer_id=CUST_5886E0C3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Raveendran Nair, a 63-year-old sales executive residing in Kochi, who prefers clear and orderly handling of his banking queries.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know the status of a service request you raised earlier, and if it's still unresolved, you want a follow-up logged.",
+    "known_info": "You are Raveendran Nair, customer already logged in (id CUST_5886E0C3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings SB4754647572. The earlier request's id: SR-19527001 (give it only if asked).",
+    "unknown_info": "The status of your earlier request, and confirmation the follow-up was logged.",
+    "task_instructions": "Step 1: ask for the balance on savings SB4754647572 (id only when asked). Step 2: then ask for the status of your earlier request SR-19527001 (id only when asked). Step 3: if it's still open/unresolved, ask the agent to log a follow-up query about it. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5886E0C3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlreqstat5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4754647572"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlreqstat5_1",
+     "name": "get_request_status",
+     "arguments": {
+      "request_id": "SR-19527001"
+     }
+    },
+    {
+     "action_id": "k5tlreqstat5_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4754647572",
+      "category": "general_query",
+      "description": "Customer following up on still-open request SR-19527001"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the balance for account SB4754647572, retrieve the status of service request SR-19527001, and upon seeing it is still open, confirm with the customer and raise a follow-up service request linked to the account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

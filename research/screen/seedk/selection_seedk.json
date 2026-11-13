@@ -1,0 +1,2494 @@
+{
+ "seed_strings": {
+  "k5": "20261112-k5-<family>",
+  "foreign": "20261112-foreign-<family>",
+  "pilot": "20261112-pilot"
+ },
+ "pilot_families": [
+  "hpemi",
+  "edgbcarddisamb",
+  "sqmand",
+  "hpgold",
+  "edgbfdcap"
+ ],
+ "excluded_customers": {
+  "tib": [
+   "CUST_01E0B7D3",
+   "CUST_0556ADBB",
+   "CUST_07DBF71C",
+   "CUST_08796420",
+   "CUST_09229908",
+   "CUST_0942C4A6",
+   "CUST_0A00FD1B",
+   "CUST_0AE2D0D1",
+   "CUST_0B1C709C",
+   "CUST_0C2A9F19",
+   "CUST_0C2DA765",
+   "CUST_0D1EC417",
+   "CUST_0D261AB6",
+   "CUST_0E0E413D",
+   "CUST_0EC9D9FF",
+   "CUST_0F62B072",
+   "CUST_1297094C",
+   "CUST_1324D3E9",
+   "CUST_137149AB",
+   "CUST_1451A536",
+   "CUST_154D00FB",
+   "CUST_17B72646",
+   "CUST_199EAF93",
+   "CUST_1DDF6E54",
+   "CUST_1F309F13",
+   "CUST_1FA290E9",
+   "CUST_235B5ADA",
+   "CUST_24208F60",
+   "CUST_255B60B3",
+   "CUST_26BAC4BC",
+   "CUST_28F3840A",
+   "CUST_2903FABB",
+   "CUST_2944ADA4",
+   "CUST_296CF5A7",
+   "CUST_2974C92A",
+   "CUST_2997FD5C",
+   "CUST_2A1921A5",
+   "CUST_2BECA399",
+   "CUST_2D8427CE",
+   "CUST_322699DE",
+   "CUST_32827170",
+   "CUST_341B0D7A",
+   "CUST_34476341",
+   "CUST_34EEB4FB",
+   "CUST_34F01651",
+   "CUST_35AC9A4F",
+   "CUST_35B129B8",
+   "CUST_370198A6",
+   "CUST_3783D638",
+   "CUST_37C85712",
+   "CUST_3863F9E7",
+   "CUST_3BEC685C",
+   "CUST_3C7570FF",
+   "CUST_3DE1EFFE",
+   "CUST_3EC5C03A",
+   "CUST_3F30CB5B",
+   "CUST_3F838BDA",
+   "CUST_410B417E",
+   "CUST_4144C785",
+   "CUST_4157581C",
+   "CUST_423DE24D",
+   "CUST_42D1EAD3",
+   "CUST_43A304E5",
+   "CUST_43E5AC0D",
+   "CUST_4417F021",
+   "CUST_44A452B5",
+   "CUST_466AFBF2",
+   "CUST_49C9B5BD",
+   "CUST_49F78910",
+   "CUST_4A0D15BF",
+   "CUST_4BEA31FF",
+   "CUST_4D5A1241",
+   "CUST_4E7EC1E7",
+   "CUST_4F6B375A",
+   "CUST_4F8B89E3",
+   "CUST_51751D9A",
+   "CUST_5192C4B5",
+   "CUST_529580E0",
+   "CUST_54233E14",
+   "CUST_568FD6B2",
+   "CUST_56C743B5",
+   "CUST_576CC922",
+   "CUST_57B19D0A",
+   "CUST_585B0443",
+   "CUST_587FEB4D",
+   "CUST_58E1F66C",
+   "CUST_595E2D80",
+   "CUST_5D5D48BB",
+   "CUST_5F5525F3",
+   "CUST_60B9FC0A",
+   "CUST_61AF5E8A",
+   "CUST_61C996BF",
+   "CUST_649506E0",
+   "CUST_64AA1F46",
+   "CUST_65698F48",
+   "CUST_66A6AB30",
+   "CUST_6769EFFC",
+   "CUST_67B153E5",
+   "CUST_67DF1C47",
+   "CUST_67ECEBA8",
+   "CUST_688A4BD9",
+   "CUST_6A81B157",
+   "CUST_6B499830",
+   "CUST_6C18C9D3",
+   "CUST_6CEA21E0",
+   "CUST_6D2B0ECF",
+   "CUST_6D323CA2",
+   "CUST_6DEB989A",
+   "CUST_6F3296AC",
+   "CUST_6F969BE4",
+   "CUST_70542C39",
+   "CUST_70F0BDE1",
+   "CUST_720E4B06",
+   "CUST_72DE98E9",
+   "CUST_73B22F58",
+   "CUST_73CADF73",
+   "CUST_73F4D867",
+   "CUST_76291AE8",
+   "CUST_771E278C",
+   "CUST_77525D41",
+   "CUST_7760A889",
+   "CUST_77B65374",
+   "CUST_782644F9",
+   "CUST_78CA155D",
+   "CUST_799433D4",
+   "CUST_7B9302A4",
+   "CUST_7D3D21E0",
+   "CUST_7E67DDEA",
+   "CUST_7E73A3A9",
+   "CUST_7E9EF87B",
+   "CUST_7EED3375",
+   "CUST_7FD9E193",
+   "CUST_8090E43C",
+   "CUST_83A75754",
+   "CUST_83D83147",
+   "CUST_8415B8F8",
+   "CUST_86358929",
+   "CUST_8725F9B5",
+   "CUST_873DF730",
+   "CUST_88F89BDE",
+   "CUST_89BBAAE6",
+   "CUST_8DE99786",
+   "CUST_8DF1C44A",
+   "CUST_8E3C686D",
+   "CUST_8FDB38BF",
+   "CUST_90101599",
+   "CUST_9095CF3A",
+   "CUST_92F9F8BD",
+   "CUST_9367E901",
+   "CUST_94EB57FD",
+   "CUST_95460266",
+   "CUST_965E3459",
+   "CUST_979E2F61",
+   "CUST_97AE8A23",
+   "CUST_97EF906C",
+   "CUST_99711708",
+   "CUST_99ED59F1",
+   "CUST_9AD912CA",
+   "CUST_9CA7C18B",
+   "CUST_9CB6680F",
+   "CUST_9D2CA1A7",
+   "CUST_9DD0F4F1",
+   "CUST_A0AB614C",
+   "CUST_A0AC4BA6",
+   "CUST_A0C6A651",
+   "CUST_A1A0CC2D",
+   "CUST_A3068C4B",
+   "CUST_A49286DE",
+   "CUST_A4DFEB9D",
+   "CUST_A52E5E2A",
+   "CUST_A61062B5",
+   "CUST_A6F57079",
+   "CUST_A77705B3",
+   "CUST_A889493E",
+   "CUST_AA65D68A",
+   "CUST_AB4F0347",
+   "CUST_ABDA993E",
+   "CUST_B07B027D",
+   "CUST_B096AFB6",
+   "CUST_B18BF561",
+   "CUST_B1D6FA34",
+   "CUST_B225EB03",
+   "CUST_B4896297",
+   "CUST_B6FE02FD",
+   "CUST_B8167A86",
+   "CUST_B8981138",
+   "CUST_BA9874C9",
+   "CUST_BABA0596",
+   "CUST_BD5387F2",
+   "CUST_BF2BA6F1",
+   "CUST_BFB59CAE",
+   "CUST_C065724B",
+   "CUST_C07F4F9A",
+   "CUST_C09DAB4F",
+   "CUST_C0BA086A",
+   "CUST_C183681E",
+   "CUST_C51B6C01",
+   "CUST_C5C9C5B1",
+   "CUST_C63B6AC0",
+   "CUST_C6423B19",
+   "CUST_C694FD36",
+   "CUST_C6AC60A0",
+   "CUST_C6B1E86F",
+   "CUST_C79E7173",
+   "CUST_C86E7133",
+   "CUST_C8B4FC23",
+   "CUST_CAE4C4AF",
+   "CUST_CC7809ED",
+   "CUST_CD5506DB",
+   "CUST_CE7BE741",
+   "CUST_D18386DF",
+   "CUST_D225226A",
+   "CUST_D4D1F5D3",
+   "CUST_D52109AD",
+   "CUST_D54B53EA",
+   "CUST_D65CABFF",
+   "CUST_D6841A80",
+   "CUST_D7B13715",
+   "CUST_D80F0598",
+   "CUST_D85B352D",
+   "CUST_D87B94CB",
+   "CUST_D8A6B674",
+   "CUST_DAF3A6F0",
+   "CUST_DB4BBFCF",
+   "CUST_DB6B2F66",
+   "CUST_DBA95579",
+   "CUST_E393198D",
+   "CUST_E63F9F53",
+   "CUST_E6ABB31E",
+   "CUST_EA27E8B4",
+   "CUST_EA986872",
+   "CUST_EBD104B9",
+   "CUST_EC127B6F",
+   "CUST_EC6EE6F1",
+   "CUST_ECB55927",
+   "CUST_ED1AC7D5",
+   "CUST_ED7C4A35",
+   "CUST_EDF93DCF",
+   "CUST_EEDB9A0C",
+   "CUST_EF89EE7F",
+   "CUST_EFD2BCA2",
+   "CUST_F021BC63",
+   "CUST_F20D96DE",
+   "CUST_F4EDD33F",
+   "CUST_F5F7B30E",
+   "CUST_F7A71DED",
+   "CUST_F864983A",
+   "CUST_FBB0921F",
+   "CUST_FBE8E3F7",
+   "CUST_FD097832",
+   "CUST_FE7BBECB"
+  ],
+  "rep": [
+   "CUST_004C15A5",
+   "CUST_0154EB2E",
+   "CUST_01E0B7D3",
+   "CUST_046D29AD",
+   "CUST_04F2A910",
+   "CUST_0556ADBB",
+   "CUST_05E7568D",
+   "CUST_07B644CD",
+   "CUST_07DBF71C",
+   "CUST_08796420",
+   "CUST_0942C4A6",
+   "CUST_0A00FD1B",
+   "CUST_0AE2D0D1",
+   "CUST_0B1C709C",
+   "CUST_0C2A9F19",
+   "CUST_0C2DA765",
+   "CUST_0D261AB6",
+   "CUST_0DC6765F",
+   "CUST_0F62B072",
+   "CUST_10AA36E5",
+   "CUST_1324D3E9",
+   "CUST_137149AB",
+   "CUST_1451A536",
+   "CUST_154D00FB",
+   "CUST_17B72646",
+   "CUST_17C2AE06",
+   "CUST_1866ACA6",
+   "CUST_199EAF93",
+   "CUST_19DBAF96",
+   "CUST_19F46380",
+   "CUST_1A529567",
+   "CUST_1ADF10D2",
+   "CUST_1B5595E7",
+   "CUST_1C756DE2",
+   "CUST_1C7BAFDC",
+   "CUST_1DB292A9",
+   "CUST_1DFD8130",
+   "CUST_1F2F2038",
+   "CUST_1F309F13",
+   "CUST_223375E7",
+   "CUST_235B5ADA",
+   "CUST_23FF949E",
+   "CUST_263EFF0E",
+   "CUST_26BAC4BC",
+   "CUST_277B3BF4",
+   "CUST_28F3840A",
+   "CUST_2944ADA4",
+   "CUST_296CF5A7",
+   "CUST_2974C92A",
+   "CUST_2BECA399",
+   "CUST_301655E4",
+   "CUST_30689DF4",
+   "CUST_322699DE",
+   "CUST_328772E0",
+   "CUST_33218592",
+   "CUST_33BF6CB6",
+   "CUST_33C48A59",
+   "CUST_341B0D7A",
+   "CUST_34476341",
+   "CUST_34F01651",
+   "CUST_35B129B8",
+   "CUST_370198A6",
+   "CUST_3783D638",
+   "CUST_37C85712",
+   "CUST_3863F9E7",
+   "CUST_38F24FC1",
+   "CUST_3918163A",
+   "CUST_3BB5CCD4",
+   "CUST_3BEC685C",
+   "CUST_3C7570FF",
+   "CUST_3DE1EFFE",
+   "CUST_3F838BDA",
+   "CUST_40314531",
+   "CUST_4038BB17",
+   "CUST_4091A461",
+   "CUST_4157581C",
+   "CUST_423DE24D",
+   "CUST_42D1EAD3",
+   "CUST_4385241C",
+   "CUST_43E5AC0D",
+   "CUST_4417F021",
+   "CUST_466AFBF2",
+   "CUST_46C646E2",
+   "CUST_47BEFDB7",
+   "CUST_49C9B5BD",
+   "CUST_4A0941F2",
+   "CUST_4A0D15BF",
+   "CUST_4B71B065",
+   "CUST_4BEA31FF",
+   "CUST_4D5A1241",
+   "CUST_4DAD280F",
+   "CUST_4E25D87F",
+   "CUST_4E7EC1E7",
+   "CUST_4F6B375A",
+   "CUST_4F7DF744",
+   "CUST_4F8B89E3",
+   "CUST_514162B2",
+   "CUST_51751D9A",
+   "CUST_517C7E73",
+   "CUST_5192C4B5",
+   "CUST_5206DC5F",
+   "CUST_54233E14",
+   "CUST_546D0C02",
+   "CUST_551000CC",
+   "CUST_5593981A",
+   "CUST_57B19D0A",
+   "CUST_582645B1",
+   "CUST_587FEB4D",
+   "CUST_58E1F66C",
+   "CUST_595E2D80",
+   "CUST_5A959E8F",
+   "CUST_5C60215F",
+   "CUST_5D5D48BB",
+   "CUST_5D8ECDE3",
+   "CUST_5DA9C637",
+   "CUST_5E0DE53F",
+   "CUST_5EADA1BF",
+   "CUST_5F5525F3",
+   "CUST_60B9FC0A",
+   "CUST_616116E2",
+   "CUST_61C996BF",
+   "CUST_649506E0",
+   "CUST_64AA1F46",
+   "CUST_6529577A",
+   "CUST_65698F48",
+   "CUST_66A6AB30",
+   "CUST_671C7DCC",
+   "CUST_6769EFFC",
+   "CUST_67B153E5",
+   "CUST_67DF1C47",
+   "CUST_688A4BD9",
+   "CUST_690E225D",
+   "CUST_6A027944",
+   "CUST_6A81B157",
+   "CUST_6B499830",
+   "CUST_6C18C9D3",
+   "CUST_6CEA21E0",
+   "CUST_6D181B43",
+   "CUST_6D1B8884",
+   "CUST_6D2B0ECF",
+   "CUST_6DFEDC40",
+   "CUST_6F3296AC",
+   "CUST_6F969BE4",
+   "CUST_70542C39",
+   "CUST_70F0BDE1",
+   "CUST_7144DC95",
+   "CUST_720E4B06",
+   "CUST_73CADF73",
+   "CUST_73F4D867",
+   "CUST_77525D41",
+   "CUST_7760A889",
+   "CUST_77B65374",
+   "CUST_782644F9",
+   "CUST_789CCAAA",
+   "CUST_78CA155D",
+   "CUST_7E67DDEA",
+   "CUST_7E73A3A9",
+   "CUST_7E9EF87B",
+   "CUST_7EED3375",
+   "CUST_7F4CCEA1",
+   "CUST_7FE06574",
+   "CUST_8090E43C",
+   "CUST_83A75754",
+   "CUST_8415B8F8",
+   "CUST_85174C10",
+   "CUST_85D3E40B",
+   "CUST_86358929",
+   "CUST_86A28425",
+   "CUST_8725F9B5",
+   "CUST_873DF730",
+   "CUST_87EA550B",
+   "CUST_88FCA97A",
+   "CUST_8BED17C9",
+   "CUST_8DC678DD",
+   "CUST_8DE99786",
+   "CUST_8DF1C44A",
+   "CUST_8E3C686D",
+   "CUST_8EF9F5EF",
+   "CUST_8F51016B",
+   "CUST_8FDB38BF",
+   "CUST_90101599",
+   "CUST_90A95F95",
+   "CUST_9105F931",
+   "CUST_92F9F8BD",
+   "CUST_92FEDB5E",
+   "CUST_9367E901",
+   "CUST_94EB57FD",
+   "CUST_951D8DAF",
+   "CUST_9717B46C",
+   "CUST_979E2F61",
+   "CUST_97AE8A23",
+   "CUST_98185355",
+   "CUST_9847EE6E",
+   "CUST_99711708",
+   "CUST_9A54733A",
+   "CUST_9C3BDF42",
+   "CUST_9CA7C18B",
+   "CUST_9CB6680F",
+   "CUST_9D2CA1A7",
+   "CUST_9DD0F4F1",
+   "CUST_9DDDDED0",
+   "CUST_9E378E80",
+   "CUST_A0AB614C",
+   "CUST_A0AC4BA6",
+   "CUST_A0C6A651",
+   "CUST_A1A0CC2D",
+   "CUST_A1B8E437",
+   "CUST_A3068C4B",
+   "CUST_A3B87978",
+   "CUST_A49286DE",
+   "CUST_A4DFEB9D",
+   "CUST_A52E5E2A",
+   "CUST_A57D15D3",
+   "CUST_A61062B5",
+   "CUST_A7AC7BD6",
+   "CUST_A889493E",
+   "CUST_AA0FD4F9",
+   "CUST_AA65D68A",
+   "CUST_AD187DED",
+   "CUST_AD673B91",
+   "CUST_AEE2E45B",
+   "CUST_B04ADA38",
+   "CUST_B225EB03",
+   "CUST_B26EEE6F",
+   "CUST_B4896297",
+   "CUST_B57F7432",
+   "CUST_B6FE02FD",
+   "CUST_B8167A86",
+   "CUST_B9682A8C",
+   "CUST_B9E2C67C",
+   "CUST_BA9F7D15",
+   "CUST_BABA0596",
+   "CUST_BBFA7451",
+   "CUST_BD5387F2",
+   "CUST_BF2BA6F1",
+   "CUST_BFB59CAE",
+   "CUST_C07F4F9A",
+   "CUST_C09DAB4F",
+   "CUST_C1120AAE",
+   "CUST_C183681E",
+   "CUST_C3FC5398",
+   "CUST_C45CF0BA",
+   "CUST_C5C9C5B1",
+   "CUST_C63B6AC0",
+   "CUST_C6423B19",
+   "CUST_C694FD36",
+   "CUST_C6AC60A0",
+   "CUST_C7633752",
+   "CUST_C84470C2",
+   "CUST_C86E7133",
+   "CUST_C8B4FC23",
+   "CUST_CAE4C4AF",
+   "CUST_CBDD521B",
+   "CUST_CC434CB5",
+   "CUST_CC7809ED",
+   "CUST_CD5506DB",
+   "CUST_CE7BE741",
+   "CUST_CED929AE",
+   "CUST_CF4CE30E",
+   "CUST_D176AF7F",
+   "CUST_D18386DF",
+   "CUST_D225226A",
+   "CUST_D3E4B9DE",
+   "CUST_D50E095F",
+   "CUST_D52109AD",
+   "CUST_D54B53EA",
+   "CUST_D5E1B0A0",
+   "CUST_D65CABFF",
+   "CUST_D6841A80",
+   "CUST_D6D6979C",
+   "CUST_D7B13715",
+   "CUST_D7C2BFAF",
+   "CUST_D80DD3F8",
+   "CUST_D80F0598",
+   "CUST_D87B94CB",
+   "CUST_DAF3A6F0",
+   "CUST_DB4BBFCF",
+   "CUST_DB6B2F66",
+   "CUST_DBA95579",
+   "CUST_DC7B1B03",
+   "CUST_DCE13124",
+   "CUST_DDCE4088",
+   "CUST_DF7C394F",
+   "CUST_E1BDF26A",
+   "CUST_E393198D",
+   "CUST_E48B82A4",
+   "CUST_E5D90980",
+   "CUST_E63F9F53",
+   "CUST_E6ABB31E",
+   "CUST_E70C0957",
+   "CUST_E91223B9",
+   "CUST_E9F01EFD",
+   "CUST_EA986872",
+   "CUST_EADAA8B9",
+   "CUST_EB7F9E98",
+   "CUST_EBD104B9",
+   "CUST_ECB55927",
+   "CUST_ED1AC7D5",
+   "CUST_ED7C4A35",
+   "CUST_EE85E41B",
+   "CUST_EF89EE7F",
+   "CUST_F021BC63",
+   "CUST_F1493929",
+   "CUST_F20D96DE",
+   "CUST_F28C1BB2",
+   "CUST_F5F7B30E",
+   "CUST_F6FA63BE",
+   "CUST_F7A71DED",
+   "CUST_F7B40D7F",
+   "CUST_F864983A",
+   "CUST_F8D508C8",
+   "CUST_F98F0AC0",
+   "CUST_FAA9450D",
+   "CUST_FB2A5CF8",
+   "CUST_FC010CAC",
+   "CUST_FD097832",
+   "CUST_FE7BBECB",
+   "CUST_FEAC6F71"
+  ]
+ },
+ "families": {
+  "edgaineligible": {
+   "source": "tib",
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgaineligible_0005",
+    "rl_edgaineligible_0090",
+    "rl_edgaineligible_0101",
+    "rl_edgaineligible_0219",
+    "rl_edgaineligible_0272",
+    "rl_edgaineligible_0320"
+   ],
+   "seeds_k2": [
+    "rl_edgaineligible_0045",
+    "rl_edgaineligible_0166"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_edgaineligible_0045"
+   ],
+   "seeds_k5": [
+    "rl_edgaineligible_0045",
+    "rl_edgaineligible_0166",
+    "rl_edgaineligible_0215",
+    "rl_edgaineligible_0120",
+    "rl_edgaineligible_0115"
+   ],
+   "foreign_family": "sq2gold",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2gold_0134",
+    "rl_sq2gold_0235"
+   ]
+  },
+  "edgamandwrong": {
+   "source": "tib",
+   "purpose": "List -> match by payee -> cancel correct id -> re-list (wrong-id correction)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgamandwrong_0033",
+    "rl_edgamandwrong_0037",
+    "rl_edgamandwrong_0060",
+    "rl_edgamandwrong_0091",
+    "rl_edgamandwrong_0105",
+    "rl_edgamandwrong_0258"
+   ],
+   "seeds_k2": [
+    "rl_edgamandwrong_0127",
+    "rl_edgamandwrong_0220"
+   ],
+   "tools": [
+    "cancel_mandate",
+    "show_mandates"
+   ],
+   "seeds_k1": [
+    "rl_edgamandwrong_0127"
+   ],
+   "seeds_k5": [
+    "rl_edgamandwrong_0127",
+    "rl_edgamandwrong_0220",
+    "rl_edgamandwrong_0003",
+    "rl_edgamandwrong_0089",
+    "rl_edgamandwrong_0174"
+   ],
+   "foreign_family": "edgbloanrd",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgbloanrd_0013",
+    "rl_edgbloanrd_0153"
+   ]
+  },
+  "edgbcarddisamb": {
+   "source": "tib",
+   "purpose": "List both cards \u2192 freeze the named one \u2192 verify both",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbcarddisamb_0078",
+    "rl_edgbcarddisamb_0107",
+    "rl_edgbcarddisamb_0239",
+    "rl_edgbcarddisamb_0495",
+    "rl_edgbcarddisamb_0550",
+    "rl_edgbcarddisamb_0665"
+   ],
+   "seeds_k2": [
+    "rl_edgbcarddisamb_0573",
+    "rl_edgbcarddisamb_0685"
+   ],
+   "tools": [
+    "get_card_details",
+    "toggle_card_freeze"
+   ],
+   "seeds_k1": [
+    "rl_edgbcarddisamb_0573"
+   ],
+   "seeds_k5": [
+    "rl_edgbcarddisamb_0573",
+    "rl_edgbcarddisamb_0685",
+    "rl_edgbcarddisamb_0159",
+    "rl_edgbcarddisamb_0049",
+    "rl_edgbcarddisamb_0674"
+   ],
+   "foreign_family": "tlinsur",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlinsur_0113",
+    "rl_tlinsur_0363"
+   ]
+  },
+  "edgbmatelig": {
+   "source": "tib",
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbmatelig_0042",
+    "rl_edgbmatelig_0064",
+    "rl_edgbmatelig_0189",
+    "rl_edgbmatelig_0448",
+    "rl_edgbmatelig_0566",
+    "rl_edgbmatelig_0619"
+   ],
+   "seeds_k2": [
+    "rl_edgbmatelig_0257",
+    "rl_edgbmatelig_0730"
+   ],
+   "tools": [
+    "cancel_mandate",
+    "show_mandates"
+   ],
+   "seeds_k1": [
+    "rl_edgbmatelig_0257"
+   ],
+   "seeds_k5": [
+    "rl_edgbmatelig_0257",
+    "rl_edgbmatelig_0730",
+    "rl_edgbmatelig_0275",
+    "rl_edgbmatelig_0241",
+    "rl_edgbmatelig_0481"
+   ],
+   "foreign_family": "sqdisp",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqdisp_0140",
+    "rl_sqdisp_0334"
+   ]
+  },
+  "edgbmindchange": {
+   "source": "tib",
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbmindchange_0034",
+    "rl_edgbmindchange_0039",
+    "rl_edgbmindchange_0065",
+    "rl_edgbmindchange_0066",
+    "rl_edgbmindchange_0157",
+    "rl_edgbmindchange_0168"
+   ],
+   "seeds_k2": [
+    "rl_edgbmindchange_0097",
+    "rl_edgbmindchange_0148"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_edgbmindchange_0097"
+   ],
+   "seeds_k5": [
+    "rl_edgbmindchange_0097",
+    "rl_edgbmindchange_0148",
+    "rl_edgbmindchange_0075",
+    "rl_edgbmindchange_0169",
+    "rl_edgbmindchange_0198"
+   ],
+   "foreign_family": "sqmand",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqmand_0190",
+    "rl_sqmand_0325"
+   ]
+  },
+  "edgbstmtwin": {
+   "source": "tib",
+   "purpose": "Account open date \u2192 transactions (corrected window) \u2192 statement (same window)",
+   "class": 0,
+   "eval_tasks": [
+    "rl_edgbstmtwin_0049",
+    "rl_edgbstmtwin_0094",
+    "rl_edgbstmtwin_0101",
+    "rl_edgbstmtwin_0168",
+    "rl_edgbstmtwin_0178",
+    "rl_edgbstmtwin_0182"
+   ],
+   "seeds_k2": [
+    "rl_edgbstmtwin_0123",
+    "rl_edgbstmtwin_0184"
+   ],
+   "tools": [
+    "get_account_details",
+    "get_transaction_history",
+    "request_duplicate_statement"
+   ],
+   "seeds_k1": [
+    "rl_edgbstmtwin_0123"
+   ],
+   "seeds_k5": [
+    "rl_edgbstmtwin_0123",
+    "rl_edgbstmtwin_0184",
+    "rl_edgbstmtwin_0138",
+    "rl_edgbstmtwin_0074",
+    "rl_edgbstmtwin_0169"
+   ],
+   "foreign_family": "hprate",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hprate_0113",
+    "rl_hprate_0116"
+   ]
+  },
+  "hpgold": {
+   "source": "tib",
+   "purpose": "Gold loan sizing enquiry",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpgold_0000",
+    "rl_hpgold_0026",
+    "rl_hpgold_0029",
+    "rl_hpgold_0046",
+    "rl_hpgold_0065",
+    "rl_hpgold_0098"
+   ],
+   "seeds_k2": [
+    "rl_hpgold_0047",
+    "rl_hpgold_0094"
+   ],
+   "tools": [
+    "calculate_gold_loan_ltv",
+    "get_gold_rate",
+    "get_products_and_offers"
+   ],
+   "seeds_k1": [
+    "rl_hpgold_0047"
+   ],
+   "seeds_k5": [
+    "rl_hpgold_0047",
+    "rl_hpgold_0094",
+    "rl_hpgold_0042",
+    "rl_hpgold_0070"
+   ],
+   "foreign_family": "hpservice",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpservice_0194",
+    "rl_hpservice_0270"
+   ]
+  },
+  "hpservice": {
+   "source": "tib",
+   "purpose": "Cheque book request",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpservice_0021",
+    "rl_hpservice_0085",
+    "rl_hpservice_0127",
+    "rl_hpservice_0179",
+    "rl_hpservice_0191",
+    "rl_hpservice_0192"
+   ],
+   "seeds_k2": [
+    "rl_hpservice_0194",
+    "rl_hpservice_0270"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_insurance_details",
+    "get_products_and_offers",
+    "get_transaction_history",
+    "request_cheque_book",
+    "request_duplicate_statement"
+   ],
+   "seeds_k1": [
+    "rl_hpservice_0194"
+   ],
+   "seeds_k5": [
+    "rl_hpservice_0194",
+    "rl_hpservice_0270",
+    "rl_hpservice_0186",
+    "rl_hpservice_0277",
+    "rl_hpservice_0076"
+   ],
+   "foreign_family": "hpkb",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpkb_0065",
+    "rl_hpkb_0088"
+   ]
+  },
+  "sq2fdladder": {
+   "source": "tib",
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2fdladder_0014",
+    "rl_sq2fdladder_0049",
+    "rl_sq2fdladder_0118",
+    "rl_sq2fdladder_0208",
+    "rl_sq2fdladder_0241",
+    "rl_sq2fdladder_0389"
+   ],
+   "seeds_k2": [
+    "rl_sq2fdladder_0101",
+    "rl_sq2fdladder_0301"
+   ],
+   "tools": [
+    "close_deposit",
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_closure_quote",
+    "get_deposit_loan_rates",
+    "get_fd_details"
+   ],
+   "seeds_k1": [
+    "rl_sq2fdladder_0101"
+   ],
+   "seeds_k5": [
+    "rl_sq2fdladder_0101",
+    "rl_sq2fdladder_0301",
+    "rl_sq2fdladder_0221",
+    "rl_sq2fdladder_0384",
+    "rl_sq2fdladder_0206"
+   ],
+   "foreign_family": "sq2loanfc",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2loanfc_0118",
+    "rl_sq2loanfc_0219"
+   ]
+  },
+  "sq2gold": {
+   "source": "tib",
+   "purpose": "Gold rate \u2192 LTV eligibility \u2192 policy \u2192 apply (gold loan sizing)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2gold_0017",
+    "rl_sq2gold_0036",
+    "rl_sq2gold_0127",
+    "rl_sq2gold_0189",
+    "rl_sq2gold_0216",
+    "rl_sq2gold_0245"
+   ],
+   "seeds_k2": [
+    "rl_sq2gold_0134",
+    "rl_sq2gold_0235"
+   ],
+   "tools": [
+    "calculate_gold_loan_ltv",
+    "get_gold_rate",
+    "raise_request",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_sq2gold_0134"
+   ],
+   "seeds_k5": [
+    "rl_sq2gold_0134",
+    "rl_sq2gold_0235",
+    "rl_sq2gold_0132",
+    "rl_sq2gold_0212",
+    "rl_sq2gold_0068"
+   ],
+   "foreign_family": "tlprodoff",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlprodoff_0051",
+    "rl_tlprodoff_0074"
+   ]
+  },
+  "sq2insur": {
+   "source": "tib",
+   "purpose": "Policy check \u2192 claim policy \u2192 request (insurance claim start)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2insur_0066",
+    "rl_sq2insur_0132",
+    "rl_sq2insur_0230",
+    "rl_sq2insur_0247",
+    "rl_sq2insur_0341",
+    "rl_sq2insur_0446"
+   ],
+   "seeds_k2": [
+    "rl_sq2insur_0206",
+    "rl_sq2insur_0343"
+   ],
+   "tools": [
+    "get_insurance_details",
+    "raise_request",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_sq2insur_0206"
+   ],
+   "seeds_k5": [
+    "rl_sq2insur_0206",
+    "rl_sq2insur_0343",
+    "rl_sq2insur_0392",
+    "rl_sq2insur_0396",
+    "rl_sq2insur_0386"
+   ],
+   "foreign_family": "sqcheq",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqcheq_0135",
+    "rl_sqcheq_0215"
+   ]
+  },
+  "sq2mandaudit": {
+   "source": "tib",
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2mandaudit_0001",
+    "rl_sq2mandaudit_0005",
+    "rl_sq2mandaudit_0098",
+    "rl_sq2mandaudit_0164",
+    "rl_sq2mandaudit_0203",
+    "rl_sq2mandaudit_0330"
+   ],
+   "seeds_k2": [
+    "rl_sq2mandaudit_0064",
+    "rl_sq2mandaudit_0396"
+   ],
+   "tools": [
+    "cancel_mandate",
+    "show_mandates"
+   ],
+   "seeds_k1": [
+    "rl_sq2mandaudit_0064"
+   ],
+   "seeds_k5": [
+    "rl_sq2mandaudit_0064",
+    "rl_sq2mandaudit_0396",
+    "rl_sq2mandaudit_0365",
+    "rl_sq2mandaudit_0069",
+    "rl_sq2mandaudit_0152"
+   ],
+   "foreign_family": "tlrdmat",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlrdmat_0097",
+    "rl_tlrdmat_0110"
+   ]
+  },
+  "sq2rdsize": {
+   "source": "tib",
+   "purpose": "Balance \u2192 rate \u2192 maturity \u2192 penalty policy \u2192 create RD \u2192 balance (informed RD booking)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2rdsize_0051",
+    "rl_sq2rdsize_0055",
+    "rl_sq2rdsize_0142",
+    "rl_sq2rdsize_0198",
+    "rl_sq2rdsize_0206",
+    "rl_sq2rdsize_0227"
+   ],
+   "seeds_k2": [
+    "rl_sq2rdsize_0117",
+    "rl_sq2rdsize_0132"
+   ],
+   "tools": [
+    "calculate_rd_maturity",
+    "create_rd",
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_sq2rdsize_0117"
+   ],
+   "seeds_k5": [
+    "rl_sq2rdsize_0117",
+    "rl_sq2rdsize_0132",
+    "rl_sq2rdsize_0052",
+    "rl_sq2rdsize_0099",
+    "rl_sq2rdsize_0069"
+   ],
+   "foreign_family": "sq2cardblk",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2cardblk_0057",
+    "rl_sq2cardblk_0075"
+   ]
+  },
+  "sqclose": {
+   "source": "tib",
+   "purpose": "Details \u2192 quote \u2192 close \u2192 balance (FD closure)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqclose_0086",
+    "rl_sqclose_0098",
+    "rl_sqclose_0254",
+    "rl_sqclose_0386",
+    "rl_sqclose_0439",
+    "rl_sqclose_0564"
+   ],
+   "seeds_k2": [
+    "rl_sqclose_0146",
+    "rl_sqclose_0343"
+   ],
+   "tools": [
+    "close_deposit",
+    "get_account_balance",
+    "get_deposit_closure_quote",
+    "get_fd_details"
+   ],
+   "seeds_k1": [
+    "rl_sqclose_0146"
+   ],
+   "seeds_k5": [
+    "rl_sqclose_0146",
+    "rl_sqclose_0343",
+    "rl_sqclose_0486",
+    "rl_sqclose_0033",
+    "rl_sqclose_0094"
+   ],
+   "foreign_family": "sqdisp",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqdisp_0140",
+    "rl_sqdisp_0334"
+   ]
+  },
+  "sqfd": {
+   "source": "tib",
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqfd_0153",
+    "rl_sqfd_0203",
+    "rl_sqfd_0230",
+    "rl_sqfd_0257",
+    "rl_sqfd_0303",
+    "rl_sqfd_0305"
+   ],
+   "seeds_k2": [
+    "rl_sqfd_0002",
+    "rl_sqfd_0254"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_sqfd_0002"
+   ],
+   "seeds_k5": [
+    "rl_sqfd_0002",
+    "rl_sqfd_0254",
+    "rl_sqfd_0124",
+    "rl_sqfd_0060",
+    "rl_sqfd_0269"
+   ],
+   "foreign_family": "edgadestructive",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgadestructive_0181",
+    "rl_edgadestructive_0314"
+   ]
+  },
+  "sqreloc": {
+   "source": "tib",
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqreloc_0016",
+    "rl_sqreloc_0042",
+    "rl_sqreloc_0154",
+    "rl_sqreloc_0194",
+    "rl_sqreloc_0215",
+    "rl_sqreloc_0258"
+   ],
+   "seeds_k2": [
+    "rl_sqreloc_0017",
+    "rl_sqreloc_0048"
+   ],
+   "tools": [
+    "request_cheque_book",
+    "request_duplicate_statement",
+    "update_address"
+   ],
+   "seeds_k1": [
+    "rl_sqreloc_0017"
+   ],
+   "seeds_k5": [
+    "rl_sqreloc_0017",
+    "rl_sqreloc_0048",
+    "rl_sqreloc_0249",
+    "rl_sqreloc_0114",
+    "rl_sqreloc_0123"
+   ],
+   "foreign_family": "sq2insur",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2insur_0206",
+    "rl_sq2insur_0343"
+   ]
+  },
+  "sqrenew": {
+   "source": "tib",
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqrenew_0014",
+    "rl_sqrenew_0081",
+    "rl_sqrenew_0105",
+    "rl_sqrenew_0114",
+    "rl_sqrenew_0336",
+    "rl_sqrenew_0548"
+   ],
+   "seeds_k2": [
+    "rl_sqrenew_0296",
+    "rl_sqrenew_0556"
+   ],
+   "tools": [
+    "get_fd_details",
+    "update_deposit_renewal"
+   ],
+   "seeds_k1": [
+    "rl_sqrenew_0296"
+   ],
+   "seeds_k5": [
+    "rl_sqrenew_0296",
+    "rl_sqrenew_0556",
+    "rl_sqrenew_0453",
+    "rl_sqrenew_0028",
+    "rl_sqrenew_0057"
+   ],
+   "foreign_family": "sqfd",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqfd_0002",
+    "rl_sqfd_0254"
+   ]
+  },
+  "tlacctdet": {
+   "source": "tib",
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "class": 0,
+   "eval_tasks": [
+    "rl_tlacctdet_0011",
+    "rl_tlacctdet_0049",
+    "rl_tlacctdet_0100",
+    "rl_tlacctdet_0101",
+    "rl_tlacctdet_0117",
+    "rl_tlacctdet_0148"
+   ],
+   "seeds_k2": [
+    "rl_tlacctdet_0067",
+    "rl_tlacctdet_0206"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_account_details",
+    "request_duplicate_statement"
+   ],
+   "seeds_k1": [
+    "rl_tlacctdet_0067"
+   ],
+   "seeds_k5": [
+    "rl_tlacctdet_0067",
+    "rl_tlacctdet_0206",
+    "rl_tlacctdet_0105",
+    "rl_tlacctdet_0060",
+    "rl_tlacctdet_0189"
+   ],
+   "foreign_family": "hpservice",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpservice_0194",
+    "rl_hpservice_0270"
+   ]
+  },
+  "tlprodoff": {
+   "source": "tib",
+   "purpose": "Balance \u2192 offers \u2192 real rate \u2192 log interest (offer browsing)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlprodoff_0046",
+    "rl_tlprodoff_0047",
+    "rl_tlprodoff_0056",
+    "rl_tlprodoff_0117",
+    "rl_tlprodoff_0174",
+    "rl_tlprodoff_0204"
+   ],
+   "seeds_k2": [
+    "rl_tlprodoff_0051",
+    "rl_tlprodoff_0074"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "get_products_and_offers",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_tlprodoff_0051"
+   ],
+   "seeds_k5": [
+    "rl_tlprodoff_0051",
+    "rl_tlprodoff_0074",
+    "rl_tlprodoff_0041",
+    "rl_tlprodoff_0217",
+    "rl_tlprodoff_0124"
+   ],
+   "foreign_family": "sq2rdsize",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2rdsize_0117",
+    "rl_sq2rdsize_0132"
+   ]
+  },
+  "tlreqstat": {
+   "source": "tib",
+   "purpose": "Account \u2192 request status \u2192 follow-up request (complaint chase-up)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlreqstat_0109",
+    "rl_tlreqstat_0167",
+    "rl_tlreqstat_0187",
+    "rl_tlreqstat_0191",
+    "rl_tlreqstat_0199",
+    "rl_tlreqstat_0204"
+   ],
+   "seeds_k2": [
+    "rl_tlreqstat_0067",
+    "rl_tlreqstat_0105"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_request_status",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_tlreqstat_0067"
+   ],
+   "seeds_k5": [
+    "rl_tlreqstat_0067",
+    "rl_tlreqstat_0105",
+    "rl_tlreqstat_0132",
+    "rl_tlreqstat_0156",
+    "rl_tlreqstat_0026"
+   ],
+   "foreign_family": "edgbtwocards",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgbtwocards_0432",
+    "rl_edgbtwocards_0646"
+   ]
+  },
+  "edgablk2x": {
+   "source": "rep",
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgablk2x_0015",
+    "rl_edgablk2x_0114",
+    "rl_edgablk2x_0116",
+    "rl_edgablk2x_0194",
+    "rl_edgablk2x_0235",
+    "rl_edgablk2x_0247"
+   ],
+   "seeds_k2": [
+    "rl_edgablk2x_0112",
+    "rl_edgablk2x_0136"
+   ],
+   "tools": [
+    "block_card",
+    "get_card_details"
+   ],
+   "seeds_k1": [
+    "rl_edgablk2x_0112"
+   ],
+   "seeds_k5": [
+    "rl_edgablk2x_0112",
+    "rl_edgablk2x_0136",
+    "rl_edgablk2x_0189",
+    "rl_edgablk2x_0233",
+    "rl_edgablk2x_0005"
+   ],
+   "foreign_family": "tlprodoff",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlprodoff_0051",
+    "rl_tlprodoff_0074"
+   ]
+  },
+  "edgadestructive": {
+   "source": "rep",
+   "purpose": "Details -> quote -> confirm -> close -> balance (confirm-before-irreversible)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgadestructive_0083",
+    "rl_edgadestructive_0101",
+    "rl_edgadestructive_0126",
+    "rl_edgadestructive_0231",
+    "rl_edgadestructive_0357",
+    "rl_edgadestructive_0386"
+   ],
+   "seeds_k2": [
+    "rl_edgadestructive_0181",
+    "rl_edgadestructive_0314"
+   ],
+   "tools": [
+    "close_deposit",
+    "get_account_balance",
+    "get_deposit_closure_quote",
+    "get_rd_details"
+   ],
+   "seeds_k1": [
+    "rl_edgadestructive_0181"
+   ],
+   "seeds_k5": [
+    "rl_edgadestructive_0181",
+    "rl_edgadestructive_0314",
+    "rl_edgadestructive_0385",
+    "rl_edgadestructive_0073",
+    "rl_edgadestructive_0098"
+   ],
+   "foreign_family": "tlreqstat",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlreqstat_0067",
+    "rl_tlreqstat_0105"
+   ]
+  },
+  "edgainsuff": {
+   "source": "rep",
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgainsuff_0056",
+    "rl_edgainsuff_0096",
+    "rl_edgainsuff_0116",
+    "rl_edgainsuff_0117",
+    "rl_edgainsuff_0120",
+    "rl_edgainsuff_0205"
+   ],
+   "seeds_k2": [
+    "rl_edgainsuff_0068",
+    "rl_edgainsuff_0195"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_edgainsuff_0068"
+   ],
+   "seeds_k5": [
+    "rl_edgainsuff_0068",
+    "rl_edgainsuff_0195",
+    "rl_edgainsuff_0184",
+    "rl_edgainsuff_0042",
+    "rl_edgainsuff_0182"
+   ],
+   "foreign_family": "sq2cardblk",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2cardblk_0057",
+    "rl_sq2cardblk_0075"
+   ]
+  },
+  "edgaphantom": {
+   "source": "rep",
+   "purpose": "Confirm real account -> cheque book -> statement (unlinked-account correction)",
+   "class": 0,
+   "eval_tasks": [
+    "rl_edgaphantom_0014",
+    "rl_edgaphantom_0023",
+    "rl_edgaphantom_0081",
+    "rl_edgaphantom_0146",
+    "rl_edgaphantom_0182",
+    "rl_edgaphantom_0192"
+   ],
+   "seeds_k2": [
+    "rl_edgaphantom_0027",
+    "rl_edgaphantom_0142"
+   ],
+   "tools": [
+    "get_account_details",
+    "request_cheque_book",
+    "request_duplicate_statement"
+   ],
+   "seeds_k1": [
+    "rl_edgaphantom_0027"
+   ],
+   "seeds_k5": [
+    "rl_edgaphantom_0027",
+    "rl_edgaphantom_0142",
+    "rl_edgaphantom_0174",
+    "rl_edgaphantom_0164",
+    "rl_edgaphantom_0022"
+   ],
+   "foreign_family": "hpkb",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpkb_0065",
+    "rl_hpkb_0088"
+   ]
+  },
+  "edgapolicy": {
+   "source": "rep",
+   "purpose": "History -> raise request -> balance (no internal-code disclosure)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgapolicy_0009",
+    "rl_edgapolicy_0049",
+    "rl_edgapolicy_0076",
+    "rl_edgapolicy_0081",
+    "rl_edgapolicy_0126",
+    "rl_edgapolicy_0129"
+   ],
+   "seeds_k2": [
+    "rl_edgapolicy_0036",
+    "rl_edgapolicy_0078"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_transaction_history",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_edgapolicy_0036"
+   ],
+   "seeds_k5": [
+    "rl_edgapolicy_0036",
+    "rl_edgapolicy_0078",
+    "rl_edgapolicy_0168",
+    "rl_edgapolicy_0115",
+    "rl_edgapolicy_0051"
+   ],
+   "foreign_family": "edgamandwrong",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgamandwrong_0127",
+    "rl_edgamandwrong_0220"
+   ]
+  },
+  "edgbfdcap": {
+   "source": "rep",
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbfdcap_0016",
+    "rl_edgbfdcap_0033",
+    "rl_edgbfdcap_0083",
+    "rl_edgbfdcap_0103",
+    "rl_edgbfdcap_0133",
+    "rl_edgbfdcap_0219"
+   ],
+   "seeds_k2": [
+    "rl_edgbfdcap_0042",
+    "rl_edgbfdcap_0200"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_edgbfdcap_0042"
+   ],
+   "seeds_k5": [
+    "rl_edgbfdcap_0042",
+    "rl_edgbfdcap_0200",
+    "rl_edgbfdcap_0058",
+    "rl_edgbfdcap_0146",
+    "rl_edgbfdcap_0145"
+   ],
+   "foreign_family": "edgbcarddisamb",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgbcarddisamb_0573",
+    "rl_edgbcarddisamb_0685"
+   ]
+  },
+  "edgbloanrd": {
+   "source": "rep",
+   "purpose": "Loan details \u2192 RD rate \u2192 balance \u2192 penalty policy \u2192 create RD \u2192 balance",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbloanrd_0056",
+    "rl_edgbloanrd_0066",
+    "rl_edgbloanrd_0160",
+    "rl_edgbloanrd_0174",
+    "rl_edgbloanrd_0291",
+    "rl_edgbloanrd_0380"
+   ],
+   "seeds_k2": [
+    "rl_edgbloanrd_0013",
+    "rl_edgbloanrd_0153"
+   ],
+   "tools": [
+    "create_rd",
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "get_loan_details",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_edgbloanrd_0013"
+   ],
+   "seeds_k5": [
+    "rl_edgbloanrd_0013",
+    "rl_edgbloanrd_0153",
+    "rl_edgbloanrd_0142",
+    "rl_edgbloanrd_0001",
+    "rl_edgbloanrd_0231"
+   ],
+   "foreign_family": "edgamandwrong",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgamandwrong_0127",
+    "rl_edgamandwrong_0220"
+   ]
+  },
+  "edgbtwocards": {
+   "source": "rep",
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "class": 1,
+   "eval_tasks": [
+    "rl_edgbtwocards_0129",
+    "rl_edgbtwocards_0202",
+    "rl_edgbtwocards_0425",
+    "rl_edgbtwocards_0587",
+    "rl_edgbtwocards_0655",
+    "rl_edgbtwocards_0708"
+   ],
+   "seeds_k2": [
+    "rl_edgbtwocards_0432",
+    "rl_edgbtwocards_0646"
+   ],
+   "tools": [
+    "block_card",
+    "get_card_details",
+    "raise_request",
+    "toggle_card_freeze"
+   ],
+   "seeds_k1": [
+    "rl_edgbtwocards_0432"
+   ],
+   "seeds_k5": [
+    "rl_edgbtwocards_0432",
+    "rl_edgbtwocards_0646",
+    "rl_edgbtwocards_0401",
+    "rl_edgbtwocards_0053",
+    "rl_edgbtwocards_0489"
+   ],
+   "foreign_family": "tlgoldltv",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlgoldltv_0041",
+    "rl_tlgoldltv_0128"
+   ]
+  },
+  "hpbal": {
+   "source": "rep",
+   "purpose": "Balance enquiry",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpbal_0005",
+    "rl_hpbal_0023",
+    "rl_hpbal_0044",
+    "rl_hpbal_0059",
+    "rl_hpbal_0117",
+    "rl_hpbal_0155"
+   ],
+   "seeds_k2": [
+    "rl_hpbal_0009",
+    "rl_hpbal_0105"
+   ],
+   "tools": [
+    "get_account_balance"
+   ],
+   "seeds_k1": [
+    "rl_hpbal_0009"
+   ],
+   "seeds_k5": [
+    "rl_hpbal_0009",
+    "rl_hpbal_0105",
+    "rl_hpbal_0149",
+    "rl_hpbal_0032",
+    "rl_hpbal_0014"
+   ],
+   "foreign_family": "hpservice",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpservice_0194",
+    "rl_hpservice_0270"
+   ]
+  },
+  "hpcard": {
+   "source": "rep",
+   "purpose": "Card details lookup",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpcard_0030",
+    "rl_hpcard_0035",
+    "rl_hpcard_0048",
+    "rl_hpcard_0049",
+    "rl_hpcard_0051",
+    "rl_hpcard_0078"
+   ],
+   "seeds_k2": [
+    "rl_hpcard_0000",
+    "rl_hpcard_0062"
+   ],
+   "tools": [
+    "get_card_details"
+   ],
+   "seeds_k1": [
+    "rl_hpcard_0000"
+   ],
+   "seeds_k5": [
+    "rl_hpcard_0000",
+    "rl_hpcard_0062",
+    "rl_hpcard_0112",
+    "rl_hpcard_0045",
+    "rl_hpcard_0086"
+   ],
+   "foreign_family": "sq2emi",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2emi_0000",
+    "rl_sq2emi_0278"
+   ]
+  },
+  "hpemi": {
+   "source": "rep",
+   "purpose": "EMI estimate for a prospective loan",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpemi_0014",
+    "rl_hpemi_0042",
+    "rl_hpemi_0047",
+    "rl_hpemi_0085",
+    "rl_hpemi_0128",
+    "rl_hpemi_0130"
+   ],
+   "seeds_k2": [
+    "rl_hpemi_0107",
+    "rl_hpemi_0110"
+   ],
+   "tools": [
+    "calculate_emi",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_hpemi_0107"
+   ],
+   "seeds_k5": [
+    "rl_hpemi_0107",
+    "rl_hpemi_0110",
+    "rl_hpemi_0116",
+    "rl_hpemi_0143",
+    "rl_hpemi_0071"
+   ],
+   "foreign_family": "tlacctdet",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlacctdet_0067",
+    "rl_tlacctdet_0206"
+   ]
+  },
+  "hpkb": {
+   "source": "rep",
+   "purpose": "General banking question",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hpkb_0016",
+    "rl_hpkb_0029",
+    "rl_hpkb_0060",
+    "rl_hpkb_0069",
+    "rl_hpkb_0100",
+    "rl_hpkb_0115"
+   ],
+   "seeds_k2": [
+    "rl_hpkb_0065",
+    "rl_hpkb_0088"
+   ],
+   "tools": [
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_hpkb_0065"
+   ],
+   "seeds_k5": [
+    "rl_hpkb_0065",
+    "rl_hpkb_0088",
+    "rl_hpkb_0038",
+    "rl_hpkb_0012",
+    "rl_hpkb_0021"
+   ],
+   "foreign_family": "hptxn",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hptxn_0016",
+    "rl_hptxn_0034"
+   ]
+  },
+  "hprate": {
+   "source": "rep",
+   "purpose": "Recurring Deposit rate enquiry",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hprate_0030",
+    "rl_hprate_0045",
+    "rl_hprate_0058",
+    "rl_hprate_0061",
+    "rl_hprate_0094",
+    "rl_hprate_0096"
+   ],
+   "seeds_k2": [
+    "rl_hprate_0113",
+    "rl_hprate_0116"
+   ],
+   "tools": [
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_hprate_0113"
+   ],
+   "seeds_k5": [
+    "rl_hprate_0113",
+    "rl_hprate_0116",
+    "rl_hprate_0077",
+    "rl_hprate_0025",
+    "rl_hprate_0064"
+   ],
+   "foreign_family": "hpcard",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpcard_0000",
+    "rl_hpcard_0062"
+   ]
+  },
+  "hptxn": {
+   "source": "rep",
+   "purpose": "Recent transaction history",
+   "class": 0,
+   "eval_tasks": [
+    "rl_hptxn_0014",
+    "rl_hptxn_0022",
+    "rl_hptxn_0024",
+    "rl_hptxn_0074",
+    "rl_hptxn_0083",
+    "rl_hptxn_0101"
+   ],
+   "seeds_k2": [
+    "rl_hptxn_0016",
+    "rl_hptxn_0034"
+   ],
+   "tools": [
+    "get_transaction_history"
+   ],
+   "seeds_k1": [
+    "rl_hptxn_0016"
+   ],
+   "seeds_k5": [
+    "rl_hptxn_0016",
+    "rl_hptxn_0034",
+    "rl_hptxn_0004",
+    "rl_hptxn_0124",
+    "rl_hptxn_0066"
+   ],
+   "foreign_family": "hpcard",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpcard_0000",
+    "rl_hpcard_0062"
+   ]
+  },
+  "sq2cardblk": {
+   "source": "rep",
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2cardblk_0006",
+    "rl_sq2cardblk_0129",
+    "rl_sq2cardblk_0144",
+    "rl_sq2cardblk_0151",
+    "rl_sq2cardblk_0212",
+    "rl_sq2cardblk_0254"
+   ],
+   "seeds_k2": [
+    "rl_sq2cardblk_0057",
+    "rl_sq2cardblk_0075"
+   ],
+   "tools": [
+    "block_card",
+    "get_card_details",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_sq2cardblk_0057"
+   ],
+   "seeds_k5": [
+    "rl_sq2cardblk_0057",
+    "rl_sq2cardblk_0075",
+    "rl_sq2cardblk_0224",
+    "rl_sq2cardblk_0238",
+    "rl_sq2cardblk_0025"
+   ],
+   "foreign_family": "edgainsuff",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgainsuff_0068",
+    "rl_edgainsuff_0195"
+   ]
+  },
+  "sq2emi": {
+   "source": "rep",
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "class": 0,
+   "eval_tasks": [
+    "rl_sq2emi_0238",
+    "rl_sq2emi_0240",
+    "rl_sq2emi_0260",
+    "rl_sq2emi_0339",
+    "rl_sq2emi_0356",
+    "rl_sq2emi_0445"
+   ],
+   "seeds_k2": [
+    "rl_sq2emi_0000",
+    "rl_sq2emi_0278"
+   ],
+   "tools": [
+    "calculate_emi",
+    "get_deposit_loan_rates",
+    "get_loan_details",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_sq2emi_0000"
+   ],
+   "seeds_k5": [
+    "rl_sq2emi_0000",
+    "rl_sq2emi_0278",
+    "rl_sq2emi_0052",
+    "rl_sq2emi_0263",
+    "rl_sq2emi_0046"
+   ],
+   "foreign_family": "hpkb",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_hpkb_0065",
+    "rl_hpkb_0088"
+   ]
+  },
+  "sq2loanfc": {
+   "source": "rep",
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2loanfc_0047",
+    "rl_sq2loanfc_0172",
+    "rl_sq2loanfc_0266",
+    "rl_sq2loanfc_0276",
+    "rl_sq2loanfc_0377",
+    "rl_sq2loanfc_0402"
+   ],
+   "seeds_k2": [
+    "rl_sq2loanfc_0118",
+    "rl_sq2loanfc_0219"
+   ],
+   "tools": [
+    "get_loan_details",
+    "get_loan_foreclosure_quote",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_sq2loanfc_0118"
+   ],
+   "seeds_k5": [
+    "rl_sq2loanfc_0118",
+    "rl_sq2loanfc_0219",
+    "rl_sq2loanfc_0401",
+    "rl_sq2loanfc_0407",
+    "rl_sq2loanfc_0005"
+   ],
+   "foreign_family": "tlfdmat",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlfdmat_0078",
+    "rl_tlfdmat_0158"
+   ]
+  },
+  "sq2seniorfd": {
+   "source": "rep",
+   "purpose": "Balance \u2192 senior benefit \u2192 rate \u2192 create FD \u2192 balance (senior FD booking)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2seniorfd_0017",
+    "rl_sq2seniorfd_0155",
+    "rl_sq2seniorfd_0168",
+    "rl_sq2seniorfd_0197",
+    "rl_sq2seniorfd_0223",
+    "rl_sq2seniorfd_0335"
+   ],
+   "seeds_k2": [
+    "rl_sq2seniorfd_0144",
+    "rl_sq2seniorfd_0294"
+   ],
+   "tools": [
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_sq2seniorfd_0144"
+   ],
+   "seeds_k5": [
+    "rl_sq2seniorfd_0144",
+    "rl_sq2seniorfd_0294",
+    "rl_sq2seniorfd_0186",
+    "rl_sq2seniorfd_0212",
+    "rl_sq2seniorfd_0104"
+   ],
+   "foreign_family": "sq2statement",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sq2statement_0090",
+    "rl_sq2statement_0217"
+   ]
+  },
+  "sq2statement": {
+   "source": "rep",
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sq2statement_0033",
+    "rl_sq2statement_0067",
+    "rl_sq2statement_0103",
+    "rl_sq2statement_0122",
+    "rl_sq2statement_0213",
+    "rl_sq2statement_0251"
+   ],
+   "seeds_k2": [
+    "rl_sq2statement_0090",
+    "rl_sq2statement_0217"
+   ],
+   "tools": [
+    "get_transaction_history",
+    "raise_request",
+    "request_duplicate_statement"
+   ],
+   "seeds_k1": [
+    "rl_sq2statement_0090"
+   ],
+   "seeds_k5": [
+    "rl_sq2statement_0090",
+    "rl_sq2statement_0217",
+    "rl_sq2statement_0205",
+    "rl_sq2statement_0220",
+    "rl_sq2statement_0168"
+   ],
+   "foreign_family": "sqcheq",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqcheq_0135",
+    "rl_sqcheq_0215"
+   ]
+  },
+  "sqcheq": {
+   "source": "rep",
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqcheq_0034",
+    "rl_sqcheq_0070",
+    "rl_sqcheq_0187",
+    "rl_sqcheq_0226",
+    "rl_sqcheq_0401",
+    "rl_sqcheq_0507"
+   ],
+   "seeds_k2": [
+    "rl_sqcheq_0135",
+    "rl_sqcheq_0215"
+   ],
+   "tools": [
+    "get_transaction_history",
+    "request_cheque_book",
+    "stop_cheque_payment"
+   ],
+   "seeds_k1": [
+    "rl_sqcheq_0135"
+   ],
+   "seeds_k5": [
+    "rl_sqcheq_0135",
+    "rl_sqcheq_0215",
+    "rl_sqcheq_0151",
+    "rl_sqcheq_0562",
+    "rl_sqcheq_0526"
+   ],
+   "foreign_family": "sqfd",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqfd_0002",
+    "rl_sqfd_0254"
+   ]
+  },
+  "sqctl": {
+   "source": "rep",
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqctl_0041",
+    "rl_sqctl_0205",
+    "rl_sqctl_0243",
+    "rl_sqctl_0246",
+    "rl_sqctl_0298",
+    "rl_sqctl_0365"
+   ],
+   "seeds_k2": [
+    "rl_sqctl_0215",
+    "rl_sqctl_0310"
+   ],
+   "tools": [
+    "get_card_details",
+    "set_card_controls"
+   ],
+   "seeds_k1": [
+    "rl_sqctl_0215"
+   ],
+   "seeds_k5": [
+    "rl_sqctl_0215",
+    "rl_sqctl_0310",
+    "rl_sqctl_0076",
+    "rl_sqctl_0330",
+    "rl_sqctl_0225"
+   ],
+   "foreign_family": "sqcheq",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqcheq_0135",
+    "rl_sqcheq_0215"
+   ]
+  },
+  "sqdisp": {
+   "source": "rep",
+   "purpose": "History \u2192 block card \u2192 dispute (fraud chain)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqdisp_0030",
+    "rl_sqdisp_0114",
+    "rl_sqdisp_0143",
+    "rl_sqdisp_0144",
+    "rl_sqdisp_0201",
+    "rl_sqdisp_0333"
+   ],
+   "seeds_k2": [
+    "rl_sqdisp_0140",
+    "rl_sqdisp_0334"
+   ],
+   "tools": [
+    "block_card",
+    "get_transaction_history",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_sqdisp_0140"
+   ],
+   "seeds_k5": [
+    "rl_sqdisp_0140",
+    "rl_sqdisp_0334",
+    "rl_sqdisp_0340",
+    "rl_sqdisp_0291",
+    "rl_sqdisp_0025"
+   ],
+   "foreign_family": "sqclose",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqclose_0146",
+    "rl_sqclose_0343"
+   ]
+  },
+  "sqfrz": {
+   "source": "rep",
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqfrz_0091",
+    "rl_sqfrz_0151",
+    "rl_sqfrz_0189",
+    "rl_sqfrz_0221",
+    "rl_sqfrz_0248",
+    "rl_sqfrz_0373"
+   ],
+   "seeds_k2": [
+    "rl_sqfrz_0013",
+    "rl_sqfrz_0089"
+   ],
+   "tools": [
+    "get_card_details",
+    "toggle_card_freeze"
+   ],
+   "seeds_k1": [
+    "rl_sqfrz_0013"
+   ],
+   "seeds_k5": [
+    "rl_sqfrz_0013",
+    "rl_sqfrz_0089",
+    "rl_sqfrz_0389",
+    "rl_sqfrz_0097",
+    "rl_sqfrz_0180"
+   ],
+   "foreign_family": "edgamandwrong",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgamandwrong_0127",
+    "rl_edgamandwrong_0220"
+   ]
+  },
+  "sqkb": {
+   "source": "rep",
+   "purpose": "KB policy \u2192 quote \u2192 renewal change (informed decision)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqkb_0110",
+    "rl_sqkb_0228",
+    "rl_sqkb_0391",
+    "rl_sqkb_0415",
+    "rl_sqkb_0431",
+    "rl_sqkb_0464"
+   ],
+   "seeds_k2": [
+    "rl_sqkb_0318",
+    "rl_sqkb_0420"
+   ],
+   "tools": [
+    "get_deposit_closure_quote",
+    "search_knowledge_base",
+    "update_deposit_renewal"
+   ],
+   "seeds_k1": [
+    "rl_sqkb_0318"
+   ],
+   "seeds_k5": [
+    "rl_sqkb_0318",
+    "rl_sqkb_0420",
+    "rl_sqkb_0484",
+    "rl_sqkb_0135",
+    "rl_sqkb_0124"
+   ],
+   "foreign_family": "edgainsuff",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgainsuff_0068",
+    "rl_edgainsuff_0195"
+   ]
+  },
+  "sqmand": {
+   "source": "rep",
+   "purpose": "List \u2192 cancel \u2192 re-list (mandate)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_sqmand_0084",
+    "rl_sqmand_0121",
+    "rl_sqmand_0174",
+    "rl_sqmand_0203",
+    "rl_sqmand_0348",
+    "rl_sqmand_0437"
+   ],
+   "seeds_k2": [
+    "rl_sqmand_0190",
+    "rl_sqmand_0325"
+   ],
+   "tools": [
+    "cancel_mandate",
+    "show_mandates"
+   ],
+   "seeds_k1": [
+    "rl_sqmand_0190"
+   ],
+   "seeds_k5": [
+    "rl_sqmand_0190",
+    "rl_sqmand_0325",
+    "rl_sqmand_0061",
+    "rl_sqmand_0055",
+    "rl_sqmand_0308"
+   ],
+   "foreign_family": "edgbtwocards",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgbtwocards_0432",
+    "rl_edgbtwocards_0646"
+   ]
+  },
+  "tlfdmat": {
+   "source": "rep",
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlfdmat_0020",
+    "rl_tlfdmat_0028",
+    "rl_tlfdmat_0142",
+    "rl_tlfdmat_0146",
+    "rl_tlfdmat_0169",
+    "rl_tlfdmat_0197"
+   ],
+   "seeds_k2": [
+    "rl_tlfdmat_0078",
+    "rl_tlfdmat_0158"
+   ],
+   "tools": [
+    "calculate_fd_maturity",
+    "create_fd",
+    "get_account_balance",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_tlfdmat_0078"
+   ],
+   "seeds_k5": [
+    "rl_tlfdmat_0078",
+    "rl_tlfdmat_0158",
+    "rl_tlfdmat_0027",
+    "rl_tlfdmat_0166",
+    "rl_tlfdmat_0012"
+   ],
+   "foreign_family": "edgadestructive",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgadestructive_0181",
+    "rl_edgadestructive_0314"
+   ]
+  },
+  "tlgoldltv": {
+   "source": "rep",
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlgoldltv_0047",
+    "rl_tlgoldltv_0063",
+    "rl_tlgoldltv_0102",
+    "rl_tlgoldltv_0114",
+    "rl_tlgoldltv_0140",
+    "rl_tlgoldltv_0172"
+   ],
+   "seeds_k2": [
+    "rl_tlgoldltv_0041",
+    "rl_tlgoldltv_0128"
+   ],
+   "tools": [
+    "calculate_gold_loan_ltv",
+    "get_gold_rate",
+    "get_products_and_offers",
+    "raise_request"
+   ],
+   "seeds_k1": [
+    "rl_tlgoldltv_0041"
+   ],
+   "seeds_k5": [
+    "rl_tlgoldltv_0041",
+    "rl_tlgoldltv_0128",
+    "rl_tlgoldltv_0185",
+    "rl_tlgoldltv_0091",
+    "rl_tlgoldltv_0088"
+   ],
+   "foreign_family": "sqreloc",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_sqreloc_0017",
+    "rl_sqreloc_0048"
+   ]
+  },
+  "tlinsur": {
+   "source": "rep",
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlinsur_0083",
+    "rl_tlinsur_0267",
+    "rl_tlinsur_0303",
+    "rl_tlinsur_0328",
+    "rl_tlinsur_0355",
+    "rl_tlinsur_0381"
+   ],
+   "seeds_k2": [
+    "rl_tlinsur_0113",
+    "rl_tlinsur_0363"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_insurance_details",
+    "raise_request",
+    "search_knowledge_base"
+   ],
+   "seeds_k1": [
+    "rl_tlinsur_0113"
+   ],
+   "seeds_k5": [
+    "rl_tlinsur_0113",
+    "rl_tlinsur_0363",
+    "rl_tlinsur_0294",
+    "rl_tlinsur_0126",
+    "rl_tlinsur_0101"
+   ],
+   "foreign_family": "edgbmatelig",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgbmatelig_0257",
+    "rl_edgbmatelig_0730"
+   ]
+  },
+  "tlrddet": {
+   "source": "rep",
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlrddet_0049",
+    "rl_tlrddet_0089",
+    "rl_tlrddet_0295",
+    "rl_tlrddet_0304",
+    "rl_tlrddet_0309",
+    "rl_tlrddet_0325"
+   ],
+   "seeds_k2": [
+    "rl_tlrddet_0200",
+    "rl_tlrddet_0285"
+   ],
+   "tools": [
+    "get_account_balance",
+    "get_deposit_closure_quote",
+    "get_rd_details",
+    "update_deposit_renewal"
+   ],
+   "seeds_k1": [
+    "rl_tlrddet_0200"
+   ],
+   "seeds_k5": [
+    "rl_tlrddet_0200",
+    "rl_tlrddet_0285",
+    "rl_tlrddet_0175",
+    "rl_tlrddet_0136",
+    "rl_tlrddet_0407"
+   ],
+   "foreign_family": "tlgoldltv",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_tlgoldltv_0041",
+    "rl_tlgoldltv_0128"
+   ]
+  },
+  "tlrdmat": {
+   "source": "rep",
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create RD \u2192 balance (projected RD booking)",
+   "class": 1,
+   "eval_tasks": [
+    "rl_tlrdmat_0036",
+    "rl_tlrdmat_0064",
+    "rl_tlrdmat_0087",
+    "rl_tlrdmat_0131",
+    "rl_tlrdmat_0182",
+    "rl_tlrdmat_0201"
+   ],
+   "seeds_k2": [
+    "rl_tlrdmat_0097",
+    "rl_tlrdmat_0110"
+   ],
+   "tools": [
+    "calculate_rd_maturity",
+    "create_rd",
+    "get_account_balance",
+    "get_deposit_loan_rates"
+   ],
+   "seeds_k1": [
+    "rl_tlrdmat_0097"
+   ],
+   "seeds_k5": [
+    "rl_tlrdmat_0097",
+    "rl_tlrdmat_0110",
+    "rl_tlrdmat_0152",
+    "rl_tlrdmat_0166",
+    "rl_tlrdmat_0012"
+   ],
+   "foreign_family": "edgadestructive",
+   "foreign_rule": "same class, tool-set Jaccard < 1/3",
+   "seeds_foreign": [
+    "rl_edgadestructive_0181",
+    "rl_edgadestructive_0314"
+   ]
+  }
+ }
+}

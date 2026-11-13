@@ -1,0 +1,393 @@
+[
+ {
+  "id": "foreign_sqrenew_00",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_66470545; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sarojini Nair, a 75-year-old restaurant owner and HNI customer holding an active Fixed Deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your fixed deposit details, change its maturity instruction to renew both principal and interest, and verify that the update was applied.",
+    "known_info": "You are Sarojini Nair, customer already logged in (id CUST_66470545). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold a fixed deposit of \u20b95,00,000 (FD616906). You want to set its maturity instruction to renew both principal and interest upon maturity.",
+    "unknown_info": "The current maturity instruction on the fixed deposit, and confirmation of whether the change took effect.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your fixed deposit (provide the deposit ID FD616906 only if asked).\nStep 2: Ask to update its maturity instruction so that both principal and interest are renewed automatically at maturity. When the assistant asks for your confirmation, confirm clearly with 'Yes, please proceed'.\nStep 3: Once updated, ask to check the fixed deposit details again to verify that the maturity instruction has been updated.\nDo this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_66470545"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD616906"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew0_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD616906",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew0_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD616906"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's FD details, asks for explicit confirmation before updating the maturity instruction to renew principal and interest, updates the instruction, and then retrieves the FD details again to verify the update."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqrenew_01",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_40D23E2A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajat Kumar Ghosh, a 36-year-old retail banking customer residing in Kolkata with an active fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check your existing fixed deposit details, change the maturity renewal instruction to renew both principal and interest, and verify the updated details.",
+    "known_info": "You are Rajat Kumar Ghosh (id CUST_40D23E2A). Do not volunteer account/card/deposit/loan ids or backend terms unless specifically asked. You have an active fixed deposit and want to first review its details, change its maturity instruction so that both principal and interest are renewed at maturity, and then verify that the change has been properly recorded.",
+    "unknown_info": "The current maturity instruction and maturity details of the fixed deposit before and after the update.",
+    "task_instructions": "Step 1: Ask the assistant to show the details of your fixed deposit (refer to it simply as your fixed deposit without providing the ID unless asked).\nStep 2: After the assistant shares the details, request to update the renewal instruction so that both principal and interest are renewed upon maturity.\nStep 3: When the assistant asks for your confirmation to update the renewal instruction, provide a clear affirmative confirmation.\nStep 4: Once the assistant confirms the update, ask to verify the fixed deposit details again to ensure the instruction has been updated.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_40D23E2A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD737313"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew1_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD737313",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew1_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD737313"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's fixed deposit details using get_fd_details, seek explicit confirmation before updating the maturity instruction to renew_principal_interest with update_deposit_renewal, and verify the change by calling get_fd_details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqrenew_02",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_929B39AF; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 50-year-old insurance agent in Patna who has an active Fixed Deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your Fixed Deposit, change its maturity instruction so it does not auto-renew, and verify the update.",
+    "known_info": "You are Rajesh Kumar (customer ID CUST_929B39AF). You hold a Fixed Deposit (FD929870). Do not volunteer account or deposit IDs until the assistant asks for them. You want to change the renewal instruction to 'no_renewal' so the deposit is not renewed upon maturity.",
+    "unknown_info": "The exact current maturity instruction and status on record before and after the modification.",
+    "task_instructions": "Step 1: Ask the assistant for the details and current maturity instructions of your Fixed Deposit (give deposit ID FD929870 only if asked). Step 2: Ask to change the maturity instruction so the FD does not renew at maturity (set to no renewal). Step 3: When the assistant asks for confirmation to update the maturity renewal instruction, confirm explicitly. Step 4: After the update is confirmed, ask the assistant to check the deposit details again to verify that the instruction has been updated. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_929B39AF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD929870"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew2_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD929870",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew2_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD929870"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details of fixed deposit FD929870, asks for explicit confirmation before changing the maturity instruction to no_renewal, executes update_deposit_renewal, and then fetches the fixed deposit details again to verify the update."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqrenew_03",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_57005DBC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Subramanian, a 44-year-old college professor who values clarity, precision, and confirming record updates step-by-step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your Fixed Deposit, change its maturity renewal instruction to renew both principal and interest, and verify that the update was recorded.",
+    "known_info": "You are Kavitha Subramanian, customer ID CUST_57005DBC. You have a Fixed Deposit FD178915. Do not volunteer your deposit ID or other IDs until the assistant asks for it. You want to change the maturity instruction to renew principal and interest (renew_principal_interest).",
+    "unknown_info": "Current maturity instruction and details of the deposit, and the verified status after the update.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your Fixed Deposit (provide the deposit ID FD178915 only when asked). Step 2: Once the details are shown, request to change the maturity renewal instruction to renew both principal and interest. When the assistant asks for your confirmation, reply affirmatively with 'Yes, please proceed'. Step 3: After the assistant updates the renewal instruction, ask the assistant to verify the deposit details again to ensure the instruction has taken effect. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_57005DBC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD178915"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew3_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD178915",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew3_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD178915"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's FD details, confirms before updating the renewal instruction to renew_principal_interest, and verifies the update by retrieving the deposit details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqrenew_04",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_A076047B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Aggarwal, a wholesale trader with an active fixed deposit, who wants to check his FD, set it to auto-renew both principal and interest, and verify the updated status.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your fixed deposit, update its maturity instruction to renew principal and interest, and verify the update.",
+    "known_info": "You are Rajesh Kumar Aggarwal, customer already logged in (id CUST_A076047B). Do not volunteer account or deposit IDs until the agent asks. You want to change the renewal instruction of your FD to renew principal and interest.",
+    "unknown_info": "Current maturity instruction and details of your fixed deposit before the agent checks.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your fixed deposit (do not volunteer the deposit ID FD146159 unless asked). Step 2: Once the details are presented, ask to change the maturity renewal instruction to renew both principal and interest. Step 3: When the assistant presents the confirmation request, explicitly confirm that you want to proceed. Step 4: After the assistant confirms the update, ask to check the deposit details again to verify that the renewal instruction was updated. Do this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A076047B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD146159"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew4_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD146159",
+      "instruction": "renew_principal_interest"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew4_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD146159"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the fixed deposit details with get_fd_details, confirms with the customer before updating the maturity instruction to renew_principal_interest using update_deposit_renewal, and then calls get_fd_details again to verify the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqrenew_05",
+  "description": {
+   "purpose": "Details \u2192 change renewal \u2192 verify (FD)",
+   "notes": "family=sqrenew; customer_id=CUST_9158BDAA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Vineeth K. Nair, a 32-year-old wholesale trader holding multiple deposits with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your fixed deposits, change the renewal instruction on your \u20b92,00,000 deposit to not renew at maturity, and verify the updated details.",
+    "known_info": "You are Vineeth K. Nair, customer already logged in (id CUST_9158BDAA). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold a \u20b92,00,000 fixed deposit (deposit ID FD596277) and want its maturity instruction changed to no renewal.",
+    "unknown_info": "The current maturity instructions and full details of your fixed deposits, and whether the renewal instruction is successfully updated upon verification.",
+    "task_instructions": "Step 1: Ask for the details of your fixed deposits (do not volunteer deposit IDs unless asked). Step 2: Once the details are shared, ask to change the maturity instruction for your \u20b92,00,000 deposit so that it does not renew upon maturity (set to no renewal; provide deposit ID FD596277 only if asked). Step 3: When the assistant asks for confirmation to update the maturity instruction for FD596277 to no renewal, confirm clearly. Step 4: After the change is confirmed, ask the assistant to check the details of FD596277 again to verify that the renewal instruction has been updated. Follow this sequence strictly and do not allow steps to be skipped or reordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_9158BDAA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqrenew5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD596277",
+       "FD970412"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqrenew5_1",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "FD596277",
+      "instruction": "no_renewal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqrenew5_2",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD596277"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's FD details, asks for explicit confirmation before calling update_deposit_renewal to set FD596277's instruction to no_renewal, and then retrieves FD596277's details again to verify the update."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

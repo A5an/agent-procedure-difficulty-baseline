@@ -1,0 +1,392 @@
+[
+ {
+  "id": "foreign_sq2mandaudit_00",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_56F2248E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 69-year-old senior citizen auditing his monthly recurring standing instructions and autopay debits to reduce unnecessary expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review all your active standing mandates, cancel the StreamFlix and NovaTel Postpaid mandates one by one, and inspect the updated mandate list after each cancellation.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_56F2248E). You have standing mandates for StreamFlix, NovaTel Postpaid, and Electricity Autopay. Do not volunteer account or mandate IDs until the assistant asks for that specific detail.",
+    "unknown_info": "The exact backend mandate IDs and the updated status of your mandates after each cancellation.",
+    "task_instructions": "Step 1: Ask the assistant to list all your active standing instructions and autopay mandates for an audit. Step 2: After the assistant presents the list, instruct the assistant to cancel the StreamFlix mandate. When the assistant asks for your confirmation, provide your explicit confirmation. Step 3: After the cancellation is processed, ask the assistant to list your mandates again to confirm the cancellation. Step 4: After seeing the updated list, instruct the assistant to cancel the NovaTel Postpaid mandate. When the assistant asks for confirmation, provide your explicit confirmation. Step 5: After the second cancellation, ask the assistant to display your mandates once more to complete your audit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_56F2248E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit0_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND43738335"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit0_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit0_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND24645096"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit0_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's mandates, asks for confirmation before cancelling the StreamFlix mandate MND43738335, lists the mandates again, asks for confirmation before cancelling the NovaTel Postpaid mandate MND24645096, and displays the final mandate list."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2mandaudit_01",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_6879A3F6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Divya Ramesh Kumar, a 23-year-old pharmacist from Chennai holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to audit and clear out all standing autopay mandates on your account, cancelling them one by one and reviewing the list after each cancellation.",
+    "known_info": "You are Divya Ramesh Kumar, customer already logged in (id CUST_6879A3F6). Do not volunteer account, card, deposit, mandate, or transaction IDs unless specifically asked. You know you have active recurring mandates for Sentinel Life Premium and Electricity Autopay that you wish to cancel.",
+    "unknown_info": "The exact mandate IDs and their backend status details.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates and autopay instructions on your profile. Step 2: Once the mandates are listed, ask to cancel the first mandate (Sentinel Life Premium). Step 3: When the assistant asks for your confirmation to cancel the Sentinel Life Premium mandate, confirm clearly. Step 4: After cancellation is confirmed, ask the assistant to list your mandates again to verify the updated status. Step 5: After reviewing the list, ask to cancel the second mandate (Electricity Autopay). Step 6: When the assistant asks for your confirmation to cancel the Electricity Autopay mandate, confirm clearly. Step 7: After cancellation is confirmed, ask the assistant to list your mandates one final time to verify that both mandates are cancelled. Step 8: End the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6879A3F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit1_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND79922289"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit1_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit1_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND38886060"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit1_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists the customer's mandates, explicitly seeks affirmative confirmation before cancelling each mandate, cancels mandate MND79922289 and MND38886060 in sequence, and lists mandates after each cancellation to provide an accurate audit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2mandaudit_02",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_5C90630A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 31-year-old freelance web developer from Lucknow conducting an audit and cleanup of recurring debits on his accounts.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to audit and cancel your active standing mandates (StreamFlix and Mutual Fund SIP), verifying your mandate list after each cancellation.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_5C90630A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You want to cancel your StreamFlix autopay and your SIP mandate.",
+    "unknown_info": "The exact mandate IDs and current status in the bank system until the assistant looks them up.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates and recurring autopays registered on your profile. Step 2: Once listed, ask to cancel the StreamFlix mandate. Do not volunteer the mandate ID unless specifically asked; when the assistant asks for confirmation to cancel it, explicitly confirm 'Yes'. Step 3: After cancellation of the StreamFlix mandate is confirmed, ask the assistant to list your mandates again to verify the updated status. Step 4: Next, ask to cancel the remaining active mandate for SIP - Mutual Fund. When the assistant asks for confirmation, explicitly confirm 'Yes'. Step 5: After the second cancellation, ask the assistant to list your mandates one more time to verify that both mandates are cancelled. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to do the steps in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5C90630A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit2_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND57766824"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit2_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit2_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND69180647"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit2_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all standing mandates, request confirmation and cancel the StreamFlix mandate (MND57766824), list mandates again, request confirmation and cancel the SIP - Mutual Fund mandate (MND69180647), and finally list mandates to verify the final status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2mandaudit_03",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_8F724737; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 39-year-old government clerk who wants to review and clean up his recurring autopay commitments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review all standing mandates, cancel the StreamFlix subscription mandate, verify the list, cancel the Sentinel Life insurance mandate, and perform a final audit of all mandates.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_8F724737). You want to audit and cancel your recurring payment mandates (StreamFlix and Sentinel Life Premium). Do not volunteer mandate IDs or account IDs until the assistant mentions or asks for them.",
+    "unknown_info": "The exact mandate IDs and their current recorded statuses.",
+    "task_instructions": "Step 1: Ask the assistant to list all your standing mandates.\nStep 2: Review the list and ask to cancel the StreamFlix mandate. When the assistant asks for your confirmation to cancel it, explicitly confirm.\nStep 3: Once cancelled, ask the assistant to show your mandates again to verify the status.\nStep 4: Now ask to cancel the Sentinel Life Premium mandate. When the assistant asks for confirmation to cancel it, explicitly confirm.\nStep 5: Finally, ask to view your mandates one last time to ensure both have been cancelled.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8F724737"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit3_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND20477382"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit3_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit3_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND62277306"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit3_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists the customer's mandates, confirms before cancelling the StreamFlix mandate (MND20477382), lists mandates again, confirms before cancelling the Sentinel Life mandate (MND62277306), and finishes with a final mandate listing."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2mandaudit_04",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_98185355; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 60-year-old store manager from Noida auditing his recurring debits to eliminate unnecessary expenses.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Audit and cancel recurring mandates: list existing mandates, cancel the NovaTel Postpaid mandate, review the updated list, cancel the Sentinel Life Premium mandate, and verify the final mandate status.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_98185355). Your linked account is savings account SB4164866881. Do not volunteer account or mandate IDs upfront; identify mandates by their payee names (NovaTel Postpaid and Sentinel Life Premium) unless the assistant specifically asks for an ID.",
+    "unknown_info": "The exact mandate IDs and their updated statuses after each cancellation.",
+    "task_instructions": "Step 1: Ask the assistant to list all active mandates on your account. Step 2: After seeing the list, request cancellation of the NovaTel Postpaid mandate. When the assistant states the action and asks for confirmation, provide clear affirmative confirmation. Step 3: Ask to list your mandates again to verify the cancellation. Step 4: Next, request cancellation of the Sentinel Life Premium mandate. When the assistant asks for confirmation, provide clear affirmative confirmation. Step 5: Ask to list your mandates one final time to complete your audit. Do not skip or merge steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_98185355"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit4_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND93923191"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit4_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit4_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND92151482"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit4_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list the customer's mandates, prompt for explicit confirmation before cancelling the NovaTel Postpaid mandate (MND93923191), re-list mandates upon request, prompt for explicit confirmation before cancelling the Sentinel Life Premium mandate (MND92151482), and perform a final mandate listing."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2mandaudit_05",
+  "description": {
+   "purpose": "List \u2192 cancel #1 \u2192 list \u2192 cancel #2 \u2192 list (mandate audit)",
+   "notes": "family=sq2mandaudit; customer_id=CUST_A1287ADD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Gurpreet Singh, a 41-year-old agri trader from Ludhiana who keeps a close eye on recurring expenses and wants to audit and remove unused standing mandates from his bank profile.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to audit your recurring standing mandates by reviewing the full list, cancelling your NovaTel Postpaid mandate, checking the list again, cancelling your StreamFlix mandate, and checking the list one final time.",
+    "known_info": "You are Gurpreet Singh, customer already logged in (id CUST_A1287ADD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You want to audit and cancel your mandates for NovaTel Postpaid and StreamFlix.",
+    "unknown_info": "The exact mandate IDs, debit dates, and current system statuses until the assistant looks them up.",
+    "task_instructions": "Step 1: Ask the assistant to list all standing mandates on your profile. Step 2: Once the assistant lists them, ask to cancel the NovaTel Postpaid mandate (do not volunteer mandate ID until asked). When the assistant asks for your confirmation to cancel it, state your confirmation clearly. Step 3: Ask the assistant to list your mandates again to verify the cancellation. Step 4: Then ask to cancel the StreamFlix mandate (do not volunteer mandate ID until asked). When the assistant asks for your confirmation to cancel it, state your confirmation clearly. Step 5: Finally, ask to list your standing mandates one last time to complete your mandate audit. You will not allow the steps to be reordered or merged \u2014 if the agent tries to shortcut, tell it plainly to go back and do the earlier step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A1287ADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2mandaudit5_0",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND41610074"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit5_2",
+     "name": "show_mandates",
+     "arguments": {}
+    },
+    {
+     "action_id": "foreignsq2mandaudit5_3",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND84925873"
+     }
+    },
+    {
+     "action_id": "foreignsq2mandaudit5_4",
+     "name": "show_mandates",
+     "arguments": {}
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list all mandates, confirm and cancel the first requested mandate (NovaTel Postpaid), list the mandates again to verify, confirm and cancel the second requested mandate (StreamFlix), and list the mandates a third time to complete the audit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

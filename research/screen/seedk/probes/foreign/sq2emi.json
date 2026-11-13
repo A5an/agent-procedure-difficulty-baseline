@@ -1,0 +1,444 @@
+[
+ {
+  "id": "foreign_sq2emi_00",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_FA5C5AF0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Agrawal, a 68-year-old affluent restaurant owner in Indore with an existing gold loan, seeking to evaluate his affordability and eligibility for a new personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current loan obligations, get interest rate and EMI for a new personal loan, and understand the bank's loan affordability and eligibility policy.",
+    "known_info": "You are Rajesh Kumar Agrawal, logged in with customer ID CUST_FA5C5AF0. You have an existing gold loan with loan ID LN25933. Do not volunteer your loan ID until the assistant asks for it. You plan to borrow \u20b92,00,000 for 24 months as a personal loan and want to evaluate its EMI at 10.5% interest.",
+    "unknown_info": "Your existing loan balance and EMI, the new personal loan interest rate, the calculated EMI, and the bank's FOIR/affordability guidelines.",
+    "task_instructions": "1. Tell the assistant you want to check the status and details of your existing loan with the bank, such as outstanding balance and monthly EMI. Do not provide the loan ID until asked.\n2. When asked for the loan ID, provide LN25933.\n3. Next, ask for the bank's current interest rate for a new personal loan of \u20b92,00,000 for a tenure of 24 months.\n4. Ask the assistant to calculate the monthly EMI for a loan amount of \u20b92,00,000 over 24 months at an interest rate of 10.5%.\n5. Ask what the bank's policy and guidelines are regarding loan affordability and debt-to-income limits (FOIR) when taking an additional loan.\n6. Acknowledge the information and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA5C5AF0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi0_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN25933"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 200000,
+      "product_type": "personal_loan",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi0_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 200000,
+      "rate": 10.5,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2emi0_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "loan affordability eligibility policy FOIR debt to income limit"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the customer's existing loan details using their loan ID, look up the rate card for the new personal loan, compute the monthly EMI using the loan calculator, and query the knowledge base for the bank's loan affordability and eligibility policy without inventing any rates or terms."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2emi_01",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_48AEC094; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Prakash Kulkarni, a 49-year-old freelance consultant based in Nagpur, evaluating his existing debt before applying for a new personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your existing loan, find out the interest rate for a new personal loan of \u20b92,00,000 for 24 months, get the EMI calculated, and check the bank's loan affordability and eligibility policy.",
+    "known_info": "You are Rajesh Prakash Kulkarni (customer ID CUST_48AEC094). You have an existing loan with the bank. You plan to apply for a personal loan of \u20b92,00,000 for a 24-month tenure. Do not volunteer your loan ID (LN65029) or account details unless the assistant asks.",
+    "unknown_info": "Your current loan's outstanding balance and EMI, the new personal loan interest rate, the calculated monthly EMI, and the bank's loan affordability and eligibility rules regarding existing EMIs.",
+    "task_instructions": "1. Ask the assistant to look up your existing loan and tell you the outstanding balance and current EMI.\n2. Ask for the current interest rate for a new personal loan of \u20b92,00,000 for a tenure of 24 months.\n3. Request the assistant to calculate the monthly EMI for this \u20b92,00,000 loan over 24 months based on the quoted rate.\n4. Ask about the bank's loan affordability and eligibility policy to see how existing loans impact new loan approvals.\n5. Acknowledge the information and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_48AEC094"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi1_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN65029"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 200000,
+      "product_type": "personal_loan",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi1_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 200000,
+      "rate": 10.5,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2emi1_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "loan affordability and eligibility policy"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's existing loan details, looks up the current interest rate for a personal loan of \u20b92,00,000 over 24 months, computes the monthly EMI via calculate_emi, and searches the knowledge base for the bank's loan affordability and eligibility policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2emi_02",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_E7CAB78B; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karanveer Singh, a 39-year-old Data Scientist from Amritsar with an existing personal loan, exploring options for an additional personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing loan details, find out the current interest rate for a new \u20b93,00,000 personal loan for 36 months, calculate the EMI, and understand the bank's loan affordability and eligibility policy.",
+    "known_info": "You are Karanveer Singh, customer already logged in (id CUST_E7CAB78B). You have an existing personal loan. Do not volunteer account/card/deposit/loan/mandate/transaction IDs or internal categories until the agent asks for that specific detail. You want to explore a new personal loan of \u20b93,00,000 for 36 months.",
+    "unknown_info": "The outstanding balance and EMI of your existing personal loan, the current rate card for a \u20b93,00,000 personal loan for 36 months, the calculated monthly EMI, and the bank's loan affordability/eligibility rules.",
+    "task_instructions": "1. Greet the assistant and ask for the status of your existing loan, including its outstanding balance and current EMI. Do not provide the loan ID unless asked.\n2. Once the assistant provides your loan details, state that you are considering taking a new personal loan of \u20b93,00,000 for a tenure of 36 months, and ask what interest rate applies.\n3. After the assistant quotes the rate, ask them to calculate the monthly EMI and repayment details for a loan of \u20b93,00,000 over 36 months at that rate.\n4. Finally, ask what policy guidelines the bank follows regarding loan affordability and eligibility (such as FOIR or income limits) when evaluating a customer who already has an ongoing loan.\n5. Once the assistant explains the policy, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E7CAB78B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi2_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN72097"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 300000,
+      "product_type": "personal_loan",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi2_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 300000,
+      "rate": 12.5,
+      "tenure_months": 36
+     }
+    },
+    {
+     "action_id": "foreignsq2emi2_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "personal loan eligibility affordability criteria FOIR"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's existing personal loan LN72097, retrieve the rate card for a new \u20b93,00,000 personal loan for 36 months, calculate the EMI using that rate, and search the knowledge base to explain the bank's loan affordability and eligibility policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2emi_03",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_2842FE97; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 65-year-old IT Support Engineer reviewing her existing borrowing and evaluating affordability for a new personal loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review existing personal loan details, find current interest rates for a new personal loan, calculate EMI for a \u20b93,00,000 loan over 36 months at 12.5%, and check bank policy on loan affordability.",
+    "known_info": "You are Sunita Sharma, customer already logged in (id CUST_2842FE97). You have an existing personal loan LN78014 with an interest rate of 12.5%. Do not volunteer account/card/deposit/mandate/loan IDs until the assistant asks for that specific detail.",
+    "unknown_info": "Your current loan balance and EMI details, new personal loan rate card, the calculated EMI for a \u20b93,00,000 loan over 36 months at 12.5%, and the bank's loan affordability eligibility policy.",
+    "task_instructions": "1. Ask the assistant to check the details of your existing loan (do not mention your loan ID LN78014 upfront).\n2. Once the assistant shares your existing loan details, ask what the current interest rate is for a new personal loan.\n3. After the assistant shares the interest rate information, ask to calculate the EMI for a personal loan of \u20b93,00,000 with a tenure of 36 months at an interest rate of 12.5%.\n4. Once the EMI calculation is provided, ask the assistant about the bank's loan affordability eligibility policy.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2842FE97"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi3_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN78014"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "personal_loan"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi3_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 300000,
+      "rate": 12.5,
+      "tenure_months": 36
+     }
+    },
+    {
+     "action_id": "foreignsq2emi3_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "loan affordability eligibility policy"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's existing loan details, fetch the current personal loan interest rates, calculate the EMI for \u20b93,00,000 at 12.5% for 36 months, and search the knowledge base for the bank's loan affordability eligibility policy without making state mutations."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2emi_04",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_E93FC0B1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karthik Rajan, a 27-year-old IT Support Engineer living in Chennai with an active home loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the status of your existing home loan, check interest rates for a new home loan, calculate the monthly EMI, and understand the bank's loan eligibility and affordability policy.",
+    "known_info": "You are Karthik Rajan (customer ID CUST_E93FC0B1). You have an existing home loan with loan ID LN39171. Do not volunteer account, card, deposit, or loan IDs until the agent explicitly asks for them. You want to check a new loan amount of \u20b95,00,000 over 60 months at an interest rate of 8.5%.",
+    "unknown_info": "The outstanding balance and details of your existing home loan, the bank's new-loan rate card, the calculated monthly EMI, and the bank's loan affordability and eligibility guidelines.",
+    "task_instructions": "1. Tell the assistant you would like to check the details and outstanding balance of your existing home loan. Do not volunteer the loan ID initially; provide LN39171 only after the assistant asks for it.\n2. Once the assistant provides the details of your loan, ask what the bank's current interest rate is for a new home loan of \u20b95,00,000 for a tenure of 60 months.\n3. After the assistant quotes the rate, ask the assistant to calculate the monthly EMI for a loan principal of \u20b95,00,000 at 8.5% interest for a tenure of 60 months.\n4. After receiving the EMI calculation, ask about the bank's loan eligibility and affordability policy regarding existing debt obligations (such as FOIR or income criteria).\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E93FC0B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi4_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN39171"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 500000,
+      "product_type": "home_loan",
+      "tenure_months": 60
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi4_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 500000,
+      "rate": 8.5,
+      "tenure_months": 60
+     }
+    },
+    {
+     "action_id": "foreignsq2emi4_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "loan eligibility criteria affordability FOIR"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch existing loan details for LN39171, query the rate card for a new home loan, calculate the monthly EMI for \u20b95,00,000 at 8.5% over 60 months, and search the knowledge base for loan eligibility and affordability guidelines."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2emi_05",
+  "description": {
+   "purpose": "Existing loan \u2192 new-loan rate \u2192 EMI \u2192 eligibility policy (loan affordability check)",
+   "notes": "family=sq2emi; customer_id=CUST_0FB19252; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anita Chandrakant Patel, a 71-year-old school teacher from Surat. She is prudent, polite, and detail-oriented regarding her finances and monthly commitments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your existing personal loan details, find out the interest rate for a new personal loan, calculate the monthly EMI, and understand the bank's loan affordability and eligibility criteria.",
+    "known_info": "You are Anita Chandrakant Patel, customer already logged in (id CUST_0FB19252). You have an existing personal loan with loan ID LN22271. Do not volunteer account/card/deposit/mandate/loan IDs or internal categories until the agent asks for that specific detail. You are considering a new personal loan of \u20b91,00,000 for a tenure of 24 months.",
+    "unknown_info": "Current balance and EMI details of your existing loan LN22271, the interest rate for a new personal loan of \u20b91,00,000 over 24 months, the calculated EMI for that amount, and the bank's eligibility policy regarding loan affordability.",
+    "task_instructions": "1. Tell the agent that you would like to check the status and details of your existing loan. When the agent asks for the loan ID, provide LN22271.\n2. Once the agent shares the existing loan details, ask for the current interest rate for a new personal loan of \u20b91,00,000 for a 24-month tenure.\n3. After the agent provides the rate (12.5%), ask them to calculate the monthly EMI for a loan amount of \u20b91,00,000 for 24 months at 12.5% interest.\n4. Ask the agent about the bank's loan affordability and eligibility policy to understand how existing loan obligations are assessed for new loan eligibility.\n5. Once the agent explains the policy from the knowledge base, conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0FB19252"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2emi5_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN22271"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2emi5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "amount": 100000,
+      "product_type": "personal_loan",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsq2emi5_2",
+     "name": "calculate_emi",
+     "arguments": {
+      "principal": 100000,
+      "rate": 12.5,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "foreignsq2emi5_3",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "loan affordability check eligibility policy"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the details of the customer's existing personal loan LN22271, checks the current rate card for a new personal loan, computes the monthly EMI for \u20b91,00,000 over 24 months at 12.5%, and searches the knowledge base for the bank's loan affordability and eligibility policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

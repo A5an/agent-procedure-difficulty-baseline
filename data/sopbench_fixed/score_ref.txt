@@ -1,0 +1,8 @@
+REF all830 new_procedures  case : adele +0.120 [+0.027, +0.230] | c_lad +0.237 [+0.093, +0.377] | f2_all_fc +0.242 [+0.095, +0.356]
+REF all830 new_procedures  proc : adele +0.192 [-0.041, +0.417] | c_lad +0.452 [+0.213, +0.603] | f2_all_fc +0.395 [+0.154, +0.568]
+REF all830 new_domain      case : adele +0.125 [+0.032, +0.217] | c_lad +0.212 [+0.106, +0.333] | f2_all_fc +0.193 [+0.070, +0.300]
+REF all830 new_domain      proc : adele +0.231 [-0.063, +0.450] | c_lad +0.486 [+0.244, +0.614] | f2_all_fc +0.490 [+0.241, +0.654]
+REF kept806 new_procedures  case : adele +0.129 [+0.029, +0.225] | c_lad +0.265 [+0.052, +0.390] | f2_all_fc +0.264 [+0.071, +0.372]
+REF kept806 new_procedures  proc : adele +0.267 [+0.043, +0.473] | c_lad +0.472 [+0.227, +0.588] | f2_all_fc +0.449 [+0.237, +0.589]
+REF kept806 new_domain      case : adele +0.124 [+0.017, +0.239] | c_lad +0.230 [+0.102, +0.340] | f2_all_fc +0.210 [+0.097, +0.318]
+REF kept806 new_domain      proc : adele +0.252 [+0.008, +0.467] | c_lad +0.500 [+0.288, +0.655] | f2_all_fc +0.501 [+0.235, +0.698]

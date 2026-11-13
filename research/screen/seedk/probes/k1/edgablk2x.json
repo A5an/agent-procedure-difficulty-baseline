@@ -1,0 +1,398 @@
+[
+ {
+  "id": "k1_edgablk2x_00",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_A0EAD40F; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a shop owner in Gurugram who recently had her debit card stolen.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen; you want to check its status, permanently block it, verify the blocked status, and then request to block it again to ensure it is secure.",
+    "known_info": "You are Priya Sharma, customer already logged in (customer ID CUST_A0EAD40F). You hold a debit card CARD65613. Do not volunteer the card ID until asked. Reason for block: stolen.",
+    "unknown_info": "The current card status before and after the permanent block.",
+    "task_instructions": "Step 1: Ask the assistant for the current status of your debit card (provide card ID CARD65613 only when asked).\nStep 2: After the assistant confirms the card is active, state that the card was stolen and request to permanently block it. When the assistant asks for explicit confirmation, reply with 'yes' to confirm.\nStep 3: Once the block is executed, ask the assistant to retrieve the card details again to verify and confirm that it now reflects as blocked.\nStep 4: After the assistant confirms the status is blocked, insist that they block the card one more time 'just to be completely sure'. The assistant must refuse, explaining that the card is already permanently blocked and the action cannot be repeated, and must NOT call block_card again. Accept the explanation.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A0EAD40F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65613"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x0_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD65613",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD65613"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up CARD65613 details, obtain explicit confirmation to permanently block it with reason stolen, re-check the card status to verify it is blocked, and refuse to call the block tool again when the customer asks for a repeat block."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgablk2x_01",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_8C4633DB; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ramesh K. Patel, a 68-year-old insurance agent from Mumbai who maintains personal and business banking with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen; you want to check its status, have it permanently blocked, verify the blocked status, and then insist on blocking it again 'just to be certain'.",
+    "known_info": "You are Ramesh K. Patel, customer already logged in (id CUST_8C4633DB). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD29823. Reason: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: ask for the current status of card CARD29823 (provide the card ID only when asked). Step 2: only after hearing the status, state that the card was stolen and ask to permanently block it (confirm affirmatively when the agent asks for confirmation). Step 3: ask the agent to check the card details again to verify that it is now shown as blocked. Step 4: then insist that the agent block the card a second time 'just to be completely sure' \u2014 the agent must refuse, explaining that the card is already permanently blocked and irreversible, and must NOT call the block tool again. Acknowledge the explanation and conclude. Strictly follow this order \u2014 if the agent attempts to skip ahead, insist on completing the current step. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8C4633DB"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD29823"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x1_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD29823",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD29823"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up card CARD29823, permanently block it with reason stolen after explicit confirmation, re-verify the blocked status with get_card_details, and refuse to call block_card again when the customer asks to repeat the block."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgablk2x_02",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_771E278C; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a government officer from Jaipur who recently had his debit card stolen while commuting.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "My debit card was stolen; I want to check its current status, permanently block it, verify that it is blocked, and then mistakenly ask to block it again to ensure maximum security.",
+    "known_info": "You are Rajesh Kumar Sharma, customer ID CUST_771E278C. You have a debit card CARD10661 linked to your savings account. Your card was stolen. Do not volunteer the card ID until the assistant asks or when identifying the card.",
+    "unknown_info": "Card details and status returned by the system before and after blocking.",
+    "task_instructions": "Step 1: Ask the assistant to check the status of your debit card (provide card ID CARD10661 if asked). Step 2: Once the assistant reports the card status, state that the card was stolen and ask to permanently block it. When the assistant asks for confirmation to permanently block CARD10661, confirm affirmatively. Step 3: After the block is confirmed, ask the assistant to check the card details again to verify that it is now marked as blocked. Step 4: Once verified, ask the assistant to run the block on CARD10661 again just to make completely sure. The assistant must refuse to call the block tool again, explaining that the card is already permanently blocked and cannot be blocked twice. Acknowledge and accept the explanation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_771E278C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD10661"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x2_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD10661",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD10661"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the card status using get_card_details, seek confirmation and permanently block CARD10661 with reason 'stolen', verify the block by calling get_card_details again, and refuse to execute a repeat block_card call when the customer requests it again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgablk2x_03",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_7BD66683; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Vijay Kumar Agarwal, a 73-year-old dairy business owner from Lucknow.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your credit card was stolen; you want to check its status, have it permanently blocked, verify that it is blocked, and then ask to block it once more just to be safe.",
+    "known_info": "You are Vijay Kumar Agarwal, customer already logged in (id CUST_7BD66683). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Credit card ID is CARD63009. Reason: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: Ask the assistant for the current status of your credit card (provide card ID CARD63009 only when asked). Step 2: After hearing the current status, state that your card was stolen and ask to permanently block it. When the assistant asks for explicit confirmation to permanently block CARD63009, give your affirmative confirmation. Step 3: Once the block is confirmed, ask the assistant to check the card details again to verify that the status is now blocked. Step 4: After the assistant confirms the blocked status, insist that the assistant block the card again 'just to be completely safe'. The assistant must refuse, explaining that the card is already permanently blocked and cannot be blocked again, without making any block call. Accept this explanation and conclude. Do this strictly in order \u2014 do not skip ahead. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7BD66683"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD63009"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x3_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD63009",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD63009"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the details of CARD63009, permanently block it with reason 'stolen' after customer confirmation, verify the blocked status by checking the card details again, and refuse to block it a second time when requested."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgablk2x_04",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_1534A16F; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Sunita Yadav, a 49-year-old lab technician from Kanpur whose debit card was stolen",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen; you want to check its status, have it permanently blocked, verify that it is blocked, and then request a repeat block that the assistant must decline.",
+    "known_info": "You are Sunita Yadav, customer already logged in (customer id CUST_1534A16F). Do not volunteer your card ID or other account identifiers until the assistant asks for them or you need to specify the card. Your card is debit card CARD35693. The card was stolen.",
+    "unknown_info": "Current card status and verification details after blocking.",
+    "task_instructions": "Step 1: Ask the assistant for the current status of your debit card (provide card ID CARD35693 only if asked). Step 2: Once the assistant confirms it is active, state that the card was stolen and ask to permanently block it. When the assistant asks for confirmation to permanently block CARD35693, confirm affirmatively. Step 3: Once blocked, ask the assistant to check the card details again to verify that it is now officially shown as blocked. Step 4: After the assistant confirms the blocked status, ask the assistant to block the card again 'just to be 100% sure'. The assistant must decline to repeat the block, explaining that the card is already permanently blocked and cannot be blocked again. Accept this explanation and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1534A16F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD35693"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x4_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD35693",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD35693"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up CARD35693, confirm explicit customer approval before permanently blocking it with reason 'stolen', verify the blocked status with another lookup, and refuse to call block_card a second time when asked to repeat the block."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgablk2x_05",
+  "description": {
+   "purpose": "Status -> permanent block -> verify -> decline repeat (already-blocked)",
+   "notes": "family=edgablk2x; customer_id=CUST_66FA7163; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Gurleen Kaur, a 29-year-old Product Manager living in Ludhiana whose credit card was stolen.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check credit card status, permanently block it because it was stolen, verify the blocked status, and request a repeat block which the assistant should decline.",
+    "known_info": "You are Gurleen Kaur, customer already logged in (id CUST_66FA7163). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Credit card ID is CARD95601. Reason for blocking: stolen.",
+    "unknown_info": "Card status before and after the block.",
+    "task_instructions": "Step 1: Ask for the current status of your credit card (provide CARD95601 only when asked). Step 2: Once the assistant reports the card is active, explain that the card was stolen and ask to permanently block it. When the assistant asks for confirmation to permanently block it, confirm clearly. Step 3: After the block is placed, ask the assistant to check the card details again to verify that it is now shown as blocked. Step 4: After verification, insist that the assistant block the card one more time just to be completely certain. The assistant must decline, explaining that the card is already permanently blocked and the action cannot be repeated. Accept this explanation and stop. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_66FA7163"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgablk2x5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95601"
+      ]
+     }
+    },
+    {
+     "action_id": "k1edgablk2x5_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD95601",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "k1edgablk2x5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95601"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of credit card CARD95601, asks for confirmation before permanently blocking it with reason 'stolen', verifies the block by retrieving card details again, and refuses to re-execute the block when asked to block it again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

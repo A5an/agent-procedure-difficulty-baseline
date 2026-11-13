@@ -1,0 +1,272 @@
+[
+ {
+  "id": "foreign_hpgold_00",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_24677204; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 45-year-old restaurant owner from Visakhapatnam.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out how much gold loan you can borrow against 50 grams of 22-karat gold jewellery at a gold rate of \u20b96,000 per gram.",
+    "known_info": "You are Suresh Kumar Reddy, customer already logged in (id CUST_24677204). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold 50 grams of 22-karat gold jewellery and want to calculate your eligible gold loan amount based on a gold rate of \u20b96,000 per gram.",
+    "unknown_info": "The valuation of the gold and the maximum loan amount eligible under the bank's LTV cap.",
+    "task_instructions": "1. Tell the assistant that you want to check your gold loan eligibility against 50 grams of 22-karat gold jewellery, assuming a gold rate of \u20b96,000 per gram.\n2. Once the assistant calculates and provides the maximum eligible loan amount, acknowledge the details.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_24677204"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold0_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6000
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should call calculate_gold_loan_ltv with 50 grams, 22 karat purity, and a gold rate of \u20b96,000 per gram, and explain the maximum eligible loan amount to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpgold_01",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_CC232594; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Shankar Singh, a 27-year-old self-employed real estate broker in Lucknow exploring collateral borrowing options to expand working capital.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the maximum eligible gold loan amount for 50 grams of 22 karat gold at an assumed rate of \u20b96,500 per gram.",
+    "known_info": "You are Ravi Shankar Singh, customer already logged in (id CUST_CC232594). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have 50 grams of 22 karat gold ornaments and want an eligibility calculation at an estimated gold rate of \u20b96,500 per gram.",
+    "unknown_info": "The bank's applicable LTV cap and the maximum loan amount you can avail against the collateral.",
+    "task_instructions": "1. Tell the assistant you want to inquire about a gold loan and ask how much loan you can get against 50 grams of 22 karat gold, assuming a gold rate of \u20b96,500 per gram.\n2. When the assistant provides the maximum eligible loan amount and valuation details, acknowledge the information.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC232594"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold1_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6500
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant computes the maximum gold loan eligibility using calculate_gold_loan_ltv for 50 grams of 22 karat gold at \u20b96,500 per gram and informs the customer of the valuation and loan limit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpgold_02",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_CC532584; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohit Sunil Mehta, a 31-year-old Data Scientist living in Mumbai, looking to evaluate how much financing he can raise against his family gold jewellery.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the maximum eligible gold loan amount (sizing) against 50 grams of 22-karat gold jewellery at a valuation rate of \u20b96,500 per gram.",
+    "known_info": "You are Rohit Sunil Mehta, customer already logged in (id CUST_CC532584). You have 50 grams of 22-karat gold jewellery. You want to calculate your eligible loan amount using a gold rate of \u20b96,500 per gram. Do not volunteer account or card numbers unless specifically asked.",
+    "unknown_info": "The eligible gold loan amount and loan-to-value (LTV) calculation.",
+    "task_instructions": "1. Tell the assistant you are looking into a gold loan and want to calculate your maximum eligible loan amount (gold loan sizing) against 50 grams of 22-karat gold jewellery at a rate of \u20b96,500 per gram.\n2. Once the assistant provides the eligible loan amount and sizing details, thank them and conclude the conversation.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC532584"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold2_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6500
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should calculate the maximum eligible gold loan amount using calculate_gold_loan_ltv with 50 grams, 22 karat purity, and a gold rate of \u20b96,500 per gram, and explain the sizing to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpgold_03",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_305305F6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Vikram Shah, a 40-year-old school teacher in Ahmedabad seeking to evaluate her financing options by borrowing against family gold jewelry.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the maximum eligible gold loan amount you can get against your gold ornaments.",
+    "known_info": "You are Anjali Vikram Shah, customer already logged in (id CUST_305305F6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have 50 grams of 22 karat gold ornaments and want to evaluate sizing based on a rate of \u20b96,000 per gram.",
+    "unknown_info": "The maximum eligible gold loan amount and LTV calculated by the bank.",
+    "task_instructions": "Ask the assistant to calculate the maximum gold loan amount you can get against 50 grams of 22 karat gold ornaments, using a gold rate of \u20b96,000 per gram. After the assistant provides the sizing calculation, acknowledge the details and wrap up. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_305305F6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold3_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6000
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up or calculate the maximum eligible gold loan amount by calling calculate_gold_loan_ltv with 50 grams, 22 karat purity, and \u20b96,000 per gram rate, and clearly communicate the eligible loan amount to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpgold_04",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_F07866E1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A 35-year-old agri trader from Lucknow who wants to check how much financing she can raise against her gold jewelry.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your gold loan eligibility and find out the maximum loan amount you can get against your gold ornaments.",
+    "known_info": "You are Anjali Gupta, customer already logged in (id CUST_F07866E1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have 50 grams of 22-karat gold jewelry and want to calculate your eligible loan amount assuming a gold rate of \u20b96,000 per gram.",
+    "unknown_info": "The maximum eligible loan amount based on the bank's LTV cap.",
+    "task_instructions": "1. Ask the agent how much gold loan you can get against your gold jewelry.\n2. Provide the details: 50 grams of 22-karat gold ornaments and ask them to calculate the eligible loan amount using a gold rate of \u20b96,000 per gram.\n3. Once the agent calculates and shares your maximum eligible loan amount, thank them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F07866E1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold4_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6000
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should calculate the maximum eligible gold loan amount using the calculate_gold_loan_ltv tool with 50 grams, 22 karat purity, and \u20b96,000 per gram rate, and present the resulting loan amount to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpgold_05",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_726F28B0; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Devi, a self-employed electrician looking to enquire about loan sizing against her gold jewellery.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the maximum eligible gold loan amount you can get against 40 grams of 22 karat gold jewellery.",
+    "known_info": "You are Sunita Devi, customer already logged in (id CUST_726F28B0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have 40 grams of 22 karat gold ornaments, and you want the sizing calculation done assuming a gold rate of \u20b96,000 per gram.",
+    "unknown_info": "The maximum eligible loan amount under the bank's LTV cap.",
+    "task_instructions": "1. Ask the assistant how much loan you can get against your gold jewellery. Specify that you have 40 grams of 22 karat gold and want to calculate eligibility based on a gold rate of \u20b96,000 per gram.\n2. Once the assistant calculates and provides the maximum eligible loan amount, acknowledge the answer.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_726F28B0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpgold5_0",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 6000
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant calls calculate_gold_loan_ltv with 40 grams, 22 karat purity, and \u20b96,000 per gram rate, and clearly communicates the eligible loan amount to the customer."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

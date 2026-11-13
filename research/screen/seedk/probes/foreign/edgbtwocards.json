@@ -1,0 +1,517 @@
+[
+ {
+  "id": "foreign_edgbtwocards_00",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_E1CA547F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anita Kumari, a 39-year-old college professor at Patna University, managing her bank cards after misplacing her credit card and having her debit card stolen.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "List details of both cards, temporarily freeze the credit card, permanently block the stolen debit card, order a replacement debit card, and verify both cards' statuses.",
+    "known_info": "You are Anita Kumari, customer already logged in (id CUST_E1CA547F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card is CARD17002 and your credit card is CARD27144. Your linked savings account is SB4997806089.",
+    "unknown_info": "Current limits, features, and status of the cards, confirmation of freeze and block actions, and service request reference number for replacement.",
+    "task_instructions": "Step 1: Ask the assistant to check and list the details of both of your cards. If asked for the card IDs, provide CARD17002 and CARD27144.\nStep 2: Once the details are provided, tell the assistant you misplaced your credit card CARD27144 and want to temporarily freeze it. When the assistant asks for your confirmation to freeze CARD27144, reply with 'Yes, please freeze my credit card'.\nStep 3: Next, tell the assistant that your debit card CARD17002 was stolen and must be permanently blocked. When the assistant asks for your confirmation to permanently block CARD17002, reply with 'Yes, please permanently block my debit card'.\nStep 4: Request a replacement debit card to be issued for the blocked card. When the assistant asks for your confirmation to raise the request, reply with 'Yes, please go ahead and request the replacement debit card'.\nStep 5: Ask the assistant to verify and confirm the current status of both cards. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E1CA547F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD17002",
+       "CARD27144"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD27144",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards0_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD17002",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4997806089",
+      "category": "other",
+      "description": "Replacement card request for permanently blocked debit card CARD17002"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards0_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD17002",
+       "CARD27144"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, freeze credit card CARD27144 upon explicit confirmation, permanently block debit card CARD17002 upon explicit confirmation, raise a service request for a replacement card upon explicit confirmation, and finally verify the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbtwocards_01",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_A11E2BC5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Karthik Venkatesh, a 30-year-old data scientist living in Coimbatore",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to view your cards, temporarily freeze your misplaced debit card, permanently block your stolen credit card, order a replacement card, and verify the updated status of both cards.",
+    "known_info": "You are Karthik Venkatesh, already logged in (customer ID CUST_A11E2BC5). You have a debit card and a credit card linked to your savings account. You misplaced your debit card and your credit card was stolen. Do not volunteer specific card IDs or backend category names until the assistant identifies or asks for them.",
+    "unknown_info": "Specific card IDs, credit limits, or technical card statuses until retrieved by the assistant.",
+    "task_instructions": "Step 1: Ask the assistant to view and list all your linked cards and their current statuses. Step 2: Once the assistant lists both cards, explain that you misplaced your debit card and want to temporarily freeze it. When the assistant asks for confirmation to freeze the debit card, explicitly confirm. Step 3: Next, tell the assistant that your credit card was stolen and you want to permanently block it. When the assistant asks for confirmation to permanently block the credit card, explicitly confirm. Step 4: After the card is blocked, ask the assistant to request a replacement credit card for the blocked card. When the assistant asks for confirmation to submit the service request, explicitly confirm. Step 5: After the request is raised, ask the assistant to check and verify the current statuses of both of your cards. Sequence is strict \u2014 complete each step in order before moving to the next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A11E2BC5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62272",
+       "CARD70798"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD62272",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards1_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD70798",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards1_3",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Request replacement for stolen credit card CARD70798"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards1_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD62272",
+       "CARD70798"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists both cards using get_card_details, freezes the debit card (CARD62272) upon explicit confirmation, permanently blocks the stolen credit card (CARD70798) with reason 'stolen' upon explicit confirmation, raises a service request for a replacement card upon explicit confirmation, and finally verifies both cards' statuses using get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbtwocards_02",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_AE0C57EB; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 53-year-old nurse from Indore who needs to secure her payment cards after misplacing her debit card and having her credit card stolen.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "List linked cards, temporarily freeze the misplaced debit card, permanently block the stolen credit card, order a replacement credit card, and verify card statuses.",
+    "known_info": "You are Sunita Sharma, already logged in (customer ID CUST_AE0C57EB). You have a debit card and a credit card linked to your account. Do not volunteer card IDs or account numbers until the assistant asks for or presents them. Your debit card was temporarily misplaced, while your credit card was stolen and must be permanently blocked with a replacement ordered.",
+    "unknown_info": "Specific card IDs (until retrieved by the assistant) and their post-action statuses.",
+    "task_instructions": "Step 1: Ask the assistant to view/list all cards linked to your profile. Step 2: Once the assistant lists your cards, state that you misplaced your debit card and want to temporarily freeze it. Confirm the freeze when asked. Step 3: Next, state that your credit card was stolen and you need to permanently block it. Confirm the permanent block when asked. Step 4: After the card is blocked, request a replacement for the credit card. Confirm when the assistant asks for confirmation before lodging the request. Step 5: Ask the assistant to check and verify the current statuses of both cards. Follow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AE0C57EB"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41205",
+       "CARD70322"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD41205",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards2_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD70322",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9452164851",
+      "category": "other",
+      "description": "Replacement request for stolen credit card CARD70322"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards2_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41205",
+       "CARD70322"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, freeze the debit card CARD41205 after confirmation, permanently block the credit card CARD70322 with reason stolen after confirmation, submit a service request for a replacement card after confirmation, and verify the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbtwocards_03",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_F22AE5CE; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 22-year-old police constable from Noida, holding both an active debit card and an active credit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your cards, temporarily freeze your debit card because you misplaced it, permanently block your stolen credit card, request a replacement for the credit card, and verify the final status of both cards.",
+    "known_info": "You are Ravi Kumar (customer ID CUST_F22AE5CE). Do not volunteer card IDs or account IDs until the assistant lists them or asks for specific details. Your debit card is misplaced at home and needs a temporary freeze. Your credit card was stolen from your wallet and must be permanently blocked. You also need a replacement for the credit card.",
+    "unknown_info": "Card numbers/IDs and current status in the system.",
+    "task_instructions": "Step 1: Ask the assistant to view and list all cards linked to your account. Step 2: Once both cards are listed, tell the assistant you misplaced your debit card and want to temporarily freeze it. Explicitly confirm the freeze when asked. Step 3: Next, state that your credit card was stolen and must be permanently blocked. Confirm the permanent block when prompted. Step 4: Ask the assistant to raise a request for a replacement credit card. Explicitly confirm when asked. Step 5: Ask the assistant to verify and show the updated status of both cards to confirm everything is in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F22AE5CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD45555",
+       "CARD59590"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD45555",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards3_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD59590",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3177733755",
+      "category": "other",
+      "description": "Request replacement for blocked credit card CARD59590"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards3_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD45555",
+       "CARD59590"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list both cards, ask for confirmation and temporarily freeze the debit card, ask for confirmation and permanently block the stolen credit card, confirm and submit a replacement card service request, and verify the final status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbtwocards_04",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_67ECEBA8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Patel, a 72-year-old retired IT support engineer who is methodical, cautious about card security, and wants to handle his cards step-by-step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need to check both your cards, temporarily freeze your misplaced debit card, permanently block your stolen credit card, request a replacement for the blocked card, and verify the final status.",
+    "known_info": "You are Ramesh Kumar Patel, customer already logged in (id CUST_67ECEBA8). Do not volunteer account or card IDs until the assistant specifically asks for them. You have two cards: a RuPay debit card (CARD80601) and a Mastercard credit card (CARD15239), linked to your savings account SB9443232856. Your debit card is temporarily misplaced at home, and your credit card was stolen.",
+    "unknown_info": "The current control status of both cards, and the service request number for the credit card replacement.",
+    "task_instructions": "Step 1: Ask the assistant to check the details and status of both of your cards. When asked for the card IDs, provide CARD80601 and CARD15239. Step 2: Once the details are presented, explain that you misplaced your debit card (CARD80601) and ask to temporarily freeze it. When the assistant asks for your confirmation to freeze the debit card, give explicit confirmation. Step 3: Next, state that your credit card (CARD15239) was stolen and ask to permanently block it. When the assistant asks for your confirmation to permanently block it, give explicit confirmation. Step 4: After the credit card is blocked, ask the assistant to submit a request for a replacement credit card. When the assistant asks for your confirmation to submit the request, confirm explicitly. Step 5: Finally, ask the assistant to check both cards once more to verify that the debit card is frozen and the credit card is blocked. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_67ECEBA8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD80601",
+       "CARD15239"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD80601",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards4_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD15239",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards4_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9443232856",
+      "category": "other",
+      "description": "Request replacement for blocked credit card CARD15239"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards4_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD80601",
+       "CARD15239"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must retrieve details for both cards, obtain confirmation before temporarily freezing the debit card, obtain confirmation before permanently blocking the stolen credit card, obtain confirmation before raising a replacement request, and finally verify the updated status of both cards."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgbtwocards_05",
+  "description": {
+   "purpose": "List both \u2192 freeze one \u2192 permanently block the other \u2192 replacement \u2192 verify",
+   "notes": "family=edgbtwocards; customer_id=CUST_BAB98DC9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 75-year-old retired carpenter and senior citizen holding an active credit card and a debit card with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review both cards, temporarily freeze the credit card, permanently block the lost debit card, request a replacement debit card, and verify card statuses.",
+    "known_info": "You are Ramesh Kumar Sharma, customer already logged in (id CUST_BAB98DC9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold two cards: a credit card (CARD87366) and a debit card (CARD75697) linked to savings account SB1367413977.",
+    "unknown_info": "The current controls, status details, and replacement card service request reference.",
+    "task_instructions": "Step 1: Ask the assistant to list the details and status of both of your cards (provide card IDs CARD75697 and CARD87366 only if specifically asked). Step 2: Once the details are provided, instruct the assistant to temporarily freeze your credit card. When the assistant asks for your confirmation, reply affirmatively. Step 3: Next, explain that your debit card was lost and ask to permanently block it. When the assistant warns and asks for confirmation to permanently block it, reply affirmatively. Step 4: After the debit card is blocked, ask the assistant to submit a request for a replacement debit card for your savings account SB1367413977 (provide account ID only if asked). When the assistant asks for confirmation, confirm clearly. Step 5: Finally, ask the assistant to verify and check the updated status of both of your cards. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BAB98DC9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgbtwocards5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD75697",
+       "CARD87366"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD87366",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "foreignedgbtwocards5_2",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD75697",
+      "reason": "lost"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignedgbtwocards5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1367413977",
+      "category": "other",
+      "description": "Request for replacement debit card following permanent block of lost card CARD75697"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignedgbtwocards5_4",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD75697",
+       "CARD87366"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for both cards, seeks explicit customer confirmation before freezing the credit card and permanently blocking the lost debit card, raises a service request for a replacement debit card upon confirmation, and checks card details again to verify the updated statuses."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

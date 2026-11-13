@@ -1,0 +1,380 @@
+[
+ {
+  "id": "foreign_sq2loanfc_00",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_5FC1BBD1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Meenakshi Anand Shetty, a 56-year-old financial analyst based in Mumbai holding an active home loan with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your home loan details, get a loan foreclosure quote, and submit a request to foreclose the loan.",
+    "known_info": "You are Meenakshi Anand Shetty (customer ID CUST_5FC1BBD1). You have an active home loan (loan ID LN95430). Do not volunteer the loan ID or account details until specifically asked by the assistant.",
+    "unknown_info": "The current outstanding loan balance, EMI, remaining tenure, foreclosure quote amount, and service request details.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your home loan. If asked for the loan ID, provide LN95430.\nStep 2: Once the loan details are shared, ask for a loan foreclosure quote to find out the payoff amount required to close the loan early today.\nStep 3: After the assistant provides the foreclosure quote, request that a formal service request be raised to foreclose the loan.\nStep 4: When the assistant states what it is about to do and asks for your confirmation to raise the foreclosure request, reply affirmatively to confirm. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5FC1BBD1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc0_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN95430"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc0_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN95430"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc0_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for loan foreclosure for home loan LN95430"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's loan details, fetches the loan foreclosure quote, and upon receiving affirmative confirmation from the customer, submits a service request for loan foreclosure."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2loanfc_01",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_572E71FF; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Sharma, a 32-year-old data scientist living in New Delhi. She is organized, detail-oriented, and looking to settle her outstanding personal loan early.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your personal loan, obtain a foreclosure quote to close it early, and then submit a loan foreclosure request.",
+    "known_info": "You are Ananya Sharma, customer already logged in (id CUST_572E71FF). Do not volunteer account/card/deposit/mandate/loan ids or internal categories until the agent asks for that specific detail. You hold an active personal loan LN97670.",
+    "unknown_info": "Your loan outstanding balance, interest rate, EMI, remaining tenure, the foreclosure payoff quote, and the service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your personal loan (reveal loan id LN97670 only if specifically asked). Step 2: Once the details are provided, ask for the foreclosure quote to pay off and close the personal loan early. Step 3: After receiving the foreclosure quote, request to proceed with foreclosing the loan by logging a loan foreclosure request. Step 4: When the assistant explains the action and asks for your confirmation to raise the request, explicitly confirm with yes. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_572E71FF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc1_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN97670"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc1_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN97670"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for loan foreclosure of personal loan LN97670"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's personal loan details, retrieve the foreclosure quote, and upon receiving explicit confirmation, log a service request for loan foreclosure."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2loanfc_02",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_718C0952; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajesh Patil, a 25-year-old student living in Pune, holding a home loan and savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your home loan, get a foreclosure quote to close it early, and then submit a service request for loan foreclosure.",
+    "known_info": "You are Anjali Rajesh Patil, customer already logged in (id CUST_718C0952). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your home loan ID is LN59337.",
+    "unknown_info": "The exact outstanding balance, interest rate, EMI, remaining tenure, and foreclosure payoff amount for your loan.",
+    "task_instructions": "Step 1: ask for the details and outstanding balance of your home loan (provide loan ID LN59337 only when asked). Step 2: after hearing the loan details, ask for the foreclosure quote to pay off and close the loan early. Step 3: after receiving the foreclosure quote, ask the agent to raise a service request to initiate the foreclosure of your loan. Step 4: when the agent asks for your confirmation to submit the request, explicitly confirm. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_718C0952"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc2_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN59337"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc2_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN59337"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc2_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for home loan foreclosure for loan LN59337"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the home loan details, provide the foreclosure quote, ask for customer confirmation, and raise a service request for loan foreclosure once confirmed."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2loanfc_03",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_88F89BDE; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Aggarwal, a 76-year-old agri trader from Gurugram holding an active gold loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the details of your active gold loan, get the foreclosure payoff quote to close it early, and raise a formal service request for loan foreclosure.",
+    "known_info": "You are Ramesh Kumar Aggarwal, customer already logged in (id CUST_88F89BDE). You have an active gold loan with the bank. Do not volunteer account/loan IDs or internal category names until the assistant asks for them. Your loan ID is LN25997.",
+    "unknown_info": "Your outstanding loan balance, interest rate, EMI, remaining tenure, and the exact foreclosure payoff quote.",
+    "task_instructions": "Step 1: Ask the assistant for the current details of your gold loan (provide loan ID LN25997 only if asked). Step 2: After receiving the loan details, ask for the foreclosure payoff quote to close the loan early today. Step 3: Once the assistant provides the foreclosure payoff amount, ask to proceed with submitting a service request to foreclose the loan. Step 4: When the assistant asks for your confirmation to submit the foreclosure request, explicitly confirm with 'Yes, please proceed'. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_88F89BDE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc3_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN25997"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc3_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN25997"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc3_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for gold loan foreclosure for loan LN25997"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's gold loan details, provides a foreclosure payoff quote, seeks confirmation before submitting a service request, and raises the foreclosure request upon affirmative confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2loanfc_04",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_5A93CEF9; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Smt. Padma Singh, a 72-year-old shop owner from Visakhapatnam who holds an active home loan with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your home loan details, obtain a foreclosure quote to know the total payoff amount, and then submit a formal foreclosure request for the loan.",
+    "known_info": "You are Smt. Padma Singh, customer ID CUST_5A93CEF9. You have an active home loan. Do not volunteer account, loan, or product IDs until the agent asks for them.",
+    "unknown_info": "Your loan's current outstanding balance, EMI, remaining tenure, foreclosure quote amount, and the service request reference ID.",
+    "task_instructions": "Step 1: Ask the assistant for the current details and outstanding balance of your home loan (do not volunteer the loan ID LN93254 until asked).\nStep 2: After receiving the loan details, ask for the foreclosure payoff quote as of today to close the loan early.\nStep 3: Once the assistant provides the foreclosure quote, ask to submit a request to foreclose the loan.\nStep 4: When the assistant asks for your confirmation to submit the foreclosure request, confirm affirmatively.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5A93CEF9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc4_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN93254"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc4_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN93254"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Request for home loan foreclosure for loan LN93254"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's home loan details using get_loan_details, obtains the foreclosure quote using get_loan_foreclosure_quote, seeks explicit confirmation from the customer, and then calls raise_request to submit the loan foreclosure request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2loanfc_05",
+  "description": {
+   "purpose": "Loan details \u2192 foreclosure quote \u2192 request (loan foreclosure)",
+   "notes": "family=sq2loanfc; customer_id=CUST_33701EE2; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Smt. Radhika Vemuri, a 50-year-old shop owner from Visakhapatnam who has an active gold loan with the bank and wants to check its details, get a payoff quote to settle it early, and submit a formal foreclosure request.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check the current details of your gold loan, obtain a foreclosure quote to close it early, and then submit a service request for loan foreclosure.",
+    "known_info": "You are Smt. Radhika Vemuri, customer already logged in (customer ID CUST_33701EE2). You hold an active gold loan (LN43576). Do not volunteer account, card, deposit, mandate, loan IDs, or internal category names until the assistant asks for that specific detail.",
+    "unknown_info": "Your exact outstanding loan balance, interest rate, EMI, remaining tenure, the total foreclosure quote amount, and the service request reference number.",
+    "task_instructions": "Step 1: Ask the assistant for the details of your active gold loan (do not reveal the loan ID LN43576 unless asked). Step 2: Once the assistant shares the loan details (outstanding balance, EMI, remaining tenure), ask for a foreclosure quote to pay off and close the loan early. Step 3: After the assistant provides the foreclosure quote, request them to raise a service request to foreclose the loan. Step 4: When the assistant asks for your explicit confirmation to log the foreclosure request, reply affirmatively with 'Yes, please proceed'. Step 5: Acknowledge the service request confirmation. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_33701EE2"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2loanfc5_0",
+     "name": "get_loan_details",
+     "arguments": {
+      "loan_ids": [
+       "LN43576"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc5_1",
+     "name": "get_loan_foreclosure_quote",
+     "arguments": {
+      "loan_ids": [
+       "LN43576"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2loanfc5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Foreclosure request for loan LN43576"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the gold loan details using get_loan_details, retrieve the payoff quote via get_loan_foreclosure_quote, obtain explicit customer confirmation, and submit the foreclosure request using raise_request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

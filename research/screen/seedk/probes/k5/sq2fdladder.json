@@ -1,0 +1,572 @@
+[
+ {
+  "id": "k5_sq2fdladder_00",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_C79521D9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Karthik Ramaswamy, an affluent wholesale trader who manages business and personal savings diligently and wants to restructure an existing fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD516399 and reinvest ~\u20b9100000 of the proceeds into a new 12-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Karthik Ramaswamy, customer already logged in (id CUST_C79521D9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD516399; payout/reinvestment account savings SB4260742442. New FD amount: \u20b9100000.",
+    "unknown_info": "The closure quote figures, today's FD rate, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD516399 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB4260742442. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 100000 for 12 months from savings SB4260742442 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C79521D9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder0_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD516399"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder0_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD516399"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder0_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD516399",
+      "payout_account": "SB4260742442"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder0_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder0_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "tenure_months": 12,
+      "source_account": "SB4260742442"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder0_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4260742442"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for FD FD516399, provide the closure quote, close the deposit to savings account SB4260742442 after customer confirmation, check the latest FD rates, book a new 12-month FD for \u20b91,00,000 from SB4260742442 after confirmation, and finally return the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2fdladder_01",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_B26F2E6D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 60-year-old senior citizen and IT Support Engineer holding a savings account and a fixed deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD383034 and reinvest ~\u20b960000 of the proceeds into a new 12-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Suresh Kumar Reddy (senior citizen), customer already logged in (id CUST_B26F2E6D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD383034; payout/reinvestment account savings SB8143171772. New FD amount: \u20b960000.",
+    "unknown_info": "The closure quote figures, today's FD rate, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD383034 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB8143171772. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 60000 for 12 months from savings SB8143171772 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B26F2E6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder1_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD383034"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder1_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD383034"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder1_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD383034",
+      "payout_account": "SB8143171772"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder1_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder1_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 60000,
+      "source_account": "SB8143171772",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder1_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the FD details, provide the premature closure quote, obtain confirmation before closing deposit FD383034 to savings SB8143171772, retrieve the latest FD rate card, obtain explicit confirmation before booking a new \u20b960,000 12-month FD, and finally fetch the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2fdladder_02",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_178AE91E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Sunita Agarwal, an HNI medical doctor in Lucknow managing her fixed deposit investments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD705887 and reinvest ~\u20b9250000 of the proceeds into a new 12-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Dr. Sunita Agarwal, customer already logged in (id CUST_178AE91E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD705887; payout/reinvestment account savings SB5241099406. New FD amount: \u20b9250000.",
+    "unknown_info": "The closure quote figures, today's FD rate, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD705887 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB5241099406. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 250000 for 12 months from savings SB5241099406 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_178AE91E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder2_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD705887"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder2_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD705887"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder2_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD705887",
+      "payout_account": "SB5241099406"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder2_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder2_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 250000,
+      "source_account": "SB5241099406",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder2_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5241099406"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details of FD FD705887, provide the premature closure quote, close the deposit to savings account SB5241099406 upon customer confirmation, retrieve current FD rates, create a new 12-month FD for \u20b92,50,000 funded from SB5241099406 upon customer confirmation, and check the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2fdladder_03",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_D7C2BFAF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Arijit Sanyal, a meticulous 38-year-old retired pensioner from Kolkata who maintains an FD ladder and prefers completing each banking transaction step-by-step in strict order.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD207314 and reinvest ~\u20b950000 of the proceeds into a new 12-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Arijit Sanyal, customer already logged in (id CUST_D7C2BFAF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD207314; payout/reinvestment account savings SB6597865030. New FD amount: \u20b950000.",
+    "unknown_info": "The closure quote figures, today's FD rate, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD207314 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB6597865030. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 50000 for 12 months from savings SB6597865030 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D7C2BFAF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder3_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD207314"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder3_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD207314"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder3_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD207314",
+      "payout_account": "SB6597865030"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder3_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder3_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB6597865030",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder3_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6597865030"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up details and closure quote for FD FD207314, close it to savings account SB6597865030 upon confirmation, fetch current FD rates, create a new 12-month FD for \u20b950,000 from the savings account after confirmation, and finally retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2fdladder_04",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_E91223B9; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Ramachandran, an agri-trader from Coimbatore managing a fixed deposit ladder across different maturities.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD417855 and reinvest ~\u20b940000 of the proceeds into a new 24-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Kavitha Ramachandran, customer already logged in (id CUST_E91223B9). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD417855; payout/reinvestment account savings SB3173842508. New FD amount: \u20b940000.",
+    "unknown_info": "The closure quote figures, today's FD rate, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD417855 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB3173842508. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 40000 for 24 months from savings SB3173842508 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E91223B9"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder4_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD417855"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder4_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD417855"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder4_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD417855",
+      "payout_account": "SB3173842508"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder4_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder4_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 40000,
+      "tenure_months": 24,
+      "source_account": "SB3173842508"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder4_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3173842508"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the details for FD FD417855, retrieve its premature closure quote, close the deposit to savings account SB3173842508 upon explicit confirmation, fetch current FD rates, create a new 24-month FD for \u20b940,000 from savings account SB3173842508 upon explicit confirmation, and retrieve the final balance of the savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sq2fdladder_05",
+  "description": {
+   "purpose": "Details \u2192 quote \u2192 close \u2192 rate \u2192 reinvest \u2192 balance (FD ladder)",
+   "notes": "family=sq2fdladder; customer_id=CUST_B8865538; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh S. Jadhav, a 47-year-old railway employee who manages his savings methodically and wants to restructure his fixed deposit into a new ladder.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to close FD FD100773 and reinvest ~\u20b9100000 of the proceeds into a new 12-month FD at today's rate, with the final balance shown.",
+    "known_info": "You are Rajesh S. Jadhav, customer already logged in (id CUST_B8865538). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. FD FD100773; payout/reinvestment account savings SB9371637604. New FD amount: \u20b9100000.",
+    "unknown_info": "The closure quote figures, today's FD rate card, and the post-reinvestment balance.",
+    "task_instructions": "Step 1: ask about FD FD100773 (id only when asked). Step 2: then ask for the closure quote and hear the figures. Step 3: only then confirm closure with payout to savings SB9371637604. Step 4: then ask for today's FD rate card. Step 5: only after that, book a new FD of 100000 for 12 months from savings SB9371637604 (confirm before booking). Step 6: finally ask for the savings balance to see the net effect. Keep the agent honest about sequence: each step only after the previous one is actually done. Object if it tries to skip or reorder. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B8865538"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sq2fdladder5_0",
+     "name": "get_fd_details",
+     "arguments": {
+      "deposit_ids": [
+       "FD100773"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder5_1",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "FD100773"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder5_2",
+     "name": "close_deposit",
+     "arguments": {
+      "deposit_id": "FD100773",
+      "payout_account": "SB9371637604"
+     }
+    },
+    {
+     "action_id": "k5sq2fdladder5_3",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder5_4",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB9371637604",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5sq2fdladder5_5",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9371637604"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect FD FD100773, fetch the premature closure quote, obtain explicit confirmation before closing the deposit to account SB9371637604, look up current FD rates, confirm and create a new 12-month FD for \u20b91,00,000 from SB9371637604, and display the final account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

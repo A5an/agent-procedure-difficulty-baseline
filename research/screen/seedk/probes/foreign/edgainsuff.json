@@ -1,0 +1,476 @@
+[
+ {
+  "id": "foreign_edgainsuff_00",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_A88E5484; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arjun Kumar Chatterjee, a hospitality Division staff member in Kolkata looking to invest surplus funds into a fixed deposit while monitoring his savings account balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check the interest rate for a 1-year FD, open an FD (handling insufficient funds by choosing an affordable amount), and verify your updated balance.",
+    "known_info": "You are Arjun Kumar Chatterjee, customer already logged in (id CUST_A88E5484). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB7462492514. Desired initial deposit amount is \u20b92,50,000, fallback affordable deposit amount is \u20b91,00,000 for a tenure of 12 months.",
+    "unknown_info": "Your current savings balance, the bank's current 12-month FD interest rate, and the final balance after the deposit is created.",
+    "task_instructions": "Step 1: Ask the assistant to check the available balance in your savings account (provide account ID SB7462492514 only when asked). Step 2: Once the balance is provided, ask for the current interest rate for a 12-month fixed deposit. Step 3: Ask to open a 12-month fixed deposit for \u20b92,50,000 debited from your savings account. When the assistant informs you that you have insufficient funds, ask to open an affordable 12-month FD of \u20b91,00,000 instead from the same account. Confirm explicitly when the assistant asks for confirmation to book it. Step 4: After the FD is booked, ask to check your savings account balance again to confirm the new balance. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A88E5484"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7462492514"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff0_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB7462492514",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7462492514"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the account balance, fetch the 12-month FD rate, decline the \u20b92,50,000 deposit due to insufficient funds, book the requested \u20b91,00,000 FD after explicit customer confirmation, and check the balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgainsuff_01",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_63189978; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohit Kumar, a 21-year-old dairy farm owner in Noida who manages his agricultural business finances carefully. Practical and attentive to cash flow, he verifies his balance before making investment decisions and makes sure deposits fit within his available funds.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inquire about 12-month fixed deposit interest rates, attempt to book an FD but handle insufficient funds by opening an affordable deposit instead, and check your balance again to verify the debit.",
+    "known_info": "You are Rohit Kumar, customer already logged in (id CUST_63189978). You hold savings account SB7114011040. Do not volunteer account or product IDs until the assistant specifically asks for them. You want to check your balance, ask for 12-month FD rates, try to open an FD of \u20b92,00,000, but upon learning that your balance is insufficient, book an affordable FD of \u20b950,000 for 12 months, and check your balance again.",
+    "unknown_info": "Exact available account balance, current 12-month FD interest rate, whether \u20b92,00,000 can be booked, and the final account balance after deposit creation.",
+    "task_instructions": "Step 1: Ask the assistant to check the available balance of your savings account (do not provide the account number upfront). Step 2: After hearing the balance, ask for the current interest rate for a 12-month fixed deposit. Step 3: Ask to book a 12-month fixed deposit for \u20b92,00,000 from your savings account. When the assistant informs you that your available balance is insufficient, instruct them to open an affordable fixed deposit of \u20b950,000 for 12 months instead. Provide clear explicit confirmation when the assistant asks to proceed with booking the deposit. Step 4: Once the fixed deposit is booked, ask the assistant to check your savings account balance again to verify the updated amount. The sequence is non-negotiable. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_63189978"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7114011040"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff1_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB7114011040",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7114011040"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, retrieves the 12-month FD interest rate, refuses the \u20b92,00,000 FD request due to insufficient funds, books an affordable \u20b950,000 FD upon explicit confirmation, and checks the balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgainsuff_02",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_3B8D372C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rameshbhai Chandrakant Patel, a 62-year-old government employee looking to check his savings balance, review fixed deposit rates, and invest in a fixed deposit within his available balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, inquire about 1-year FD rates, attempt to open an FD, adjust to an affordable amount if funds are insufficient, and verify your updated balance.",
+    "known_info": "You are Rameshbhai Chandrakant Patel, customer already logged in (id CUST_3B8D372C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB4588846543.",
+    "unknown_info": "Current account balance before and after booking the FD, current 12-month FD interest rate.",
+    "task_instructions": "Step 1: Ask the agent to check your savings account balance (do not provide account ID SB4588846543 until specifically asked). Step 2: After hearing the balance, ask for the fixed deposit interest rate for a 12-month tenure. Step 3: Ask to book a 12-month fixed deposit for \u20b95,00,000 from your savings account. When the agent informs you that your balance is insufficient for \u20b95,00,000, ask to book an affordable fixed deposit of \u20b93,00,000 for 12 months instead, and provide explicit confirmation when asked. Step 4: Once the fixed deposit is booked, ask the agent to check your savings account balance again to verify the deduction. Sequence is non-negotiable \u2014 do not skip or reorder steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3B8D372C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4588846543"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff2_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 300000,
+      "source_account": "SB4588846543",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4588846543"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's balance, retrieve the 12-month FD rate, refuse the booking of \u20b95,00,000 due to insufficient funds, book the affordable \u20b93,00,000 FD after explicit confirmation, and retrieve the balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgainsuff_03",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_2B498AED; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a retail store manager in Kanpur looking to invest part of his savings into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check your savings account balance, check FD interest rates, try to book an FD that exceeds your balance, adjust to an affordable amount upon insufficient funds, and verify your updated balance afterwards.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (customer ID CUST_2B498AED). You have a savings account. Do not volunteer your account number or IDs unless the assistant explicitly asks. You want to check your balance, inquire about the 12-month FD interest rate, request a \u20b92,50,000 FD, adjust to an affordable \u20b91,00,000 FD when told funds are insufficient, confirm the booking, and check your balance once done.",
+    "unknown_info": "Your current savings account balance, current FD interest rate for 12 months, and updated account balance after booking the deposit.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance in your savings account.\nStep 2: Once the balance is provided, ask for the interest rate on a 12-month fixed deposit.\nStep 3: Ask to open a 12-month fixed deposit for \u20b92,50,000 using your savings account. When the assistant informs you that your balance is insufficient, ask to open an affordable fixed deposit of \u20b91,00,000 for 12 months instead. When the assistant asks for your confirmation with the deposit details, reply with explicit confirmation.\nStep 4: After the fixed deposit has been created, ask the assistant to check your account balance again to verify your remaining funds. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2B498AED"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3943466142"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff3_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB3943466142",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3943466142"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account balance, checks deposit rates, properly refuses an FD booking exceeding available funds due to insufficient balance, creates the affordable \u20b91,00,000 FD only after receiving explicit confirmation, and retrieves the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgainsuff_04",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_32827170; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Patro, a 65-year-old railway employee from Visakhapatnam who wants to invest part of his funds into a fixed deposit but needs to adjust his deposit amount based on his available balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings balance and FD rates, attempt to book an FD for \u20b93,00,000, adjust to \u20b91,00,000 when informed of insufficient funds, and verify your updated balance after booking.",
+    "known_info": "You are Suresh Kumar Patro, customer already logged in (id CUST_32827170). You have a savings account SB7363909483. Do not volunteer account or deposit IDs until asked. You want a 12-month FD.",
+    "unknown_info": "Exact current balance, 12-month FD rate, and balance after FD booking.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account (do not provide your account ID unless prompted). Step 2: After hearing your balance, ask for the current interest rate for a 12-month fixed deposit. Step 3: Request to book a 12-month fixed deposit of \u20b93,00,000 from your savings account. Step 4: When the assistant informs you that your balance is insufficient for \u20b93,00,000, request to open the 12-month fixed deposit for \u20b91,00,000 instead, and confirm explicitly when asked for confirmation. Step 5: After the fixed deposit is booked, ask the assistant to check your savings account balance again to verify the deduction. Sequence is non-negotiable \u2014 complete each step in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_32827170"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7363909483"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff4_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000.0,
+      "source_account": "SB7363909483",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7363909483"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the savings account balance, look up the 12-month FD interest rate, reject the \u20b93,00,000 booking request due to insufficient balance, book an affordable \u20b91,00,000 FD after receiving explicit confirmation, and retrieve the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_edgainsuff_05",
+  "description": {
+   "purpose": "Balance -> rate -> affordable FD -> balance (insufficient-funds handling)",
+   "notes": "family=edgainsuff; customer_id=CUST_4F5E2EFB; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Neha Ramesh Choudhary, a retail sales executive who wants to invest surplus savings into a fixed deposit while keeping a safe cash buffer to avoid insufficient funds.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check the 12-month FD interest rate, book an affordable fixed deposit of \u20b950,000 so you do not overdraw, and verify your updated balance afterwards.",
+    "known_info": "You are Neha Ramesh Choudhary, customer already logged in (id CUST_4F5E2EFB). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB4730697986.",
+    "unknown_info": "Account balance before and after the FD creation, and the current 12-month FD interest rate.",
+    "task_instructions": "Step 1: ask for the available balance of your savings account (provide account id only if asked). Step 2: only after hearing the balance, ask for the current interest rate for a 12-month fixed deposit. Step 3: after hearing the rate, ask to open an affordable fixed deposit of \u20b950,000 for a 12-month tenure from your savings account (confirm explicitly when the assistant asks for confirmation). Step 4: once the deposit is confirmed booked, ask to check your savings account balance again to verify the updated available funds. The sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4F5E2EFB"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignedgainsuff5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4730697986"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignedgainsuff5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff5_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB4730697986",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignedgainsuff5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4730697986"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the savings balance, checks the FD rate card for a 12-month tenure, obtains explicit customer confirmation before booking a \u20b950,000 fixed deposit from SB4730697986, and then checks the savings account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

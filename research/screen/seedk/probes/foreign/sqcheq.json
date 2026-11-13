@@ -1,0 +1,432 @@
+[
+ {
+  "id": "foreign_sqcheq_00",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_4CFAB519; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Riya Suresh Patel, a self-employed carpenter from Ahmedabad who maintains a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You misplaced a cheque leaf (cheque number 107684) and want to check your recent transactions to ensure it hasn't cleared, place a stop payment on it, and order a new cheque book.",
+    "known_info": "You are Riya Suresh Patel (customer ID CUST_4CFAB519). You hold a savings account SB6718616548. You recently lost cheque number 107684. Do not volunteer your account ID or cheque number until the assistant asks for it or when relevant to the step.",
+    "unknown_info": "Whether cheque 107684 has been debited or cleared in recent account activity, and the status of stop payment and cheque book dispatch.",
+    "task_instructions": "Step 1: Ask the assistant to check your recent transaction history on your savings account to verify if any recent cheques or debits have gone through. (Provide account ID SB6718616548 only if asked).\nStep 2: After reviewing the transaction history and confirming the cheque has not cleared, ask the assistant to stop payment on lost cheque number 107684. Reason is that it is lost. Confirm the action when the assistant asks for confirmation.\nStep 3: Once the stop payment is confirmed, ask the assistant to request a new cheque book (25 leaves) for your savings account. Confirm the request when the assistant asks for confirmation.\nFollow these steps strictly in this order without skipping or combining steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4CFAB519"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6718616548"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq0_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB6718616548",
+      "cheque_numbers": [
+       "107684"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq0_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6718616548",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the transaction history of account SB6718616548, then seek explicit customer confirmation before stopping payment on lost cheque 107684, and finally seek explicit customer confirmation before ordering a new 25-leaf cheque book for the account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqcheq_01",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_75C37E1A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a hospitality employee in New Delhi who misplaced a cheque and wants to ensure it has not cleared before stopping payment and requesting a replacement cheque book.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check recent transaction history to verify if a lost cheque has cleared, stop payment on that cheque, and request a new cheque book.",
+    "known_info": "You are Priya Sharma (customer ID CUST_75C37E1A). You have a savings account SB5033505746. You recently lost cheque number 106058. Do not volunteer account or cheque IDs until asked.",
+    "unknown_info": "Whether cheque number 106058 has cleared or debited from your account, confirmation of the stop-payment instruction, and dispatch details of the new cheque book.",
+    "task_instructions": "Step 1: Ask the assistant to check your recent transaction history on your savings account to see if any cheque has been debited or cleared (provide your savings account ID SB5033505746 only when asked). Step 2: Once the assistant reports the recent transactions, request to place a stop payment on your lost cheque (provide cheque number 106058 and reason 'lost' when asked; explicitly confirm the stop payment when prompted). Step 3: Once the stop payment is confirmed, ask to order a new cheque book for your savings account because the cheque was lost. Explicitly confirm the order when prompted. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_75C37E1A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5033505746"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq1_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB5033505746",
+      "cheque_numbers": [
+       "106058"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq1_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB5033505746"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the transaction history for account SB5033505746, confirms and executes a stop payment on cheque 106058 due to loss, and confirms and orders a new cheque book for the account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqcheq_02",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_1AF592C4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar, a 34-year-old self-employed electrician from Coimbatore.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost an issued cheque and need to verify transaction history, stop payment on the lost cheque, and order a replacement cheque book.",
+    "known_info": "You are Arun Kumar, customer already logged in (id CUST_1AF592C4). You have a savings account (SB3498429140). You recently misplaced cheque number 103230. Do not volunteer account IDs or cheque numbers until asked or when relevant to the specific step. Reveal one detail at a time.",
+    "unknown_info": "Whether cheque 103230 has been debited or cleared, and confirmation details for the stop payment and cheque book order.",
+    "task_instructions": "Step 1: Ask the assistant to check your savings account transaction history to verify if any cheque has recently cleared or debited. Step 2: Once the assistant confirms no such cheque has cleared, state that you lost cheque number 103230 and ask to place a stop payment on it due to it being lost. Provide affirmative confirmation when asked. Step 3: Once the stop payment is confirmed, ask to order a new cheque book for your savings account. Provide affirmative confirmation when asked. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1AF592C4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3498429140"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq2_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB3498429140",
+      "cheque_numbers": [
+       "103230"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq2_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3498429140"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks transaction history for the savings account, stops payment on the lost cheque after obtaining confirmation, and requests a new cheque book upon customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqcheq_03",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_D8E9BABA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 25-year-old police constable residing in New Delhi, holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost a cheque from your cheque book. You want to check your recent transactions first to make sure it hasn't cleared, stop payment on the lost cheque, and order a replacement cheque book.",
+    "known_info": "You are Ravi Kumar, already authenticated (customer ID CUST_D8E9BABA). Your savings account ID is SB5291570216. The lost cheque number is 108685. You want a replacement cheque book with 25 leaves. Do not volunteer account or cheque numbers until the assistant asks for them.",
+    "unknown_info": "Whether the cheque has cleared or been debited recently, and the status/reference numbers for the stop-payment and cheque book requests.",
+    "task_instructions": "Step 1: Ask the assistant to check your recent transaction history on your savings account to see your latest activity (provide account ID SB5291570216 only when asked). Step 2: Once the assistant shares the recent transactions, inform the assistant that you lost cheque number 108685 and want to place a stop payment on it because it is lost (provide the cheque number only when asked). Step 3: When the assistant asks for your confirmation to stop payment on cheque 108685, explicitly confirm 'yes'. Step 4: After the stop payment is placed, request a new 25-leaf cheque book for your savings account. Step 5: When the assistant asks for your confirmation to order the cheque book, explicitly confirm 'yes'. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D8E9BABA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5291570216"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq3_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB5291570216",
+      "cheque_numbers": [
+       "108685"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq3_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB5291570216",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the transaction history for savings account SB5291570216, seeks explicit confirmation before stopping payment on cheque 108685, and seeks explicit confirmation before ordering a new 25-leaf cheque book for the account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqcheq_04",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_8E91A2E1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Patel, a 43-year-old government officer from Mumbai, holding a savings and a current account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You lost a physical cheque leaf (cheque number 104403) from your savings account. You want to check your recent transactions first to ensure it hasn't cleared, stop payment on it, and order a replacement cheque book.",
+    "known_info": "You are Rajesh Kumar Patel, already logged in. Your savings account is SB6659941724 and your lost cheque number is 104403. Do not volunteer the account number or cheque number until the assistant asks or when specifying the action. The reason for stop payment is lost cheque. You want a standard 25-leaf cheque book ordered for your savings account.",
+    "unknown_info": "Whether cheque 104403 or any recent cheque has been debited in recent transactions, confirmation of stop payment, and order confirmation for the new cheque book.",
+    "task_instructions": "Step 1: Ask the assistant to check the recent transaction history of your savings account to verify if any cheque has recently debited. Provide your savings account ID SB6659941724 only if asked or when distinguishing accounts. Step 2: Once the assistant confirms recent transactions, state that you lost cheque number 104403 and want to place a stop-payment instruction on it. Explicitly confirm when asked. Step 3: Once the stop payment is confirmed, ask to order a new 25-leaf cheque book for your savings account. Explicitly confirm the order when asked. Follow this sequence strictly and do not allow steps to be skipped. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8E91A2E1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6659941724"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq4_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB6659941724",
+      "cheque_numbers": [
+       "104403"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq4_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6659941724",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the transaction history for savings account SB6659941724, asks for explicit confirmation before stopping payment on cheque 104403 with reason lost, executes stop_cheque_payment upon confirmation, and then asks for confirmation before ordering a new 25-leaf cheque book via request_cheque_book."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqcheq_05",
+  "description": {
+   "purpose": "History check \u2192 stop cheque \u2192 new book (lost cheque)",
+   "notes": "family=sqcheq; customer_id=CUST_0084AAED; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 38-year-old software engineer living in New Delhi. He holds an active savings account with the bank and is concerned about a misplaced cheque.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your recent account transactions to verify whether a lost cheque has cleared, place a stop payment on that cheque, and then request a new 25-leaf cheque book.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_0084AAED). You have savings account SB2535533659. You recently misplaced cheque number 440125. Do not volunteer account or cheque numbers until the agent specifically asks for them.",
+    "unknown_info": "Whether cheque number 440125 has cleared and confirmation of the stop payment instruction and cheque book order.",
+    "task_instructions": "Step 1: Ask the agent to check your recent transaction history on your savings account to see if any cheques have cleared recently. Step 2: Once the agent confirms no such cheque has cleared, instruct them to stop payment on lost cheque number 440125 (provide the cheque number and reason 'lost' when requested, and explicitly confirm when asked before the action is executed). Step 3: Next, ask to order a new 25-leaf cheque book for your savings account (confirm the order when prompted). Follow this order strictly without skipping or reordering steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0084AAED"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqcheq5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB2535533659"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq5_1",
+     "name": "stop_cheque_payment",
+     "arguments": {
+      "account_id": "SB2535533659",
+      "cheque_numbers": [
+       "440125"
+      ],
+      "reason": "lost"
+     },
+     "compare_args": [
+      "account_id",
+      "cheque_numbers"
+     ]
+    },
+    {
+     "action_id": "foreignsqcheq5_2",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB2535533659",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the transaction history for savings account SB2535533659, seeks explicit confirmation before executing stop_cheque_payment for cheque 440125 with reason 'lost', and seeks confirmation before ordering a new 25-leaf cheque book via request_cheque_book."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

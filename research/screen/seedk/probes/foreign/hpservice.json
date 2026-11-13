@@ -1,0 +1,284 @@
+[
+ {
+  "id": "foreign_hpservice_00",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_90B9455F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Raghavendra Prasad Singh, a 68-year-old agri trader from Kanpur who actively uses cheques for his grain trading business.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to request a new cheque book for your savings account.",
+    "known_info": "You are Raghavendra Prasad Singh (customer ID CUST_90B9455F). You have a savings account SB4957273291. Do not volunteer your account ID or other IDs until the assistant asks for it. When asked, specify you want a 25-leaf cheque book sent to your registered address.",
+    "unknown_info": "Confirmation that the cheque book request has been placed and any tracking or reference information.",
+    "task_instructions": "1. Tell the assistant that you need to order a new cheque book for your savings account.\n2. When the assistant asks for your account details, provide your account number SB4957273291 and mention that you would like a 25-leaf cheque book.\n3. When the assistant summarizes the request and asks for your confirmation to proceed, confirm clearly by saying yes.\n4. After the assistant confirms the cheque book has been requested, acknowledge and end the chat.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_90B9455F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice0_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB4957273291",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must ask the customer for their account number, seek explicit confirmation before making any changes, and then call request_cheque_book with account_id SB4957273291 and 25 leaves."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpservice_01",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_0E17AC48; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Sharma, a 31-year-old retail store manager from Indore, seeking to order a new cheque book for his active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to order a new 25-leaf cheque book for your savings account.",
+    "known_info": "You are Rajesh Sharma (customer ID CUST_0E17AC48). Your savings account number is SB6295639731. Do not volunteer your account number until the assistant explicitly asks for it. You want a standard 25-leaf cheque book delivered to your registered address.",
+    "unknown_info": "Confirmation and reference details that the cheque book order has been successfully placed.",
+    "task_instructions": "1. Tell the assistant that you need to request a new 25-leaf cheque book for your savings account to be sent to your registered address. Do not provide your account number in the first message.\n2. When the assistant asks for your account number, provide SB6295639731.\n3. When the assistant asks for your explicit confirmation to place the cheque book order, reply affirmatively to confirm.\n4. After the assistant confirms the request has been submitted, acknowledge with thanks and end the conversation with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0E17AC48"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice1_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6295639731",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must ask for the customer's account number, obtain explicit confirmation before performing the request, and call request_cheque_book for account SB6295639731."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpservice_02",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_A57D15D3; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Venkatesh, a 54-year-old software engineer residing in Coimbatore. Professional, polite, and direct.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Request a new cheque book for her savings account.",
+    "known_info": "You are Kavitha Venkatesh, customer already logged in (id CUST_A57D15D3). Your savings account number is SB8879859694. Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You want a 25-leaf cheque book sent to your registered address.",
+    "unknown_info": "Confirmation and reference details for the new cheque book order.",
+    "task_instructions": "1. Tell the assistant you would like to request a new cheque book for your savings account.\n2. When the assistant asks for your account number, provide SB8879859694 and specify that you would like a 25-leaf cheque book.\n3. When the assistant asks for your confirmation to place the cheque book request, respond affirmatively with 'Yes, please proceed.'\n4. Once the request has been placed, thank the assistant and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A57D15D3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice2_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB8879859694",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant prompts the customer for their account details, seeks explicit confirmation before initiating the request, and orders a 25-leaf cheque book for account SB8879859694 using request_cheque_book."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpservice_03",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_04B8D21C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priya Ramesh Chaudhary, a 26-year-old farmer from New Delhi with an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need to order a new 25-leaf cheque book for your savings account.",
+    "known_info": "You are Priya Ramesh Chaudhary, logged in under customer ID CUST_04B8D21C. You want to order a new 25-leaf cheque book for your savings account. Your savings account number is SB3968813086. Do not volunteer your account number until the assistant asks for it.",
+    "unknown_info": "Confirmation and reference details for the cheque book order.",
+    "task_instructions": "1. Tell the assistant you would like to request a new cheque book for your savings account.\n2. When the assistant asks for your account number, provide SB3968813086 and state that you want 25 leaves.\n3. If the assistant asks about delivery address, state that your registered address is fine.\n4. When the assistant asks for your confirmation to submit the cheque book request, reply with 'Yes, please proceed.'\n5. Once the assistant confirms the cheque book request has been placed, acknowledge and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_04B8D21C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice3_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB3968813086",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should ask for the account number, obtain explicit confirmation before submitting the write request, and call request_cheque_book for account SB3968813086 with 25 leaves."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpservice_04",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_5A959E8F; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Murugan Ramasamy, a 55-year-old police constable residing in Coimbatore, holding an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to order a new 25-leaf cheque book for your savings account.",
+    "known_info": "You are Murugan Ramasamy, customer already logged in (id CUST_5A959E8F). Your savings account ID is SB9244342861. You want a 25-leaf cheque book delivered to your registered address. Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "Confirmation and reference details showing that the new cheque book request has been successfully submitted.",
+    "task_instructions": "1. Tell the assistant that you want to request a new cheque book with 25 leaves for your savings account, but do not provide your account number yet.\n2. When the assistant asks for your account number, provide SB9244342861.\n3. When the assistant summarizes the request and asks for your confirmation to place the order, confirm explicitly by saying yes.\n4. Once the assistant confirms that the cheque book request has been submitted, acknowledge the confirmation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5A959E8F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice4_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB9244342861",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must ask the customer for their account ID, obtain explicit affirmative confirmation before ordering, and call request_cheque_book with account_id 'SB9244342861' and 25 leaves."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_hpservice_05",
+  "description": {
+   "purpose": "Cheque book request",
+   "notes": "family=hpservice; customer_id=CUST_1AD39311; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Shobha Menon, a 66-year-old retired railway employee living in Kochi, Kerala. She is polite, organized, and maintains an active savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You need to request a new 25-leaf cheque book for your savings account.",
+    "known_info": "You are Shobha Menon (id CUST_1AD39311), already logged in. Your savings account number is SB5449468211. You want a cheque book with 25 leaves. Do not volunteer your account number or any other ID until the assistant asks for it.",
+    "unknown_info": "Confirmation of whether the cheque book request has been successfully submitted.",
+    "task_instructions": "1. Tell the assistant that you want to order a new cheque book.\n2. When the assistant asks for the account details or account number, provide your savings account number SB5449468211 and state that you would like 25 leaves.\n3. When the assistant asks for your confirmation to place the cheque book order, clearly confirm by saying 'Yes, please proceed.'\n4. After the assistant confirms that the cheque book has been ordered, conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1AD39311"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignhpservice5_0",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB5449468211",
+      "leaves": 25
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must ask the customer for their account ID and confirmation before successfully ordering a 25-leaf cheque book for account SB5449468211 using request_cheque_book."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

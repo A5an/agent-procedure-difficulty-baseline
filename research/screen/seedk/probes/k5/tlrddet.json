@@ -1,0 +1,372 @@
+[
+ {
+  "id": "k5_tlrddet_00",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_178AE91E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Sunita Agarwal, a 57-year-old doctor from Lucknow managing her recurring deposit and linked savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review RD RD805931: confirm the funding account, see its status, hear the early-closure numbers, and \u2014 having heard them \u2014 decide to keep it but change the maturity instruction to renew only the principal.",
+    "known_info": "You are Dr. Sunita Agarwal, customer already logged in (id CUST_178AE91E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. RD RD805931, funded from savings SB5241099406.",
+    "unknown_info": "The RD's installments-paid/maturity details, and the early-closure payout figures.",
+    "task_instructions": "Step 1: ask for the balance on savings SB5241099406 (id only when asked) \u2014 the account the RD debits from. Step 2: then ask for the details/status of RD RD805931 (id only when asked). Step 3: then ask what you'd get if you closed it today. Step 4: after hearing the numbers, do NOT close it \u2014 instead ask to set it to renew only the principal at maturity (confirm when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_178AE91E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrddet0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5241099406"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet0_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD805931"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet0_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD805931"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet0_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD805931",
+      "instruction": "renew_principal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the balance for the funding savings account, check the RD details, provide a premature closure quote, and update the maturity instruction to renew principal after getting explicit confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrddet_01",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_A77705B3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 71-year-old retired government clerk living in Jaipur, methodical and cautious about his savings and recurring deposit details.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review RD RD616229: confirm the funding account, see its status, hear the early-closure numbers, and \u2014 having heard them \u2014 decide to keep it but change the maturity instruction to renew only the principal.",
+    "known_info": "You are Ramesh Kumar Sharma (senior citizen), customer already logged in (id CUST_A77705B3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. RD RD616229, funded from savings SB4460844820.",
+    "unknown_info": "The RD's installments-paid/maturity details, and the early-closure payout figures.",
+    "task_instructions": "Step 1: ask for the balance on savings SB4460844820 (id only when asked) \u2014 the account the RD debits from. Step 2: then ask for the details/status of RD RD616229 (id only when asked). Step 3: then ask what you'd get if you closed it today. Step 4: after hearing the numbers, do NOT close it \u2014 instead ask to set it to renew only the principal at maturity (confirm when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A77705B3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrddet1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4460844820"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet1_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD616229"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet1_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD616229"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet1_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD616229",
+      "instruction": "renew_principal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the balance for savings account SB4460844820, fetch details for RD616229, generate a premature closure quote for RD616229, and upon confirmation update the maturity instruction for RD616229 to renew principal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrddet_02",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_24208F60; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 27-year-old IT Support Engineer holding a savings account and recurring deposit with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review RD RD611580: confirm the funding account, see its status, hear the early-closure numbers, and \u2014 having heard them \u2014 decide to keep it but change the maturity instruction to renew only the principal.",
+    "known_info": "You are Ravi Kumar Reddy, customer already logged in (id CUST_24208F60). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. RD RD611580, funded from savings SB1599605431.",
+    "unknown_info": "The RD's installments-paid/maturity details, and the early-closure payout figures.",
+    "task_instructions": "Step 1: ask for the balance on savings SB1599605431 (id only when asked) \u2014 the account the RD debits from. Step 2: then ask for the details/status of RD RD611580 (id only when asked). Step 3: then ask what you'd get if you closed it today. Step 4: after hearing the numbers, do NOT close it \u2014 instead ask to set it to renew only the principal at maturity (confirm when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_24208F60"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrddet2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1599605431"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet2_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD611580"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet2_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD611580"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet2_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD611580",
+      "instruction": "renew_principal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, fetches the RD status, calculates the closure quote without closing the RD, and upon confirmation updates the RD maturity instruction to renew principal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrddet_03",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_48AEC094; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Prakash Kulkarni, a 49-year-old freelance consultant based in Nagpur who maintains a savings account and a recurring deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review RD RD983160: confirm the funding account, see its status, hear the early-closure numbers, and \u2014 having heard them \u2014 decide to keep it but change the maturity instruction to renew only the principal.",
+    "known_info": "You are Rajesh Prakash Kulkarni, customer already logged in (id CUST_48AEC094). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. RD RD983160, funded from savings SB2219062142.",
+    "unknown_info": "The RD's installments-paid/maturity details, and the early-closure payout figures.",
+    "task_instructions": "Step 1: ask for the balance on savings SB2219062142 (id only when asked) \u2014 the account the RD debits from. Step 2: then ask for the details/status of RD RD983160 (id only when asked). Step 3: then ask what you'd get if you closed it today. Step 4: after hearing the numbers, do NOT close it \u2014 instead ask to set it to renew only the principal at maturity (confirm when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_48AEC094"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrddet3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2219062142"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet3_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD983160"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet3_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD983160"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet3_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD983160",
+      "instruction": "renew_principal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings account balance, provide the details of RD RD983160, fetch an early closure quote without closing the RD, and upon confirmation update the maturity renewal instruction to renew principal."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlrddet_04",
+  "description": {
+   "purpose": "Account \u2192 RD status \u2192 closure quote \u2192 renewal change (RD review)",
+   "notes": "family=tlrddet; customer_id=CUST_E1CA547F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anita Kumari, a 39-year-old college professor from Patna who maintains a savings account and recurring deposits with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review RD RD618728: confirm the funding account, see its status, hear the early-closure numbers, and \u2014 having heard them \u2014 decide to keep it but change the maturity instruction to renew only the principal.",
+    "known_info": "You are Anita Kumari, customer already logged in (id CUST_E1CA547F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. RD RD618728, funded from savings SB4997806089.",
+    "unknown_info": "The RD's installments-paid/maturity details, and the early-closure payout figures.",
+    "task_instructions": "Step 1: ask for the balance on savings SB4997806089 (id only when asked) \u2014 the account the RD debits from. Step 2: then ask for the details/status of RD RD618728 (id only when asked). Step 3: then ask what you'd get if you closed it today. Step 4: after hearing the numbers, do NOT close it \u2014 instead ask to set it to renew only the principal at maturity (confirm when asked). Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E1CA547F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlrddet4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4997806089"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet4_1",
+     "name": "get_rd_details",
+     "arguments": {
+      "deposit_ids": [
+       "RD618728"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet4_2",
+     "name": "get_deposit_closure_quote",
+     "arguments": {
+      "deposit_ids": [
+       "RD618728"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlrddet4_3",
+     "name": "update_deposit_renewal",
+     "arguments": {
+      "deposit_id": "RD618728",
+      "instruction": "renew_principal"
+     },
+     "compare_args": [
+      "deposit_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, retrieves the recurring deposit details, fetches an early-closure quote, and upon confirmation updates the RD maturity instruction to renew principal only without closing the deposit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,386 @@
+[
+ {
+  "id": "k5_edgbmatelig_00",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_718C0952; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Rajesh Patil, a 25-year-old student living in Pune, reviewing recurring debits linked to her savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the StreamFlix mandate cancelled (it's the one still actively debiting you); the Sentinel Life Premium one is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Anjali Rajesh Patil, customer already logged in (id CUST_718C0952). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND82726007 pays StreamFlix and is currently active. Mandate MND98872322 pays Sentinel Life Premium and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the StreamFlix one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm). Step 3: ask for the list of active mandates again to confirm none remain active. Step 4: ask the agent to also check the paused mandates list, to make sure the Sentinel Life Premium one is still there, untouched. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. Do not let the agent cancel the Sentinel Life Premium mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_718C0952"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig0_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig0_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND82726007"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig0_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig0_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all standing mandates, seeks explicit confirmation before cancelling only the active StreamFlix mandate MND82726007, verifies that active mandates are now empty, and confirms that the paused Sentinel Life Premium mandate MND98872322 remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmatelig_01",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_8148ED85; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Rajesh K. Patel, a meticulous doctor who wants clear visibility over recurring debits, insists on checking mandates before cancelling the active mutual fund SIP, and methodically verifies that the active list is now empty while his paused life insurance mandate remains untouched.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the SIP - Mutual Fund mandate cancelled (it's the one still actively debiting you); the Sentinel Life Premium one is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Dr. Rajesh K. Patel, customer already logged in (id CUST_8148ED85). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND11668701 pays SIP - Mutual Fund and is currently active. Mandate MND63027527 pays Sentinel Life Premium and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the SIP - Mutual Fund one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm). Step 3: ask for the list of active mandates again to confirm none remain from SIP - Mutual Fund. Step 4: ask the agent to also check the paused mandates list, to make sure the Sentinel Life Premium one is still there, untouched. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. Do not let the agent cancel the Sentinel Life Premium mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8148ED85"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig1_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig1_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND11668701"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig1_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig1_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all standing mandates, seeks explicit confirmation before cancelling the active SIP mandate MND11668701, cancels it, verifies that the active mandate list is empty, and confirms the paused Sentinel Life Premium mandate MND63027527 remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmatelig_02",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_7108BB7F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Aisha Rajesh Thakre, a 21-year-old pharmacist from Nagpur who values orderly financial management and wants to cleanly stop her active streaming subscription mandate while ensuring her paused insurance mandate is left intact.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the StreamFlix mandate cancelled (it's the one still active); the Sentinel Life Premium mandate is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Aisha Rajesh Thakre, customer already logged in (id CUST_7108BB7F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND89308367 pays StreamFlix and is currently active. Mandate MND91183038 pays Sentinel Life Premium and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the StreamFlix one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm when asked). Step 3: ask for the list of active mandates again to confirm none remain. Step 4: ask the agent to also check the paused mandates list, to make sure the Sentinel Life Premium one is still there, untouched. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Do not let the agent cancel the Sentinel Life Premium mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7108BB7F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig2_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig2_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND89308367"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig2_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig2_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must list all mandates, ask for confirmation before cancelling the active StreamFlix mandate MND89308367, execute the cancellation upon confirmation, verify that the active mandates list is now empty, and finally verify that the paused Sentinel Life Premium mandate MND91183038 remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmatelig_03",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_40314531; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajeshwar Malhotra, a 76-year-old HNI customer and startup founder, organized and meticulous about managing standing instructions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the Electricity Autopay mandate cancelled (it's the one still actively debiting you); the SIP - Mutual Fund one is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Rajeshwar Malhotra, customer already logged in (id CUST_40314531). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND66880587 pays Electricity Autopay and is currently active. Mandate MND53256456 pays SIP - Mutual Fund and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the Electricity Autopay one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm when asked). Step 3: ask for the list of active mandates again to confirm none remain from Electricity Autopay. Step 4: ask the agent to also check the paused mandates list, to make sure the SIP - Mutual Fund one is still there, untouched. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. Do not let the agent cancel the SIP - Mutual Fund mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_40314531"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig3_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig3_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND66880587"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig3_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig3_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all standing mandates, cancels only the active Electricity Autopay mandate after confirmation, and verifies by checking the active list and paused list as requested without touching the paused SIP mandate."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmatelig_04",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_5B4606D6; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, an affluent real estate broker managing monthly utility and entertainment subscriptions who wants to clean up standing debits without altering paused services.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the NovaTel Postpaid mandate cancelled (it's the one still actively debiting you); the StreamFlix one is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Rahul Sharma, customer already logged in (id CUST_5B4606D6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND51315370 pays NovaTel Postpaid and is currently active. Mandate MND40271238 pays StreamFlix and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the NovaTel Postpaid one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm). Step 3: ask for the list of active mandates again to confirm none remain from NovaTel Postpaid. Step 4: ask the agent to also check the paused mandates list, to make sure the StreamFlix one is still there, untouched. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. Do not let the agent cancel the StreamFlix mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5B4606D6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig4_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig4_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND51315370"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig4_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig4_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should list all mandates, confirm and cancel the active NovaTel Postpaid mandate, verify that no active mandates remain, and verify that the paused StreamFlix mandate remains paused and untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmatelig_05",
+  "description": {
+   "purpose": "List all mandates \u2192 cancel the active one \u2192 verify active-list empty \u2192 verify paused one untouched",
+   "notes": "family=edgbmatelig; customer_id=CUST_57005DBC; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kavitha Subramanian, a meticulous college professor who wants to manage her standing mandates methodically.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want ONLY the Electricity Autopay mandate cancelled (it's the one still actively debiting you); the NovaTel Postpaid one is already paused and must be left exactly as it is \u2014 do not cancel it too.",
+    "known_info": "You are Kavitha Subramanian, customer already logged in (id CUST_57005DBC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Mandate MND59181207 pays Electricity Autopay and is currently active. Mandate MND61356103 pays NovaTel Postpaid and is already paused.",
+    "unknown_info": "The status of both mandates before you decide which one to cancel.",
+    "task_instructions": "Step 1: ask to see all your mandates, active and paused, so you can be sure which is which. Step 2: once you confirm the Electricity Autopay one is the active one, ask to cancel ONLY that one (mandate id only when asked; confirm). Step 3: ask for the list of active mandates again to confirm none remain from Electricity Autopay. Step 4: ask the agent to also check the paused mandates list, to make sure the NovaTel Postpaid one is still there, untouched. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. Do not let the agent cancel the NovaTel Postpaid mandate \u2014 it's already paused and you want it left alone. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_57005DBC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmatelig5_0",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "all"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig5_1",
+     "name": "cancel_mandate",
+     "arguments": {
+      "mandate_id": "MND59181207"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig5_2",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "active"
+     }
+    },
+    {
+     "action_id": "k5edgbmatelig5_3",
+     "name": "show_mandates",
+     "arguments": {
+      "status": "paused"
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant lists all mandates, cancels the active Electricity Autopay mandate (MND59181207) after receiving affirmative customer confirmation, verifies the active list is now empty, and confirms the paused NovaTel Postpaid mandate remains untouched."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

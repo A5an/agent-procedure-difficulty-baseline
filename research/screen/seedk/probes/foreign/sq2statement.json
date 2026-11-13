@@ -1,0 +1,422 @@
+[
+ {
+  "id": "foreign_sq2statement_00",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_4D16DE53; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Patel, a 43-year-old retail store manager living in Surat, who carefully tracks his savings account expenses and is concerned about an unfamiliar debit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent account transactions, dispute an unauthorized debit, and obtain an official account statement for documentation.",
+    "known_info": "You are Rajesh Patel, customer already logged in (id CUST_4D16DE53). Do not volunteer account, card, transaction IDs, or internal category names until the agent asks for that specific detail. Your savings account is SB3356455432. You did not make the \u20b9450 MealDash transaction on 2026-07-04. You need an official statement from 2026-06-01 to 2026-07-16 sent to your email for your records.",
+    "unknown_info": "The exact transaction reference ID for the MealDash charge, the service request number for the dispute, and the statement order confirmation.",
+    "task_instructions": "Step 1: Ask the agent to check the recent transactions on your savings account (provide account ID SB3356455432 only when asked). Step 2: Once the agent lists the recent transactions, identify the \u20b9450 MealDash debit on 2026-07-04 as unauthorized and ask to file a dispute/complaint for it. When the agent asks for your confirmation to raise the request, confirm clearly. Step 3: Once the dispute is logged, ask for an official duplicate account statement for your savings account covering 2026-06-01 to 2026-07-16 delivered via email for documentation. If confirmation is requested, provide it. Follow this sequence strictly in order and do not allow the agent to skip steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4D16DE53"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement0_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3356455432"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement0_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3356455432",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized MealDash debit of \u20b9450 on 2026-07-04",
+      "related_transaction_id": "TXN2784471400"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3356455432",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's transaction history, raises an unauthorized debit service request with the correct transaction reference after explicit confirmation, and requests an official duplicate statement by email for the requested date range."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2statement_01",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_87610B15; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri R. Patel, a government clerk from Surat reviewing recent account activity who spots an unauthorized transaction and needs it disputed, followed by obtaining official statement documentation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent savings account transactions, dispute an unauthorized debit of \u20b92,500, and request an official duplicate statement for documentation.",
+    "known_info": "You are Madhuri R. Patel (customer ID CUST_87610B15). You hold savings account SB5134530001. Do not volunteer account or transaction IDs until the agent asks. You noticed an unfamiliar debit of \u20b92,500 at Grand Bazaar Supermarket dated 2026-07-03 (TXN5808450850) that you never authorized. You also need an official statement for documentation covering 2026-06-01 to 2026-07-16 delivered via email.",
+    "unknown_info": "Transaction reference numbers prior to viewing history, service request ID for the dispute, and duplicate statement confirmation.",
+    "task_instructions": "Step 1: Ask the assistant to view recent transactions on your savings account. Provide account ID SB5134530001 only if asked.\nStep 2: When the transactions are shared, point out the \u20b92,500 debit on 2026-07-03 at Grand Bazaar Supermarket, state that you did not make or authorize this transaction, and ask to raise an unauthorized transaction dispute for it. Affirm clearly when the assistant asks for your confirmation to raise the request.\nStep 3: Once the dispute is logged, request an official duplicate account statement for the period from 2026-06-01 to 2026-07-16 to be delivered to your registered email. Confirm when asked.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_87610B15"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement1_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB5134530001"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement1_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5134530001",
+      "category": "unauthorized_debit",
+      "description": "Unauthorized debit of INR 2500 at Grand Bazaar Supermarket on 2026-07-03",
+      "related_transaction_id": "TXN5808450850"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB5134530001",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves transaction history for account SB5134530001, seeks confirmation and files an unauthorized debit dispute for TXN5808450850, and upon customer confirmation requests an official duplicate statement for 2026-06-01 to 2026-07-16 via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2statement_02",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_1F860D07; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Madhuri Devi, a 61-year-old retail store manager with a savings account at the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review recent transactions to spot an unauthorized debit, file a formal dispute for it, and order a duplicate statement for documentation.",
+    "known_info": "You are Madhuri Devi, customer already logged in (id CUST_1F860D07). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your account is savings SB3682856096. You noticed an unauthorized UPI debit of \u20b92,500 on 2026-07-04 for Grocery Mart (reference TXN9621981056). You need an official duplicate statement for 2026-07-01 to 2026-07-16 sent via email as documentation.",
+    "unknown_info": "The exact transaction reference ID before reviewing statement history, and the dispute request ID.",
+    "task_instructions": "Step 1: Ask the agent to check your recent transactions on your savings account to find an unexpected debit (provide savings account SB3682856096 only when asked). Step 2: Once the agent reviews the transactions, point out the \u20b92,500 Grocery Mart debit on 2026-07-04, explain that you did not authorize it, and ask to raise a dispute complaint for it. Provide transaction details and confirm explicitly when asked. Step 3: Once the dispute is logged, ask for an official duplicate account statement for 2026-07-01 to 2026-07-16 to be delivered to your registered email for your records (confirm when prompted). Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1F860D07"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement2_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3682856096"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement2_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3682856096",
+      "category": "unauthorized_debit",
+      "description": "Dispute unauthorized UPI debit of INR 2500 at Grocery Mart on 2026-07-04",
+      "related_transaction_id": "TXN9621981056"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3682856096",
+      "delivery_mode": "email",
+      "from_date": "2026-07-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's transaction history for savings account SB3682856096, raises a service request disputing the unauthorized debit TXN9621981056 after receiving confirmation, and requests a duplicate account statement for 2026-07-01 to 2026-07-16 delivered via email upon confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2statement_03",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_3EC5C03A; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rohan Vijay Patil, a 22-year-old retail store manager living in Pune, reviewing his savings account transactions after noticing unexpected spending.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check recent account transactions, dispute an unauthorized debit of \u20b92,499 at StyleHub, and request an account statement for documentation.",
+    "known_info": "You are Rohan Vijay Patil, customer already logged in (id CUST_3EC5C03A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have one savings account (SB9941030719). You want to check recent transactions, dispute an unauthorized online shopping debit of \u20b92,499 from StyleHub on 22 June 2026, and order an official statement from 2026-06-01 to 2026-07-16 sent to your registered email for documentation.",
+    "unknown_info": "The exact transaction reference ID and the service request reference number.",
+    "task_instructions": "Step 1: ask the agent to check your recent transactions on your savings account. Step 2: once the agent shares the transactions, state that you did not make the \u20b92,499 purchase at StyleHub on 22 June 2026 and ask to raise a dispute for this unauthorized debit (confirm when asked). Step 3: after the dispute is registered, ask for an official duplicate statement from 2026-06-01 to 2026-07-16 delivered to your email for documentation. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3EC5C03A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement3_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB9941030719"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement3_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9941030719",
+      "category": "unauthorized_debit",
+      "description": "Dispute unauthorized online shopping debit of \u20b92,499 at StyleHub on 2026-06-22",
+      "related_transaction_id": "TXN7157258179"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB9941030719",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the transaction history for savings account SB9941030719, confirm and raise an unauthorized debit dispute for transaction TXN7157258179, and order a duplicate statement for 2026-06-01 to 2026-07-16 via email."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2statement_04",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_2D8427CE; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Naidu, an IT support engineer checking recent account activity who spots an unauthorized transaction, disputes it, and requests an official statement for documentation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to inspect your recent transactions, dispute an unauthorized debit of \u20b9800, and request an official account statement for your records.",
+    "known_info": "You are Suresh Kumar Naidu, customer already logged in (id CUST_2D8427CE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB3704860537. You do not recognize a recent \u20b9800 UPI debit on July 6, 2026. For documentation, you want an official account statement from 2026-06-01 to 2026-07-16 sent to your registered email.",
+    "unknown_info": "The exact reference ID of the \u20b9800 transaction until the assistant lists your history, the service request reference number for the dispute, and the statement order confirmation.",
+    "task_instructions": "Step 1: Ask the agent to check recent transactions on your savings account to see what debits occurred recently. Do not volunteer the account number unless asked.\nStep 2: When the agent lists your recent debits, identify the \u20b9800 UPI supermarket debit from 2026-07-06, explain that you never made or authorized this purchase, and ask to raise a dispute for it. When the agent asks for your confirmation to register the complaint/dispute, confirm explicitly.\nStep 3: After the dispute request is registered, ask the agent to order an official duplicate account statement for your savings account covering 2026-06-01 to 2026-07-16 delivered via email for documentation. Confirm when asked.\nFollow this sequence strictly in order \u2014 do not skip or combine steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2D8427CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement4_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB3704860537"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement4_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB3704860537",
+      "category": "unauthorized_debit",
+      "description": "Dispute unauthorized UPI debit of \u20b9800 on 2026-07-06",
+      "related_transaction_id": "TXN7299015142"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB3704860537",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch transaction history for savings account SB3704860537, raise a service request for unauthorized debit TXN7299015142 after customer confirmation, and order a duplicate statement from 2026-06-01 to 2026-07-16 delivered to email after customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2statement_05",
+  "description": {
+   "purpose": "History \u2192 dispute \u2192 statement (dispute + documentation)",
+   "notes": "family=sq2statement; customer_id=CUST_2BEEB046; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A tech professional who reviews bank transactions diligently, spots an unrecognized debit, disputes it, and requests an official statement for documentation.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check recent account transactions, dispute an unauthorized debit seen in the history, and order an official statement for records.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_2BEEB046). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You hold savings account SB7975445108. You suspect an unauthorized charge and identify a \u20b91,200 debit on 2026-06-25 for MealDash (transaction ID TXN4760243535) that you want to dispute. You also want an official statement covering 2026-06-01 to 2026-07-16 sent to your registered email for documentation.",
+    "unknown_info": "The exact transaction reference ID until seen in history, and the service request confirmation number.",
+    "task_instructions": "Step 1: Ask the agent to check your recent transactions on your savings account SB7975445108 (provide the account id only when asked). Step 2: Once the agent lists recent transactions, point out the \u20b91,200 charge from MealDash on 2026-06-25 and ask to raise a dispute for this unauthorized debit. Explicitly confirm when asked before the dispute is submitted. Step 3: Once the dispute is logged, ask for an official duplicate account statement for your savings account from 2026-06-01 to 2026-07-16 to be delivered by email for documentation. Explicitly confirm when asked. Do this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2BEEB046"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2statement5_0",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7975445108"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "foreignsq2statement5_1",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7975445108",
+      "category": "unauthorized_debit",
+      "description": "Dispute for unauthorized MealDash debit of INR 1200 on 2026-06-25",
+      "related_transaction_id": "TXN4760243535"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2statement5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7975445108",
+      "delivery_mode": "email",
+      "from_date": "2026-06-01",
+      "to_date": "2026-07-16"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch the transaction history for savings account SB7975445108, seek explicit confirmation to log a dispute for transaction TXN4760243535 as an unauthorized debit, submit the request, and then order an official email statement for 2026-06-01 to 2026-07-16 after confirming."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

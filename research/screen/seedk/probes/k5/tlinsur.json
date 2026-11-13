@@ -1,0 +1,434 @@
+[
+ {
+  "id": "k5_tlinsur_00",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_C0BA086A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Dr. Priya Sharma, an HNI customer who wants to set up auto-debit for her life insurance policy premium after reviewing her account balance, verifying policy details, and understanding the bank's supported payment modes.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL445490's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Dr. Priya Sharma, customer already logged in (id CUST_C0BA086A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL445490. Paying account: savings SB8206342654.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB8206342654 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL445490 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB8206342654, and provide confirmation when asked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C0BA086A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8206342654"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur0_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL445490"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur0_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur0_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants auto-debit set up for the premium on policy POL445490 from SB8206342654",
+      "category": "other",
+      "account_id": "SB8206342654"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the balance for savings account SB8206342654, retrieve policy details for POL445490, query the knowledge base for insurance premium payment modes, and raise a service request under account SB8206342654 to configure auto-debit for policy POL445490."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlinsur_01",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_B2CBDE8A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 51-year-old restaurant owner living in Patna, who holds a savings account and an insurance policy.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL847201's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_B2CBDE8A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL847201. Paying account: savings SB3139975054.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB3139975054 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL847201 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB3139975054. When the agent asks for confirmation, provide affirmative confirmation. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B2CBDE8A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3139975054"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur1_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL847201"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur1_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur1_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants auto-debit set up for the premium on policy POL847201 from SB3139975054",
+      "category": "other",
+      "account_id": "SB3139975054"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the account balance, look up the insurance policy details, search the knowledge base for insurance premium payment modes, and upon confirmation raise a service request to set up auto-debit for the insurance policy premium."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlinsur_02",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_2A1921A5; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 46-year-old government officer in Kolkata who carefully verifies his account balance, policy details, and payment options before authorizing auto-debit for his insurance premium.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL169512's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_2A1921A5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL169512. Paying account: savings SB8372064494.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB8372064494 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL169512 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB8372064494. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2A1921A5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8372064494"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur2_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL169512"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur2_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8372064494",
+      "category": "other",
+      "description": "Customer wants auto-debit set up for the premium on policy POL169512 from SB8372064494"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should verify the balance for savings account SB8372064494, retrieve details for policy POL169512, search the knowledge base for insurance premium payment modes, and raise a service request to configure auto-debit for policy POL169512 from SB8372064494 upon confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlinsur_03",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_929C991C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 50-year-old sales executive residing in Chennai with an active savings account and a bancassurance life insurance policy.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL487403's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_929C991C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL487403. Paying account: savings SB7606984368.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB7606984368 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL487403 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB7606984368. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_929C991C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7606984368"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur3_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL487403"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur3_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB7606984368",
+      "category": "other",
+      "description": "Customer wants auto-debit set up for the premium on policy POL487403 from SB7606984368"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should verify the balance of savings account SB7606984368, retrieve the details for policy POL487403, search the knowledge base for premium payment options, and upon customer confirmation raise a service request to set up auto-debit for the policy premium."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlinsur_04",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_FBE8E3F7; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rakesh Kumar Malviya, a 44-year-old farmer from Indore who holds a savings account and an insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL196033's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Rakesh Kumar Malviya, customer already logged in (id CUST_FBE8E3F7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL196033. Paying account: savings SB9784827118.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB9784827118 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL196033 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB9784827118. When the agent asks for confirmation, confirm clearly. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FBE8E3F7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9784827118"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur4_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL196033"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur4_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur4_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9784827118",
+      "category": "other",
+      "description": "Customer wants auto-debit set up for the premium on policy POL196033 from SB9784827118"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the balance for account SB9784827118, look up policy details for POL196033, search the knowledge base for insurance premium payment modes, ask for customer confirmation, and raise a service request to set up auto-debit for the policy premium from the savings account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlinsur_05",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_875A41CD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 57-year-old lab technician holding a savings account and an active health insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want auto-debit set up for policy POL945429's premium, but only after confirming the paying account, the premium amount, and the available payment modes.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_875A41CD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Policy POL945429. Paying account: savings SB9781960606.",
+    "unknown_info": "The premium amount/frequency on the policy, and the available premium payment modes.",
+    "task_instructions": "Step 1: ask for the balance on savings SB9781960606 (id only when asked) \u2014 the account you'd pay from. Step 2: then ask for the details of policy POL945429 (id only when asked) to confirm the premium. Step 3: then ask how insurance premiums can be paid (the agent must check the knowledge base, not memory). Step 4: only after all that, ask the agent to log a request to set up auto-debit of the premium from savings SB9781960606. If the agent asks for confirmation to raise the request, explicitly confirm. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_875A41CD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlinsur5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9781960606"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur5_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL945429"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlinsur5_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5tlinsur5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB9781960606",
+      "category": "other",
+      "description": "Customer wants auto-debit set up for the premium on policy POL945429 from SB9781960606"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, looks up the insurance policy details, searches the knowledge base for insurance premium payment modes, and raises a service request for auto-debit setup after obtaining customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

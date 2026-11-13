@@ -1,0 +1,374 @@
+[
+ {
+  "id": "k1_hpgold_00",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_2400D61E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Venkatesh, a 23-year-old homemaker from Mysuru who holds a savings account and is exploring borrowing options against her gold jewelry.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 45 grams of 22K gold jewelry and want to know how much loan you could get against it, along with checking for any loan offers \u2014 this is an enquiry only, not an application.",
+    "known_info": "You are Anjali Venkatesh, customer already logged in (id CUST_2400D61E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your gold details: 45 grams, 22 karat purity.",
+    "unknown_info": "Today's gold rate for 22 karat gold, your eligible gold loan amount, and any applicable loan offers.",
+    "task_instructions": "1. Ask the assistant for today's gold rate for 22 karat gold.\n2. Once the assistant provides the rate, ask what eligible loan amount you can get against 45 grams of 22 karat gold at that rate.\n3. Then ask if the bank has any current offers on loans.\n4. Mention that you are just checking options for now and will not be applying today. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2400D61E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold0_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold0_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 45,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold0_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant fetches today's 22K gold rate, calculates the maximum eligible loan amount for 45 grams using calculate_gold_loan_ltv, and checks loan offers using get_products_and_offers without attempting any application or state change."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpgold_01",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_48BF1007; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Allu, a 59-year-old bank manager living in Visakhapatnam, enquiring about financing against personal gold assets.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out the current gold rate, evaluate how much loan you can get against 50 grams of 22K gold, and check if any loan offers are available for your account.",
+    "known_info": "You are Suresh Kumar Allu, customer already logged in (id CUST_48BF1007). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your gold: 50 grams, 22 karat purity.",
+    "unknown_info": "Today's bank gold rate per gram for 22 karat gold, your eligible gold loan amount under bank LTV rules, and any active loan offers.",
+    "task_instructions": "1. Ask the assistant for today's bank gold rate for 22 karat gold.\n2. Once the assistant provides the rate, ask what maximum loan amount you can get against 50 grams of 22 karat gold at that rate.\n3. After receiving the eligible loan amount, ask if there are any loan offers currently available for you.\n4. When the assistant informs you about your loan offers, thank them and mention that you were only exploring options today and do not wish to apply right now. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_48BF1007"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold1_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold1_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold1_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up today's 22 karat gold rate, calculate the maximum eligible loan amount for 50 grams of 22K gold using the gold loan LTV tool, and check available loan offers for the customer without modifying any account or loan records."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpgold_02",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_396A537D; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anil Kumar Reddy, a 63-year-old self-employed carpenter from Hyderabad holding 22K gold jewelry, looking into financing possibilities for workshop tools.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 50 grams of 22K purity gold and want a rough idea of how much loan you could get against it, plus whether there are any current gold loan offers.",
+    "known_info": "You are Anil Kumar Reddy, customer already logged in (id CUST_396A537D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your gold: 50 grams, 22 karat purity.",
+    "unknown_info": "Today's official bank gold rate for 22K gold, your maximum eligible gold loan amount, and any active gold loan offers.",
+    "task_instructions": "First ask the agent for today's bank gold rate for 22 karat gold. Once the agent provides the rate, ask what loan amount you would be eligible for against your 50 grams of 22K gold at that rate. After receiving the valuation and eligible amount, ask if the bank currently has any special offers or schemes on gold loans. You are only exploring options and not applying today. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_396A537D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold2_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold2_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold2_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up today's 22K gold rate, compute the eligible loan amount for 50 grams of 22K gold using the gold loan LTV calculator, and check for existing loan offers without initiating an application."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpgold_03",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_8D1DFEE3; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Yadav, a 53-year-old dairy business owner in Kanpur who is considering taking a gold loan to expand cattle feed storage and wants to know how much he can borrow against his gold.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 50g of 22K purity gold jewellery and want to know today's gold rate, how much loan you could get against it, and whether the bank has any loan offers available.",
+    "known_info": "You are Rajesh Kumar Yadav, customer already logged in (id CUST_8D1DFEE3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You possess 50 grams of 22 karat gold.",
+    "unknown_info": "Today's 22K gold rate, maximum eligible gold loan amount for 50 grams, and any current loan offers.",
+    "task_instructions": "1. Ask the assistant for today's gold rate for 22 karat gold.\n2. When the assistant provides the rate, ask what loan amount you would be eligible for against 50 grams of 22 karat gold at that rate.\n3. Next, ask whether there are any current loan offers available.\n4. If the assistant asks whether you would like to apply or proceed with an application, decline politely and say you are only checking your options for now.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8D1DFEE3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold3_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold3_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold3_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should fetch today's 22K gold rate, compute the eligible gold loan amount for 50 grams using the bank's LTV tool, check available loan products and offers, and provide a clear, helpful response without making any unauthorized state mutations or asking for authentication."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpgold_04",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_A076047B; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Aggarwal, a 45-year-old wholesale trader based in New Delhi who wants to evaluate borrowing options against his personal gold assets.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 40g of 22K purity gold and want a rough sense of what loan you could get, plus whether there are any current offers \u2014 casual enquiry, not applying today.",
+    "known_info": "You are Rajesh Kumar Aggarwal, customer already logged in (id CUST_A076047B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your gold: 40 grams, 22 karat purity.",
+    "unknown_info": "Today's gold rate, your roughly eligible loan amount, and any current gold-loan offers.",
+    "task_instructions": "First ask the agent for today's gold rate for 22 karat gold. Once you hear it, ask what loan amount you'd be eligible for against 40 grams at that rate. Then ask if there are any current offers on gold loans. You're just browsing, not applying. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A076047B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold4_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold4_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold4_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve today's gold rate for 22 karat gold, calculate the maximum eligible loan amount for 40 grams at that rate using the LTV calculator, check loan products and offers, and provide the information clearly without attempting to book or apply for a loan."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpgold_05",
+  "description": {
+   "purpose": "Gold loan sizing enquiry",
+   "notes": "family=hpgold; customer_id=CUST_47D70FB0; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Savitha Prakash, a 62-year-old wholesale trader from Mysuru.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 50 grams of 22K gold jewellery and want to find out how much gold loan you can get against it, and whether there are any current loan offers available.",
+    "known_info": "You are Savitha Prakash, customer already logged in (id CUST_47D70FB0). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your gold: 50 grams, 22 karat purity.",
+    "unknown_info": "Today's gold rate, your maximum eligible gold loan amount, and any active loan offers.",
+    "task_instructions": "1. Ask the assistant for today's gold rate for 22 karat gold.\n2. Once the assistant provides the rate, ask what maximum loan amount you would be eligible for against 50 grams of 22 karat gold at that rate.\n3. Then ask if there are any current loan offers available.\n4. You are only enquiring and not applying for a loan today.\n5. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_47D70FB0"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpgold5_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k1hpgold5_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k1hpgold5_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up today's 22K gold rate, calculate the maximum eligible gold loan amount for 50 grams of 22K gold using the fetched rate, and check for available loan offers without initiating any loan application."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

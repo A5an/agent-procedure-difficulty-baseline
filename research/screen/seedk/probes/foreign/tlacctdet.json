@@ -1,0 +1,386 @@
+[
+ {
+  "id": "foreign_tlacctdet_00",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_D80DD3F8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a self-employed cab driver based in Bengaluru, checking up on his bank account information.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your current account balance, verify your account details (IFSC and branch), and review your recent statement transactions.",
+    "known_info": "You are Ravi Kumar, customer already logged in (customer ID CUST_D80DD3F8). Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail. Your primary account is your savings account.",
+    "unknown_info": "Your current savings account balance, branch IFSC code, and the list of recent statement transactions.",
+    "task_instructions": "1. Ask the assistant for the current available balance of your savings account without volunteering the account ID.\n2. Once the assistant provides the balance, ask for your account details, specifically the home branch and IFSC code.\n3. Once the assistant shares the account details, ask to view your recent account statement or recent transactions.\n4. After the assistant provides the recent transaction history, thank the assistant and conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D80DD3F8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7754803401"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet0_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7754803401"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet0_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7754803401"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up and state the account balance, fetch and provide the account branch details and IFSC, and present the recent statement transactions for account SB7754803401 using the appropriate read-only tools without attempting any unauthorized writes."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlacctdet_01",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_8A6C7EFC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Nair, a 29-year-old self-employed private tutor residing in Kochi, Kerala. He is meticulous about his personal finances and speaks politely and clearly.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "He wants to check his current savings account balance, verify his branch and IFSC details to share with tutoring clients, and check his recent statement transactions.",
+    "known_info": "You are Arun Kumar Nair, customer already logged in (id CUST_8A6C7EFC). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB8369012989.",
+    "unknown_info": "Your exact current available balance, account branch metadata (IFSC code, home branch), and the list of recent statement transactions.",
+    "task_instructions": "1. Ask the assistant to check the balance of your savings account. Do not provide your account number until asked.\n2. When the assistant asks for your account number, provide SB8369012989.\n3. Once the assistant provides your balance, ask for your account details, specifically your home branch and IFSC code.\n4. Once the assistant shares the account details, ask to view your recent statement / transaction history for this account.\n5. Once the assistant shares the statement transactions, thank them and end the conversation with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8A6C7EFC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8369012989"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet1_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8369012989"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet1_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB8369012989"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should prompt for the account ID when needed, fetch the account balance using get_account_balance, provide the account details using get_account_details, and retrieve recent statement entries using get_transaction_history without asking for authentication or performing unauthorized mutations."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlacctdet_02",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_F4EAF911; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 61-year-old hospitality staff member from Indore with an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your account balance, review your account details (such as branch and IFSC), and view your recent account statement.",
+    "known_info": "You are Rajesh Kumar Sharma, logged in as CUST_F4EAF911. You have a savings account with the bank. Do not volunteer your account ID (SB7545065621) until asked.",
+    "unknown_info": "Your current account balance, account metadata (IFSC code, home branch), and recent statement transactions.",
+    "task_instructions": "1. Ask the assistant for your current account balance. Do not volunteer your account ID unless prompted.\n2. Once the balance is shared, ask for your account details, specifically the home branch and IFSC code.\n3. After receiving the account details, ask to view your recent statement / recent transactions.\n4. When the transactions are displayed, thank the assistant and conclude. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F4EAF911"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7545065621"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet2_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7545065621"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet2_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7545065621"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up and report the balance for account SB7545065621, fetch and share its metadata (IFSC and branch), and then retrieve and present its recent statement transactions using get_transaction_history."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlacctdet_03",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_C730BA0E; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Shobana Venkataraman, a 72-year-old retired government officer in Coimbatore, reviewing her primary savings account status, branch details, and recent transaction statement.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your account balance, verify your account details (such as branch name and IFSC), and review your recent account statement.",
+    "known_info": "You are Shobana Venkataraman, customer already logged in (id CUST_C730BA0E). You hold a savings account with the bank. Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail.",
+    "unknown_info": "Your current available balance, branch and IFSC details, and recent statement transactions.",
+    "task_instructions": "1. Ask the assistant to check the current balance of your savings account. Do not provide the account ID unless specifically asked.\n2. Once the balance is provided, ask for your account details, specifically your home branch and IFSC code.\n3. After the assistant provides your account details, ask to view your recent statement transactions.\n4. Once the statement details are provided, thank the assistant and end the chat. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_C730BA0E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet3_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB7695814131"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet3_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB7695814131"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's savings account balance using get_account_balance, retrieve the account details using get_account_details, and fetch the recent statement transactions using get_transaction_history, all for account SB7695814131 without asking for authentication or credentials."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlacctdet_04",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_204FF18C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A 64-year-old pharmacist from Gurugram who wants to review his bank account information step by step.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, verify your branch and IFSC details, and review your recent statement transactions.",
+    "known_info": "You are Rajesh Kumar, customer ID CUST_204FF18C, already logged in. You have a savings account. Do not volunteer your account number or any other ID unless explicitly asked by the assistant.",
+    "unknown_info": "Your current balance, IFSC code, home branch, and recent statement entries.",
+    "task_instructions": "1. Ask the assistant to check the available balance of your savings account without volunteering the account ID up front.\n2. Once the balance is provided, ask for your account details, specifically your home branch and IFSC code.\n3. After receiving the branch and IFSC details, ask to view your recent statement or transaction history for this account.\n4. Once the transaction details are provided, thank the assistant and conclude the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_204FF18C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2294743716"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet4_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB2294743716"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet4_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB2294743716"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up and report the customer's savings account balance, followed by fetching and sharing the account metadata (IFSC and branch), and finally retrieve and display the recent statement entries using transaction history, all without demanding an unprompted account ID."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlacctdet_05",
+  "description": {
+   "purpose": "Balance \u2192 account details \u2192 statement (bank-detail lookup)",
+   "notes": "family=tlacctdet; customer_id=CUST_BBD654F7; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Priyanka Sharma, a 44-year-old hospitality worker living in Kanpur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check your account's IFSC and branch details, and review your recent statement transactions.",
+    "known_info": "You are Priyanka Sharma, customer already logged in (id CUST_BBD654F7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB6698268129.",
+    "unknown_info": "Your current account balance, branch name and IFSC code, and recent account transaction history.",
+    "task_instructions": "1. Greet the agent and ask to check the balance of your savings account. Provide your account number SB6698268129 only when asked.\n2. After the agent provides your balance, ask for your account details, specifically your home branch and IFSC code.\n3. After the agent provides the branch and IFSC details, ask to view the recent statement transactions for this account.\n4. Once the agent shares your recent transactions, thank them and end the conversation. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BBD654F7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlacctdet5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6698268129"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet5_1",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB6698268129"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlacctdet5_2",
+     "name": "get_transaction_history",
+     "arguments": {
+      "account_id": "SB6698268129"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the account balance with get_account_balance, then looks up account metadata with get_account_details, and finally fetches recent transactions with get_transaction_history for account SB6698268129."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

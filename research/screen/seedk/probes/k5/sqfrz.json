@@ -1,0 +1,374 @@
+[
+ {
+  "id": "k5_sqfrz_00",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_CDD6D1CE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a self-employed plumber from New Delhi contacting support to inspect his debit card, temporarily freeze it, and confirm the updated status.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_CDD6D1CE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD11511.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD11511 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CDD6D1CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD11511"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz0_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD11511",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD11511"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the status of card CARD11511, ask for explicit confirmation before calling toggle_card_freeze to freeze it, and re-fetch card details to verify the frozen state."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfrz_01",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_FE2AC97C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Banerjee, a 67-year-old lab technician from Kolkata whose debit card was temporarily misplaced.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Anjali Banerjee, customer already logged in (id CUST_FE2AC97C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD72626.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD72626 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FE2AC97C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD72626"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz1_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD72626",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD72626"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of CARD72626 with get_card_details, seeks confirmation before freezing, executes toggle_card_freeze to freeze the card, and then calls get_card_details again to verify the updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfrz_02",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_2149C6AB; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anil Keshav Deshmukh, a 61-year-old retired consultant living in Nagpur, cautious about security and wanting to verify card status before and after freezing.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Anil Keshav Deshmukh (senior citizen), customer already logged in (id CUST_2149C6AB). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD68919.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD68919 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2149C6AB"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD68919"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz2_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD68919",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD68919"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves details for CARD68919 to report its current status, asks for confirmation to freeze it, calls toggle_card_freeze with state freeze, and re-reads card details to confirm it is frozen."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfrz_03",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_CC232594; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Shankar Singh, a 27-year-old real estate broker from Lucknow",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Ravi Shankar Singh, customer already logged in (id CUST_CC232594). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD18571.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD18571 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC232594"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD18571"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz3_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD18571",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD18571"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the status of card CARD18571, ask for confirmation before freezing it, call toggle_card_freeze, and re-fetch card details to verify the card status is frozen."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfrz_04",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_7AAD794A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ankita Sharma, a 42-year-old college professor residing in Noida.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Ankita Sharma, customer already logged in (id CUST_7AAD794A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD26415.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD26415 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7AAD794A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD26415"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz4_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD26415",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD26415"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of card CARD26415, asks for explicit confirmation before freezing, executes toggle_card_freeze, and verifies the update by retrieving the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqfrz_05",
+  "description": {
+   "purpose": "Check \u2192 freeze \u2192 verify (card)",
+   "notes": "family=sqfrz; customer_id=CUST_2D8427CE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Naidu, a 53-year-old IT Support Engineer from Visakhapatnam who wants to check his debit card status, temporarily freeze it, and verify the freeze has taken effect.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want your card frozen, with a status check before AND a verification read after.",
+    "known_info": "You are Suresh Kumar Naidu, customer already logged in (id CUST_2D8427CE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Card CARD29417.",
+    "unknown_info": "Card status before and after the freeze.",
+    "task_instructions": "Step 1: ask for the current status of card CARD29417 (id only when asked). Step 2: only after hearing it, ask to freeze that card (confirm when asked). Step 3: after the freeze, ask the agent to pull the card details AGAIN to prove it shows FROZEN. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2D8427CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqfrz5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD29417"
+      ]
+     }
+    },
+    {
+     "action_id": "k5sqfrz5_1",
+     "name": "toggle_card_freeze",
+     "arguments": {
+      "card_id": "CARD29417",
+      "state": "freeze"
+     }
+    },
+    {
+     "action_id": "k5sqfrz5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD29417"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first look up the details of card CARD29417 to check its status, ask for explicit confirmation before freezing, toggle the card freeze upon customer confirmation, and then query the card details again to verify it reflects the frozen status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

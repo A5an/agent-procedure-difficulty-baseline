@@ -1,0 +1,524 @@
+[
+ {
+  "id": "k5_tlfdmat_00",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_EF45782A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Ramesh Sharma, a 35-year-old self-employed real estate broker in Surat, checking savings balance, checking deposit interest rates, calculating projected return, and booking a fixed deposit with post-booking balance verification.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b960,000 for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Priya Ramesh Sharma, customer already logged in (id CUST_EF45782A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 60000; tenure 12 months; source savings SB7503168696.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b960000 for 12 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 60000 for 12 months from savings SB7503168696 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EF45782A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7503168696"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat0_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 60000,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlfdmat0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 60000,
+      "source_account": "SB7503168696",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7503168696"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's initial savings balance, looks up the current FD rate, computes the maturity projection for \u20b960,000 over 12 months, seeks explicit confirmation before creating the FD, books the FD, and confirms the updated savings balance upon request."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlfdmat_01",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_AE0C57EB; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 53-year-old nurse at MGM Hospital, Indore, prudent with savings and wanting to verify returns and account balances before and after opening a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b960000 for 24 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Sunita Sharma, customer already logged in (id CUST_AE0C57EB). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 60000; tenure 24 months; source savings SB9452164851.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b960000 for 24 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 60000 for 24 months from savings SB9452164851 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_AE0C57EB"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9452164851"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat1_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 60000,
+      "rate": 7.1,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5tlfdmat1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 60000,
+      "source_account": "SB9452164851",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9452164851"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the savings balance, retrieve current FD rates, compute the projected maturity for \u20b960,000 across 24 months at 7.1%, obtain confirmation before creating the FD, and finally display the updated savings balance reflecting the debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlfdmat_02",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_7A69C242; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anuradha Ramesh Shenoy, a 42-year-old wholesale trader in Bengaluru holding an active savings account with ample balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9150000 for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Anuradha Ramesh Shenoy, customer already logged in (id CUST_7A69C242). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 150000; tenure 12 months; source savings SB4385498885.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b9150000 for 12 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 150000 for 12 months from savings SB4385498885 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7A69C242"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4385498885"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat2_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 150000,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlfdmat2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 150000,
+      "source_account": "SB4385498885",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4385498885"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings account balance, fetches current FD rates, calculates the projected maturity value for \u20b91,50,000 for 12 months, secures confirmation to create the FD, and confirms the updated balance after debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlfdmat_03",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_5D12E9A3; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar Reddy, a 56-year-old real estate broker from Hyderabad holding an active savings and current account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9250000 for 24 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Ravi Kumar Reddy, customer already logged in (id CUST_5D12E9A3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 250000; tenure 24 months; source savings SB1917543666.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b9250000 for 24 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 250000 for 24 months from savings SB1917543666 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5D12E9A3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1917543666"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat3_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 250000,
+      "rate": 7.1,
+      "tenure_months": 24
+     }
+    },
+    {
+     "action_id": "k5tlfdmat3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 250000,
+      "source_account": "SB1917543666",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1917543666"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the savings account balance, fetch current FD rates, compute the maturity calculation for \u20b92,50,000 for 24 months at 7.1%, obtain confirmation before creating the fixed deposit from SB1917543666, and finally check the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlfdmat_04",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_D7171798; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ravi Shekhar, a 33-year-old agri trader based in Lucknow with a savings account, looking to check his current balance, explore FD rates, project maturity returns, book an FD, and verify his updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b9300000 for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Ravi Shekhar, customer already logged in (id CUST_D7171798). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 300000; tenure 12 months; source savings SB1529386445.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b9300000 for 12 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 300000 for 12 months from savings SB1529386445 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D7171798"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1529386445"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat4_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 300000,
+      "rate": 6.8,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlfdmat4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 300000,
+      "source_account": "SB1529386445",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB1529386445"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, retrieves current FD rates, calculates maturity for \u20b93,00,000 at 12 months with quarterly compounding, books the FD after confirmation, and checks the post-debit balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlfdmat_05",
+  "description": {
+   "purpose": "Balance \u2192 rate \u2192 maturity calc \u2192 create FD \u2192 balance (projected FD booking)",
+   "notes": "family=tlfdmat; customer_id=CUST_751E1D9F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajinder Kaur, a 71-year-old retired school teacher from Amritsar and a senior citizen customer who wants to carefully check deposit rates and projected returns before booking a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want a new FD of \u20b940000 for 12 months, but only after seeing the projected maturity value worked out from today's rate, with the debited balance shown after.",
+    "known_info": "You are Rajinder Kaur (senior citizen), customer already logged in (id CUST_751E1D9F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount 40000; tenure 12 months; source savings SB7897189324.",
+    "unknown_info": "Your available balance, today's FD rate, the projected maturity value, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: then ask for today's FD interest rate. Step 3: then ask the agent to work out what \u20b940000 for 12 months would mature to at that rate. Step 4: only after seeing that number, book the FD: 40000 for 12 months from savings SB7897189324 (reveal each parameter only when asked; confirm before booking). Step 5: finally ask for the savings balance AGAIN to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_751E1D9F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlfdmat5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7897189324"
+      ]
+     }
+    },
+    {
+     "action_id": "k5tlfdmat5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat5_2",
+     "name": "calculate_fd_maturity",
+     "arguments": {
+      "principal_amount": 40000,
+      "rate": 7.3,
+      "tenure_months": 12
+     }
+    },
+    {
+     "action_id": "k5tlfdmat5_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 40000,
+      "source_account": "SB7897189324",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5tlfdmat5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7897189324"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the current balance for savings account SB7897189324, check the FD rate card, calculate the maturity value for \u20b940,000 for 12 months at the applicable senior citizen rate of 7.3%, obtain explicit confirmation before creating the fixed deposit from account SB7897189324, and finally display the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

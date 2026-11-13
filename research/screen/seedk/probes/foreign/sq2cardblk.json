@@ -1,0 +1,453 @@
+[
+ {
+  "id": "foreign_sq2cardblk_00",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_1203DFC3; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Pradip Kumar Barman, a 30-year-old cab driver in Kolkata, seeking to secure his stolen debit card and obtain a replacement.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen yesterday. You want to check its current status, permanently block it due to theft, place a request for a replacement card, and verify that the card status is updated to blocked.",
+    "known_info": "You are Pradip Kumar Barman, customer already logged in (id CUST_1203DFC3). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your debit card was stolen yesterday. Your linked savings account is SB6354644830.",
+    "unknown_info": "The current status of your debit card, the service request ID for the replacement card, and the post-block verification status.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card (provide card id CARD52323 only if asked). Step 2: State that the card was stolen yesterday and you want it permanently blocked. When the assistant warns you and asks for confirmation to permanently block it, confirm clearly. Step 3: Ask the assistant to request a replacement debit card for you. When the assistant asks for confirmation to submit the request, confirm clearly. Step 4: Ask the assistant to check your card's status again to verify that it is blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1203DFC3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD52323"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk0_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD52323",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk0_2",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB6354644830",
+      "category": "general_query",
+      "description": "Request for a replacement debit card for stolen card CARD52323"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk0_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD52323"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the debit card status, permanently block the card with reason 'stolen' upon explicit customer confirmation, raise a service request for a replacement card after confirmation, and verify the blocked status by checking the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2cardblk_01",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_7B9302A4; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Subhash Dube, a 73-year-old startup founder and HNI client whose wallet was stolen, seeking to check the status of his debit card, permanently block it, order a replacement, and verify that the card status reflects the block.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your wallet was stolen with your debit card inside. You want to check its status, permanently block it due to theft, request a replacement debit card, and verify that the card is confirmed blocked.",
+    "known_info": "You are Rajesh Subhash Dube, customer already logged in (id CUST_7B9302A4). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have a debit card (CARD12839) linked to your savings account and a credit card (CARD79794). Your debit card was stolen.",
+    "unknown_info": "Whether any unauthorized transactions occurred, current card status, and the service request reference number for the replacement card.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card (do not volunteer the card ID unless specifically asked). Step 2: Inform the assistant that your wallet was stolen with the debit card inside and ask to permanently block it; when the assistant asks for confirmation, explicitly provide your confirmation to permanently block it. Step 3: Ask the assistant to submit a request for a replacement debit card; when the assistant asks for confirmation, confirm that you want the replacement request submitted. Step 4: Ask the assistant to check the status of the debit card again to verify that it is blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_7B9302A4"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD12839"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk1_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD12839",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk1_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Request replacement debit card for stolen and blocked card CARD12839"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk1_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD12839"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the customer's debit card status with get_card_details, obtain confirmation and permanently block CARD12839 with reason 'stolen', obtain confirmation and raise a service request for a replacement card, and finally verify the updated card status using get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2cardblk_02",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_2997FD5C; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ankita Kumari, a 32-year-old restaurant owner in Patna with a savings account and debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen from your restaurant; you need to check its status, have it permanently blocked, request a replacement card, and verify that the card status is updated to blocked.",
+    "known_info": "You are Ankita Kumari, customer already logged in (id CUST_2997FD5C). Do not volunteer account/card/deposit IDs until the agent asks or references them. You hold an active debit card (CARD71436) linked to savings account SB4123127393. The card was stolen yesterday.",
+    "unknown_info": "Current backend status of your debit card, whether transactions were attempted, the service request reference number for card replacement, and the verified blocked status.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card (do not volunteer the card ID unless asked). Step 2: Tell the assistant that the debit card was stolen and you want it permanently blocked; when asked for explicit confirmation to permanently block it, confirm affirmatively. Step 3: Ask the assistant to request a replacement debit card; when asked for confirmation to raise the service request, confirm affirmatively. Step 4: Ask the assistant to check your debit card's status again to verify that it is now blocked. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2997FD5C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD71436"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk2_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD71436",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk2_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for replacement debit card for stolen card CARD71436"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk2_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD71436"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the debit card status, seek explicit confirmation before permanently blocking CARD71436 with reason 'stolen', seek confirmation before raising a service request for a replacement card, and verify the card's updated status using get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2cardblk_03",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_F07866E1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anjali Gupta, an agri trader from Lucknow whose debit card was stolen and who wants to check its status, permanently block it, order a replacement card, and verify the block.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your wallet was stolen earlier today with your debit card inside. You want to check its current status, permanently block it due to theft, submit a replacement card request, and verify that the card is confirmed blocked.",
+    "known_info": "You are Anjali Gupta (customer ID CUST_F07866E1). You hold a debit card linked to your savings account. Do not volunteer account or card numbers until asked. Your debit card was stolen today.",
+    "unknown_info": "The exact backend status of the card before and after blocking, and the service request ID for the replacement card.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card (do not volunteer the card ID unless asked). Step 2: Inform the assistant that your debit card was stolen and ask to permanently block it. When the assistant asks for confirmation, explicitly confirm the permanent block. Step 3: Once blocked, ask the assistant to request a replacement debit card. When asked for confirmation, explicitly confirm raising the request. Step 4: Ask the assistant to check your card status once more to verify that it shows as blocked. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_F07866E1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD59728"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk3_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD59728",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk3_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "other",
+      "description": "Request for replacement debit card following theft and permanent blocking of CARD59728"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk3_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD59728"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the debit card status using get_card_details, obtains explicit confirmation before permanently blocking it with block_card (reason stolen), obtains explicit confirmation before submitting a replacement request via raise_request, and verifies the blocked status with get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2cardblk_04",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_509E6569; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Shaw, a 27-year-old agri trader from Kolkata who needs urgent assistance with his stolen debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen; you want to check its status, permanently block it, request a replacement card, and verify that the card is now blocked.",
+    "known_info": "You are Rajesh Kumar Shaw, customer already logged in (id CUST_509E6569). Do not volunteer account/card/deposit/mandate ids or internal categories until the agent asks for that specific detail. Your debit card was stolen yesterday. You want it permanently blocked and replaced.",
+    "unknown_info": "The current card status, the service request reference number for the replacement card, and whether the card is confirmed blocked.",
+    "task_instructions": "Step 1: ask the agent to check the status of your debit card (provide card id CARD45894 only if asked). Step 2: explain that the card was stolen and ask to permanently block it; when the agent asks for confirmation to permanently block the card, clearly confirm. Step 3: ask the agent to request a replacement card; when the agent asks for confirmation to raise the request, clearly confirm. Step 4: ask the agent to check the card status again to verify that it is blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_509E6569"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD45894"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk4_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD45894",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk4_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Replacement request for stolen debit card CARD45894"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk4_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD45894"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of debit card CARD45894, asks for confirmation and permanently blocks it due to theft, raises a service request for a replacement card after confirmation, and finally verifies that the card status is blocked."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sq2cardblk_05",
+  "description": {
+   "purpose": "Status \u2192 block \u2192 replacement request \u2192 verify (card)",
+   "notes": "family=sq2cardblk; customer_id=CUST_48AEC094; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Prakash Kulkarni, a 49-year-old freelance consultant living in Nagpur, holding an active savings account and linked debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Your debit card was stolen today. You want to check its current status, permanently block it, request a replacement debit card, and verify that the card status is updated to blocked.",
+    "known_info": "You are Rajesh Prakash Kulkarni, customer already logged in (id CUST_48AEC094). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card was stolen earlier today. Linked debit card id: CARD41627.",
+    "unknown_info": "The exact backend status of the card before and after blocking, and the service request reference number for the replacement card.",
+    "task_instructions": "Step 1: Ask the assistant to check the current status of your debit card (provide the card ID only if asked). Step 2: Inform the assistant that your card was stolen and you want it permanently blocked. When the assistant asks for confirmation to permanently block the card, reply affirmatively to confirm. Step 3: Ask the assistant to request a replacement debit card for you. When the assistant asks for confirmation to raise the replacement request, reply affirmatively to confirm. Step 4: Ask the assistant to verify the status of your card once more to ensure it is now blocked. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_48AEC094"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsq2cardblk5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41627"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsq2cardblk5_1",
+     "name": "block_card",
+     "arguments": {
+      "card_id": "CARD41627",
+      "reason": "stolen"
+     },
+     "compare_args": [
+      "card_id",
+      "reason"
+     ]
+    },
+    {
+     "action_id": "foreignsq2cardblk5_2",
+     "name": "raise_request",
+     "arguments": {
+      "category": "general_query",
+      "description": "Request for a replacement debit card following permanent block of stolen card CARD41627"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreignsq2cardblk5_3",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD41627"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the status of the customer's debit card, obtains explicit confirmation and permanently blocks it due to theft, obtains confirmation and raises a service request for a replacement card, and verifies the card's updated status."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

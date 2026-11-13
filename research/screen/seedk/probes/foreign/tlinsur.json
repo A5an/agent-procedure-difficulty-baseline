@@ -1,0 +1,434 @@
+[
+ {
+  "id": "foreign_tlinsur_00",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_B01FB0EC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ananya Chandrasekaran, a 36-year-old finance professional, communicates methodically, asking for account and insurance information in clear sequence before requesting auto-debit setup.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Review your savings account and insurance policy details, inquire about accepted premium payment modes, and request auto-debit registration for your insurance premium.",
+    "known_info": "You are Ananya Chandrasekaran, customer ID CUST_B01FB0EC. Do not volunteer account numbers, policy IDs, or internal codes until the assistant asks or when referencing your linked products. Your primary savings account is SB5559587918 and your insurance policy is POL172948.",
+    "unknown_info": "Your exact policy details (coverage, premium amount, due date), what payment modes are available for bancassurance policies, and how the bank sets up auto-debit.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your savings account. Do not provide the account number upfront unless asked.\nStep 2: Next, ask the assistant to check the details of your linked insurance policy.\nStep 3: Ask what payment modes are available to pay the insurance premium and whether auto-debit is supported.\nStep 4: Request to set up an auto-debit instruction for this insurance policy premium from your savings account. When the assistant summarizes the request and asks for your explicit confirmation, reply with 'Yes, please proceed'.\nFollow the steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B01FB0EC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur0_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB5559587918"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur0_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL172948"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur0_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5559587918",
+      "category": "general_query",
+      "description": "Request to set up auto-debit for insurance policy POL172948 from savings account SB5559587918"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, looks up the insurance policy details, searches the knowledge base for insurance premium payment modes, and upon receiving explicit confirmation, raises a service request to register auto-debit for the policy premium."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlinsur_01",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_2A1921A5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 46-year-old government officer from Kolkata who holds a savings account and an annual term life insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account details and insurance policy details, understand what payment modes exist for paying insurance premiums, and set up an auto-debit request so your upcoming annual premium is paid automatically from your savings account.",
+    "known_info": "You are Rajesh Kumar Sharma (customer ID CUST_2A1921A5). Do not volunteer specific account numbers, policy numbers, or internal technical terms until the assistant asks or mentions them. You know you have a savings account and a life insurance policy linked to the bank.",
+    "unknown_info": "Your policy's exact due date, premium amount, available premium payment modes, and the procedure to enable auto-debit for insurance.",
+    "task_instructions": "Step 1: Ask the assistant to view the details of your savings account.\nStep 2: After the assistant shares your account details, ask to see the details of your life insurance policy, including the premium amount and next due date.\nStep 3: Ask what payment modes are accepted for paying your insurance policy premium.\nStep 4: Ask the assistant to set up an auto-debit request so future premiums for this policy are automatically deducted from your savings account.\nStep 5: When the assistant asks for your confirmation to register the auto-debit request, explicitly confirm with 'Yes, please proceed'.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2A1921A5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur1_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8372064494"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur1_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL169512"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur1_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur1_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8372064494",
+      "category": "general_query",
+      "description": "Set up auto-debit for insurance policy POL169512 premium payment"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, checks their linked insurance policy details, queries the knowledge base for insurance payment modes, and raises a service request to register auto-debit for the policy premium only after receiving explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlinsur_02",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_0D1EC417; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Dr. Kavita Saxena, a 56-year-old college professor who holds a savings account and a health insurance policy with the bank, looking to review her policy and set up auto-pay for future premiums.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account, look up your health insurance policy details, find out what payment modes exist to pay the premium, and submit an auto-debit request so your premium is deducted automatically from your account.",
+    "known_info": "You are Dr. Kavita Saxena, customer ID CUST_0D1EC417. You have a savings account and an insurance policy. Do not volunteer account numbers or policy IDs until the assistant asks or references them.",
+    "unknown_info": "The exact policy details, upcoming premium due date, premium amount, available payment modes, and the bank's process for registering an auto-debit mandate for insurance.",
+    "task_instructions": "Step 1: Ask the assistant to check your savings account details. Step 2: Once the assistant shares your account details, ask to view the details of your linked insurance policy. Step 3: Once the policy details are provided, ask about the available payment modes for paying the insurance premium and how auto-debit works. Step 4: After the assistant explains the payment modes, ask to submit a request to set up auto-debit for your insurance premium from your savings account. When the assistant asks for your confirmation to register the request, give explicit confirmation. Step 5: After receiving the request reference, thank the assistant and conclude. Strictly follow this order and do not volunteer IDs before asked. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0D1EC417"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur2_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB1931096752"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur2_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL485435"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur2_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes auto debit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1931096752",
+      "category": "general_query",
+      "description": "Request to set up auto-debit for insurance policy POL485435 from savings account SB1931096752"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, fetches the linked insurance policy details, searches the knowledge base for insurance premium payment modes, and upon receiving customer confirmation, raises a service request to register auto-debit for the insurance policy."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlinsur_03",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_EB9282D8; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anitha Suresh, a 35-year-old shop owner from Thiruvananthapuram, who holds a savings account and a bancassurance life insurance policy.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to verify your savings account details, check your linked life insurance policy details, understand the payment modes available, and request auto-debit setup for your upcoming insurance premium.",
+    "known_info": "You are Anitha Suresh, customer already logged in (id CUST_EB9282D8). You have an active savings account and a Sentinel Life insurance policy. Do not volunteer account IDs or policy IDs until the assistant asks for them.",
+    "unknown_info": "The exact premium amount and due date on your policy, the bank's supported payment modes for insurance premiums, and how to enable auto-debit.",
+    "task_instructions": "Step 1: Ask the assistant to check the details of your savings account. Step 2: Once the account details are provided, ask the assistant to check the details of your linked life insurance policy (due date, premium amount, status). Step 3: Inquire about the accepted payment modes for paying this insurance premium and how auto-debit can be arranged. Step 4: Request the assistant to register an auto-debit request for your insurance policy premium from your savings account. When the assistant summarizes the request and asks for your explicit confirmation, confirm clearly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EB9282D8"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur3_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB5444060754"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur3_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL429441"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur3_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes auto debit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB5444060754",
+      "category": "general_query",
+      "description": "Request to set up auto-debit for insurance premium on policy POL429441 from savings account SB5444060754"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account details, fetches the linked insurance policy details, searches the knowledge base regarding premium payment modes and auto-debit setup, and submits a service request to configure auto-debit only after receiving explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlinsur_04",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_0FB19252; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Anita Chandrakant Patel, a retired school teacher from Surat who likes to keep her banking affairs organized and insists on reviewing information step-by-step before setting up any recurring payment.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, review your life insurance policy details, inquire about payment options for setting up auto-debit, and request the bank to register an auto-debit instruction for your premium.",
+    "known_info": "You are Anita Chandrakant Patel (customer ID CUST_0FB19252). You hold a savings account SB4448903624 and a life insurance policy POL288467 with Sentinel Life. Do not volunteer account or policy numbers until the assistant asks for them.",
+    "unknown_info": "Your current savings account balance, the premium schedule and details of your policy, and the specific procedure/modes to activate auto-debit for insurance premiums.",
+    "task_instructions": "Step 1: Ask the assistant to check the balance of your savings account.\nStep 2: Ask the assistant to pull up the details of your life insurance policy (if asked for the policy number, provide POL288467).\nStep 3: Ask what payment modes or options are available to automate the insurance premium debit.\nStep 4: Request to register an auto-debit instruction from your savings account to pay the insurance premium automatically. When the assistant summarizes the request and asks for your explicit confirmation, reply with 'Yes, please proceed'.\nStep 5: Acknowledge the confirmation details provided by the assistant. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_0FB19252"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4448903624"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur4_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL288467"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur4_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes auto debit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur4_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4448903624",
+      "category": "general_query",
+      "description": "Request to set up auto-debit for insurance policy POL288467 premium from savings account SB4448903624"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, retrieves details for insurance policy POL288467, searches knowledge base for insurance auto-debit payment modes, and raises a service request for auto-debit only after obtaining explicit customer confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_tlinsur_05",
+  "description": {
+   "purpose": "Account \u2192 policy details \u2192 payment modes \u2192 auto-debit request (insurance premium auto-pay)",
+   "notes": "family=tlinsur; customer_id=CUST_2A1921A5; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Sharma, a 46-year-old government officer residing in Kolkata, who holds a savings account and a life insurance policy with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account and insurance policy details, understand the available payment modes for your premium, and set up an auto-debit request to pay your upcoming insurance premium from your savings account.",
+    "known_info": "You are Rajesh Kumar Sharma, customer already logged in (id CUST_2A1921A5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account number is SB8372064494 and your insurance policy number is POL169512.",
+    "unknown_info": "The accepted payment modes for paying the insurance premium and whether auto-debit can be enabled directly or requires a service request.",
+    "task_instructions": "Step 1: Ask the assistant to check your savings account details (provide your account number only when asked). Step 2: Ask to check your insurance policy details (provide your policy number only when asked). Step 3: Ask what payment modes are available for paying your insurance premium. Step 4: Request to set up an auto-debit for your insurance premium from your savings account. When the assistant asks for your confirmation to submit the service request, confirm explicitly. Sequence is non-negotiable for you \u2014 complete each step in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2A1921A5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreigntlinsur5_0",
+     "name": "get_account_details",
+     "arguments": {
+      "account_ids": [
+       "SB8372064494"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur5_1",
+     "name": "get_insurance_details",
+     "arguments": {
+      "policy_ids": [
+       "POL169512"
+      ]
+     }
+    },
+    {
+     "action_id": "foreigntlinsur5_2",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "insurance premium payment modes"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "foreigntlinsur5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB8372064494",
+      "category": "general_query",
+      "description": "Request to set up auto-debit for insurance policy POL169512 premium from savings account SB8372064494"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect account details for SB8372064494, look up insurance policy POL169512, search the knowledge base for accepted premium payment modes, seek customer confirmation, and raise a service request to set up the insurance premium auto-debit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

@@ -1,0 +1,446 @@
+[
+ {
+  "id": "k5_sqreloc_00",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_B57F7432; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Moumita Dey, a self-employed electrician who recently relocated from Kolkata to Pune and needs her address updated, a cheque book ordered to her new address, and a prior account statement sent.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Pune. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Moumita Dey, customer already logged in (id CUST_B57F7432). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: 12 Senapati Bapat Marg, Pune, Maharashtra, 411016. Savings SB4833804334. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three, in order.",
+    "task_instructions": "Step 1: update the communication address to 12 Senapati Bapat Marg, Pune, Maharashtra, 411016 (confirm the readback). Step 2: only after the address is updated, request a cheque book on savings SB4833804334 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B57F7432"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc0_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "12 Senapati Bapat Marg",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "pincode": "411016"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc0_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB4833804334"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc0_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4833804334",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should strictly process the relocation requests in order: first updating the communication address upon confirmation, then ordering a cheque book for savings account SB4833804334 upon confirmation, and finally requesting the June 2026 account statement for SB4833804334 upon confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqreloc_01",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_B2F00955; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Krishnamurthy, a 39-year-old product manager who recently relocated from Mysuru to Bengaluru and wants her banking records, new cheque book, and past statement handled strictly in that sequence.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Bengaluru. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Anjali Krishnamurthy, customer already logged in (id CUST_B2F00955). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: Green Glen Layout, Bengaluru, Karnataka, 560103. Savings SB5992453461. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three, in order.",
+    "task_instructions": "Step 1: update the communication address to Green Glen Layout, Bengaluru, Karnataka, 560103 (confirm the readback). Step 2: only after the address is updated, request a cheque book on savings SB5992453461 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B2F00955"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc1_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "Green Glen Layout",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560103"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc1_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB5992453461"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc1_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB5992453461",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must update the customer's communication address first, order a cheque book for savings account SB5992453461 only after the address change is submitted, and finally request a duplicate statement for June 2026, adhering strictly to the customer's specified sequence."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqreloc_02",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_1DFD8130; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Gurmail Singh, a 73-year-old retired pensioner who recently relocated to Chandigarh and wants his bank records and service orders handled sequentially.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Chandigarh. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Gurmail Singh (senior citizen), customer already logged in (id CUST_1DFD8130). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: House No. 112, Sector 15-A, Chandigarh, Chandigarh, 160015. Savings account SB4299630689. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three, in order.",
+    "task_instructions": "Step 1: update the communication address to House No. 112, Sector 15-A, Chandigarh, Chandigarh, 160015 (confirm the readback). Step 2: only after the address is updated, request a cheque book on savings SB4299630689 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1DFD8130"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc2_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "House No. 112, Sector 15-A",
+      "city": "Chandigarh",
+      "state": "Chandigarh",
+      "pincode": "160015"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc2_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB4299630689"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc2_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB4299630689",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must strictly update the communication address first after confirmation, order the cheque book for account SB4299630689 only after the address request is logged, and finally request the duplicate statement for June 2026 on the same account."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqreloc_03",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_743FADAF; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 27-year-old self-employed electrician relocating from Jaipur to Bengaluru.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Bengaluru. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_743FADAF). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: 45, MG Road, Bengaluru, Karnataka, 560001. Savings account SB7185738867. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three actions, in order.",
+    "task_instructions": "Step 1: update the communication address to 45, MG Road, Bengaluru, Karnataka, 560001 (confirm the readback). Step 2: only after the address is updated, request a cheque book on savings SB7185738867 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_743FADAF"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc3_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "45, MG Road",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560001"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc3_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7185738867"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc3_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7185738867",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must strictly process the relocation requests in order: first log the communication address update after confirmation, then order the cheque book for account SB7185738867 upon confirmation, and finally submit the duplicate statement request for June 2026 after confirmation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqreloc_04",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_4346F84D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ananya Sharma, a 31-year-old shop owner who recently relocated her business and residence from New Delhi to Bengaluru and needs her bank records updated sequentially.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Bengaluru. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Ananya Sharma, customer already logged in (id CUST_4346F84D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: 12, 100 Feet Road, Indiranagar, Bengaluru, Karnataka, 560038. Savings account SB7238496934. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three requests, provided in strict sequence.",
+    "task_instructions": "Step 1: update the communication address to 12, 100 Feet Road, Indiranagar, Bengaluru, Karnataka, 560038 (confirm the readback). Step 2: only after the address update request is logged, request a cheque book on savings SB7238496934 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4346F84D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc4_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "12, 100 Feet Road, Indiranagar",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560038"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc4_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB7238496934"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc4_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB7238496934",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant updates the communication address first, then requests a new cheque book for the savings account only after confirmation, and finally requests the duplicate statement for June 2026."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_sqreloc_05",
+  "description": {
+   "purpose": "Address \u2192 cheque book \u2192 statement (strictly ordered relocation)",
+   "notes": "family=sqreloc; customer_id=CUST_071B3448; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "A 23-year-old bank professional who recently relocated from Visakhapatnam to Bengaluru and needs her banking communication address, cheque book, and statement handled in strict chronological order.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You moved to Bengaluru. The address change MUST happen before the cheque book order (the book ships to the address on file), and the statement request comes last.",
+    "known_info": "You are Sravya Rao, customer already logged in (id CUST_071B3448). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. New communication address: 12th Main Road, Indiranagar, Bengaluru, Karnataka, 560038. Savings SB6694226253. Statement period: June 2026 (2026-06-01 to 2026-06-30).",
+    "unknown_info": "Confirmations for all three, in order.",
+    "task_instructions": "Step 1: update the communication address to 12th Main Road, Indiranagar, Bengaluru, Karnataka, 560038 (confirm the readback). Step 2: only after the address is updated, request a cheque book on savings SB6694226253 \u2014 if the agent tries to order it first, refuse until the address is done. Step 3: last, request the June 2026 duplicate statement on the same account. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_071B3448"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5sqreloc5_0",
+     "name": "update_address",
+     "arguments": {
+      "address_type": "communication",
+      "line1": "12th Main Road, Indiranagar",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560038"
+     },
+     "compare_args": [
+      "line1",
+      "city",
+      "pincode"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc5_1",
+     "name": "request_cheque_book",
+     "arguments": {
+      "account_id": "SB6694226253"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    },
+    {
+     "action_id": "k5sqreloc5_2",
+     "name": "request_duplicate_statement",
+     "arguments": {
+      "account_id": "SB6694226253",
+      "from_date": "2026-06-01",
+      "to_date": "2026-06-30"
+     },
+     "compare_args": [
+      "account_id"
+     ]
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant updates the communication address, orders the cheque book for savings account SB6694226253, and requests the June 2026 duplicate statement for account SB6694226253 strictly in that sequence."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

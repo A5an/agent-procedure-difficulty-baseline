@@ -1,0 +1,472 @@
+[
+ {
+  "id": "foreign_sqfd_00",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_B26F2E6D; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 60-year-old IT Support Engineer living in Visakhapatnam, holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check savings account balance, inquire about FD rates, book a 12-month Fixed Deposit of \u20b950,000 debited from savings, and check the post-booking account balance.",
+    "known_info": "You are Suresh Kumar Reddy, customer ID CUST_B26F2E6D. You hold savings account SB8143171772. Do not volunteer account IDs or deposit details until the agent asks for them.",
+    "unknown_info": "Your current savings account balance, the bank's current FD interest rates, the new deposit details, and the post-booking balance.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account without volunteering your account ID upfront. Step 2: Once the balance is provided, ask for the current fixed deposit interest rates. Step 3: Tell the assistant you want to open a fixed deposit of \u20b950,000 for a tenure of 12 months using your savings account. Step 4: When the assistant asks for your confirmation to create the fixed deposit, explicitly confirm by agreeing to proceed. Step 5: After the deposit creation is confirmed, ask to check your savings account balance again to verify that the amount was debited. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B26F2E6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd0_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000.0,
+      "source_account": "SB8143171772",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must fetch the savings balance, retrieve current FD interest rates, ask for explicit confirmation before booking a \u20b950,000 12-month FD from account SB8143171772, and check the account balance again after creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfd_01",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_838C6CA3; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Teja Reddy, a 44-year-old college professor at University of Hyderabad. Methodical and cautious with his finances, he checks his balance and rates before making deposit investments.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, review current fixed deposit interest rates, open a new 12-month FD of \u20b91,00,000 debited from your savings account, and verify that the balance has updated accordingly.",
+    "known_info": "You are Ravi Teja Reddy, customer already logged in (id CUST_838C6CA3). Your savings account number is SB9802593184. You want to book an FD of \u20b91,00,000 for a tenure of 12 months. Do not volunteer your account ID until the agent explicitly asks for it.",
+    "unknown_info": "Current account balance, current fixed deposit interest rates, FD booking reference, and the updated post-booking balance.",
+    "task_instructions": "Step 1: Ask the agent to check the available balance in your savings account (provide the account number SB9802593184 only if asked). Step 2: Once you hear the balance, ask the agent for the bank's current fixed deposit interest rates. Step 3: Tell the agent you want to open a fixed deposit of \u20b91,00,000 for a 12-month tenure debited from your savings account. When the agent summarizes the action and asks for your confirmation, explicitly confirm to proceed. Step 4: After the FD is booked, ask the agent to check your savings account balance again to confirm the amount was debited. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_838C6CA3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9802593184"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd1_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB9802593184",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9802593184"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the customer's savings account balance, fetch fixed deposit interest rates, ask for explicit confirmation before booking the \u20b91,00,000 FD for 12 months using account SB9802593184, and re-check the account balance post-creation."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfd_02",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_671C7DCC; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "M. Venkata Rao, a 56-year-old school teacher based in Visakhapatnam who holds a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, view current fixed deposit rates, open a 12-month FD for \u20b950,000 from your savings account, and verify your remaining balance afterwards.",
+    "known_info": "You are M. Venkata Rao (customer ID CUST_671C7DCC). You have a savings account SB4342988519. Do not volunteer your account ID or other IDs unless specifically requested by the agent. You want to invest \u20b950,000 for 12 months in a fixed deposit.",
+    "unknown_info": "Your current savings account balance, current fixed deposit interest rates, and your savings account balance after the FD booking debit.",
+    "task_instructions": "Step 1: Ask the agent for the available balance in your savings account. Do not volunteer your account number unless asked. Step 2: Once the balance is provided, ask for the bank's current fixed deposit interest rates. Step 3: Tell the agent you would like to open a fixed deposit of \u20b950,000 for a tenure of 12 months using your savings account. When the agent asks for your confirmation to book the FD, explicitly confirm. Step 4: After the FD booking is confirmed, ask for your updated savings account balance to verify the debit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_671C7DCC"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4342988519"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd2_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB4342988519",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4342988519"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings account balance, retrieves the fixed deposit rate card, asks for confirmation before booking a \u20b950,000 12-month FD from account SB4342988519, books the deposit, and retrieves the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfd_03",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_BEC8FF28; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Ghosh, a 62-year-old senior citizen with a savings account holding \u20b91,80,000 who wants to check his balance, review 12-month FD rates, book a \u20b91,00,000 FD, and check his updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current savings balance, look up fixed deposit interest rates, create a 12-month FD of \u20b91,00,000 funded from savings, and check the post-booking balance.",
+    "known_info": "You are Arun Kumar Ghosh (senior citizen), customer already logged in (id CUST_BEC8FF28). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your savings account is SB7578539795.",
+    "unknown_info": "Your current savings account balance, current FD interest rate card for 12 months, and balance after FD booking.",
+    "task_instructions": "Step 1: ask for the available balance of your savings account (do not volunteer the account id unless asked). Step 2: ask for the bank's current FD interest rates for a 12-month tenure. Step 3: ask to create a 12-month Fixed Deposit of \u20b91,00,000 using your savings account as the funding source. When the agent asks for your confirmation specifying the amount and account, provide clear affirmative confirmation. Step 4: after the FD is booked, ask to check your savings account balance again to verify the funds were debited. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BEC8FF28"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7578539795"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd3_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB7578539795",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7578539795"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the customer's savings account balance, query the rate card for a 12-month FD, request explicit confirmation before calling create_fd for \u20b91,00,000 on account SB7578539795, and finally check the account balance again to show the updated funded amount."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfd_04",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_84374E05; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Savitha Gowda, a 40-year-old nurse checking her savings account balance, reviewing fixed deposit rates, opening a new fixed deposit funded from her savings, and verifying the updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current balance, check FD rates, book a 12-month fixed deposit of \u20b950,000 from savings, and verify the post-booking balance.",
+    "known_info": "You are Savitha Gowda, customer already logged in (id CUST_84374E05). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Savings account SB5382385209.",
+    "unknown_info": "The current account balance, the FD interest rate card, and the post-booking balance.",
+    "task_instructions": "Step 1: Ask for the available balance of your savings account (provide account id only if asked). Step 2: Ask for the current fixed deposit interest rates. Step 3: Ask to book a fixed deposit of \u20b950,000 for a tenure of 12 months funded from your savings account. Step 4: When the agent asks for confirmation to create the fixed deposit, explicitly confirm with yes. Step 5: Once the deposit is created, ask for the available balance of your savings account to verify the deduction. Do this strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_84374E05"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5382385209"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd4_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB5382385209",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5382385209"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, look up the fixed deposit rates, confirm details before creating a \u20b950,000 12-month fixed deposit from the savings account, execute the booking, and verify the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqfd_05",
+  "description": {
+   "purpose": "Balance \u2192 rates \u2192 create FD \u2192 balance (funded booking)",
+   "notes": "family=sqfd; customer_id=CUST_FDC897B1; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Ravi Kumar, a 46-year-old nurse living in Chennai. Straightforward, prudent with finances, and verifying account details carefully.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your savings account balance, check 12-month FD rates, book a new \u20b950,000 fixed deposit from your savings account, and verify the debited balance afterwards.",
+    "known_info": "You are Ravi Kumar, customer already logged in (id CUST_FDC897B1). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your linked savings account is SB4165566539. You plan to open a fixed deposit of \u20b950,000 for a tenure of 12 months.",
+    "unknown_info": "Your current savings balance, the bank's FD rate card for 12 months, the confirmation/ID of the newly booked FD, and your final savings balance after debit.",
+    "task_instructions": "Step 1: Ask the assistant for the current available balance of your savings account. Do not provide the account number upfront. Step 2: After receiving the balance, ask what the current fixed deposit interest rate is for a 12-month tenure. Step 3: Request to open a fixed deposit of \u20b950,000 for 12 months funded from your savings account. If the assistant asks for your confirmation with the details, reply with an explicit confirmation to proceed. Step 4: After the fixed deposit has been booked, ask for your savings account balance again to verify the funds were debited. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FDC897B1"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqfd5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4165566539"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqfd5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd5_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB4165566539",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "foreignsqfd5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4165566539"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's savings account balance, looks up the 12-month FD interest rates, obtains explicit confirmation before booking a \u20b950,000 12-month FD from savings account SB4165566539, and checks the savings balance again to verify the deduction."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

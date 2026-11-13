@@ -1,0 +1,542 @@
+[
+ {
+  "id": "k5_edgbmindchange_00",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_4385241C; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anita Kumari, an HNI IT product manager who wants to check her account balance, compare fixed deposit rates across different tenures, book an FD, and check her updated balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 36 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Anita Kumari, customer already logged in (id CUST_4385241C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b9300000; source savings SB8361713978. You consider 12 months first, then switch to 36 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 36 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 36-month rate, book the FD: \u20b9300000 for 36 months from savings SB8361713978 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4385241C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8361713978"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 300000,
+      "tenure_months": 36,
+      "source_account": "SB8361713978"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8361713978"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, looks up the FD rate for 12 months, looks up the new FD rate for 36 months upon customer modification, books the 36-month FD after confirmation, and checks the balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmindchange_01",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_58826F08; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rashmi Kalita, a 50-year-old sales executive living in Guwahati, who manages her own savings and likes to check interest rates carefully before opening a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 24 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Rashmi Kalita, customer already logged in (id CUST_58826F08). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b9100000; source savings SB9457076977. You consider 12 months first, then switch to 24 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 24 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 24-month rate, book the FD: \u20b9100000 for 24 months from savings SB9457076977 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_58826F08"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9457076977"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB9457076977",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9457076977"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the customer's savings balance, looks up the 12-month FD rate, fetches the revised 24-month FD rate upon tenure change, creates the FD for \u20b91,00,000 for 24 months from account SB9457076977 only after explicit customer confirmation, and finally verifies the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmindchange_02",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_40D23E2A; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajat Kumar Ghosh",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 36 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Rajat Kumar Ghosh, customer already logged in (id CUST_40D23E2A). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b9100000; source savings SB2468595833. You consider 12 months first, then switch to 36 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 36 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 36-month rate, book the FD: \u20b9100000 for 36 months from savings SB2468595833 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Strictly follow these steps in order. If the agent tries to combine steps or jump ahead, decline and instruct it to proceed step by step. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_40D23E2A"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2468595833"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB2468595833",
+      "tenure_months": 36
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2468595833"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the account balance, queries deposit rates for a 12-month FD, re-queries deposit rates for a 36-month FD upon tenure change, requests explicit confirmation before booking the FD for \u20b91,00,000 for 36 months from SB2468595833, books the FD, and checks the account balance again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmindchange_03",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_1B5595E7; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Singh, a 52-year-old police constable from Kolkata with an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 24 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Rajesh Kumar Singh, customer already logged in (id CUST_1B5595E7). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b9100000; source savings SB5820578732. You consider 12 months first, then switch to 24 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 24 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 24-month rate, book the FD: \u20b9100000 for 24 months from savings SB5820578732 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Insist on going step by step, in sequence. If the agent attempts to combine or reorder steps, refuse until it does them one at a time, correctly ordered. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1B5595E7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5820578732"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB5820578732",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5820578732"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the balance of savings account SB5820578732, fetch the FD rate for 12 months, fetch the updated FD rate for 24 months after the customer changes their mind, book the FD for \u20b91,00,000 for 24 months from account SB5820578732 after confirmation, and finally check the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmindchange_04",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_85174C10; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Suresh, a 35-year-old school teacher based in Bengaluru holding an active savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 24 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Anjali Suresh, customer already logged in (id CUST_85174C10). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b950,000; source savings SB5940130874. You consider 12 months first, then switch to 24 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 24 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 24-month rate, book the FD: \u20b950,000 for 24 months from savings SB5940130874 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Strictly follow this order \u2014 if the agent tries to skip or combine steps, insist on handling them one by one. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_85174C10"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5940130874"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB5940130874",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5940130874"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the customer's savings account balance, fetch the rate for a 12-month FD, fetch the rate for the revised 24-month tenure upon the customer changing their mind, book the \u20b950,000 FD for 24 months only after customer confirmation, and finally retrieve the updated savings account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbmindchange_05",
+  "description": {
+   "purpose": "Balance \u2192 rate (first tenure) \u2192 rate (revised tenure) \u2192 create FD \u2192 balance",
+   "notes": "family=edgbmindchange; customer_id=CUST_E8C0DE35; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Deshmukh, a tech startup founder in Nagpur who wants to park surplus funds from her savings account into a fixed deposit, checking her balance and comparing interest rates before booking.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You first consider a 12-month FD and ask for its rate, then change your mind to 24 months instead \u2014 the agent must re-check the rate for the NEW tenure before booking, not reuse the old one.",
+    "known_info": "You are Anjali Deshmukh, customer already logged in (id CUST_E8C0DE35). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Amount \u20b9300000; source savings SB8110184738. You consider 12 months first, then switch to 24 months.",
+    "unknown_info": "The rate for each tenure you consider, and your balance before and after booking.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: ask for today's FD rate for a 12-month tenure. Step 3: after hearing it, change your mind \u2014 say you'd rather do 24 months instead, and ask for THAT rate too. Do not let the agent just reuse the 12-month rate or tenure. Step 4: once you have the 24-month rate, book the FD: \u20b9300000 for 24 months from savings SB8110184738 (confirm before booking). Step 5: finally ask for your savings balance again to see the debit. Strictly follow this order \u2014 do not permit the agent to skip, merge, or reorder any of these steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E8C0DE35"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbmindchange5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8110184738"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbmindchange5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange5_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 300000,
+      "source_account": "SB8110184738",
+      "tenure_months": 24
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbmindchange5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8110184738"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must first check the balance of savings account SB8110184738, fetch the FD rate for 12 months, fetch the revised FD rate for 24 months upon the customer's request, seek confirmation and book the FD for \u20b93,00,000 for 24 months from SB8110184738, and finally verify the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

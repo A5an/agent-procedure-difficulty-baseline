@@ -1,0 +1,434 @@
+[
+ {
+  "id": "k5_tlgoldltv_00",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_805D3C70; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rohan Sunil Sharma, a 32-year-old school teacher based in Mumbai, looking to leverage family gold jewellery for liquidity.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 50g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Rohan Sunil Sharma, customer already logged in (id CUST_805D3C70). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 50 grams, 22 karat purity. Credit account: savings SB4570933319.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 50 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB4570933319 (id only when asked), and provide confirmation when requested. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_805D3C70"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv0_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv0_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv0_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv0_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB4570933319",
+      "category": "other",
+      "description": "Customer wants to apply for a gold loan against 50g of 22K gold, proceeds to SB4570933319"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the current 22K gold rate, calculate the maximum eligible LTV loan amount for 50 grams of 22K gold, check for available loan offers, and upon confirmation raise a service request to apply for the gold loan linked to account SB4570933319."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlgoldltv_01",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_8A8B0D44; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 36-year-old self-employed private tutor from Hyderabad who holds a savings account and fixed deposits with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 50g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Priya Sharma, customer already logged in (id CUST_8A8B0D44). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 50 grams, 22 karat purity. Credit account: savings SB3975860726.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 50 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB3975860726 (id only when asked), and confirm the request when asked. Sequence is non-negotiable \u2014 if the agent tries to skip ahead or combine steps, decline and insist on the current step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_8A8B0D44"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv1_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv1_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 50,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv1_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv1_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants to apply for a gold loan against 50g of 22K gold, proceeds to SB3975860726",
+      "category": "other",
+      "account_id": "SB3975860726"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the 22K gold rate, calculate the gold loan LTV for 50g, retrieve available loan offers, and after obtaining confirmation, raise a service request to apply for the gold loan crediting savings account SB3975860726."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlgoldltv_02",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_FA0DD97F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Meenakshi Nair, a 60-year-old homemaker and senior citizen, who is looking to leverage her personal gold jewelry to get a gold loan and methodically checks rates, loan sizing, and promotional loan offers before submitting an application.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 40g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Meenakshi Nair (senior citizen), customer already logged in (id CUST_FA0DD97F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 40 grams, 22 karat purity. Credit account: savings SB1534303587.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 40 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB1534303587 (provide the account id only when asked). Confirm clearly when asked for final confirmation. Keep strictly to this sequence without skipping ahead. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA0DD97F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv2_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv2_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv2_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv2_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1534303587",
+      "category": "other",
+      "description": "Customer wants to apply for a gold loan against 40g of 22K gold, proceeds to SB1534303587"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the 22K gold rate, calculates the maximum gold loan LTV for 40 grams, checks for loan offers, and upon receiving confirmation, raises a service request for the gold loan linked to account SB1534303587."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlgoldltv_03",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_B27FE48F; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Laxman Deshmukh, a 48-year-old IT Support Engineer living in Nagpur with an active savings account, seeking to leverage 30 grams of 22K gold jewellery to apply for a gold loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 30g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Rajesh Laxman Deshmukh, customer already logged in (id CUST_B27FE48F). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 30 grams, 22 karat purity. Credit account: savings SB1259753251.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 30 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB1259753251 (id only when asked), and give explicit confirmation when asked. The order matters \u2014 do not allow the agent to skip steps or reorder them. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B27FE48F"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv3_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv3_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 30,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv3_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv3_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB1259753251",
+      "category": "other",
+      "description": "Customer wants to apply for a gold loan against 30g of 22K gold, proceeds to SB1259753251"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the 22K gold rate, calculate the gold loan LTV for 30 grams, query loan offers, and after customer confirmation, raise a service request to log the gold loan application linked to savings account SB1259753251."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlgoldltv_04",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_3022AE3E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Menon, a detail-oriented financial analyst from Thiruvananthapuram who values methodical, step-by-step verification before committing to a loan.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 40g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Anjali Menon, customer already logged in (id CUST_3022AE3E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 40 grams, 22 karat purity. Credit account: savings SB3236888435.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 40 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB3236888435 (id only when asked), and confirm when asked. Strictly follow this sequence \u2014 if the agent attempts to skip ahead or combine steps, insist on handling the current step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3022AE3E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv4_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv4_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 40,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv4_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv4_3",
+     "name": "raise_request",
+     "arguments": {
+      "description": "Customer wants to apply for a gold loan against 40g of 22K gold, proceeds to SB3236888435",
+      "category": "other",
+      "account_id": "SB3236888435"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the 22K gold rate, calculate the gold loan LTV for 40g, check for loan offers, and after obtaining confirmation, log a service request to apply for the gold loan linked to account SB3236888435."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_tlgoldltv_05",
+  "description": {
+   "purpose": "Gold rate \u2192 LTV calc \u2192 loan offers \u2192 apply (gold loan sizing)",
+   "notes": "family=tlgoldltv; customer_id=CUST_3B6E1835; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Mishra, an IT product manager seeking to check gold rates and evaluate his borrowing capacity against gold jewelry before initiating an application.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have 30g of 22K gold and want to size a gold loan against it before applying.",
+    "known_info": "You are Rajesh Kumar Mishra, customer already logged in (id CUST_3B6E1835). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Gold: 30 grams, 22 karat purity. Credit account: savings SB2203538310.",
+    "unknown_info": "Today's gold rate, your eligible loan amount, and any personalised loan offers.",
+    "task_instructions": "Step 1: ask today's gold rate for 22 karat gold. Step 2: then ask what loan you're eligible for against 30 grams at that rate. Step 3: then ask if there are any loan offers available to you right now. Step 4: only after all three, ask the agent to log your gold loan application, proceeds to savings SB2203538310 (id only when asked), and confirm when asked. Sequence is non-negotiable for you \u2014 if the agent proposes doing things out of order, decline and restate which step comes next. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3B6E1835"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5tlgoldltv5_0",
+     "name": "get_gold_rate",
+     "arguments": {
+      "purity_karat": 22
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv5_1",
+     "name": "calculate_gold_loan_ltv",
+     "arguments": {
+      "gold_grams": 30,
+      "purity_karat": 22,
+      "gold_rate_per_gram": 5850
+     }
+    },
+    {
+     "action_id": "k5tlgoldltv5_2",
+     "name": "get_products_and_offers",
+     "arguments": {
+      "type": "loan"
+     },
+     "compare_args": [
+      "type"
+     ]
+    },
+    {
+     "action_id": "k5tlgoldltv5_3",
+     "name": "raise_request",
+     "arguments": {
+      "account_id": "SB2203538310",
+      "category": "other",
+      "description": "Customer wants to apply for a gold loan against 30g of 22K gold, proceeds to SB2203538310"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check today's gold rate for 22K gold, calculate the maximum loan eligibility based on LTV for 30g, check available loan offers, and upon confirmation, raise a service request to apply for the gold loan linked to account SB2203538310."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

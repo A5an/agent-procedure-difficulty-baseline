@@ -1,0 +1,421 @@
+[
+ {
+  "id": "foreign_sqctl_00",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_E55F74AA; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Sunita Vijay Patil, a 56-year-old self-employed plumber living in Mumbai, cautious about digital banking security and wanting tighter spending controls on her debit card.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current debit card controls, reduce the domestic online daily limit to \u20b950,000, and verify the updated limits.",
+    "known_info": "You are Sunita Vijay Patil, customer already logged in (id CUST_E55F74AA). Do not volunteer your card ID (CARD95113) or account ID (SB4634445721) until the agent specifically asks. You want to review your debit card's current transaction controls, change the domestic online daily limit to \u20b950,000 while keeping domestic online transactions enabled, and then verify the new setting.",
+    "unknown_info": "Your current configured card limits before the agent checks them, and whether the limit update took effect before verification.",
+    "task_instructions": "Step 1: Ask the agent to check the current usage limits and controls on your debit card (provide card ID CARD95113 only if specifically asked).\nStep 2: Ask the agent to update your card controls so that the domestic online daily limit is set to \u20b950,000 and domestic online transactions remain enabled. When the agent asks for your confirmation to apply this change, confirm explicitly by saying 'Yes, please proceed with updating the limit'.\nStep 3: Once the update is confirmed, ask the agent to check your card details again to verify that the domestic online limit is now \u20b950,000.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_E55F74AA"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl0_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95113"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl0_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD95113",
+      "online": {
+       "domestic": {
+        "daily_limit": 50000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl0_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD95113"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must inspect the customer's card details using get_card_details, seek explicit affirmative confirmation before updating the domestic online limit to \u20b950,000 via set_card_controls, and call get_card_details again to verify the updated controls."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqctl_01",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_FA53AEC6; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Ghosh, a 44-year-old IT Support Engineer based in Kolkata, meticulous about card security and digital payment controls.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to review the current controls on your debit card, enable international online transactions with a daily limit of \u20b950,000, and verify that the new settings are in place.",
+    "known_info": "You are Arun Kumar Ghosh, customer already logged in (id CUST_FA53AEC6). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Your debit card id is CARD76878. You wish to enable international online transactions with a daily limit of \u20b950,000.",
+    "unknown_info": "The card's current control limits and whether international online usage is currently enabled.",
+    "task_instructions": "Step 1: Ask the agent to check the current usage controls and limits on your debit card (provide card id CARD76878 only when asked). Step 2: Once the current settings are shared, ask to enable international online transactions with a daily limit of \u20b950,000 on that card (provide affirmative confirmation when the agent asks before making the change). Step 3: After the update is completed, ask the agent to verify the card controls again to ensure the change is active. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_FA53AEC6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl1_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD76878"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl1_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD76878",
+      "online": {
+       "international": {
+        "daily_limit": 50000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl1_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD76878"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must retrieve details for CARD76878, seek explicit confirmation before updating international online controls to enabled with a \u20b950,000 limit, execute set_card_controls, and then call get_card_details again to verify the updated settings."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqctl_02",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_BC6DAADD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "A self-employed carpenter from Mysuru who wants to manage his debit card limits carefully.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your debit card controls, lower the domestic online transaction daily limit, and verify that the new limit is in effect.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_BC6DAADD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Debit card CARD46395 linked to savings SB6240361279. Target change: set domestic online daily limit to 50000.",
+    "unknown_info": "Your current card limits and status before checking, and whether the limit update was applied.",
+    "task_instructions": "Step 1: ask the agent to check the current controls and limits on your debit card (card ID CARD46395, only provide the ID when asked). Step 2: only then ask to update the card controls by setting the domestic online daily limit to 50000 (confirm when asked). Step 3: after the update is completed, ask the agent to check the card details again to verify the new limit has taken effect. Strictly follow this order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BC6DAADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl2_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD46395"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl2_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD46395",
+      "online": {
+       "domestic": {
+        "daily_limit": 50000
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl2_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD46395"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must look up the card controls using get_card_details, seek confirmation before updating the domestic online limit to 50000 via set_card_controls, and call get_card_details once more to verify the change."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqctl_03",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_60314D77; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rahul Sharma, a 26-year-old software engineer based in Kanpur.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check current debit card controls, enable international online transactions with a daily limit of \u20b950,000, and verify the updated controls.",
+    "known_info": "You are Rahul Sharma, logged in with customer ID CUST_60314D77. Do not volunteer your customer ID or card ID (CARD92448) unless specifically asked. You hold a debit card linked to your savings account. You want to check its existing controls, enable international online transactions with a daily limit of \u20b950,000, and then verify the new settings.",
+    "unknown_info": "Your current card control settings and limits, and whether the updated limit is reflected.",
+    "task_instructions": "Step 1: Ask the assistant to check the current usage controls and limits on your debit card. Do not volunteer the card ID unless requested.\nStep 2: Once the assistant shares the current controls, ask to enable international online transactions on the card with a daily limit of \u20b950,000. When the assistant asks for confirmation, give clear affirmative confirmation.\nStep 3: After the update is confirmed, ask the assistant to check and verify your card controls again to ensure the change is active.\nFollow this sequence strictly. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_60314D77"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl3_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD92448"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl3_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD92448",
+      "online": {
+       "international": {
+        "daily_limit": 50000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl3_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD92448"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant retrieves the customer's card details, asks for explicit confirmation before updating the international online card controls, sets the control, and then re-checks card details to verify the updated settings."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqctl_04",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_DCCD6EFD; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar Patel, a 59-year-old IT Support Engineer who wants to review and adjust his debit card controls for international online transactions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "Check debit card controls, enable international online usage with a \u20b925,000 daily limit, and verify the updated controls.",
+    "known_info": "You are Rajesh Kumar Patel, customer already logged in (id CUST_DCCD6EFD). Do not volunteer account/card/deposit/mandate/transaction ids until the agent asks for that specific detail. Your debit card ID is CARD23435. You want to enable international online transactions with a daily limit of \u20b925,000.",
+    "unknown_info": "The current control settings on the debit card and whether the requested modifications are successfully applied.",
+    "task_instructions": "Step 1: Ask the assistant to check the current usage controls and limits on your debit card (provide card ID CARD23435 only when asked). Step 2: Once the assistant provides the current settings, ask to enable international online transactions with a daily limit of \u20b925,000. Provide clear confirmation when the assistant asks to confirm the update. Step 3: After the update is completed, ask the assistant to check and verify the card details again to confirm the new controls are active. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DCCD6EFD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl4_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD23435"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl4_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD23435",
+      "online": {
+       "international": {
+        "daily_limit": 25000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl4_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD23435"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should retrieve the customer's card details, ask for confirmation before updating the card controls to enable international online usage with a \u20b925,000 limit, and then verify the updated controls by fetching the card details again."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "foreign_sqctl_05",
+  "description": {
+   "purpose": "Check \u2192 set controls \u2192 verify (card)",
+   "notes": "family=sqctl; customer_id=CUST_4CFAB519; cond=foreign"
+  },
+  "user_scenario": {
+   "persona": "Riya Suresh Patel, a self-employed carpenter from Ahmedabad managing her debit card transaction limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check your debit card's current transaction controls, enable international online transactions with a daily limit of \u20b950,000, and verify that the updated settings have taken effect.",
+    "known_info": "You are Riya Suresh Patel, customer already logged in (id CUST_4CFAB519). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. You have a debit card linked to your savings account (card id CARD20290). You want international online transactions enabled with a daily limit of \u20b950,000.",
+    "unknown_info": "Current card control status across channels, and whether the updated limits took effect.",
+    "task_instructions": "Step 1: Ask the agent to check the current usage controls and limits on your debit card (do not mention the card ID unless asked). Step 2: After the agent reviews the current controls, ask to enable international online transactions with a daily limit of 50,000 INR. Step 3: When the agent asks for confirmation to update the card controls, give explicit affirmative confirmation. Step 4: After the update is complete, ask the agent to re-check and verify your card controls to confirm the changes are active. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_4CFAB519"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "foreignsqctl5_0",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD20290"
+      ]
+     }
+    },
+    {
+     "action_id": "foreignsqctl5_1",
+     "name": "set_card_controls",
+     "arguments": {
+      "card_id": "CARD20290",
+      "online": {
+       "international": {
+        "daily_limit": 50000,
+        "enabled": true
+       }
+      }
+     },
+     "compare_args": [
+      "card_id"
+     ]
+    },
+    {
+     "action_id": "foreignsqctl5_2",
+     "name": "get_card_details",
+     "arguments": {
+      "card_ids": [
+       "CARD20290"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the card controls using get_card_details, ask for customer confirmation before updating controls via set_card_controls, and then verify the updated controls with get_card_details."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

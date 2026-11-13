@@ -1,0 +1,518 @@
+[
+ {
+  "id": "k5_edgbfdcap_00",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_BC6DAADD; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a self-employed carpenter from Mysuru with a single savings account.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9250000 FD, but your balance won't support it. You're willing to settle for \u20b950000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Ramesh Kumar, customer already logged in (id CUST_BC6DAADD). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9250000 for 12 months, source savings SB6240361279. Fallback you'll accept: \u20b950000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 250 thousand for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b950000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_BC6DAADD"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap0_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6240361279"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap0_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap0_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap0_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "tenure_months": 12,
+      "source_account": "SB6240361279"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap0_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6240361279"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for the minimum balance policy when the requested amount exceeds the balance, fetches fixed deposit interest rates, creates an FD for the reduced amount of \u20b950,000 after explicit confirmation, and fetches the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbfdcap_01",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_2400D61E; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Anjali Venkatesh, a 23-year-old homemaker looking to park savings into a fixed deposit safely within her balance limits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9150000 FD, but your balance won't support it. You're willing to settle for \u20b950000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Anjali Venkatesh, customer already logged in (id CUST_2400D61E). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9150000 for 12 months, source savings SB4218958653. Fallback you'll accept: \u20b950000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 1.5 lakh for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b950000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_2400D61E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap1_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4218958653"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap1_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap1_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap1_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB4218958653",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap1_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB4218958653"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the savings balance, searches the knowledge base for minimum balance policies when the FD request exceeds available funds, retrieves FD rates, books the reduced FD for \u20b950,000 only after explicit confirmation, and fetches the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbfdcap_02",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_6D11E813; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rohit Sunil Patil, a 30-year-old dairy business owner from Mumbai",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9250000 FD, but your balance won't support it. You're willing to settle for \u20b950000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Rohit Sunil Patil, customer already logged in (id CUST_6D11E813). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9250000 for 12 months, source savings SB5108093114. Fallback you'll accept: \u20b950000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 250 thousand for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b950000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_6D11E813"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap2_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5108093114"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap2_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap2_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap2_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "tenure_months": 12,
+      "source_account": "SB5108093114"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap2_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5108093114"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant verifies the customer's savings account balance, searches the knowledge base for minimum balance guidelines, checks current fixed deposit rates, books a 12-month fixed deposit for \u20b950,000 from account SB5108093114 after obtaining explicit confirmation, and fetches the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbfdcap_03",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_B26F2E6D; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Suresh Kumar Reddy, a 60-year-old IT Support Engineer holding a savings account with the bank, looking to invest part of his funds into a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9500000 FD, but your balance won't support it. You're willing to settle for \u20b9100000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Suresh Kumar Reddy (senior citizen), customer already logged in (id CUST_B26F2E6D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9500000 for 12 months, source savings SB8143171772. Fallback you'll accept: \u20b9100000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 5 lakh for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b9100000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_B26F2E6D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap3_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap3_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap3_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap3_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "tenure_months": 12,
+      "source_account": "SB8143171772"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap3_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB8143171772"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the customer's savings account balance, search the knowledge base for minimum balance requirements when asked, fetch fixed deposit interest rates, seek explicit confirmation before booking the reduced \u20b91,00,000 fixed deposit, and fetch the post-creation account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbfdcap_04",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_450824C5; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 43-year-old self-employed private tutor in Kanpur who is planning his savings and wants to book a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9250000 FD, but your balance won't support it. You're willing to settle for \u20b950000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Rajesh Kumar, customer already logged in (id CUST_450824C5). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9250000 for 12 months, source savings SB3642025306. Fallback you'll accept: \u20b950000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 250 thousand for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b950000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_450824C5"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap4_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3642025306"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap4_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap4_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap4_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "tenure_months": 12,
+      "source_account": "SB3642025306"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap4_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3642025306"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should check the account balance, search the knowledge base for the minimum balance policy upon request, retrieve FD interest rates, create a 12-month FD for \u20b950,000 after explicit customer confirmation, and check the post-booking balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k5_edgbfdcap_05",
+  "description": {
+   "purpose": "Balance \u2192 KB minimum-balance policy \u2192 rates \u2192 create FD (reduced) \u2192 balance",
+   "notes": "family=edgbfdcap; customer_id=CUST_CC6347FE; cond=k5"
+  },
+  "user_scenario": {
+   "persona": "Kulwant Kaur, a 74-year-old self-employed plumber and senior citizen from Amritsar.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You initially want a \u20b9300000 FD, but your balance won't support it. You're willing to settle for \u20b950000 instead once the agent explains why, for the same 12-month tenure.",
+    "known_info": "You are Kulwant Kaur (senior citizen), customer already logged in (id CUST_CC6347FE). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. Ideal ask: \u20b9300000 for 12 months, source savings SB9495863961. Fallback you'll accept: \u20b950000 for the same tenure.",
+    "unknown_info": "Your available balance, whether there's a minimum balance you must keep, today's FD rates, and the post-booking balance.",
+    "task_instructions": "Step 1: ask for your savings balance (account id only when asked). Step 2: say you'd like to open a fixed deposit of about 3 lakh for 12 months (source account id only when asked). Step 3: when the agent points out your balance can't support that, ask whether there's a minimum balance you need to keep in the account (the agent must check the knowledge base, not memory). Step 4: then ask for today's FD rates. Step 5: agree to book \u20b950000 instead, same 12-month tenure (confirm before booking). Step 6: finally ask for your savings balance again to see the debit. Do this strictly in order \u2014 do not let the agent skip ahead or reorder the steps; if it tries, insist on the correct step first. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CC6347FE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k5edgbfdcap5_0",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9495863961"
+      ]
+     }
+    },
+    {
+     "action_id": "k5edgbfdcap5_1",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "minimum balance requirement before booking a fixed deposit"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k5edgbfdcap5_2",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap5_3",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "tenure_months": 12,
+      "source_account": "SB9495863961"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k5edgbfdcap5_4",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB9495863961"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the account balance, searches the knowledge base for minimum balance rules, fetches the current FD rates, books a reduced FD of \u20b950,000 for 12 months upon confirmation, and then retrieves the updated balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

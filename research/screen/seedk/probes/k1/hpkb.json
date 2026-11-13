@@ -1,0 +1,266 @@
+[
+ {
+  "id": "k1_hpkb_00",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_D128D61B; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar Sharma, a 76-year-old retired government clerk living in New Delhi. He is polite, speaks formally, and wants to understand bank policies before visiting a branch.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: eligibility and facilities available under doorstep banking services for senior citizens.",
+    "known_info": "You are Ramesh Kumar Sharma (senior citizen), customer already logged in (id CUST_D128D61B). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about the bank's doorstep banking services for senior citizens.",
+    "task_instructions": "Ask the agent about the eligibility and facilities available under doorstep banking services for senior citizens. The agent should answer from a knowledge search, not from memory. You are just curious and asking for general information, not booking or requesting an agent visit. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_D128D61B"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "doorstep banking services for senior citizens"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for senior citizen doorstep banking services and explain the eligibility and facilities to the customer without transferring or performing unneeded tool calls."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpkb_01",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_A88E5484; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Arjun Kumar Chatterjee, a 34-year-old hospitality staff member at The Park Hotels in Kolkata, who has an active savings account and is inquiring about banking rules.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: customer liability rules for unauthorized electronic banking transactions.",
+    "known_info": "You are Arjun Kumar Chatterjee, customer already logged in (id CUST_A88E5484). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about customer liability rules for unauthorized electronic banking transactions.",
+    "task_instructions": "Ask the agent about customer liability rules for unauthorized electronic banking transactions. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A88E5484"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "customer liability rules for unauthorized electronic banking transactions"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the bank's knowledge base for customer liability rules regarding unauthorized electronic banking transactions and inform the customer accordingly without performing any account modifications or unnecessary tool calls."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpkb_02",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_DDF6B35D; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Anjali Reddy, a 42-year-old store manager residing in Hyderabad, holding savings accounts and fixed deposits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: premature withdrawal penalty on fixed deposits.",
+    "known_info": "You are Anjali Reddy, customer already logged in (id CUST_DDF6B35D). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about premature withdrawal penalty on fixed deposits.",
+    "task_instructions": "1. Ask the assistant about premature withdrawal penalty on fixed deposits.\n2. When the assistant provides the information from the knowledge base, thank them.\n3. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_DDF6B35D"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature withdrawal penalty on fixed deposits"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the premature withdrawal penalty on fixed deposits and answers the customer's question without modifying any account or deposit."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpkb_03",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_255B60B3; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Arun Kumar Menon, a 22-year-old sales executive with fixed deposits who wants information on bank policies before making financial decisions.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: premature fixed deposit withdrawal penalty.",
+    "known_info": "You are Arun Kumar Menon, customer already logged in (id CUST_255B60B3). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about the premature fixed deposit withdrawal penalty.",
+    "task_instructions": "1. Ask the agent about premature fixed deposit withdrawal penalty.\n2. Note that you are only asking for general bank policy and not requesting to break or close any of your existing deposits.\n3. Once the agent provides the policy details from the knowledge base, acknowledge the answer.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_255B60B3"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature fixed deposit withdrawal penalty"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base for the premature fixed deposit withdrawal penalty policy and answer the customer's question without modifying or closing any linked deposits."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpkb_04",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_1297094C; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Sunita Sharma, a 54-year-old nurse residing in New Delhi, inquiring about bank deposit rules.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: premature withdrawal penalty on fixed deposits.",
+    "known_info": "You are Sunita Sharma, customer already logged in (id CUST_1297094C). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about premature withdrawal penalty on fixed deposits.",
+    "task_instructions": "1. Ask the agent about premature withdrawal penalty on fixed deposits.\n2. The agent should answer using a knowledge search rather than memory. You are just seeking information and not requesting any changes.\n3. After the agent provides the answer, acknowledge and end the conversation.\n4. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_1297094C"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb4_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature withdrawal penalty on fixed deposits"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant searches the knowledge base for the premature withdrawal penalty on fixed deposits and answers the customer accurately without performing any account lookups or modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_hpkb_05",
+  "description": {
+   "purpose": "General banking question",
+   "notes": "family=hpkb; customer_id=CUST_EA968191; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Vijay Kumar Reddy, a 78-year-old senior citizen and HNI customer seeking information on bank policies.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You have a general question: premature withdrawal penalty on fixed deposits.",
+    "known_info": "You are Vijay Kumar Reddy (senior citizen), customer already logged in (id CUST_EA968191). Do not volunteer account/card/deposit/mandate/transaction ids or internal categories until the agent asks for that specific detail. No account-specific detail is needed for this question.",
+    "unknown_info": "An answer to your question about premature withdrawal penalty on fixed deposits.",
+    "task_instructions": "Ask the agent about the premature withdrawal penalty on fixed deposits. The agent should answer from a knowledge search, not from memory. You're just curious, not asking the agent to do anything else. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_EA968191"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1hpkb5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "premature withdrawal penalty on fixed deposits"
+     },
+     "compare_args": []
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should look up the bank policy on fixed deposit premature withdrawal penalties using the knowledge base and inform the customer accurately without performing any account modifications."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]

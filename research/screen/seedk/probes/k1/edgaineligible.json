@@ -1,0 +1,464 @@
+[
+ {
+  "id": "k1_edgaineligible_00",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_3057BE82; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Rajesh Kumar, a 52-year-old software engineer inquiring about senior citizen FD benefits and booking a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You ask whether you qualify for the senior-citizen FD interest rate; you do NOT (you are 52 years old), and once that is clarified, you want a standard fixed deposit booked instead (\u20b91,00,000 for 12 months), followed by checking your updated account balance.",
+    "known_info": "You are Rajesh Kumar, logged in with customer ID CUST_3057BE82. Do not volunteer account or deposit IDs until asked. You want to open an FD of \u20b91,00,000 for a tenure of 12 months funded from your savings account SB5878256561.",
+    "unknown_info": "Whether the senior citizen deposit rate applies to you, today's standard FD rates, and your savings account balance after booking.",
+    "task_instructions": "Step 1: Ask if you are eligible for the senior citizen FD interest rate benefit on fixed deposits (the agent must check bank policy via the knowledge base and correctly inform you that you do not qualify as you are under 60 years of age). Step 2: Once the agent clarifies that you do not qualify, ask for today's standard FD interest rates. Step 3: Request to book a standard Fixed Deposit of \u20b91,00,000 for 12 months funded from your savings account SB5878256561 (reveal parameters only when asked, and provide explicit confirmation when asked before booking). Step 4: After the FD is booked, ask to check your savings account balance to verify the debit. Follow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_3057BE82"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible0_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible0_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible0_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB5878256561",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible0_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5878256561"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks knowledge base policy on senior citizen eligibility, informs the customer they do not qualify, looks up standard FD rates, books the \u20b91,00,000 FD for 12 months upon customer confirmation, and checks the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaineligible_01",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_A7AC7BD6; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Harinder Singh, a 45-year-old school teacher from Ludhiana seeking to invest surplus savings in a fixed deposit.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to know if you are eligible for senior citizen FD rates; upon learning you are not, you want to see the standard FD rates, book a 12-month FD for \u20b950,000 from your savings account, and verify your updated balance.",
+    "known_info": "You are Harinder Singh, logged in as customer CUST_A7AC7BD6. You have savings account SB2293291275. You want to invest \u20b950,000 for 12 months. Do not volunteer account numbers or specific IDs until requested.",
+    "unknown_info": "Senior citizen FD eligibility rules, current standard FD interest rates, and your account balance after the deposit is booked.",
+    "task_instructions": "Step 1: Ask if you can avail the senior citizen extra interest rate benefit on a new fixed deposit (the assistant must search the knowledge base and verify eligibility, concluding you do not qualify as you are 45 years old).\nStep 2: Once informed of your ineligibility, ask for the standard FD interest rates.\nStep 3: Request to book a fixed deposit of \u20b950,000 for 12 months using your savings account (provide details as asked and confirm when prompted).\nStep 4: Once booked, ask for your savings account balance to confirm the deduction.\nFollow these steps strictly in order. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_A7AC7BD6"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible1_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit interest rate eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible1_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible1_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB2293291275",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible1_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB2293291275"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should verify via knowledge base search that Harinder Singh is ineligible for senior citizen FD rates due to age, quote standard FD rates, create the requested \u20b950,000 12-month FD from account SB2293291275 after confirmation, and report the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaineligible_02",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_47BEFDB7; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Priya Sharma, a 23-year-old self-employed private tutor from Gurugram holding a savings account with the bank.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check if you qualify for the senior citizen preferential FD rate; since you do not qualify, you want to check standard FD rates, book a standard fixed deposit of \u20b91,50,000 for 12 months from your savings account, and verify your updated balance.",
+    "known_info": "You are Priya Sharma (customer ID CUST_47BEFDB7). You have a linked savings account. You intend to deposit \u20b91,50,000 for a 12-month tenure. Do not volunteer your account ID (SB6026675341) or transaction parameters until the assistant asks.",
+    "unknown_info": "Whether senior citizen interest benefits apply to you, today's standard fixed deposit interest rates, and your post-booking savings account balance.",
+    "task_instructions": "Step 1: Ask if you can avail the senior citizen fixed deposit rate benefit. The assistant should check bank policies/guidelines and inform you that you are not eligible as a 23-year-old.\nStep 2: After ineligibility is confirmed, ask for today's standard FD interest rates.\nStep 3: State that you want to book an FD for \u20b91,50,000 for 12 months from your savings account. Provide the account ID SB6026675341 when requested, and explicitly confirm the booking when prompted.\nStep 4: Once the FD is booked, ask for your updated savings account balance to confirm the debit.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_47BEFDB7"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible2_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen fixed deposit interest rate eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible2_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible2_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 150000,
+      "tenure_months": 12,
+      "source_account": "SB6026675341"
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible2_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB6026675341"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant verifies senior citizen FD eligibility via the knowledge base, explains the customer is ineligible, retrieves standard FD rates, books the confirmed FD upon explicit approval, and provides the updated savings balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaineligible_03",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_178AE91E; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Dr. Sunita Agarwal, a 57-year-old physician inquiring about fixed deposit interest rates and senior citizen benefits.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to check if you qualify for the senior citizen FD interest rate benefit; you do not (you are 57), so you decide to book a standard FD for \u20b91,00,000 for 12 months from your savings account and check the balance afterwards.",
+    "known_info": "You are Dr. Sunita Agarwal, customer ID CUST_178AE91E. Do not volunteer account numbers or deposit IDs until the assistant specifically asks. You want to deposit \u20b91,00,000 for a tenure of 12 months debited from your savings account (SB5241099406).",
+    "unknown_info": "Whether senior citizen FD rates apply to you at age 57, the standard FD interest rate card, and your savings account balance after booking.",
+    "task_instructions": "Step 1: Ask the assistant if you qualify for the senior citizen fixed deposit rate benefit. The assistant should check the bank policy via knowledge base and inform you that you do not qualify since you are 57 years old (minimum age is 60). Step 2: Once that is confirmed, ask for today's standard FD interest rates. Step 3: Ask to book a standard fixed deposit of \u20b91,00,000 for 12 months from your savings account. Provide the savings account ID SB5241099406 only when asked, and provide explicit confirmation when asked before booking. Step 4: After the FD is booked, ask for the available balance of your savings account to verify the debit. Proceed strictly in this order and do not allow skipping steps. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_178AE91E"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible3_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible3_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible3_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 100000,
+      "source_account": "SB5241099406",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible3_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB5241099406"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant checks the knowledge base to confirm senior citizen FD eligibility rules, explains that the customer does not qualify at age 57, looks up the current FD rate card, confirms details and books the \u20b91,00,000 12-month FD from savings SB5241099406, and finally checks the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaineligible_04",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_CDD6D1CE; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "Ramesh Kumar, a 59-year-old self-employed plumber who wants to know if he qualifies for senior citizen FD rates before booking an FD.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You want to find out if you qualify for senior citizen FD rates at age 59, learn the standard rates when told you do not qualify, open a standard fixed deposit, and verify your updated balance.",
+    "known_info": "You are Ramesh Kumar, customer ID CUST_CDD6D1CE. You are 59 years old. You want to open an FD of \u20b950,000 for 12 months using funds from your savings account. Do not volunteer account/deposit IDs until the assistant asks or it becomes necessary to specify.",
+    "unknown_info": "Eligibility age threshold for senior citizen deposit rates, current standard FD rates, and the updated savings account balance after FD creation.",
+    "task_instructions": "Step 1: Ask if you qualify for the senior citizen FD interest rate benefit since you are 59 years old. Insist the assistant verify this policy rather than guessing.\nStep 2: Once informed that you do not qualify as a senior citizen, ask for the standard fixed deposit interest rates.\nStep 3: Ask to book an FD for \u20b950,000 for a 12-month tenure from your savings account SB7846765491 (provide details as requested and provide explicit confirmation when asked before creation).\nStep 4: After the FD is created, ask to check the current balance of your savings account to verify the debit.\nEnd with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_CDD6D1CE"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible4_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible4_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible4_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 50000,
+      "source_account": "SB7846765491",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible4_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB7846765491"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant must search the knowledge base to confirm senior citizen eligibility rules, report that the 59-year-old customer is not eligible, look up standard FD rates, seek explicit confirmation before booking the FD via create_fd, and fetch the savings account balance after booking."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ },
+ {
+  "id": "k1_edgaineligible_05",
+  "description": {
+   "purpose": "Benefit check -> standard rate -> FD -> balance (senior-benefit ineligibility)",
+   "notes": "family=edgaineligible; customer_id=CUST_5DA9C637; cond=k1"
+  },
+  "user_scenario": {
+   "persona": "A 36-year-old IT Product Manager who is prudent with finances, systematically verifying eligibility for higher interest rates before booking a fixed deposit and checking her remaining balance.",
+   "instructions": {
+    "domain": "banking",
+    "reason_for_call": "You ask whether you qualify for the senior-citizen FD interest rate; you do NOT (you are 36 and not a senior citizen), and once told that, you want the standard-rate FD booked instead (\u20b93,00,000 for 12 months) and then check your account balance.",
+    "known_info": "You are Anjali Rajesh Patel, customer ID CUST_5DA9C637. Do not volunteer account/card/deposit/mandate/transaction IDs or internal categories until the agent asks for that specific detail. You want to deposit \u20b93,00,000 for a tenure of 12 months from your savings account SB3352130107.",
+    "unknown_info": "Whether the senior-citizen FD rate benefit applies to you, today's standard FD rates, and the post-booking account balance.",
+    "task_instructions": "Step 1: Ask whether you qualify for the special senior-citizen FD interest rate benefit (the assistant must check the knowledge base and tell you it does not apply since you are not a senior citizen). Step 2: Once confirmed, ask for today's standard FD interest rates. Step 3: Request to open an FD for \u20b93,00,000 for 12 months debited from your savings account SB3352130107 (provide details when asked and confirm clearly when the assistant asks for confirmation). Step 4: After the FD is created, ask for the available balance of your savings account to verify the deduction. End with ###STOP###."
+   }
+  },
+  "initial_state": {
+   "initialization_data": {
+    "agent_data": {
+     "active_customer": "CUST_5DA9C637"
+    }
+   }
+  },
+  "evaluation_criteria": {
+   "actions": [
+    {
+     "action_id": "k1edgaineligible5_0",
+     "name": "search_knowledge_base",
+     "arguments": {
+      "query": "senior citizen FD interest rate benefit eligibility"
+     },
+     "compare_args": []
+    },
+    {
+     "action_id": "k1edgaineligible5_1",
+     "name": "get_deposit_loan_rates",
+     "arguments": {
+      "product_type": "fd"
+     },
+     "compare_args": [
+      "product_type"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible5_2",
+     "name": "create_fd",
+     "arguments": {
+      "principal_amount": 300000,
+      "source_account": "SB3352130107",
+      "tenure_months": 12
+     },
+     "compare_args": [
+      "principal_amount",
+      "tenure_months",
+      "source_account"
+     ]
+    },
+    {
+     "action_id": "k1edgaineligible5_3",
+     "name": "get_account_balance",
+     "arguments": {
+      "account_ids": [
+       "SB3352130107"
+      ]
+     }
+    }
+   ],
+   "communicate_info": [],
+   "nl_assertions": [
+    "The assistant should search the knowledge base regarding senior citizen FD eligibility, inform the customer they do not qualify, look up the standard FD rates, book the requested 12-month \u20b93,00,000 FD from account SB3352130107 after explicit confirmation, and retrieve the updated account balance."
+   ],
+   "reward_basis": [
+    "ACTION",
+    "DB"
+   ]
+  }
+ }
+]
