@@ -34,6 +34,10 @@ def tasks_for(which):
     if which == "real":
         allt = {t["id"]: t for t in load_tasks()}
         return [allt[i] for f in sorted(SEL["families"]) for i in SEL["families"][f]["eval_tasks"]]
+    if which in ("new", "newseed"):  # E3-B (../e3_more_tasks): unused tasks; "newseed" = own-family seeds, secondary
+        allt = {t["id"]: t for t in load_tasks()}
+        sel = json.load(open(SCR / "e3_more_tasks" / "new_tasks.json"))
+        return [allt[x["id"]] for x in sel if x["seed_own"] == (which == "newseed")]
     if which == "k0": return json.load(open(SCR / "tib" / "probes_v2.json")) + json.load(open(SCR / "combo_rep" / "probes_doc.json"))
     if which == "k2": return json.load(open(SCR / "tib" / "seeded" / "probes.json")) + json.load(open(SCR / "combo_rep" / "probes_seeded.json"))
     d = SCR / "seedk" / "probes" / which
